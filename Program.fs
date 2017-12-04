@@ -1,4 +1,5 @@
 ﻿open System
+open System.Linq
 open System.IO
 
 module Day1 =
@@ -17,19 +18,29 @@ module Day1 =
 
 module Day2 = 
     let parseLine (line : string) = line.Split() |> Seq.map int
-    let getLargestDiff ints = ((Seq.max ints) - (Seq.min ints));
 
-    let solve input = 
-        input 
-        |> Seq.map parseLine 
-        |> Seq.map getLargestDiff 
-        |> Seq.sum
+    let getLargestDiff ints = ((Seq.max ints) - (Seq.min ints));
+    let doesIntersect (a : 'a seq) (b : 'a seq) = a.Intersect(b).Any()
+    let isValidDivisor ints i = 
+        ints 
+        |> Seq.map ((*) i)
+        |> doesIntersect ints
+
+    let getDivisor ints = 
+        [2 .. (Seq.max ints)]
+        |> Seq.filter (isValidDivisor ints)
+        |> Seq.head
+
+    let solve input computeLineResult = input |> Seq.map parseLine |> Seq.sumBy computeLineResult 
+    let solvePart1 input = solve input getLargestDiff
+    let solvePart2 input = solve input getDivisor
 
 let getSolver problemName = 
     match problemName with
         | "Day1.1" -> Some Day1.solvePart1
         | "Day1.2" -> Some Day1.solvePart2
-        | "Day2.1" -> Some Day2.solve
+        | "Day2.1" -> Some Day2.solvePart1
+        | "Day2.2" -> Some Day2.solvePart2
         | _ -> None
 
 let runSolver (problem: string) (input: string seq) = 
