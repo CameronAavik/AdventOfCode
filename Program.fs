@@ -36,13 +36,44 @@ module Day2 =
     let solvePart2 input = solve input getDivisor
 
 module Day3 = 
-    let solve (input : string seq) = 
+    let solvePart1 input = 
         let target = int (Seq.head input)
         let ringNumber = (target |> float |> Math.Sqrt |> Math.Ceiling |> int) / 2
         let ringEnd = (int (Math.Pow(float ringNumber * 2.0, 2.0))) + 1
         let centers = [1..2..9] |> Seq.map (fun i -> ringEnd - i * ringNumber)
         let minDistanceFromCenter = centers |> Seq.map (fun c -> Math.Abs(target - c)) |> Seq.min
         minDistanceFromCenter + ringNumber
+        
+    let getNextGrid grid posMap (newX, newY) =
+        let newValue = 
+            [(-1, -1); (-1, 0); (-1, 1); (0, -1); (0, 1); (1, -1); (1, 0); (1, 1)]
+            |> Seq.map (fun (x, y) -> (newX + x, newY + y))
+            |> Seq.filter (fun pos -> Map.containsKey pos posMap) 
+            |> Seq.map (fun pos -> List.item (Map.find pos posMap) grid)
+            |> Seq.sum
+        List.append grid [newValue]
+
+    let getNextPos (x, y) = 
+        if (y < 0) && (x <= -y) && (y <= x) then (x + 1, y)
+        elif (x > 0) && (y < x) then (x, y + 1)
+        elif (y > 0) && (-x < y) then (x - 1, y)
+        else (x, y - 1)
+            
+
+    let rec buildGrid grid maxDepth posMap newPos = 
+        let newGrid = getNextGrid grid posMap newPos
+        let newElement = (List.last newGrid)
+        if newElement > maxDepth then newElement 
+        else
+            let newPosMap = posMap.Add(newPos, newGrid.Length - 1)
+            let nextPos = getNextPos newPos
+            buildGrid newGrid maxDepth newPosMap nextPos
+
+    let solvePart2 input = 
+        let target = int (Seq.head input)
+        let posMap = Map.empty.Add((0, 0), 0).Add((1, 0), 1)
+        buildGrid [ 1; 1 ] target posMap (1, 1)
+        
 
 let getSolver problemName = 
     match problemName with
@@ -50,7 +81,8 @@ let getSolver problemName =
         | "Day1.2" -> Some Day1.solvePart2
         | "Day2.1" -> Some Day2.solvePart1
         | "Day2.2" -> Some Day2.solvePart2
-        | "Day3.1" -> Some Day3.solve
+        | "Day3.1" -> Some Day3.solvePart1
+        | "Day3.2" -> Some Day3.solvePart2
         | _ -> None
 
 let runSolver (problem: string) (input: string seq) = 
