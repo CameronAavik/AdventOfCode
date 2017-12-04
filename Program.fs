@@ -7,7 +7,6 @@ module Day1 =
         |> Seq.filter (fun (a, b) -> a = b) 
         |> Seq.sumBy (fun (a, b) -> int a - int '0')
 
-
 let runSolver (argv : string array) = 
     match argv.[0] with
      | "Day1" -> printfn "%i" (Day1.solve argv.[1])
@@ -18,9 +17,3 @@ let main argv =
     let result = runSolver argv
     Console.ReadKey() |> ignore
     0
-
-
-
-
-
-    
