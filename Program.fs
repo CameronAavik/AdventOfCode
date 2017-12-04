@@ -73,6 +73,20 @@ module Day3 =
         let target = int (Seq.head input)
         let posMap = Map.empty.Add((0, 0), 0).Add((1, 0), 1)
         buildGrid [ 1; 1 ] target posMap (1, 1)
+
+module Day4 = 
+    let isUnique sequence = (sequence |> Seq.distinct |> Seq.length) = (sequence |> Seq.length)
+    let sortedString (str : string) = str |> Seq.sort |> String.Concat
+
+    let solve mapper input = 
+        input 
+        |> Seq.map (fun (line : string) -> line.Split())
+        |> Seq.map mapper
+        |> Seq.filter isUnique 
+        |> Seq.length
+
+    let solvePart1 = solve id
+    let solvePart2 = solve (Seq.map sortedString)
         
 
 let getSolver problemName = 
@@ -83,6 +97,8 @@ let getSolver problemName =
         | "Day2.2" -> Some Day2.solvePart2
         | "Day3.1" -> Some Day3.solvePart1
         | "Day3.2" -> Some Day3.solvePart2
+        | "Day4.1" -> Some Day4.solvePart1
+        | "Day4.2" -> Some Day4.solvePart2
         | _ -> None
 
 let runSolver (problem: string) (input: string seq) = 
