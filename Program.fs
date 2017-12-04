@@ -35,12 +35,22 @@ module Day2 =
     let solvePart1 input = solve input getLargestDiff
     let solvePart2 input = solve input getDivisor
 
+module Day3 = 
+    let solve (input : string seq) = 
+        let target = int (Seq.head input)
+        let ringNumber = (target |> float |> Math.Sqrt |> Math.Ceiling |> int) / 2
+        let ringEnd = (int (Math.Pow(float ringNumber * 2.0, 2.0))) + 1
+        let centers = [1..2..9] |> Seq.map (fun i -> ringEnd - i * ringNumber)
+        let minDistanceFromCenter = centers |> Seq.map (fun c -> Math.Abs(target - c)) |> Seq.min
+        minDistanceFromCenter + ringNumber
+
 let getSolver problemName = 
     match problemName with
         | "Day1.1" -> Some Day1.solvePart1
         | "Day1.2" -> Some Day1.solvePart2
         | "Day2.1" -> Some Day2.solvePart1
         | "Day2.2" -> Some Day2.solvePart2
+        | "Day3.1" -> Some Day3.solve
         | _ -> None
 
 let runSolver (problem: string) (input: string seq) = 
