@@ -2,92 +2,82 @@
 open System.Linq
 open System.IO
 
+module Utils = 
+    let getLine = Seq.head
+    let getNumber = getLine >> int
+    let strSplit (str : string) = str.Split()
+    let strToInts = strSplit >> Seq.map int
+    let square x = x * x
+    let charToInt c = int c - int '0'
+
 module Day1 =
-    let solve input windowSize = 
-        let inputStr = Seq.head input
-        Seq.append inputStr inputStr
+    let solve' input windowSize = 
+        Seq.append input input
         |> Seq.windowed windowSize
-        |> Seq.take (Seq.length inputStr)
+        |> Seq.take (Seq.length input)
         |> Seq.filter (fun w -> Seq.head w = Seq.last w)
-        |> Seq.sumBy (fun w -> int (Seq.head w) - int '0')
+        |> Seq.sumBy (Seq.head >> Utils.charToInt)
+    let solve input = solve' (Utils.getLine input)
 
     let solvePart1 input = solve input 2
-    let solvePart2 input = 
-        let length = Seq.head input |> Seq.length
-        solve input ((length / 2) + 1)
+    let getInputLength = Utils.getLine >> Seq.length
+    let solvePart2 input = solve input ((getInputLength input / 2) + 1)
 
 module Day2 = 
-    let parseLine (line : string) = line.Split() |> Seq.map int
+    let getLargestDiff ints = (Seq.max ints) - (Seq.min ints)
+    let isValidDivisor ints i = (Seq.map ((*) i) ints).Intersect(ints).Any()
+    let getDivisor ints = [2 .. (Seq.max ints)] |> Seq.find (isValidDivisor ints)
 
-    let getLargestDiff ints = ((Seq.max ints) - (Seq.min ints));
-    let doesIntersect (a : 'a seq) (b : 'a seq) = a.Intersect(b).Any()
-    let isValidDivisor ints i = 
-        ints 
-        |> Seq.map ((*) i)
-        |> doesIntersect ints
-
-    let getDivisor ints = 
-        [2 .. (Seq.max ints)]
-        |> Seq.filter (isValidDivisor ints)
-        |> Seq.head
-
-    let solve input computeLineResult = input |> Seq.map parseLine |> Seq.sumBy computeLineResult 
-    let solvePart1 input = solve input getLargestDiff
-    let solvePart2 input = solve input getDivisor
+    let solve computeLineResult = Seq.sumBy (Utils.strToInts >> computeLineResult)
+    let solvePart1 = solve getLargestDiff
+    let solvePart2 = solve getDivisor
 
 module Day3 = 
     let solvePart1 input = 
-        let target = int (Seq.head input)
-        let ringNumber = (target |> float |> Math.Sqrt |> Math.Ceiling |> int) / 2
-        let ringEnd = (int (Math.Pow(float ringNumber * 2.0, 2.0))) + 1
-        let centers = [1..2..9] |> Seq.map (fun i -> ringEnd - i * ringNumber)
-        let minDistanceFromCenter = centers |> Seq.map (fun c -> Math.Abs(target - c)) |> Seq.min
-        minDistanceFromCenter + ringNumber
+        let target = Utils.getNumber input
+        let ringNumber = target |> float |> sqrt |> ceil |> int |> (fun x -> x / 2)
+        let ringEnd = ringNumber * 2 |> Utils.square |> (+) 1
+        [1 ; 3 ; 5 ; 7] 
+        |> Seq.map (fun i -> abs (target - (ringEnd - i * ringNumber)) + ringNumber) 
+        |> Seq.min 
         
-    let getNextGrid grid posMap (newX, newY) =
-        let newValue = 
-            [(-1, -1); (-1, 0); (-1, 1); (0, -1); (0, 1); (1, -1); (1, 0); (1, 1)]
-            |> Seq.map (fun (x, y) -> (newX + x, newY + y))
-            |> Seq.filter (fun pos -> Map.containsKey pos posMap) 
-            |> Seq.map (fun pos -> List.item (Map.find pos posMap) grid)
-            |> Seq.sum
-        List.append grid [newValue]
+    let getNextValue grid posMap (newX, newY) =
+        [(-1, -1); (-1, 0); (-1, 1); (0, -1); (0, 1); (1, -1); (1, 0); (1, 1)]
+        |> Seq.map (fun (x, y) -> (newX + x, newY + y))
+        |> Seq.filter (fun pos -> Map.containsKey pos posMap) 
+        |> Seq.sumBy (fun pos -> List.item (Map.find pos posMap) grid)
 
     let getNextPos (x, y) = 
-        if (y < 0) && (x <= -y) && (y <= x) then (x + 1, y)
+        if (y <= 0) && (x <= -y) && (y <= x) then (x + 1, y)
         elif (x > 0) && (y < x) then (x, y + 1)
         elif (y > 0) && (-x < y) then (x - 1, y)
         else (x, y - 1)
             
-
     let rec buildGrid grid maxDepth posMap newPos = 
-        let newGrid = getNextGrid grid posMap newPos
-        let newElement = (List.last newGrid)
-        if newElement > maxDepth then newElement 
-        else
-            let newPosMap = posMap.Add(newPos, newGrid.Length - 1)
-            let nextPos = getNextPos newPos
-            buildGrid newGrid maxDepth newPosMap nextPos
+        let newValue = getNextValue grid posMap newPos
+        if newValue > maxDepth then newValue 
+        else buildGrid (grid @ [ newValue ]) maxDepth (posMap.Add(newPos, grid.Length)) (getNextPos newPos)
 
-    let solvePart2 input = 
-        let target = int (Seq.head input)
-        let posMap = Map.empty.Add((0, 0), 0).Add((1, 0), 1)
-        buildGrid [ 1; 1 ] target posMap (1, 1)
+    let solvePart2 input = buildGrid [ 1 ] (Utils.getNumber input) (Map.empty.Add((0, 0), 0)) (1, 0)
 
 module Day4 = 
     let isUnique sequence = (sequence |> Seq.distinct |> Seq.length) = (sequence |> Seq.length)
     let sortedString (str : string) = str |> Seq.sort |> String.Concat
-
-    let solve mapper input = 
-        input 
-        |> Seq.map (fun (line : string) -> line.Split())
-        |> Seq.map mapper
-        |> Seq.filter isUnique 
-        |> Seq.length
-
+    let solve mapper = Seq.filter (Utils.strSplit >> mapper >> isUnique) >> Seq.length
     let solvePart1 = solve id
     let solvePart2 = solve (Seq.map sortedString)
-        
+
+module Day5 = 
+    let rec solve' currentPosition increment maze total = 
+        if currentPosition < 0 || currentPosition >= (Array.length maze) then total
+        else
+            let currentOffset = Array.get maze currentPosition
+            maze.[currentPosition] <- increment currentOffset
+            solve' (currentOffset + currentPosition) increment maze (total + 1)
+
+    let solve increment input = solve' 0 increment (Seq.map int input |> Seq.toArray) 0
+    let solvePart1 = solve ((+) 1)
+    let solvePart2 = solve (fun x -> if x >= 3 then (x - 1) else (x + 1))
 
 let getSolver problemName = 
     match problemName with
@@ -99,6 +89,8 @@ let getSolver problemName =
         | "Day3.2" -> Some Day3.solvePart2
         | "Day4.1" -> Some Day4.solvePart1
         | "Day4.2" -> Some Day4.solvePart2
+        | "Day5.1" -> Some Day5.solvePart1
+        | "Day5.2" -> Some Day5.solvePart2
         | _ -> None
 
 let runSolver (problem: string) (input: string seq) = 
