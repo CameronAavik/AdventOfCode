@@ -97,6 +97,35 @@ module Day6 =
     let solvePart1 = solve Map.empty 0 >> fst >> Map.count
     let solvePart2 = solve Map.empty 0 >> (fun (seen, banks) -> (Map.count seen) - (Map.find (serialiseBanks banks) seen))
 
+module Day7 =
+    let parseLine (tokens : string array) = 
+        (tokens.[0], (tokens.[1].Trim('(',')') |> int, if Array.length tokens = 2 then Array.empty else tokens.[3..] |> Array.map (fun c -> c.TrimEnd(','))))
+
+    let rec findRoot tower current = 
+        match tower |> Seq.tryFind (fun (_, (_, children)) -> Array.contains current children) with
+        | None -> current
+        | Some (node, _) -> findRoot tower node
+
+    let rec getWeight tower node = 
+        let data = Map.find node tower
+        (fst data) + (Array.sumBy (getWeight tower) (snd data))
+
+    let getChildrenWeights tower = 
+        Seq.map (fun c -> (getWeight tower c, Map.find c tower |> fst)) 
+        >> Seq.groupBy fst 
+        >> Seq.sortByDescending (fun (k, g) -> Seq.length g) 
+        >> Seq.toArray
+
+    let getMissingWeight tower = 
+        let weightMap = tower |> Map.map (fun k v -> getChildrenWeights tower (snd v))
+        let programsWithTwoWeights = weightMap |> Map.filter (fun k v -> (Array.length v) = 2)
+        let adjustments = programsWithTwoWeights |> Map.map (fun k v -> (snd v.[1] |> Seq.head |> snd) + (fst v.[0]) - (fst v.[1]))
+        adjustments |> Seq.sortBy (fun kv -> kv.Value) |> Seq.head |> (fun kv -> kv.Value)
+
+    let parse = Seq.map (split >> parseLine)
+    let solvePart1 tower = Seq.head tower |> fst |> findRoot tower
+    let solvePart2 tower = Map.ofSeq tower |> getMissingWeight
+
 let runSolver' parse solvePart1 solvePart2 input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
     printfn "Part 1: %A (%fms)" (solvePart1 (parse input)) sw.Elapsed.TotalMilliseconds
@@ -111,6 +140,7 @@ let runSolver problemName =
         | "Day4" -> runSolver' Day4.parse Day4.solvePart1 Day4.solvePart2
         | "Day5" -> runSolver' Day5.parse Day5.solvePart1 Day5.solvePart2
         | "Day6" -> runSolver' Day6.parse Day6.solvePart1 Day6.solvePart2
+        | "Day7" -> runSolver' Day7.parse Day7.solvePart1 Day7.solvePart2
         | _ -> (fun _ -> printfn "Invalid Problem: %s" problemName)
 
 [<EntryPoint>]
