@@ -126,6 +126,24 @@ module Day7 =
     let solvePart1 tower = Seq.head tower |> fst |> findRoot tower
     let solvePart2 tower = Map.ofSeq tower |> getMissingWeight
 
+module Day8 =
+    let parseIncOrDec = function | "inc" -> (+) | "dec" -> (-) | _ -> (fun _ x -> x)
+    let parseOperator = function | ">" -> (>) | "<" -> (<) | ">=" -> (>=) | "<=" -> (<=) | "==" -> (=) | "!=" -> (<>) | _ -> (fun _ _ -> false)
+    let parseLine (tokens : string array) = 
+        (tokens.[0], (parseIncOrDec tokens.[1]) >< (int tokens.[2]), tokens.[4], (parseOperator tokens.[5]) >< (int tokens.[6]))
+
+    let getOrZero map key = if Map.containsKey key map then Map.find key map else 0
+    let simulate (var1, incOrDec, var2, passesComparisonCheck) vars = 
+        let val1, val2 = getOrZero vars var1, getOrZero vars var2
+        if passesComparisonCheck val2 then Map.add var1 (incOrDec val1) vars else vars
+    let maxVar = Map.toSeq >> Seq.map snd >> Seq.max
+
+    let parse = Seq.map (split >> parseLine)
+    let solve folder program = Seq.fold (fun (vars, acc) insn -> simulate insn vars |> (folder acc)) (Map.empty, 0) program |> snd
+    let solvePart1 = solve (fun _ vars -> (vars, maxVar vars))
+    let solvePart2 = solve (fun acc vars -> (vars, max (maxVar vars) acc))
+
+
 let runSolver' parse solvePart1 solvePart2 input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
     printfn "Part 1: %A (%fms)" (solvePart1 (parse input)) sw.Elapsed.TotalMilliseconds
@@ -141,6 +159,7 @@ let runSolver problemName =
         | "Day5" -> runSolver' Day5.parse Day5.solvePart1 Day5.solvePart2
         | "Day6" -> runSolver' Day6.parse Day6.solvePart1 Day6.solvePart2
         | "Day7" -> runSolver' Day7.parse Day7.solvePart1 Day7.solvePart2
+        | "Day8" -> runSolver' Day8.parse Day8.solvePart1 Day8.solvePart2
         | _ -> (fun _ -> printfn "Invalid Problem: %s" problemName)
 
 [<EntryPoint>]
