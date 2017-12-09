@@ -146,16 +146,23 @@ module Day8 =
 module Day9 = 
     type GarbageState = NotGarbage | Garbage | Cancelled
     type State = {level: int; state: GarbageState}
-    let levelDiff = function | '{' -> 1 | '}' -> -1 | _ -> 0
+
+    let stepNotGarbage level = function
+        | '{' -> {level = level + 1; state=NotGarbage}
+        | '}' -> {level = level - 1; state=NotGarbage}
+        | '<' -> {level = level; state=Garbage}
+        | _ -> {level = level; state=NotGarbage}; 
+
     let step' {level=level; state=state} nextChar =
         match state with
-        | Garbage -> {level=level; state = match nextChar with | '!' -> Cancelled | '>' -> NotGarbage | _ -> Garbage}
-        | Cancelled -> {level=level; state=Garbage}
-        | NotGarbage -> {level=level + (levelDiff nextChar); state = match nextChar with | '<' -> Garbage | _ -> NotGarbage}
-    let step (count, state, countDiff) nextChar = (count + (countDiff state nextChar), step' state nextChar, countDiff)
+        | Garbage -> {level = level; state = match nextChar with | '!' -> Cancelled | '>' -> NotGarbage | _ -> Garbage}
+        | Cancelled -> {level = level; state = Garbage}
+        | NotGarbage -> stepNotGarbage level nextChar
+
+    let step countDiff (count, state) nextChar = (count + (countDiff state nextChar), step' state nextChar)
 
     let parse = Seq.head
-    let solve countDiff = Seq.fold step (0, {level=0; state=NotGarbage}, countDiff) >> (fun (c, _, _) -> c)
+    let solve countDiff = Seq.fold (step countDiff) (0, {level=0; state=NotGarbage}) >> fst
     let solvePart1 = solve (fun state c -> (if state.state = NotGarbage && c = '}' then state.level else 0))
     let solvePart2 = solve (fun state c -> (if state.state = Garbage && c <> '!' && c <> '>' then 1 else 0))
 
