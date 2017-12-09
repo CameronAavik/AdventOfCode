@@ -144,23 +144,20 @@ module Day8 =
     let solvePart2 = solve (fun acc vars -> (vars, max (maxVar vars) acc))
 
 module Day9 = 
+    type GarbageState = NotGarbage | Garbage | Cancelled
+    type State = {level: int; state: GarbageState}
     let levelDiff = function | '{' -> 1 | '}' -> -1 | _ -> 0
-    let step' (level, isGarbage, isCancelled) nextChar =
-        if isGarbage then 
-            if isCancelled then (level, true, false)
-            else (level, nextChar <> '>', nextChar = '!')
-        else (level + (levelDiff nextChar), nextChar = '<', false)
-
-    let step (count, level, isGarbage, isCancelled, countDiff) nextChar =
-        let newCount = count + (countDiff level isGarbage isCancelled nextChar)
-        let (nextLevel, isNextGarbage, isNextCancelled) = step' (level, isGarbage, isCancelled) nextChar
-        (newCount, nextLevel, isNextGarbage, isNextCancelled, countDiff)
+    let step' {level=level; state=state} nextChar =
+        match state with
+        | Garbage -> {level=level; state = match nextChar with | '!' -> Cancelled | '>' -> NotGarbage | _ -> Garbage}
+        | Cancelled -> {level=level; state=Garbage}
+        | NotGarbage -> {level=level + (levelDiff nextChar); state = match nextChar with | '<' -> Garbage | _ -> NotGarbage}
+    let step (count, state, countDiff) nextChar = (count + (countDiff state nextChar), step' state nextChar, countDiff)
 
     let parse = Seq.head
-    let solve countDiff = Seq.fold step (0, 0, false, false, countDiff) >> (fun (c, _, _, _, _) -> c)
-    let solvePart1 = solve (fun level isGarbage _ c -> (if (not isGarbage) && c = '}' then level else 0))
-    let solvePart2 = solve (fun _ isGarbage isCancelled c -> (if isGarbage && (not isCancelled) && c <> '!' && c <> '>' then 1 else 0))
-            
+    let solve countDiff = Seq.fold step (0, {level=0; state=NotGarbage}, countDiff) >> (fun (c, _, _) -> c)
+    let solvePart1 = solve (fun state c -> (if state.state = NotGarbage && c = '}' then state.level else 0))
+    let solvePart2 = solve (fun state c -> (if state.state = Garbage && c <> '!' && c <> '>' then 1 else 0))
 
 let runSolver' parse solvePart1 solvePart2 input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
