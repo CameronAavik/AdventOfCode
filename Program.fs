@@ -147,17 +147,15 @@ module Day9 =
     type GarbageState = NotGarbage | Garbage | Cancelled
     type State = {level: int; state: GarbageState}
 
-    let stepNotGarbage level = function
-        | '{' -> {level = level + 1; state=NotGarbage}
-        | '}' -> {level = level - 1; state=NotGarbage}
-        | '<' -> {level = level; state=Garbage}
-        | _ -> {level = level; state=NotGarbage}; 
-
-    let step' {level=level; state=state} nextChar =
-        match state with
-        | Garbage -> {level = level; state = match nextChar with | '!' -> Cancelled | '>' -> NotGarbage | _ -> Garbage}
-        | Cancelled -> {level = level; state = Garbage}
-        | NotGarbage -> stepNotGarbage level nextChar
+    let step' current nextChar =
+        match current.state with
+        | Garbage -> {current with state = match nextChar with | '!' -> Cancelled | '>' -> NotGarbage | _ -> Garbage}
+        | Cancelled -> {current with state = Garbage}
+        | NotGarbage -> match nextChar with
+                        | '{' -> {current with level = current.level + 1}
+                        | '}' -> {current with level = current.level - 1}
+                        | '<' -> {current with state = Garbage}
+                        | _ -> current;
 
     let step countDiff (count, state) nextChar = (count + (countDiff state nextChar), step' state nextChar)
 
@@ -186,7 +184,7 @@ let runSolver problemName =
         | _ -> (fun _ -> printfn "Invalid Problem: %s" problemName)
 
 [<EntryPoint>]
-let main argv = 
+let main argv =
     let run = argv.[0] |> runSolver
     let result = argv.[1] |> File.ReadLines |> run
     Console.ReadKey() |> ignore
