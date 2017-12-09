@@ -145,23 +145,22 @@ module Day8 =
 
 module Day9 = 
     type GarbageState = NotGarbage | Garbage | Cancelled
-    type State = {level: int; state: GarbageState; count: int}
+    type State = {level: int; state: GarbageState; score: int; garbage: int }
 
-    let step countDiff current nextChar =
-        let next = {current with count = current.count + (countDiff current nextChar)}
-        match current.state with
-        | Garbage -> {next with state = match nextChar with | '!' -> Cancelled | '>' -> NotGarbage | _ -> Garbage}
-        | Cancelled -> {next with state = Garbage}
-        | NotGarbage -> match nextChar with
-                        | '{' -> {next with level = current.level + 1}
-                        | '}' -> {next with level = current.level - 1}
-                        | '<' -> {next with state = Garbage}
-                        | _ -> next;
+    let step current nextChar =
+        match (current.state, nextChar) with
+        | (Garbage, '!') -> {current with state = Cancelled}
+        | (Garbage, '>') -> {current with state = NotGarbage} 
+        | (Garbage, _)   -> {current with state = Garbage; garbage = current.garbage + 1}
+        | (Cancelled, _) | (NotGarbage, '<') -> {current with state = Garbage}
+        | (NotGarbage, '{') -> {current with level = current.level + 1}
+        | (NotGarbage, '}') -> {current with level = current.level - 1; score = current.score + current.level}
+        | _ -> current;
 
     let parse = Seq.head
-    let solve countDiff = Seq.fold (step countDiff) {level=0; state=NotGarbage; count=0} >> (fun c -> c.count)
-    let solvePart1 = solve (fun state c -> (if state.state = NotGarbage && c = '}' then state.level else 0))
-    let solvePart2 = solve (fun state c -> (if state.state = Garbage && c <> '!' && c <> '>' then 1 else 0))
+    let solve = Seq.fold step {level=0; state=NotGarbage; score=0; garbage=0}
+    let solvePart1 = solve >> (fun state -> state.score)
+    let solvePart2 = solve >> (fun state -> state.garbage)
 
 let runSolver' parse solvePart1 solvePart2 input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
