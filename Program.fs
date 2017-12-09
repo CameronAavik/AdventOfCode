@@ -151,7 +151,7 @@ module Day9 =
         match (current.state, nextChar) with
         | (Garbage, '!') -> {current with state = Cancelled}
         | (Garbage, '>') -> {current with state = NotGarbage} 
-        | (Garbage, _)   -> {current with state = Garbage; garbage = current.garbage + 1}
+        | (Garbage, _)   -> {current with garbage = current.garbage + 1}
         | (Cancelled, _) | (NotGarbage, '<') -> {current with state = Garbage}
         | (NotGarbage, '{') -> {current with level = current.level + 1}
         | (NotGarbage, '}') -> {current with level = current.level - 1; score = current.score + current.level}
