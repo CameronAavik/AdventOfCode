@@ -5,6 +5,8 @@ open System.IO
 let split (str : string) = str.Split()
 let (><) f a b = f b a
 
+type Day<'a, 'b, 'c> = {parse: string seq -> 'a; solvePart1: 'a -> 'b; solvePart2: 'a -> 'c}
+
 module Day1 =
     let solve captcha windowSize = 
         Seq.append captcha captcha
@@ -12,10 +14,10 @@ module Day1 =
         |> Seq.take (Seq.length captcha)
         |> Seq.filter (fun w -> Seq.head w = Seq.last w)
         |> Seq.sumBy (Seq.head >> int >> (><) (-) (int '0'))
-        
-    let parse = Seq.head
+
     let solvePart1 captcha = solve captcha 2
     let solvePart2 captcha = solve captcha ((Seq.length captcha / 2) + 1)
+    let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2}
 
 module Day2 = 
     let getLargestDiff ints = (Seq.max ints) - (Seq.min ints)
@@ -25,6 +27,7 @@ module Day2 =
     let parse = Seq.map (split >> Seq.map int)
     let solvePart1 = Seq.sumBy getLargestDiff
     let solvePart2 = Seq.sumBy getDivisor
+    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2}
 
 module Day3 = 
     let manhattanDistance target = 
@@ -53,18 +56,14 @@ module Day3 =
         if newValue > maxDepth then newValue 
         else buildGrid (grid @ [ newValue ]) maxDepth (Map.add newPos grid.Length posMap) (getNextPos newPos)
 
-    let parse = Seq.head >> int
-    let solvePart1 = manhattanDistance
     let solvePart2 target = buildGrid List.empty target Map.empty (0, 0)
+    let solver = { parse = Seq.head >> int; solvePart1 = manhattanDistance; solvePart2 = solvePart2}
 
 module Day4 = 
     let isUnique sequence = (sequence |> Seq.distinct |> Seq.length) = (sequence |> Seq.length)
     let sortedString (str : string) = str |> Seq.sort |> String.Concat
     let solve mapper = Seq.map mapper >> Seq.filter isUnique >> Seq.length
-
-    let parse = Seq.map split
-    let solvePart1 = solve id
-    let solvePart2 = solve (Seq.map sortedString)
+    let solver = { parse = Seq.map split; solvePart1 = solve id; solvePart2 = solve (Seq.map sortedString)}
 
 module Day5 = 
     let rec solve' currentPosition modifyOffset maze total = 
@@ -78,6 +77,7 @@ module Day5 =
     let parse = Seq.map int >> Seq.toArray
     let solvePart1 = solve ((+) 1)
     let solvePart2 = solve (fun x -> if x >= 3 then (x - 1) else (x + 1))
+    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
 module Day6 = 
     let serialiseBanks = Array.map (fun i -> i.ToString()) >> String.concat ","
@@ -96,6 +96,7 @@ module Day6 =
     let parse = Seq.head >> split >> Array.map int
     let solvePart1 = solve Map.empty 0 >> fst >> Map.count
     let solvePart2 = solve Map.empty 0 >> (fun (seen, banks) -> (Map.count seen) - (Map.find (serialiseBanks banks) seen))
+    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
 module Day7 =
     let parseLine (tokens : string array) = 
@@ -125,6 +126,7 @@ module Day7 =
     let parse = Seq.map (split >> parseLine)
     let solvePart1 tower = Seq.head tower |> fst |> findRoot tower
     let solvePart2 tower = Map.ofSeq tower |> getMissingWeight
+    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2}
 
 module Day8 =
     let parseIncOrDec = function | "inc" -> (+) | "dec" -> (-) | _ -> (fun _ x -> x)
@@ -142,6 +144,7 @@ module Day8 =
     let solve folder program = Seq.fold (fun (vars, acc) insn -> simulate insn vars |> (folder acc)) (Map.empty, 0) program |> snd
     let solvePart1 = solve (fun _ vars -> (vars, maxVar vars))
     let solvePart2 = solve (fun acc vars -> (vars, max (maxVar vars) acc))
+    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
 module Day9 = 
     type GarbageState = NotGarbage | Garbage | Cancelled
@@ -157,28 +160,28 @@ module Day9 =
         | (NotGarbage, '}') -> {current with level = current.level - 1; score = current.score + current.level}
         | _ -> current;
 
-    let parse = Seq.head
     let solve = Seq.fold step {level=0; state=NotGarbage; score=0; garbage=0}
     let solvePart1 = solve >> (fun state -> state.score)
     let solvePart2 = solve >> (fun state -> state.garbage)
+    let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
-let runSolver' parse solvePart1 solvePart2 input = 
+let runSolver' day input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
-    printfn "Part 1: %A (%fms)" (solvePart1 (parse input)) sw.Elapsed.TotalMilliseconds
+    printfn "Part 1: %A (%fms)" (day.solvePart1 (day.parse input)) sw.Elapsed.TotalMilliseconds
     sw.Restart()
-    printfn "Part 2: %A (%fms)" (solvePart2 (parse input)) sw.Elapsed.TotalMilliseconds
+    printfn "Part 2: %A (%fms)" (day.solvePart2 (day.parse input)) sw.Elapsed.TotalMilliseconds
 
 let runSolver problemName = 
     match problemName with
-        | "Day1" -> runSolver' Day1.parse Day1.solvePart1 Day1.solvePart2
-        | "Day2" -> runSolver' Day2.parse Day2.solvePart1 Day2.solvePart2
-        | "Day3" -> runSolver' Day3.parse Day3.solvePart1 Day3.solvePart2
-        | "Day4" -> runSolver' Day4.parse Day4.solvePart1 Day4.solvePart2
-        | "Day5" -> runSolver' Day5.parse Day5.solvePart1 Day5.solvePart2
-        | "Day6" -> runSolver' Day6.parse Day6.solvePart1 Day6.solvePart2
-        | "Day7" -> runSolver' Day7.parse Day7.solvePart1 Day7.solvePart2
-        | "Day8" -> runSolver' Day8.parse Day8.solvePart1 Day8.solvePart2
-        | "Day9" -> runSolver' Day9.parse Day9.solvePart1 Day9.solvePart2
+        | "Day1" -> runSolver' Day1.solver
+        | "Day2" -> runSolver' Day2.solver
+        | "Day3" -> runSolver' Day3.solver
+        | "Day4" -> runSolver' Day4.solver
+        | "Day5" -> runSolver' Day5.solver
+        | "Day6" -> runSolver' Day6.solver
+        | "Day7" -> runSolver' Day7.solver
+        | "Day8" -> runSolver' Day8.solver
+        | "Day9" -> runSolver' Day9.solver
         | _ -> (fun _ -> printfn "Invalid Problem: %s" problemName)
 
 [<EntryPoint>]
