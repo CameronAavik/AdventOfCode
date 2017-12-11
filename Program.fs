@@ -4,6 +4,7 @@ open System.IO
 
 let split (str : string) = str.Split()
 let (><) f a b = f b a
+let (%!) a b = (a % b + b) % b
 
 type Day<'a, 'b, 'c> = {parse: string seq -> 'a; solvePart1: 'a -> 'b; solvePart2: 'a -> 'c}
 
@@ -165,6 +166,29 @@ module Day9 =
     let solvePart2 = solve >> (fun state -> state.garbage)
     let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
+module Day10 = 
+    let repeat n folder init = (Seq.fold (fun s i -> folder s) init [0..(n-1)])
+
+    type State = { l: int array; skip: int; start: int}
+    let initState n = {l=[|0..(n-1)|];skip=0;start=0}
+    let revN n s = Array.append (Array.take n s |> Array.rev) (Array.skip n s)
+    let shift n s = Array.append (Array.skip n s) (Array.take n s)
+    let step listLen state length = 
+        let shiftLen = ((length + state.skip) % listLen)
+        {state with l = state.l |> revN length |> shift shiftLen; skip = state.skip + 1; start = (state.start - shiftLen) %! listLen}
+    
+    let solveRound listLen init = Array.fold (step listLen) init
+    let sparseHash listLen n = (fun t -> solveRound listLen >< t) >> repeat n >< (initState listLen) >> (fun s -> shift s.start s.l)
+    let denseHash = Array.chunkBySize 16 >> Array.map (Array.fold (^^^) 0)
+    let toHexStr = Array.fold (fun h i -> h + sprintf "%02x" i) ""
+    
+    let parsePart1 (str : string) = str.Split(',') |> Array.map int
+    let parsePart2 = Seq.map int >> Seq.toArray >> Array.append >< [|17;31;73;47;23|]
+
+    let solvePart1 = parsePart1 >> sparseHash 256 1 >> (fun s -> s.[0] * s.[1])
+    let solvePart2 = parsePart2 >> sparseHash 256 64 >> denseHash >> toHexStr
+    let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2;}
+
 let runSolver' day input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
     printfn "Part 1: %A (%fms)" (day.solvePart1 (day.parse input)) sw.Elapsed.TotalMilliseconds
@@ -182,6 +206,7 @@ let runSolver problemName =
         | "Day7" -> runSolver' Day7.solver
         | "Day8" -> runSolver' Day8.solver
         | "Day9" -> runSolver' Day9.solver
+        | "Day10" -> runSolver' Day10.solver
         | _ -> (fun _ -> printfn "Invalid Problem: %s" problemName)
 
 [<EntryPoint>]
