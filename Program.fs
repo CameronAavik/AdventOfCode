@@ -3,6 +3,7 @@ open System.Linq
 open System.IO
 
 let split (str : string) = str.Split()
+let splitOn (c : char) (str : string) = str.Split(c)
 let (><) f a b = f b a
 let (%!) a b = (a % b + b) % b
 
@@ -182,12 +183,23 @@ module Day10 =
     let denseHash = Array.chunkBySize 16 >> Array.map (Array.fold (^^^) 0)
     let toHexStr = Array.fold (fun h i -> h + sprintf "%02x" i) ""
     
-    let parsePart1 (str : string) = str.Split(',') |> Array.map int
+    let parsePart1 = splitOn ',' >> Array.map int
     let parsePart2 = Seq.map int >> Seq.toArray >> Array.append >< [|17;31;73;47;23|]
 
     let solvePart1 = parsePart1 >> sparseHash 256 1 >> (fun s -> s.[0] * s.[1])
     let solvePart2 = parsePart2 >> sparseHash 256 64 >> denseHash >> toHexStr
     let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2;}
+
+module Day11 = 
+    type Coordinate = {x: int; y: int}
+    let dist {x=x;y=y} = (abs(x) + abs(y)) / 2
+    let getX = function | "ne" | "se" -> 1 | "nw" | "sw" -> -1 | _ -> 0
+    let getY = function | "n" -> 2 | "ne" | "nw" -> 1 | "sw" | "se" -> -1 | "s" -> -2 | _ -> 0
+    let step {x=x;y=y} dir = {x = x + getX dir;y = y + getY dir}
+
+    let solvePart1 = Array.fold step {x=0;y=0} >> dist
+    let solvePart2 = Array.mapFold (fun coord dir -> step coord dir |> (fun c -> (dist c, c))) {x=0;y=0} >> fst >> Array.max
+    let solver = { parse = Seq.head >> splitOn ','; solvePart1 = solvePart1; solvePart2 = solvePart2}
 
 let runSolver' day input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
@@ -207,6 +219,7 @@ let runSolver problemName =
         | "Day8" -> runSolver' Day8.solver
         | "Day9" -> runSolver' Day9.solver
         | "Day10" -> runSolver' Day10.solver
+        | "Day11" -> runSolver' Day11.solver
         | _ -> (fun _ -> printfn "Invalid Problem: %s" problemName)
 
 [<EntryPoint>]
