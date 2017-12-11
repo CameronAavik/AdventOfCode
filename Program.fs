@@ -190,13 +190,13 @@ module Day10 =
 module Day11 = 
     type Coordinate = {x: int; y: int}
     let dist {x=x;y=y} = (abs(x) + abs(y)) / 2
-    let getX = function | "ne" | "se" -> 1 | "nw" | "sw" -> -1 | _ -> 0
-    let getY = function | "n" -> 2 | "ne" | "nw" -> 1 | "sw" | "se" -> -1 | "s" -> -2 | _ -> 0
-    let step {x=x;y=y} dir = {x = x + getX dir;y = y + getY dir}
-
-    let solvePart1 = Array.fold step {x=0;y=0} >> dist
-    let solvePart2 = Array.mapFold (fun coord dir -> step coord dir |> (fun c -> (dist c, c))) {x=0;y=0} >> fst >> Array.max
-    let solver = { parse = Seq.head >> splitOn ','; solvePart1 = solvePart1; solvePart2 = solvePart2}
+    let getDir = function
+        | "n"  -> (0,  2) | "s"  -> (0,  -2) | "ne" -> (1, 1) | "nw" -> (-1, 1)
+        | "se" -> (1, -1) | "sw" -> (-1, -1) | _    -> (0, 0)
+    let addDir {x=x1;y=y1} (x2,y2) = {x=x1+x2;y=y1+y2}
+    let step (coords, maxDist) = getDir >> addDir coords >> (fun c -> (c, max maxDist (dist c)))
+    let solve = Array.fold step ({x=0;y=0}, 0)
+    let solver = { parse = Seq.head >> splitOn ','; solvePart1 = solve >> fst >> dist; solvePart2 = solve >> snd}
 
 let runSolver' day input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
