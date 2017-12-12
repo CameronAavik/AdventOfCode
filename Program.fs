@@ -3,7 +3,7 @@ open System.Linq
 open System.IO
 
 let split (str : string) = str.Split()
-let splitOn (c : char) (str : string) = str.Split(c)
+let splitOn (c : string) (str : string) = str.Split([| c |], StringSplitOptions.None)
 let (><) f a b = f b a
 let (%!) a b = (a % b + b) % b
 
@@ -183,7 +183,7 @@ module Day10 =
     let denseHash = Array.chunkBySize 16 >> Array.map (Array.fold (^^^) 0)
     let toHexStr = Array.fold (fun h i -> h + sprintf "%02x" i) ""
     
-    let solvePart1 = splitOn ',' >> Array.map int >> sparseHash 256 1 >> (fun s -> s.[0] * s.[1])
+    let solvePart1 = splitOn "," >> Array.map int >> sparseHash 256 1 >> (fun s -> s.[0] * s.[1])
     let solvePart2 = Seq.map int >> Seq.toArray >> Array.append >< [|17;31;73;47;23|] >> sparseHash 256 64 >> denseHash >> toHexStr
     let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2;}
 
@@ -193,7 +193,25 @@ module Day11 =
     let addDir (x1,y1) (x2,y2) = (x1+x2,y1+y2)
     let step (coords, maxDist) = getDir >> addDir coords >> (fun c -> (c, max maxDist (dist c)))
     let solve = Array.fold step ((0, 0), 0)
-    let solver = { parse = Seq.head >> splitOn ','; solvePart1 = solve >> fst >> dist; solvePart2 = solve >> snd}
+    let solver = { parse = Seq.head >> splitOn ","; solvePart1 = solve >> fst >> dist; solvePart2 = solve >> snd}
+
+module Day12 = 
+    let arrayMinusSet s = Array.filter ((Set.contains >< s) >> not)
+    let rec getConnectedComponent (graph : int[][]) connComp = function
+        | [| |] -> connComp
+        | xs when (Set.contains xs.[0] connComp) -> getConnectedComponent graph connComp (Array.skip 1 xs)
+        | xs -> getConnectedComponent graph (connComp.Add(xs.[0])) (graph.[xs.[0]] |> arrayMinusSet connComp |> Array.append (Array.skip 1 xs))
+
+    let getComponentContaining graph = Array.singleton >> getConnectedComponent graph Set.empty
+    let rec getAllComponents graph components = function
+        | [| |] -> components
+        | remaining ->
+            let c = getComponentContaining graph (Seq.head remaining)
+            getAllComponents graph (c :: components) (arrayMinusSet c remaining)
+
+    let parse = Seq.map (splitOn " <-> " >> (fun t -> t.[1] |> splitOn ", " |> Array.map int)) >> Seq.toArray
+    let solvePart2 graph = getAllComponents graph List.empty [|0..(Array.length graph - 1)|] |> List.length
+    let solver = { parse = parse; solvePart1 = getComponentContaining >< 0 >> Set.count; solvePart2 = solvePart2 }
 
 let runSolver' day input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
@@ -214,6 +232,7 @@ let runSolver problemName =
         | "Day9" -> runSolver' Day9.solver
         | "Day10" -> runSolver' Day10.solver
         | "Day11" -> runSolver' Day11.solver
+        | "Day12" -> runSolver' Day12.solver
         | _ -> (fun _ -> printfn "Invalid Problem: %s" problemName)
 
 [<EntryPoint>]
