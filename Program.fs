@@ -213,6 +213,13 @@ module Day12 =
     let solvePart2 graph = getAllComponents graph List.empty [|0..(Array.length graph - 1)|] |> List.length
     let solver = { parse = parse; solvePart1 = getComponentContaining >< 0 >> Set.count; solvePart2 = solvePart2 }
 
+module Day13 = 
+    let collides delay (layer, length) = (delay + layer) % (2 * (length - 1)) = 0
+    let getScore = Seq.filter (collides 0) >> (Seq.sumBy (fun l -> fst l * snd l))
+    let rec findValid delay layers = if (Seq.exists (collides delay) layers) then findValid (delay + 1) layers else delay
+    let parse = Seq.map (splitOn ": " >> (fun l -> (int l.[0], int l.[1]))) >> Seq.toArray
+    let solver = { parse = parse; solvePart1 = getScore; solvePart2 = findValid 0 }
+
 let runSolver' day input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
     printfn "Part 1: %A (%fms)" (day.solvePart1 (day.parse input)) sw.Elapsed.TotalMilliseconds
@@ -233,6 +240,7 @@ let runSolver problemName =
         | "Day10" -> runSolver' Day10.solver
         | "Day11" -> runSolver' Day11.solver
         | "Day12" -> runSolver' Day12.solver
+        | "Day13" -> runSolver' Day13.solver
         | _ -> (fun _ -> printfn "Invalid Problem: %s" problemName)
 
 [<EntryPoint>]
