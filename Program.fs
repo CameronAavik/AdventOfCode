@@ -184,8 +184,8 @@ module Day10 =
     let toHexStr = Array.fold (fun h i -> h + sprintf "%02x" i) ""
     
     let solvePart1 = splitOn "," >> Array.map int >> sparseHash 256 1 >> (fun s -> s.[0] * s.[1])
-    let solvePart2 = Seq.map int >> Seq.toArray >> Array.append >< [|17;31;73;47;23|] >> sparseHash 256 64 >> denseHash >> toHexStr
-    let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2;}
+    let solvePart2 = Seq.map int >> Seq.toArray >> Array.append >< [|17;31;73;47;23|] >> sparseHash 256 64 >> denseHash
+    let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2 >> toHexStr}
 
 module Day11 = 
     let dist (x, y) = (abs(x) + abs(y)) / 2
@@ -220,6 +220,19 @@ module Day13 =
     let parse = Seq.map (splitOn ": " >> (fun l -> (int l.[0], int l.[1]))) >> Seq.toArray
     let solver = { parse = parse; solvePart1 = getScore; solvePart2 = findValid 0 }
 
+module Day14 = 
+    let toBinStr (i : int) = sprintf "%08i" (int (Convert.ToString (i, 2)))
+    let getHash key i = Day10.solvePart2 (sprintf "%s-%i" key i) |> Array.fold (fun h i -> h + toBinStr i) "" 
+    let hashToCoords i = Seq.mapi (fun j h -> ((i, j), h)) >> Seq.filter (snd >> ((=)'1')) >> Seq.map fst >> Set.ofSeq
+    let getActiveCoords key = (Seq.map (getHash key) [0..127]) |> Seq.mapi hashToCoords |> Set.unionMany
+    let rec getComponentCount seen unseen count = function
+        | [] when Set.isEmpty unseen -> count
+        | [] -> getComponentCount seen unseen (count + 1) [Seq.head unseen]
+        | x :: xs when Set.contains x seen || not (Set.contains x unseen)-> getComponentCount seen unseen count xs
+        | (i, j) :: xs -> getComponentCount (Set.add (i, j) seen) (Set.remove (i, j) unseen) count ((i-1,j)::(i+1,j)::(i,j-1)::(i,j+1)::xs)
+    let solvePart2 key = getComponentCount Set.empty (getActiveCoords key) 0 []
+    let solver = { parse = Seq.head; solvePart1 = getActiveCoords >> Set.count ; solvePart2 = solvePart2 }
+
 let runSolver' day input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
     printfn "Part 1: %A (%fms)" (day.solvePart1 (day.parse input)) sw.Elapsed.TotalMilliseconds
@@ -241,6 +254,7 @@ let runSolver problemName =
         | "Day11" -> runSolver' Day11.solver
         | "Day12" -> runSolver' Day12.solver
         | "Day13" -> runSolver' Day13.solver
+        | "Day14" -> runSolver' Day14.solver
         | _ -> (fun _ -> printfn "Invalid Problem: %s" problemName)
 
 [<EntryPoint>]
