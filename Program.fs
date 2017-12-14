@@ -2,6 +2,7 @@
 open System.Linq
 open System.IO
 
+let getLine = Seq.head
 let split (str : string) = str.Split()
 let splitOn (c : string) (str : string) = str.Split([| c |], StringSplitOptions.None)
 let (><) f a b = f b a
@@ -19,7 +20,7 @@ module Day1 =
 
     let solvePart1 captcha = solve captcha 2
     let solvePart2 captcha = solve captcha ((Seq.length captcha / 2) + 1)
-    let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2}
+    let solver = { parse = getLine; solvePart1 = solvePart1; solvePart2 = solvePart2}
 
 module Day2 = 
     let getLargestDiff ints = (Seq.max ints) - (Seq.min ints)
@@ -59,7 +60,7 @@ module Day3 =
         else buildGrid (grid @ [ newValue ]) maxDepth (Map.add newPos grid.Length posMap) (getNextPos newPos)
 
     let solvePart2 target = buildGrid List.empty target Map.empty (0, 0)
-    let solver = { parse = Seq.head >> int; solvePart1 = manhattanDistance; solvePart2 = solvePart2}
+    let solver = { parse = getLine >> int; solvePart1 = manhattanDistance; solvePart2 = solvePart2}
 
 module Day4 = 
     let isUnique sequence = (sequence |> Seq.distinct |> Seq.length) = (sequence |> Seq.length)
@@ -95,7 +96,7 @@ module Day6 =
         let maxI = Array.findIndex ((=) maxV) banks
         solve (Map.add (serialiseBanks banks) c seen) (c + 1) (Array.mapi (distribute' (Seq.length banks) maxV maxI) banks)
 
-    let parse = Seq.head >> split >> Array.map int
+    let parse = getLine >> split >> Array.map int
     let solvePart1 = solve Map.empty 0 >> fst >> Map.count
     let solvePart2 = solve Map.empty 0 >> (fun (seen, banks) -> (Map.count seen) - (Map.find (serialiseBanks banks) seen))
     let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2; }
@@ -165,7 +166,7 @@ module Day9 =
     let solve = Seq.fold step {level=0; state=NotGarbage; score=0; garbage=0}
     let solvePart1 = solve >> (fun state -> state.score)
     let solvePart2 = solve >> (fun state -> state.garbage)
-    let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2; }
+    let solver = { parse = getLine; solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
 module Day10 = 
     let repeat n folder init = (Seq.fold (fun s i -> folder s) init [0..(n-1)])
@@ -185,7 +186,7 @@ module Day10 =
     
     let solvePart1 = splitOn "," >> Array.map int >> sparseHash 256 1 >> (fun s -> s.[0] * s.[1])
     let solvePart2 = Seq.map int >> Seq.toArray >> Array.append >< [|17;31;73;47;23|] >> sparseHash 256 64 >> denseHash
-    let solver = { parse = Seq.head; solvePart1 = solvePart1; solvePart2 = solvePart2 >> toHexStr}
+    let solver = { parse = getLine; solvePart1 = solvePart1; solvePart2 = solvePart2 >> toHexStr}
 
 module Day11 = 
     let dist (x, y) = (abs(x) + abs(y)) / 2
@@ -193,7 +194,7 @@ module Day11 =
     let addDir (x1,y1) (x2,y2) = (x1+x2,y1+y2)
     let step (coords, maxDist) = getDir >> addDir coords >> (fun c -> (c, max maxDist (dist c)))
     let solve = Array.fold step ((0, 0), 0)
-    let solver = { parse = Seq.head >> splitOn ","; solvePart1 = solve >> fst >> dist; solvePart2 = solve >> snd}
+    let solver = { parse = getLine >> splitOn ","; solvePart1 = solve >> fst >> dist; solvePart2 = solve >> snd}
 
 module Day12 = 
     let arrayMinusSet s = Array.filter ((Set.contains >< s) >> not)
@@ -221,17 +222,17 @@ module Day13 =
     let solver = { parse = parse; solvePart1 = getScore; solvePart2 = findValid 0 }
 
 module Day14 = 
-    let toBinStr (i : int) = sprintf "%08i" (int (Convert.ToString (i, 2)))
+    let toBinStr (i : int) = Convert.ToString(i, 2).PadLeft(8, '0')
     let getHash key i = Day10.solvePart2 (sprintf "%s-%i" key i) |> Array.fold (fun h i -> h + toBinStr i) "" 
-    let hashToCoords i = Seq.mapi (fun j h -> ((i, j), h)) >> Seq.filter (snd >> ((=)'1')) >> Seq.map fst >> Set.ofSeq
-    let getActiveCoords key = (Seq.map (getHash key) [0..127]) |> Seq.mapi hashToCoords |> Set.unionMany
+    let hashToCoords i = Seq.mapi (fun j h -> ((i, j), h)) >> Seq.filter (snd >> ((=) '1')) >> Seq.map fst >> Set.ofSeq
+    let getActiveCoords key = Seq.map (getHash key) [0..127] |> Seq.mapi hashToCoords |> Set.unionMany
     let rec getComponentCount seen unseen count = function
         | [] when Set.isEmpty unseen -> count
         | [] -> getComponentCount seen unseen (count + 1) [Seq.head unseen]
         | x :: xs when Set.contains x seen || not (Set.contains x unseen)-> getComponentCount seen unseen count xs
         | (i, j) :: xs -> getComponentCount (Set.add (i, j) seen) (Set.remove (i, j) unseen) count ((i-1,j)::(i+1,j)::(i,j-1)::(i,j+1)::xs)
     let solvePart2 key = getComponentCount Set.empty (getActiveCoords key) 0 []
-    let solver = { parse = Seq.head; solvePart1 = getActiveCoords >> Set.count ; solvePart2 = solvePart2 }
+    let solver = { parse = getLine; solvePart1 = getActiveCoords >> Set.count ; solvePart2 = solvePart2 }
 
 let runSolver' day input = 
     let sw = System.Diagnostics.Stopwatch.StartNew()
