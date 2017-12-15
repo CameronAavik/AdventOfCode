@@ -235,6 +235,21 @@ module Day14 =
     let solvePart2 key = getComponentCount Set.empty (getActiveCoords key) 0 []
     let solver = { parse = getLine; solvePart1 = getActiveCoords >> Set.count ; solvePart2 = solvePart2 }
 
+module Day15 = 
+    let lcg g x = g * x % 2147483647UL
+    let rec lcg2 mask g x = match lcg g x with | next when (next &&& mask = 0UL) -> next | next -> lcg2 mask g next
+
+    let parse = Seq.map (splitOn "with " >> Array.item 1 >> uint64) >> (fun s -> (Seq.head s, Seq.tail s |> Seq.head))
+    let solve genA genB iterations (seedA, seedB) = 
+        let rec solve' a b count = function
+        | 0 -> count
+        | n -> 
+            let a, b = genA 16807UL a, genB 48271UL b
+            let i = if (a &&& 0xFFFFUL) = (b &&& 0xFFFFUL) then 1 else 0
+            solve' a b (count + i) (n - 1)
+        solve' seedA seedB 0 iterations
+    let solver = { parse = parse; solvePart1 = solve lcg lcg 40_000_000; solvePart2 = solve (lcg2 3UL) (lcg2 7UL) 5_000_000 }
+
 let runSolver = 
     let run day input = 
         let sw = System.Diagnostics.Stopwatch.StartNew()
@@ -245,7 +260,7 @@ let runSolver =
     | "Day1"  -> run Day1.solver  | "Day2"  -> run Day2.solver  | "Day3"  -> run Day3.solver  | "Day4"  -> run Day4.solver
     | "Day5"  -> run Day5.solver  | "Day6"  -> run Day6.solver  | "Day7"  -> run Day7.solver  | "Day8"  -> run Day8.solver
     | "Day9"  -> run Day9.solver  | "Day10" -> run Day10.solver | "Day11" -> run Day11.solver | "Day12" -> run Day12.solver
-    | "Day13" -> run Day13.solver | "Day14" -> run Day14.solver
+    | "Day13" -> run Day13.solver | "Day14" -> run Day14.solver | "Day15" -> run Day15.solver
     | name -> (fun _ -> printfn "Invalid Problem: %s" name)
 
 [<EntryPoint>]
