@@ -10,6 +10,22 @@ let (%!) a b = (a % b + b) % b
 
 type Day<'a, 'b, 'c> = {parse: string seq -> 'a; solvePart1: 'a -> 'b; solvePart2: 'a -> 'c}
 
+module Graph =
+    let getConnectedComponent getVerts rootNode =
+        let rec getConnectedComponent' comp = function
+            | [] -> comp
+            | x :: xs when Set.contains x comp -> getConnectedComponent' comp xs
+            | x :: xs -> getConnectedComponent' (Set.add x comp) (getVerts x @ xs)
+        getConnectedComponent' Set.empty [rootNode]
+
+    let getConnectedComponents getVerts nodes =
+        let rec getAllComponents' seen unseen components =
+            if Set.isEmpty unseen then components
+            else
+                let newComp = getConnectedComponent getVerts (Seq.head unseen)
+                getAllComponents' (Set.union seen newComp) (Set.difference unseen newComp) (newComp :: components)
+        getAllComponents' Set.empty nodes List.empty
+
 module Day1 =
     let solve captcha windowSize = 
         Seq.append captcha captcha
@@ -197,22 +213,10 @@ module Day11 =
     let solver = { parse = getLine >> splitOn ","; solvePart1 = solve >> fst >> dist; solvePart2 = solve >> snd}
 
 module Day12 = 
-    let arrayMinusSet s = Array.filter ((Set.contains >< s) >> not)
-    let rec getConnectedComponent (graph : int[][]) connComp = function
-        | [| |] -> connComp
-        | xs when (Set.contains xs.[0] connComp) -> getConnectedComponent graph connComp (Array.skip 1 xs)
-        | xs -> getConnectedComponent graph (connComp.Add(xs.[0])) (graph.[xs.[0]] |> arrayMinusSet connComp |> Array.append (Array.skip 1 xs))
-
-    let getComponentContaining graph = Array.singleton >> getConnectedComponent graph Set.empty
-    let rec getAllComponents graph components = function
-        | [| |] -> components
-        | remaining ->
-            let c = getComponentContaining graph (Seq.head remaining)
-            getAllComponents graph (c :: components) (arrayMinusSet c remaining)
-
-    let parse = Seq.map (splitOn " <-> " >> (fun t -> splitOn ", " t.[1] |> Array.map int)) >> Seq.toArray
-    let solvePart2 graph = getAllComponents graph List.empty [|0..(Array.length graph - 1)|] |> List.length
-    let solver = { parse = parse; solvePart1 = getComponentContaining >< 0 >> Set.count; solvePart2 = solvePart2 }
+    let parse = Seq.map (splitOn " <-> " >> (fun t -> splitOn ", " t.[1] |> Array.map int |> Array.toList)) >> Seq.toArray
+    let solvePart1 graph = Graph.getConnectedComponent (Array.item >< graph) 0 |> Set.count
+    let solvePart2 graph = Graph.getConnectedComponents (Array.item >< graph) (Set.ofList [0..(Array.length graph - 1)]) |> List.length
+    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2 }
 
 module Day13 = 
     let collides delay (layer, length) = (delay + layer) % (2 * (length - 1)) = 0
@@ -226,14 +230,9 @@ module Day14 =
     let getHash key i = Day10.solvePart2 (sprintf "%s-%i" key i) |> Array.fold (fun h i -> h + toBinStr i) "" 
     let hashToCoords i = Seq.mapi (fun j h -> ((i, j), h)) >> Seq.filter (snd >> ((=) '1')) >> Seq.map fst >> Set.ofSeq
     let getActiveCoords key = Seq.map (getHash key) [0..127] |> Seq.mapi hashToCoords |> Set.unionMany
-    let addSurroundingNodes (i, j) xs = (i-1, j) :: (i+1, j) :: (i, j-1) :: (i, j+1) :: xs
-    let rec getComponentCount seen unseen count = function
-        | [] when Set.isEmpty unseen -> count
-        | [] -> getComponentCount seen unseen (count + 1) [Seq.head unseen]
-        | x :: xs when Set.contains x seen || not (Set.contains x unseen) -> getComponentCount seen unseen count xs
-        | x :: xs -> getComponentCount (Set.add x seen) (Set.remove x unseen) count (addSurroundingNodes x xs)
-    let solvePart2 key = getComponentCount Set.empty (getActiveCoords key) 0 []
-    let solver = { parse = getLine; solvePart1 = getActiveCoords >> Set.count ; solvePart2 = solvePart2 }
+    let getSurroundingNodes activeCoords (i, j) = [(i-1, j); (i+1, j); (i, j-1); (i, j+1)] |> List.filter (Set.contains >< activeCoords)
+    let solvePart2 = getActiveCoords >> (fun coords -> Graph.getConnectedComponents (getSurroundingNodes coords) coords)
+    let solver = { parse = getLine; solvePart1 = getActiveCoords >> Set.count ; solvePart2 = solvePart2 >> List.length}
 
 module Day15 = 
     let lcg g x = g * x % 2147483647UL
