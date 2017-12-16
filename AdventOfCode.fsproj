@@ -37,7 +37,7 @@
     <PlatformTarget>AnyCPU</PlatformTarget>
     <DocumentationFile>bin\$(Configuration)\$(AssemblyName).XML</DocumentationFile>
     <Prefer32Bit>true</Prefer32Bit>
-    <StartArguments>Day15 input_files\day15.txt</StartArguments>
+    <StartArguments>ALL</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
     <MinimumVisualStudioVersion Condition="'$(MinimumVisualStudioVersion)' == ''">11</MinimumVisualStudioVersion>

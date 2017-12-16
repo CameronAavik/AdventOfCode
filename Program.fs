@@ -2,51 +2,58 @@
 open System.Linq
 open System.IO
 
-let getLine = Seq.head
-let split (str : string) = str.Split()
-let splitOn (c : string) (str : string) = str.Split([| c |], StringSplitOptions.None)
-let (><) f a b = f b a
-let (%!) a b = (a % b + b) % b
+module Utils =
+    // helper methods for parsing
+    let asString, asInt, asStringArray, asIntArray = id, int, Array.map id, Array.map int
+    let splitBy (c : string) f (str : string) = str.Split([| c |], StringSplitOptions.None) |> f
+    let parseFirstLine f = Seq.head >> f
+    let parseEachLine f = Seq.map f
 
-type Day<'a, 'b, 'c> = {parse: string seq -> 'a; solvePart1: 'a -> 'b; solvePart2: 'a -> 'c}
+    // this is an infix flip, for example you can replace (fun a -> a / 2) with (><) (/) 2
+    let (><) f a b = f b a
+    // this is a modulo operator that handles negative numbers correctly
+    let (%!) a b = (a % b + b) % b
 
-module Graph =
-    let getConnectedComponent getVerts rootNode =
-        let rec getConnectedComponent' comp = function
-            | [] -> comp
-            | x :: xs when Set.contains x comp -> getConnectedComponent' comp xs
-            | x :: xs -> getConnectedComponent' (Set.add x comp) (getVerts x @ xs)
-        getConnectedComponent' Set.empty [rootNode]
+    type Day<'a, 'b, 'c> = {parse: string seq -> 'a; solvePart1: 'a -> 'b; solvePart2: 'a -> 'c}
 
-    let getConnectedComponents getVerts nodes =
-        let rec getAllComponents' seen unseen components =
-            if Set.isEmpty unseen then components
-            else
-                let newComp = getConnectedComponent getVerts (Seq.head unseen)
-                getAllComponents' (Set.union seen newComp) (Set.difference unseen newComp) (newComp :: components)
-        getAllComponents' Set.empty nodes List.empty
+    module Graph =
+        let getConnectedComponent getVerts rootNode =
+            let rec getConnectedComponent' comp = function
+                | [] -> comp
+                | x :: xs when Set.contains x comp -> getConnectedComponent' comp xs
+                | x :: xs -> getConnectedComponent' (Set.add x comp) (getVerts x @ xs)
+            getConnectedComponent' Set.empty [rootNode]
+
+        let getConnectedComponents getVerts nodes =
+            let rec getConnectedComponents' seen unseen components =
+                if Set.isEmpty unseen then components
+                else
+                    let newComp = getConnectedComponent getVerts (Seq.head unseen)
+                    getConnectedComponents' (Set.union seen newComp) (Set.difference unseen newComp) (newComp :: components)
+            getConnectedComponents' Set.empty nodes List.empty
+
+open Utils
 
 module Day1 =
-    let solve captcha windowSize = 
+    let charToDigit c = int c - int '0'
+    let solve windowSize captcha = 
         Seq.append captcha captcha
         |> Seq.windowed windowSize
         |> Seq.take (Seq.length captcha)
         |> Seq.filter (fun w -> Seq.head w = Seq.last w)
-        |> Seq.sumBy (Seq.head >> int >> (><) (-) (int '0'))
+        |> Seq.sumBy (Seq.head >> charToDigit)
 
-    let solvePart1 captcha = solve captcha 2
-    let solvePart2 captcha = solve captcha ((Seq.length captcha / 2) + 1)
-    let solver = { parse = getLine; solvePart1 = solvePart1; solvePart2 = solvePart2}
+    let solvePart2 captcha = solve ((Seq.length captcha / 2) + 1) captcha
+    let solver = { parse = parseFirstLine asString; solvePart1 = solve 2; solvePart2 = solvePart2}
 
 module Day2 = 
     let getLargestDiff ints = (Seq.max ints) - (Seq.min ints)
     let isValidDivisor ints i = (Seq.map ((*) i) ints).Intersect(ints).Any()
     let getDivisor ints = [2 .. (Seq.max ints)] |> Seq.find (isValidDivisor ints)
 
-    let parse = Seq.map (split >> Seq.map int)
     let solvePart1 = Seq.sumBy getLargestDiff
     let solvePart2 = Seq.sumBy getDivisor
-    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2}
+    let solver = { parse = parseEachLine (splitBy "\t" asIntArray); solvePart1 = solvePart1; solvePart2 = solvePart2}
 
 module Day3 = 
     let manhattanDistance target = 
@@ -76,27 +83,28 @@ module Day3 =
         else buildGrid (grid @ [ newValue ]) maxDepth (Map.add newPos grid.Length posMap) (getNextPos newPos)
 
     let solvePart2 target = buildGrid List.empty target Map.empty (0, 0)
-    let solver = { parse = getLine >> int; solvePart1 = manhattanDistance; solvePart2 = solvePart2}
+    let solver = { parse = parseFirstLine asInt; solvePart1 = manhattanDistance; solvePart2 = solvePart2}
 
 module Day4 = 
     let isUnique sequence = (sequence |> Seq.distinct |> Seq.length) = (sequence |> Seq.length)
     let sortedString (str : string) = str |> Seq.sort |> String.Concat
     let solve mapper = Seq.map mapper >> Seq.filter isUnique >> Seq.length
-    let solver = { parse = Seq.map split; solvePart1 = solve id; solvePart2 = solve (Seq.map sortedString)}
+    let solver = { parse = parseEachLine (splitBy " " asStringArray); solvePart1 = solve id; solvePart2 = solve (Seq.map sortedString)}
 
 module Day5 = 
-    let rec solve' currentPosition modifyOffset maze total = 
-        if currentPosition < 0 || currentPosition >= Array.length maze then total
-        else
-            let currentOffset = Array.get maze currentPosition
-            maze.[currentPosition] <- modifyOffset currentOffset
-            solve' (currentOffset + currentPosition) modifyOffset maze (total + 1)
-    let solve modifyOffset offsets = solve' 0 modifyOffset offsets 0
+    let solve modifyOffset offsets =
+        let maze = Seq.toArray offsets
+        let rec solve' currentPosition total = 
+            if currentPosition < 0 || currentPosition >= Array.length maze then total
+            else
+                let currentOffset = Array.get maze currentPosition
+                maze.[currentPosition] <- modifyOffset currentOffset
+                solve' (currentOffset + currentPosition) (total + 1)
+        solve' 0 0
 
-    let parse = Seq.map int >> Seq.toArray
     let solvePart1 = solve ((+) 1)
     let solvePart2 = solve (fun x -> if x >= 3 then (x - 1) else (x + 1))
-    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2; }
+    let solver = { parse = parseEachLine asInt; solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
 module Day6 = 
     let serialiseBanks = Array.map (fun i -> i.ToString()) >> String.concat ","
@@ -112,14 +120,13 @@ module Day6 =
         let maxI = Array.findIndex ((=) maxV) banks
         solve (Map.add (serialiseBanks banks) c seen) (c + 1) (Array.mapi (distribute' (Seq.length banks) maxV maxI) banks)
 
-    let parse = getLine >> split >> Array.map int
     let solvePart1 = solve Map.empty 0 >> fst >> Map.count
     let solvePart2 = solve Map.empty 0 >> (fun (seen, banks) -> (Map.count seen) - (Map.find (serialiseBanks banks) seen))
-    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2; }
+    let solver = { parse = parseFirstLine (splitBy "	" asIntArray); solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
 module Day7 =
-    let parseLine (tokens : string array) = 
-        (tokens.[0], (tokens.[1].Trim('(',')') |> int, if Array.length tokens = 2 then Array.empty else tokens.[3..] |> Array.map (fun c -> c.TrimEnd(','))))
+    let getSubTowers (tokens : string array) = if Array.length tokens = 2 then Array.empty else tokens.[3..] |> Array.map (fun c -> c.TrimEnd(','))
+    let asProgram = splitBy " " (fun tokens -> (tokens.[0], (tokens.[1].Trim('(',')') |> int, getSubTowers tokens)))
 
     let rec findRoot tower current = 
         match tower |> Seq.tryFind (fun (_, (_, children)) -> Array.contains current children) with
@@ -142,16 +149,14 @@ module Day7 =
         let adjustments = programsWithTwoWeights |> Map.map (fun k v -> (snd v.[1] |> Seq.head |> snd) + (fst v.[0]) - (fst v.[1]))
         adjustments |> Seq.sortBy (fun kv -> kv.Value) |> Seq.head |> (fun kv -> kv.Value)
 
-    let parse = Seq.map (split >> parseLine)
     let solvePart1 tower = Seq.head tower |> fst |> findRoot tower
     let solvePart2 tower = Map.ofSeq tower |> getMissingWeight
-    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2}
+    let solver = { parse = parseEachLine asProgram; solvePart1 = solvePart1; solvePart2 = solvePart2}
 
 module Day8 =
     let parseIncOrDec = function | "inc" -> (+) | "dec" -> (-) | _ -> (fun _ x -> x)
     let parseOperator = function | ">" -> (>) | "<" -> (<) | ">=" -> (>=) | "<=" -> (<=) | "==" -> (=) | "!=" -> (<>) | _ -> (fun _ _ -> false)
-    let parseLine (tokens : string array) = 
-        (tokens.[0], (parseIncOrDec tokens.[1]) >< (int tokens.[2]), tokens.[4], (parseOperator tokens.[5]) >< (int tokens.[6]))
+    let asInstruction = splitBy " " (fun tokens -> (tokens.[0], (parseIncOrDec tokens.[1]) >< (int tokens.[2]), tokens.[4], (parseOperator tokens.[5]) >< (int tokens.[6])))
 
     let getOrZero map key = if Map.containsKey key map then Map.find key map else 0
     let simulate (var1, incOrDec, var2, passesComparisonCheck) vars = 
@@ -159,11 +164,10 @@ module Day8 =
         if passesComparisonCheck val2 then Map.add var1 (incOrDec val1) vars else vars
     let maxVar = Map.toSeq >> Seq.map snd >> Seq.max
 
-    let parse = Seq.map (split >> parseLine)
     let solve folder program = Seq.fold (fun (vars, acc) insn -> simulate insn vars |> (folder acc)) (Map.empty, 0) program |> snd
     let solvePart1 = solve (fun _ vars -> (vars, maxVar vars))
     let solvePart2 = solve (fun acc vars -> (vars, max (maxVar vars) acc))
-    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2; }
+    let solver = { parse = parseEachLine asInstruction; solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
 module Day9 = 
     type GarbageState = NotGarbage | Garbage | Cancelled
@@ -182,7 +186,7 @@ module Day9 =
     let solve = Seq.fold step {level=0; state=NotGarbage; score=0; garbage=0}
     let solvePart1 = solve >> (fun state -> state.score)
     let solvePart2 = solve >> (fun state -> state.garbage)
-    let solver = { parse = getLine; solvePart1 = solvePart1; solvePart2 = solvePart2; }
+    let solver = { parse = parseFirstLine asString; solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
 module Day10 = 
     let repeat n folder init = (Seq.fold (fun s i -> folder s) init [0..(n-1)])
@@ -200,9 +204,9 @@ module Day10 =
     let denseHash = Array.chunkBySize 16 >> Array.map (Array.fold (^^^) 0)
     let toHexStr = Array.fold (fun h i -> h + sprintf "%02x" i) ""
     
-    let solvePart1 = splitOn "," >> Array.map int >> sparseHash 256 1 >> (fun s -> s.[0] * s.[1])
+    let solvePart1 = splitBy "," asIntArray >> sparseHash 256 1 >> (fun s -> s.[0] * s.[1])
     let solvePart2 = Seq.map int >> Seq.toArray >> Array.append >< [|17;31;73;47;23|] >> sparseHash 256 64 >> denseHash
-    let solver = { parse = getLine; solvePart1 = solvePart1; solvePart2 = solvePart2 >> toHexStr}
+    let solver = { parse = parseFirstLine asString; solvePart1 = solvePart1; solvePart2 = solvePart2 >> toHexStr}
 
 module Day11 = 
     let dist (x, y) = (abs(x) + abs(y)) / 2
@@ -210,20 +214,21 @@ module Day11 =
     let addDir (x1,y1) (x2,y2) = (x1+x2,y1+y2)
     let step (coords, maxDist) = getDir >> addDir coords >> (fun c -> (c, max maxDist (dist c)))
     let solve = Array.fold step ((0, 0), 0)
-    let solver = { parse = getLine >> splitOn ","; solvePart1 = solve >> fst >> dist; solvePart2 = solve >> snd}
+    let solver = { parse = parseFirstLine (splitBy "," asStringArray); solvePart1 = solve >> fst >> dist; solvePart2 = solve >> snd}
 
 module Day12 = 
-    let parse = Seq.map (splitOn " <-> " >> (fun t -> splitOn ", " t.[1] |> Array.map int |> Array.toList)) >> Seq.toArray
-    let solvePart1 graph = Graph.getConnectedComponent (Array.item >< graph) 0 |> Set.count
-    let solvePart2 graph = Graph.getConnectedComponents (Array.item >< graph) (Set.ofList [0..(Array.length graph - 1)]) |> List.length
-    let solver = { parse = parse; solvePart1 = solvePart1; solvePart2 = solvePart2 }
+    let asConnections = splitBy ", " asIntArray >> Array.toList
+    let asPipe = splitBy " <-> " (Array.item 1 >> asConnections)
+    let solvePart1 graph = Graph.getConnectedComponent (List.item >< graph) 0 |> Set.count
+    let solvePart2 graph = Graph.getConnectedComponents (List.item >< graph) (Set.ofList [0..(List.length graph - 1)]) |> List.length
+    let solver = { parse = parseEachLine asPipe >> Seq.toList; solvePart1 = solvePart1; solvePart2 = solvePart2 }
 
 module Day13 = 
     let collides delay (layer, length) = (delay + layer) % (2 * (length - 1)) = 0
-    let getScore = Seq.filter (collides 0) >> (Seq.sumBy (fun l -> fst l * snd l))
-    let rec findValid delay layers = if (Seq.exists (collides delay) layers) then findValid (delay + 1) layers else delay
-    let parse = Seq.map (splitOn ": " >> (fun l -> (int l.[0], int l.[1]))) >> Seq.toArray
-    let solver = { parse = parse; solvePart1 = getScore; solvePart2 = findValid 0 }
+    let getScore = List.filter (collides 0) >> (List.sumBy (fun l -> fst l * snd l))
+    let rec findValid delay layers = if (List.exists (collides delay) layers) then findValid (delay + 1) layers else delay
+    let asLayer = splitBy ": " (fun l -> (int l.[0], int l.[1]))
+    let solver = { parse = parseEachLine asLayer >> Seq.toList; solvePart1 = getScore; solvePart2 = findValid 0 }
 
 module Day14 = 
     let toBinStr (i : int) = Convert.ToString(i, 2).PadLeft(8, '0')
@@ -232,14 +237,15 @@ module Day14 =
     let getActiveCoords key = Seq.map (getHash key) [0..127] |> Seq.mapi hashToCoords |> Set.unionMany
     let getSurroundingNodes activeCoords (i, j) = [(i-1, j); (i+1, j); (i, j-1); (i, j+1)] |> List.filter (Set.contains >< activeCoords)
     let solvePart2 = getActiveCoords >> (fun coords -> Graph.getConnectedComponents (getSurroundingNodes coords) coords)
-    let solver = { parse = getLine; solvePart1 = getActiveCoords >> Set.count ; solvePart2 = solvePart2 >> List.length}
+    let solver = { parse = parseFirstLine asString; solvePart1 = getActiveCoords >> Set.count ; solvePart2 = solvePart2 >> List.length}
 
 module Day15 = 
     let lcg g x = g * x % 2147483647UL
     let rec lcg2 mask g x = match lcg g x with | next when (next &&& mask = 0UL) -> next | next -> lcg2 mask g next
 
-    let parse = Seq.map (splitOn "with " >> Array.item 1 >> uint64) >> (fun s -> (Seq.head s, Seq.tail s |> Seq.head))
-    let solve genA genB iterations (seedA, seedB) = 
+    let asSeed = splitBy "with " (Array.item 1 >> uint64)
+    let solve genA genB iterations seeds = 
+        let seedA, seedB = Seq.head seeds, Seq.tail seeds |> Seq.head
         let rec solve' a b count = function
         | 0 -> count
         | n -> 
@@ -247,23 +253,32 @@ module Day15 =
             let i = if (a &&& 0xFFFFUL) = (b &&& 0xFFFFUL) then 1 else 0
             solve' a b (count + i) (n - 1)
         solve' seedA seedB 0 iterations
-    let solver = { parse = parse; solvePart1 = solve lcg lcg 40_000_000; solvePart2 = solve (lcg2 3UL) (lcg2 7UL) 5_000_000 }
+    let solver = { parse = parseEachLine asSeed; solvePart1 = solve lcg lcg 40_000_000; solvePart2 = solve (lcg2 3UL) (lcg2 7UL) 5_000_000 }
 
-let runSolver = 
-    let run day input = 
+let runSolver day = 
+    let run solver input = 
         let sw = System.Diagnostics.Stopwatch.StartNew()
-        printfn "Part 1: %A (%fms)" (day.solvePart1 (day.parse input)) sw.Elapsed.TotalMilliseconds
+        let s1 = solver.solvePart1 (solver.parse input)
+        printfn "Day %02i-1 %7.2fms %A" day sw.Elapsed.TotalMilliseconds s1 
         sw.Restart()
-        printfn "Part 2: %A (%fms)" (day.solvePart2 (day.parse input)) sw.Elapsed.TotalMilliseconds
-    function
-    | "Day1"  -> run Day1.solver  | "Day2"  -> run Day2.solver  | "Day3"  -> run Day3.solver  | "Day4"  -> run Day4.solver
-    | "Day5"  -> run Day5.solver  | "Day6"  -> run Day6.solver  | "Day7"  -> run Day7.solver  | "Day8"  -> run Day8.solver
-    | "Day9"  -> run Day9.solver  | "Day10" -> run Day10.solver | "Day11" -> run Day11.solver | "Day12" -> run Day12.solver
-    | "Day13" -> run Day13.solver | "Day14" -> run Day14.solver | "Day15" -> run Day15.solver
-    | name -> (fun _ -> printfn "Invalid Problem: %s" name)
+        let s2 = solver.solvePart2 (solver.parse input)
+        printfn "Day %02i-2 %7.2fms %A" day sw.Elapsed.TotalMilliseconds s2
+    match day with
+    | 1  -> run Day1.solver  | 2  -> run Day2.solver  | 3  -> run Day3.solver  | 4  -> run Day4.solver
+    | 5  -> run Day5.solver  | 6  -> run Day6.solver  | 7  -> run Day7.solver  | 8  -> run Day8.solver
+    | 9  -> run Day9.solver  | 10 -> run Day10.solver | 11 -> run Day11.solver | 12 -> run Day12.solver
+    | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver
+    | day -> (fun _ -> printfn "Invalid Problem: %i" day)
+
+let runDay day =
+    let fileName = sprintf "input_files\\day%i.txt" day
+    let input = File.ReadLines fileName
+    runSolver day input
 
 [<EntryPoint>]
 let main argv =
-    let result = argv.[1] |> File.ReadLines |> runSolver argv.[0]
+    match argv.[0] with
+    | "ALL" -> for i in 1..15 do runDay i
+    | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0
