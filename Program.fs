@@ -257,10 +257,7 @@ module Day15 =
     let solver = { parse = parseEachLine asSeed; solvePart1 = solve lcg lcg 40_000_000; solvePart2 = solve (lcg2 3UL) (lcg2 7UL) 5_000_000 }
 
 module Day16 = 
-    type DanceMove =
-        | Spin of int
-        | Exchange of int * int
-        | Partner of int * int
+    type DanceMove = Spin of int | Exchange of int * int | Partner of int * int
     
     let asMove (move : string) = 
         match move.[0] with
@@ -269,25 +266,20 @@ module Day16 =
         | 'p' -> Partner (int move.[1] - int 'a', int move.[3] - int 'a')
         | _ -> Spin 0
 
-    let swap (i, j) (arr : 'a []) = 
-        let valI = arr.[i]
-        arr.[i] <- arr.[j]
-        arr.[j] <- valI
-        arr
-
+    let swap (i, j) arr = arr |> List.mapi (fun k h -> if k = i then arr.[j] elif k = j then arr.[i] else h)
     let performMove order = function
-        | Spin i -> Array.append (Array.skip (16 - i) order) (Array.take (16-i) order)
+        | Spin i -> (List.skip (16 - i) order) @ (List.take (16-i) order)
         | Exchange (a, b) -> swap (a, b) order
-        | Partner (a, b) -> swap ((Array.findIndex ((=) a) order), (Array.findIndex ((=)b) order)) order
+        | Partner (a, b) -> swap ((List.findIndex ((=) a) order), (List.findIndex ((=)b) order)) order
     
-    let orderToStr = Array.map ((+) (int 'a') >> char) >> String.Concat
+    let orderToStr = List.map ((+) (int 'a') >> char) >> String.Concat
     let performNDances n moves =
         let performDance order = Array.fold performMove order moves
         let rec performNDances' dances order = function
             | 0 -> orderToStr order
             | x when List.contains (orderToStr order) dances -> List.item (n % (n - x)) dances
             | x -> performNDances' (dances @ [orderToStr order]) (performDance order) (x - 1)
-        performNDances' List.empty [|0..15|] n
+        performNDances' List.empty [0..15] n
     
     let solver = { parse = parseFirstLine (splitBy "," (Array.map asMove)); solvePart1 = performNDances 1; solvePart2 = performNDances 1_000_000_000 }
 
@@ -299,8 +291,8 @@ let runSolver day =
             printfn "Day %02i-%i %7.2fms" day part t
         let runPart part solve = 
             printfn "Day %02i-%i %A" day part (fileName |> File.ReadLines |> solver.parse |> solve)
-        runPart 1 solver.solvePart1
-        runPart 2 solver.solvePart2
+        timePart 1 solver.solvePart1
+        timePart 2 solver.solvePart2
     match day with
     | 1  -> run Day1.solver  | 2  -> run Day2.solver  | 3  -> run Day3.solver  | 4  -> run Day4.solver
     | 5  -> run Day5.solver  | 6  -> run Day6.solver  | 7  -> run Day7.solver  | 8  -> run Day8.solver

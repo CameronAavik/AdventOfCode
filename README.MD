@@ -38,5 +38,5 @@ Below is the results of timing one run for each day/part so far:
 	Day 14-2  309.30ms
 	Day 15-1 1999.49ms
 	Day 15-2 1273.95ms
-	Day 16-1    5.69ms
-	Day 16-2   42.90ms
+	Day 16-1   13.44ms
+	Day 16-2  129.72ms
