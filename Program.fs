@@ -260,8 +260,8 @@ let runSolver day =
         let sw = System.Diagnostics.Stopwatch.StartNew()
         let printSolution part solve =
             sw.Restart()
-            let result = fileName |> File.ReadLines |> solver.parse |> solve
-            printfn "Day %02i-%i %7.2fms %A" day part sw.Elapsed.TotalMilliseconds result 
+            let result, time = fileName |> File.ReadLines |> solver.parse |> solve, sw.Elapsed.TotalMilliseconds
+            printfn "Day %02i-%i %7.2fms %A" day part time result 
         printSolution 1 solver.solvePart1
         printSolution 2 solver.solvePart2
     match day with
