@@ -256,6 +256,41 @@ module Day15 =
         solve' seedA seedB 0 iterations
     let solver = { parse = parseEachLine asSeed; solvePart1 = solve lcg lcg 40_000_000; solvePart2 = solve (lcg2 3UL) (lcg2 7UL) 5_000_000 }
 
+module Day16 = 
+    type DanceMove =
+        | Spin of int
+        | Exchange of int * int
+        | Partner of int * int
+    
+    let asMove (move : string) = 
+        match move.[0] with
+        | 's' -> Spin (move.[1..] |> int)
+        | 'x' -> Exchange (move.[1..] |> splitBy "/" (fun x -> (int x.[0], int x.[1])))
+        | 'p' -> Partner (int move.[1] - int 'a', int move.[3] - int 'a')
+        | _ -> Spin 0
+
+    let swap (i, j) (arr : 'a []) = 
+        let valI = arr.[i]
+        arr.[i] <- arr.[j]
+        arr.[j] <- valI
+        arr
+
+    let performMove order = function
+        | Spin i -> Array.append (Array.skip (16 - i) order) (Array.take (16-i) order)
+        | Exchange (a, b) -> swap (a, b) order
+        | Partner (a, b) -> swap ((Array.findIndex ((=) a) order), (Array.findIndex ((=)b) order)) order
+    
+    let orderToStr = Array.map ((+) (int 'a') >> char) >> String.Concat
+    let performNDances n moves =
+        let performDance order = Array.fold performMove order moves
+        let rec performNDances' dances order = function
+            | 0 -> orderToStr order
+            | x when List.contains (orderToStr order) dances -> List.item (n % (n - x)) dances
+            | x -> performNDances' (dances @ [orderToStr order]) (performDance order) (x - 1)
+        performNDances' List.empty [|0..15|] n
+    
+    let solver = { parse = parseFirstLine (splitBy "," (Array.map asMove)); solvePart1 = performNDances 1; solvePart2 = performNDances 1_000_000_000 }
+
 let runSolver day =
     let run solver fileName =
         let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
@@ -270,14 +305,14 @@ let runSolver day =
     | 1  -> run Day1.solver  | 2  -> run Day2.solver  | 3  -> run Day3.solver  | 4  -> run Day4.solver
     | 5  -> run Day5.solver  | 6  -> run Day6.solver  | 7  -> run Day7.solver  | 8  -> run Day8.solver
     | 9  -> run Day9.solver  | 10 -> run Day10.solver | 11 -> run Day11.solver | 12 -> run Day12.solver
-    | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver
+    | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver | 16 -> run Day16.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
 [<EntryPoint>]
 let main argv =
     let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-        | "ALL" -> for i in 1..15 do runDay i
+        | "ALL" -> for i in 1..16 do runDay i
         | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0
