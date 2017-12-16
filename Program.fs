@@ -266,7 +266,7 @@ module Day16 =
         | 'p' -> Partner (int move.[1] - int 'a', int move.[3] - int 'a')
         | _ -> Spin 0
 
-    let swap (i, j) arr = arr |> List.mapi (fun k h -> if k = i then arr.[j] elif k = j then arr.[i] else h)
+    let swap (i, j) list = list |> List.mapi (fun k h -> if k = i then list.[j] elif k = j then list.[i] else h)
     let performMove order = function
         | Spin i -> (List.skip (16 - i) order) @ (List.take (16-i) order)
         | Exchange (a, b) -> swap (a, b) order
