@@ -1,4 +1,5 @@
 ﻿open System
+open System.Diagnostics
 open System.Linq
 open System.IO
 
@@ -255,15 +256,16 @@ module Day15 =
         solve' seedA seedB 0 iterations
     let solver = { parse = parseEachLine asSeed; solvePart1 = solve lcg lcg 40_000_000; solvePart2 = solve (lcg2 3UL) (lcg2 7UL) 5_000_000 }
 
-let runSolver day = 
-    let run solver fileName = 
-        let sw = System.Diagnostics.Stopwatch.StartNew()
-        let printSolution part solve =
-            sw.Restart()
-            let result, time = fileName |> File.ReadLines |> solver.parse |> solve, sw.Elapsed.TotalMilliseconds
-            printfn "Day %02i-%i %7.2fms %A" day part time result 
-        printSolution 1 solver.solvePart1
-        printSolution 2 solver.solvePart2
+let runSolver day =
+    let run solver fileName =
+        let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
+        let timePart part solve =
+            let (_, t) = time solve (fileName |> File.ReadLines |> solver.parse)
+            printfn "Day %02i-%i %7.2fms" day part t
+        let runPart part solve = 
+            printfn "Day %02i-%i %A" day part (fileName |> File.ReadLines |> solver.parse |> solve)
+        runPart 1 solver.solvePart1
+        runPart 2 solver.solvePart2
     match day with
     | 1  -> run Day1.solver  | 2  -> run Day2.solver  | 3  -> run Day3.solver  | 4  -> run Day4.solver
     | 5  -> run Day5.solver  | 6  -> run Day6.solver  | 7  -> run Day7.solver  | 8  -> run Day8.solver
