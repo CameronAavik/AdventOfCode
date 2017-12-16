@@ -122,7 +122,7 @@ module Day6 =
 
     let solvePart1 = solve Map.empty 0 >> fst >> Map.count
     let solvePart2 = solve Map.empty 0 >> (fun (seen, banks) -> (Map.count seen) - (Map.find (serialiseBanks banks) seen))
-    let solver = { parse = parseFirstLine (splitBy "	" asIntArray); solvePart1 = solvePart1; solvePart2 = solvePart2; }
+    let solver = { parse = parseFirstLine (splitBy "\t" asIntArray); solvePart1 = solvePart1; solvePart2 = solvePart2; }
 
 module Day7 =
     let getSubTowers (tokens : string array) = if Array.length tokens = 2 then Array.empty else tokens.[3..] |> Array.map (fun c -> c.TrimEnd(','))
@@ -256,13 +256,14 @@ module Day15 =
     let solver = { parse = parseEachLine asSeed; solvePart1 = solve lcg lcg 40_000_000; solvePart2 = solve (lcg2 3UL) (lcg2 7UL) 5_000_000 }
 
 let runSolver day = 
-    let run solver input = 
+    let run solver fileName = 
         let sw = System.Diagnostics.Stopwatch.StartNew()
-        let s1 = solver.solvePart1 (solver.parse input)
-        printfn "Day %02i-1 %7.2fms %A" day sw.Elapsed.TotalMilliseconds s1 
-        sw.Restart()
-        let s2 = solver.solvePart2 (solver.parse input)
-        printfn "Day %02i-2 %7.2fms %A" day sw.Elapsed.TotalMilliseconds s2
+        let printSolution part solve =
+            sw.Restart()
+            let result = fileName |> File.ReadLines |> solver.parse |> solve
+            printfn "Day %02i-%i %7.2fms %A" day part sw.Elapsed.TotalMilliseconds result 
+        printSolution 1 solver.solvePart1
+        printSolution 2 solver.solvePart2
     match day with
     | 1  -> run Day1.solver  | 2  -> run Day2.solver  | 3  -> run Day3.solver  | 4  -> run Day4.solver
     | 5  -> run Day5.solver  | 6  -> run Day6.solver  | 7  -> run Day7.solver  | 8  -> run Day8.solver
@@ -270,15 +271,11 @@ let runSolver day =
     | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
-let runDay day =
-    let fileName = sprintf "input_files\\day%i.txt" day
-    let input = File.ReadLines fileName
-    runSolver day input
-
 [<EntryPoint>]
 let main argv =
+    let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-    | "ALL" -> for i in 1..15 do runDay i
-    | x -> runDay (int x)
+        | "ALL" -> for i in 1..15 do runDay i
+        | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0
