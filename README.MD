@@ -16,8 +16,8 @@ Below is the results of timing one run for each day/part so far:
 	Day 03-2   14.22ms
 	Day 04-1    6.82ms
 	Day 04-2   10.46ms
-	Day 05-1    2.10ms
-	Day 05-2  128.48ms
+	Day 05-1 1030.92ms
+	Day 05-2 2408.24ms
 	Day 06-1   88.52ms
 	Day 06-2   99.68ms
 	Day 07-1    5.73ms
@@ -40,3 +40,5 @@ Below is the results of timing one run for each day/part so far:
 	Day 15-2 1273.95ms
 	Day 16-1   13.44ms
 	Day 16-2  129.72ms
+	Day 17-1    3.06ms
+	Day 17-2  409.64ms

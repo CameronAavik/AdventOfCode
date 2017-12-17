@@ -93,19 +93,20 @@ module Day4 =
     let solver = { parse = parseEachLine (splitBy " " asStringArray); solvePart1 = solve id; solvePart2 = solve (Seq.map sortedString)}
 
 module Day5 = 
-    let solve modifyOffset offsets =
-        let maze = Seq.toArray offsets
-        let rec solve' currentPosition total = 
-            if currentPosition < 0 || currentPosition >= Array.length maze then total
-            else
-                let currentOffset = Array.get maze currentPosition
-                maze.[currentPosition] <- modifyOffset currentOffset
-                solve' (currentOffset + currentPosition) (total + 1)
-        solve' 0 0
+    type Tape<'a> = { left : 'a list; focus : 'a; right : 'a list }
+    let rec move n { left = ls; focus = x; right = rs } =
+        if   n = 0 then Some { left = ls; focus = x; right = rs }
+        elif n < 0 then match ls with | l :: ls' -> move (n + 1) { left = ls';     focus = l; right = x :: rs } | [] -> None 
+        else            match rs with | r :: rs' -> move (n - 1) { left = x :: ls; focus = r; right = rs' }     | [] -> None 
 
-    let solvePart1 = solve ((+) 1)
+    let solve modifyOffset offsets =
+        let rec solve' total = function
+            | None -> total
+            | Some tape -> solve' (total + 1) (move tape.focus {tape with focus = modifyOffset tape.focus})
+        solve' 0 (Some { left = []; focus = Seq.head offsets; right = Seq.tail offsets |> Seq.toList})
+
     let solvePart2 = solve (fun x -> if x >= 3 then (x - 1) else (x + 1))
-    let solver = { parse = parseEachLine asInt; solvePart1 = solvePart1; solvePart2 = solvePart2; }
+    let solver = { parse = parseEachLine asInt; solvePart1 = solve ((+) 1); solvePart2 = solvePart2; }
 
 module Day6 = 
     let serialiseBanks = Array.map (fun i -> i.ToString()) >> String.concat ","
@@ -283,6 +284,19 @@ module Day16 =
     
     let solver = { parse = parseFirstLine (splitBy "," (Array.map asMove)); solvePart1 = performNDances 1; solvePart2 = performNDances 1_000_000_000 }
 
+module Day17 = 
+    let getInsertPositions i skip = List.fold (fun l n -> (((List.head l) + skip) % n + 1) :: l) [0] (List.init i ((+)1))
+    let rec findTarget target = function
+        | [] -> 0
+        | x :: xs when x = target -> List.length xs
+        | x :: xs -> findTarget (target + if x < target then - 1 else 0) xs 
+    let solvePart1 = getInsertPositions 2017 >> (fun pos -> findTarget ((List.head pos) + 1) pos)
+
+    let rec solvePart2 skip afterZero i n = 
+        if n = 50000001 then afterZero 
+        else (i + skip) % n |> (fun next -> solvePart2 skip (if next = 0 then n else afterZero) (next + 1) (n + 1))
+    let solver = { parse = parseFirstLine asInt; solvePart1 = solvePart1; solvePart2 = (fun skip -> solvePart2 skip 0 0 1)}
+
 let runSolver day =
     let run solver fileName =
         let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
@@ -291,20 +305,21 @@ let runSolver day =
             printfn "Day %02i-%i %7.2fms" day part t
         let runPart part solve = 
             printfn "Day %02i-%i %A" day part (fileName |> File.ReadLines |> solver.parse |> solve)
-        timePart 1 solver.solvePart1
-        timePart 2 solver.solvePart2
+        runPart 1 solver.solvePart1
+        runPart 2 solver.solvePart2
     match day with
     | 1  -> run Day1.solver  | 2  -> run Day2.solver  | 3  -> run Day3.solver  | 4  -> run Day4.solver
     | 5  -> run Day5.solver  | 6  -> run Day6.solver  | 7  -> run Day7.solver  | 8  -> run Day8.solver
     | 9  -> run Day9.solver  | 10 -> run Day10.solver | 11 -> run Day11.solver | 12 -> run Day12.solver
     | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver | 16 -> run Day16.solver
+    | 17 -> run Day17.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
 [<EntryPoint>]
 let main argv =
     let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-        | "ALL" -> for i in 1..16 do runDay i
+        | "ALL" -> for i in 1..17 do runDay i
         | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0
