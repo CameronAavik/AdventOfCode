@@ -14,6 +14,10 @@ module Utils =
     let (><) f a b = f b a
     // this is a modulo operator that handles negative numbers correctly
     let (%!) a b = (a % b + b) % b
+    // option coalescing operator
+    let (|?) (a: 'a option) b = if a.IsSome then a.Value else b
+    // this is a get or default for map
+    let getOrDefault key map def = if Map.containsKey key map then Map.find key map else def
 
     type Day<'a, 'b, 'c> = {parse: string seq -> 'a; solvePart1: 'a -> 'b; solvePart2: 'a -> 'c}
 
@@ -160,9 +164,8 @@ module Day8 =
     let parseOperator = function | ">" -> (>) | "<" -> (<) | ">=" -> (>=) | "<=" -> (<=) | "==" -> (=) | "!=" -> (<>) | _ -> (fun _ _ -> false)
     let asInstruction = splitBy " " (fun tokens -> (tokens.[0], (parseIncOrDec tokens.[1]) >< (int tokens.[2]), tokens.[4], (parseOperator tokens.[5]) >< (int tokens.[6])))
 
-    let getOrZero map key = if Map.containsKey key map then Map.find key map else 0
     let simulate (var1, incOrDec, var2, passesComparisonCheck) vars = 
-        let val1, val2 = getOrZero vars var1, getOrZero vars var2
+        let val1, val2 = getOrDefault var1 vars 0, getOrDefault var2 vars 0
         if passesComparisonCheck val2 then Map.add var1 (incOrDec val1) vars else vars
     let maxVar = Map.toSeq >> Seq.map snd >> Seq.max
 
@@ -297,6 +300,47 @@ module Day17 =
         else (i + skip) % n |> (fun next -> solvePart2 skip (if next = 0 then n else afterZero) (next + 1) (n + 1))
     let solver = { parse = parseFirstLine asInt; solvePart1 = solvePart1; solvePart2 = (fun skip -> solvePart2 skip 0 0 1)}
 
+module Day18 =
+    type Computer = { code: (string * (string array)) list; pc : int; registers: Map<string, int64>; buffer: int64 list }
+    let defaultComp code = {code = Seq.toList code; pc = 0; registers = Map.empty; buffer = []}
+    // computer helper functions
+    let getVal comp value = Int64.TryParse(value) |> (fun (isInt, i) -> if isInt then i else getOrDefault value comp.registers 0L)
+    let jump offset comp = {comp with pc = comp.pc + offset}
+    let updateReg register value comp = {comp with registers = Map.add register value comp.registers}
+    let queue comp = function | None -> comp | Some x -> {comp with buffer = comp.buffer @ [x]}
+    let dequeue comp = {comp with buffer = List.tail comp.buffer}
+    let getCurrentInsn comp = List.item comp.pc comp.code
+    let isLocked comp = fst (getCurrentInsn comp) = "rcv" && comp.buffer = []
+    // returns function which makes the relevant changes to the computer and the value being sent
+    let applyInsn onRCV get = function
+        | ("snd", [| x |]), _ -> jump 1, Some (get x)
+        | ("set", [| x; y |]), _ -> updateReg x (get y) >> jump 1, None
+        | ("add", [| x; y |]), _ -> updateReg x (get x + get y) >> jump 1, None
+        | ("mul", [| x; y |]), _ -> updateReg x (get x * get y) >> jump 1, None
+        | ("mod", [| x; y |]), _ -> updateReg x (get x % get y) >> jump 1, None
+        | ("rcv", _), [] -> onRCV, None 
+        | ("rcv", [| x |]), x' :: _ ->  updateReg x x' >> dequeue >> jump 1, None
+        | ("jgz", [| x; y |]), _ -> jump (if get x > 0L then int (get y) else 1), None
+        | _ -> id, None
+    // simulates one clock tick of the computer
+    let step onRCV comp = applyInsn onRCV (getVal comp) (getCurrentInsn comp, comp.buffer) |> (fun (app, sent) -> (app comp, sent))
+    let step1, step2 = step (jump 1), step id
+    // parses a string of the file into an instruction
+    let asInstruction = splitBy " " (fun tokens -> (tokens.[0], tokens.[1..]))
+    // recursively ticks the clock until a valid rcv is found, then returns last sound value
+    let rec findRCV comp lastSND = 
+        match getCurrentInsn comp with
+        | ("rcv", [| x |]) when getVal comp x <> 0L -> lastSND
+        | _ -> step1 comp |> (fun (c, s) -> findRCV c (s |? lastSND))
+    // recursively ticks the clock until a deadlock is found, then returns number of messages sent from p2
+    let rec findDeadlock p1 p2 c = 
+        if isLocked p1 && isLocked p2 then c
+        else (step2 p1, step2 p2) |> (fun ((c1, s1), (c2, s2)) -> findDeadlock (queue c1 s2) (queue c2 s1) (c + if s2.IsSome then 1 else 0))
+    // setups up and calls the recursive methods
+    let solvePart1 = defaultComp >> findRCV >< 0L
+    let solvePart2 = defaultComp >> (fun comp -> findDeadlock comp (updateReg "p" 1L comp) 0)
+    let solver = {parse = parseEachLine asInstruction; solvePart1 = solvePart1; solvePart2 = solvePart2}
+
 let runSolver day =
     let run solver fileName =
         let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
@@ -304,7 +348,7 @@ let runSolver day =
             let (_, t) = time solve (fileName |> File.ReadLines |> solver.parse)
             printfn "Day %02i-%i %7.2fms" day part t
         let runPart part solve = 
-            printfn "Day %02i-%i %A" day part (fileName |> File.ReadLines |> solver.parse |> solve)
+            printfn "Day %02i-%i %O" day part (fileName |> File.ReadLines |> solver.parse |> solve)
         runPart 1 solver.solvePart1
         runPart 2 solver.solvePart2
     match day with
@@ -312,14 +356,14 @@ let runSolver day =
     | 5  -> run Day5.solver  | 6  -> run Day6.solver  | 7  -> run Day7.solver  | 8  -> run Day8.solver
     | 9  -> run Day9.solver  | 10 -> run Day10.solver | 11 -> run Day11.solver | 12 -> run Day12.solver
     | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver | 16 -> run Day16.solver
-    | 17 -> run Day17.solver
+    | 17 -> run Day17.solver | 18 -> run Day18.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
 [<EntryPoint>]
 let main argv =
     let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-        | "ALL" -> for i in 1..17 do runDay i
+        | "ALL" -> for i in 1..18 do runDay i
         | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0
