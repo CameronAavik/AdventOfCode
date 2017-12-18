@@ -17,7 +17,7 @@ module Utils =
     // option coalescing operator
     let (|?) (a: 'a option) b = if a.IsSome then a.Value else b
     // this is a get or default for map
-    let getOrDefault key map def = if Map.containsKey key map then Map.find key map else def
+    let getOrDefault key map ``default`` = if Map.containsKey key map then Map.find key map else ``default``
 
     type Day<'a, 'b, 'c> = {parse: string seq -> 'a; solvePart1: 'a -> 'b; solvePart2: 'a -> 'c}
 
@@ -306,20 +306,20 @@ module Day18 =
     // computer helper functions
     let getVal comp value = Int64.TryParse(value) |> (fun (isInt, i) -> if isInt then i else getOrDefault value comp.registers 0L)
     let jump offset comp = {comp with pc = comp.pc + offset}
-    let updateReg register value comp = {comp with registers = Map.add register value comp.registers}
+    let updateRegister register value comp = {comp with registers = Map.add register value comp.registers}
     let queue comp = function | None -> comp | Some x -> {comp with buffer = comp.buffer @ [x]}
     let dequeue comp = {comp with buffer = List.tail comp.buffer}
     let getCurrentInsn comp = List.item comp.pc comp.code
     let isLocked comp = fst (getCurrentInsn comp) = "rcv" && comp.buffer = []
-    // returns function which makes the relevant changes to the computer and the value being sent
-    let applyInsn onRCV get = function
+    // returns function which makes the relevant changes to the computer and the value being sent given instruction and rcv buffer
+    let applyInsn handleRcvEmptyBuffer get = function
         | ("snd", [| x |]), _ -> jump 1, Some (get x)
-        | ("set", [| x; y |]), _ -> updateReg x (get y) >> jump 1, None
-        | ("add", [| x; y |]), _ -> updateReg x (get x + get y) >> jump 1, None
-        | ("mul", [| x; y |]), _ -> updateReg x (get x * get y) >> jump 1, None
-        | ("mod", [| x; y |]), _ -> updateReg x (get x % get y) >> jump 1, None
-        | ("rcv", _), [] -> onRCV, None 
-        | ("rcv", [| x |]), x' :: _ ->  updateReg x x' >> dequeue >> jump 1, None
+        | ("set", [| x; y |]), _ -> updateRegister x (get y) >> jump 1, None
+        | ("add", [| x; y |]), _ -> updateRegister x (get x + get y) >> jump 1, None
+        | ("mul", [| x; y |]), _ -> updateRegister x (get x * get y) >> jump 1, None
+        | ("mod", [| x; y |]), _ -> updateRegister x (get x % get y) >> jump 1, None
+        | ("rcv", _), [] -> handleRcvEmptyBuffer, None 
+        | ("rcv", [| x |]), x' :: _ ->  updateRegister x x' >> dequeue >> jump 1, None
         | ("jgz", [| x; y |]), _ -> jump (if get x > 0L then int (get y) else 1), None
         | _ -> id, None
     // simulates one clock tick of the computer
@@ -327,18 +327,18 @@ module Day18 =
     let step1, step2 = step (jump 1), step id
     // parses a string of the file into an instruction
     let asInstruction = splitBy " " (fun tokens -> (tokens.[0], tokens.[1..]))
-    // recursively ticks the clock until a valid rcv is found, then returns last sound value
-    let rec findRCV comp lastSND = 
+    // recursively ticks the clock until a valid recover is found, then returns last sound value
+    let rec findRecover comp lastSound = 
         match getCurrentInsn comp with
-        | ("rcv", [| x |]) when getVal comp x <> 0L -> lastSND
-        | _ -> step1 comp |> (fun (c, s) -> findRCV c (s |? lastSND))
+        | ("rcv", [| x |]) when getVal comp x <> 0L -> lastSound
+        | _ -> step1 comp |> (fun (c, s) -> findRecover c (s |? lastSound))
     // recursively ticks the clock until a deadlock is found, then returns number of messages sent from p2
     let rec findDeadlock p1 p2 c = 
         if isLocked p1 && isLocked p2 then c
         else (step2 p1, step2 p2) |> (fun ((c1, s1), (c2, s2)) -> findDeadlock (queue c1 s2) (queue c2 s1) (c + if s2.IsSome then 1 else 0))
     // setups up and calls the recursive methods
-    let solvePart1 = defaultComp >> findRCV >< 0L
-    let solvePart2 = defaultComp >> (fun comp -> findDeadlock comp (updateReg "p" 1L comp) 0)
+    let solvePart1 = defaultComp >> findRecover >< 0L
+    let solvePart2 = defaultComp >> (fun comp -> findDeadlock comp (updateRegister "p" 1L comp) 0)
     let solver = {parse = parseEachLine asInstruction; solvePart1 = solvePart1; solvePart2 = solvePart2}
 
 let runSolver day =
