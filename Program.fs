@@ -341,6 +341,20 @@ module Day18 =
     let solvePart2 = defaultComp >> (fun comp -> findDeadlock comp (updateRegister "p" 1L comp) 0)
     let solver = {parse = parseEachLine asInstruction; solvePart1 = solvePart1; solvePart2 = solvePart2}
 
+module Day19 =
+    type State = {x: int; y: int; dx: int; dy: int; steps: int; letters: string}
+    let step state = {state with x=state.x+state.dx; y=state.y+state.dy; steps=state.steps+1}
+    let solve (diagram : string list) = 
+        let rec move state = 
+            match diagram.[state.y].[state.x], state.dx with
+            | ' ', _ -> state
+            | '+', 0 -> move ({state with dx = (if diagram.[state.y].[state.x-1] = ' ' then 1 else -1); dy = 0} |> step)
+            | '+', _ -> move ({state with dy = (if diagram.[state.y-1].[state.x] = ' ' then 1 else -1); dx = 0} |> step)
+            | '-', _ | '|', _ -> move (step state)
+            | x, _ -> move ({state with letters = state.letters + x.ToString()} |> step)
+        move {x=diagram.[0].IndexOf('|'); y=0; dx=0; dy=1; steps=0; letters=""}
+    let solver = {parse = parseEachLine asString >> Seq.toList; solvePart1 = solve >> (fun s -> s.letters); solvePart2 = solve >> (fun s -> s.steps)}
+
 let runSolver day =
     let run solver fileName =
         let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
@@ -356,14 +370,14 @@ let runSolver day =
     | 5  -> run Day5.solver  | 6  -> run Day6.solver  | 7  -> run Day7.solver  | 8  -> run Day8.solver
     | 9  -> run Day9.solver  | 10 -> run Day10.solver | 11 -> run Day11.solver | 12 -> run Day12.solver
     | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver | 16 -> run Day16.solver
-    | 17 -> run Day17.solver | 18 -> run Day18.solver
+    | 17 -> run Day17.solver | 18 -> run Day18.solver | 19 -> run Day19.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
 [<EntryPoint>]
 let main argv =
     let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-        | "ALL" -> for i in 1..18 do runDay i
+        | "ALL" -> for i in 1..19 do runDay i
         | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0
