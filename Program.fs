@@ -355,6 +355,25 @@ module Day19 =
         move {x=diagram.[0].IndexOf('|'); y=0; dx=0; dy=1; steps=0; letters=""}
     let solver = {parse = parseEachLine asString >> Seq.toList; solvePart1 = solve >> (fun s -> s.letters); solvePart2 = solve >> (fun s -> s.steps)}
 
+module Day20 =
+    let asVector (s : string) = splitBy "," (Array.map int64) s.[3..(s.Length-2)] |> (fun v -> (v.[0],v.[1],v.[2]))
+    let asParticle = splitBy ", " (Array.map asVector >> (fun vecs -> (vecs.[0],vecs.[1],vecs.[2])))
+    
+    let addVec (x1,y1,z1) (x2,y2,z2) = (x1 + x2, y1 + y2, z1 + z2)
+    let tickParticle = (fun (p, v, a) -> (p, addVec v a, a)) >> (fun (p, v, a) -> (addVec p v, v, a))
+    let dist (x, y, z) = abs x + abs y + abs z
+    
+    let solve transformList = 
+        let tickAll = List.map (fun (pos, p) -> (pos, tickParticle p)) >> transformList
+        let rec tick t particles = if t = 200 then particles else tick (t + 1) (tickAll particles)
+        List.mapi (fun i v -> i, v) >> tick 0
+    
+    let filterColliding = List.groupBy (fun (_, (p, _, _)) -> p) >> List.filter (fun (_,l) -> List.length l = 1) >> List.collect snd
+    let solvePart1 = solve id >> List.minBy (fun (_, (p, v, a)) -> (dist a, dist v, dist p)) >> fst
+    let solvePart2 = solve filterColliding >> List.length
+
+    let solver = {parse = parseEachLine asParticle >> Seq.toList; solvePart1 = solvePart1; solvePart2 = solvePart2}
+
 let runSolver day =
     let run solver fileName =
         let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
@@ -370,14 +389,14 @@ let runSolver day =
     | 5  -> run Day5.solver  | 6  -> run Day6.solver  | 7  -> run Day7.solver  | 8  -> run Day8.solver
     | 9  -> run Day9.solver  | 10 -> run Day10.solver | 11 -> run Day11.solver | 12 -> run Day12.solver
     | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver | 16 -> run Day16.solver
-    | 17 -> run Day17.solver | 18 -> run Day18.solver | 19 -> run Day19.solver
+    | 17 -> run Day17.solver | 18 -> run Day18.solver | 19 -> run Day19.solver | 20 -> run Day20.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
 [<EntryPoint>]
 let main argv =
     let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-        | "ALL" -> for i in 1..19 do runDay i
+        | "ALL" -> for i in 1..20 do runDay i
         | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0

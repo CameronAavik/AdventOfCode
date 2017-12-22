@@ -46,3 +46,5 @@ Below is the results of timing one run for each day/part so far:
 	Day 18-2   95.51ms
 	Day 19-1    5.87ms
 	Day 19-2    3.01ms
+	Day 20-1   56.21ms
+	Day 20-2   87.87ms
