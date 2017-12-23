@@ -91,26 +91,21 @@ module Day3 =
     let solver = { parse = parseFirstLine asInt; solvePart1 = manhattanDistance; solvePart2 = solvePart2}
 
 module Day4 = 
-    let isUnique sequence = (sequence |> Seq.distinct |> Seq.length) = (sequence |> Seq.length)
+    let rec isUnique seen = function [] -> true | x :: xs -> if Set.contains x seen then false else isUnique (Set.add x seen) xs
     let sortedString (str : string) = str |> Seq.sort |> String.Concat
-    let solve mapper = Seq.map mapper >> Seq.filter isUnique >> Seq.length
-    let solver = { parse = parseEachLine (splitBy " " asStringArray); solvePart1 = solve id; solvePart2 = solve (Seq.map sortedString)}
+    let solve mapper = Seq.map mapper >> Seq.filter (isUnique Set.empty) >> Seq.length
+    let solver = { parse = parseEachLine (splitBy " " asStringArray >> Array.toList); solvePart1 = solve id; solvePart2 = solve (List.map sortedString)}
 
 module Day5 = 
-    type Tape<'a> = { left : 'a list; focus : 'a; right : 'a list }
-    let rec move n { left = ls; focus = x; right = rs } =
-        if   n = 0 then Some { left = ls; focus = x; right = rs }
-        elif n < 0 then match ls with | l :: ls' -> move (n + 1) { left = ls';     focus = l; right = x :: rs } | [] -> None 
-        else            match rs with | r :: rs' -> move (n - 1) { left = x :: ls; focus = r; right = rs' }     | [] -> None 
-
-    let solve modifyOffset offsets =
-        let rec solve' total = function
-            | None -> total
-            | Some tape -> solve' (total + 1) (move tape.focus {tape with focus = modifyOffset tape.focus})
-        solve' 0 (Some { left = []; focus = Seq.head offsets; right = Seq.tail offsets |> Seq.toList})
+    let solve modifyOffset offsets = 
+        let rec solve' total ls x rs n = 
+            if   n = 0 then solve' (total + 1) ls (modifyOffset x) rs x
+            elif n < 0 then match ls with | l :: ls' -> solve' total ls' l (x :: rs) (n + 1) | [] -> total
+            else            match rs with | r :: rs' -> solve' total (x :: ls) r rs' (n - 1) | [] -> total
+        solve' 0 [] (Seq.head offsets) (Seq.tail offsets |> Seq.toList) 0
 
     let solvePart2 = solve (fun x -> if x >= 3 then (x - 1) else (x + 1))
-    let solver = { parse = parseEachLine asInt; solvePart1 = solve ((+) 1); solvePart2 = solvePart2; }
+    let solver = {parse = parseEachLine asInt; solvePart1 = solve ((+) 1); solvePart2 = solvePart2}
 
 module Day6 = 
     let serialiseBanks = Array.map (fun i -> i.ToString()) >> String.concat ","
@@ -225,7 +220,7 @@ module Day12 =
     let asConnections = splitBy ", " asIntArray >> Array.toList
     let asPipe = splitBy " <-> " (Array.item 1 >> asConnections)
     let solvePart1 graph = Graph.getConnectedComponent (List.item >< graph) 0 |> Set.count
-    let solvePart2 graph = Graph.getConnectedComponents (List.item >< graph) (Set.ofList [0..(List.length graph - 1)]) |> List.length
+    let solvePart2 graph = Graph.getConnectedComponents (List.item >< graph) (set [0..(List.length graph - 1)]) |> List.length
     let solver = { parse = parseEachLine asPipe >> Seq.toList; solvePart1 = solvePart1; solvePart2 = solvePart2 }
 
 module Day13 = 
@@ -368,7 +363,7 @@ module Day20 =
         let rec tick t particles = if t = 200 then particles else tick (t + 1) (tickAll particles)
         List.mapi (fun i v -> i, v) >> tick 0
     
-    let filterColliding = List.groupBy (fun (_, (p, _, _)) -> p) >> List.filter (fun (_,l) -> List.length l = 1) >> List.collect snd
+    let filterColliding = List.groupBy (fun (_, (p, _, _)) -> p) >> List.filter (fun (_,l) -> List.tail l = []) >> List.collect snd
     let solvePart1 = solve id >> List.minBy (fun (_, (p, v, a)) -> (dist a, dist v, dist p)) >> fst
     let solvePart2 = solve filterColliding >> List.length
 
