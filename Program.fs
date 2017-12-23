@@ -369,6 +369,38 @@ module Day20 =
 
     let solver = {parse = parseEachLine asParticle >> Seq.toList; solvePart1 = solvePart1; solvePart2 = solvePart2}
 
+module Day21 =
+    let maxIndex p = Array2D.length1 p - 1
+    let asRule = splitBy " => " (Array.map (splitBy "/" array2D) >> (fun arr -> (arr.[0], arr.[1])))
+    let genPerms (pattern, out) =
+        let f (p : 'a [,]) = Array2D.mapi (fun x y _ -> p.[x, maxIndex p - y]) p // flips
+        let r (p : 'a [,]) = Array2D.mapi (fun x y _ -> p.[maxIndex p - y, x]) p // rotates
+        let rec gen p = seq { yield p; yield (f p); yield! gen (r p)}
+        gen pattern |> Seq.take 8 |> Seq.map (fun p -> (p, out))
+    
+    let gridToSubgrids grid =
+        let s1 = maxIndex grid + 1
+        let s2 = if (s1 % 2) = 0 then 2 else 3
+        Array2D.init (s1 / s2) (s1 / s2) (fun x y -> grid.[s2*x .. s2*(x+1)-1, s2*y .. s2*(y+1)-1])
+    
+    let gridMatchesRule grid (rule, _) =
+        let sg, sr = maxIndex grid, maxIndex rule
+        if sg = sr then List.forall (fun x -> List.forall (fun y -> grid.[x, y] = rule.[x, y]) [0..sg]) [0..sg] else false
+
+    let combineSubgrids (subgrids : 'a [,] [,]) = 
+        let s1 = Array2D.length1 subgrids.[0, 0]
+        let s2 = s1 * Array2D.length1 subgrids
+        Array2D.init s2 s2 (fun x y -> subgrids.[x/s1,y/s1].[x%s1,y%s1])
+    
+    let getActiveCount grid = seq {for x in [0..maxIndex grid] do for y in [0..maxIndex grid] do yield if grid.[x, y] = '#' then 1 else 0} |> Seq.sum
+    let solve iterations rules =
+        let enhanceSubgrid grid = List.find (gridMatchesRule grid) rules |> snd
+        let iterate = gridToSubgrids >> Array2D.map enhanceSubgrid >> combineSubgrids
+        let rec getIterations grid = seq { yield grid; yield! getIterations (iterate grid)}
+        getIterations (array2D [".#.";"..#";"###"]) |> Seq.item iterations |> getActiveCount
+        
+    let solver = {parse = parseEachLine asRule >> Seq.collect genPerms >> Seq.toList; solvePart1 = solve 5; solvePart2 = solve 18}
+
 let runSolver day =
     let run solver fileName =
         let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
@@ -385,13 +417,14 @@ let runSolver day =
     | 9  -> run Day9.solver  | 10 -> run Day10.solver | 11 -> run Day11.solver | 12 -> run Day12.solver
     | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver | 16 -> run Day16.solver
     | 17 -> run Day17.solver | 18 -> run Day18.solver | 19 -> run Day19.solver | 20 -> run Day20.solver
+    | 21 -> run Day21.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
 [<EntryPoint>]
 let main argv =
     let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-        | "ALL" -> for i in 1..20 do runDay i
+        | "ALL" -> for i in 1..21 do runDay i
         | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0
