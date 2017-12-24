@@ -425,7 +425,7 @@ module Day23 =
     let isPrime n = if n < 2 then false else checkPrimes (float n |> sqrt |> ceil |> int) n 2
     let parse = parseFirstLine (splitBy " " asStringArray >> Array.item 2 >> int)
     let solvePart2 x = (x+1000)*100 |> (fun n -> [n..17..n+17000]) |> List.filter (isPrime >> not) |> List.length
-    let solver = {parse = parse; solvePart1 = (><) (-) 2 >> pown >< 2; solvePart2 = solvePart2}
+    let solver = {parse = parse; solvePart1 = (fun n -> (n - 2) * (n - 2)); solvePart2 = solvePart2}
 
 let runSolver day =
     let run solver fileName =
