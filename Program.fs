@@ -401,12 +401,31 @@ module Day21 =
         
     let solver = {parse = parseEachLine asRule >> Seq.collect genPerms >> Seq.toList; solvePart1 = solve 5; solvePart2 = solve 18}
 
+module Day22 = 
+    type Coord = {x: int; y: int}
+    let toGridMap grid = 
+        let center = (String.length (Seq.head grid)) / 2
+        grid |> Seq.mapi (fun i r -> Seq.mapi (fun j c -> ({x=j-center;y= i-center}, if c = '#' then 2 else 0)) r) |> Seq.collect id |> Map.ofSeq
+
+    let move p = function 0 -> {p with y=p.y-1} | 1 -> {p with x=p.x+1} | 2 -> {p with y=p.y+1} | 3 -> {p with x=p.x-1} | _ -> p
+    let solve jump iterations initialGrid = 
+        let rec step pos dir grid infected = function
+            | 0 -> infected
+            | n ->
+                let node = getOrDefault pos grid 0
+                let newDir = (dir + node + 3) % 4
+                let newState = (node + jump) % 4
+                step (move pos newDir) newDir (Map.add pos newState grid) (infected + if newState = 2 then 1 else 0) (n - 1)
+        step {x=0; y=0} 0 initialGrid 0 iterations
+
+    let solver = {parse = parseEachLine asString >> toGridMap; solvePart1 = solve 2 10000; solvePart2 = solve 1 10000000}
+
 let runSolver day =
     let run solver fileName =
         let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
         let timePart part solve =
             let (_, t) = time solve (fileName |> File.ReadLines |> solver.parse)
-            printfn "Day %02i-%i %7.2fms" day part t
+            printfn "Day %02i-%i %8.2fms" day part t
         let runPart part solve = 
             printfn "Day %02i-%i %O" day part (fileName |> File.ReadLines |> solver.parse |> solve)
         runPart 1 solver.solvePart1
@@ -417,14 +436,14 @@ let runSolver day =
     | 9  -> run Day9.solver  | 10 -> run Day10.solver | 11 -> run Day11.solver | 12 -> run Day12.solver
     | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver | 16 -> run Day16.solver
     | 17 -> run Day17.solver | 18 -> run Day18.solver | 19 -> run Day19.solver | 20 -> run Day20.solver
-    | 21 -> run Day21.solver
+    | 21 -> run Day21.solver | 22 -> run Day22.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
 [<EntryPoint>]
 let main argv =
     let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-        | "ALL" -> for i in 1..21 do runDay i
+        | "ALL" -> for i in 1..22 do runDay i
         | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0
