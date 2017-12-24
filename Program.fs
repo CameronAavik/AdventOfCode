@@ -405,7 +405,7 @@ module Day22 =
     type Coord = {x: int; y: int}
     let toGridMap grid = 
         let center = (String.length (Seq.head grid)) / 2
-        grid |> Seq.mapi (fun i r -> Seq.mapi (fun j c -> ({x=j-center;y= i-center}, if c = '#' then 2 else 0)) r) |> Seq.collect id |> Map.ofSeq
+        grid |> Seq.mapi (fun i r -> Seq.mapi (fun j c -> ({x=j-center;y=i-center}, if c = '#' then 2 else 0)) r) |> Seq.collect id |> Map.ofSeq
 
     let move p = function 0 -> {p with y=p.y-1} | 1 -> {p with x=p.x+1} | 2 -> {p with y=p.y+1} | 3 -> {p with x=p.x-1} | _ -> p
     let solve jump iterations initialGrid = 
@@ -419,6 +419,13 @@ module Day22 =
         step {x=0; y=0} 0 initialGrid 0 iterations
 
     let solver = {parse = parseEachLine asString >> toGridMap; solvePart1 = solve 2 10000; solvePart2 = solve 1 10000000}
+
+module Day23 =
+    let rec checkPrimes limit n d = if d = limit then true elif n % d = 0 then false else checkPrimes limit n (d + 1)
+    let isPrime n = if n < 2 then false else checkPrimes (float n |> sqrt |> ceil |> int) n 2
+    let parse = parseFirstLine (splitBy " " asStringArray >> Array.item 2 >> int)
+    let solvePart2 x = (x+1000)*100 |> (fun n -> [n..17..n+17000]) |> List.filter (isPrime >> not) |> List.length
+    let solver = {parse = parse; solvePart1 = (><) (-) 2 >> pown >< 2; solvePart2 = solvePart2}
 
 let runSolver day =
     let run solver fileName =
@@ -436,14 +443,14 @@ let runSolver day =
     | 9  -> run Day9.solver  | 10 -> run Day10.solver | 11 -> run Day11.solver | 12 -> run Day12.solver
     | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver | 16 -> run Day16.solver
     | 17 -> run Day17.solver | 18 -> run Day18.solver | 19 -> run Day19.solver | 20 -> run Day20.solver
-    | 21 -> run Day21.solver | 22 -> run Day22.solver
+    | 21 -> run Day21.solver | 22 -> run Day22.solver | 23 -> run Day23.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
 [<EntryPoint>]
 let main argv =
     let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-        | "ALL" -> for i in 1..22 do runDay i
+        | "ALL" -> for i in 1..23 do runDay i
         | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0
