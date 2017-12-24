@@ -427,6 +427,18 @@ module Day23 =
     let solvePart2 x = (x+1000)*100 |> (fun n -> [n..17..n+17000]) |> List.filter (isPrime >> not) |> List.length
     let solver = {parse = parse; solvePart1 = (fun n -> (n - 2) * (n - 2)); solvePart2 = solvePart2}
 
+module Day24 =
+    let asComponent = splitBy "/" asIntArray >> (fun a -> a.[0], a.[1])
+    let strength = List.sumBy (fun c -> fst c + snd c)
+    let rec build bridge next components =
+        seq { yield bridge
+              let bridgeable = Set.filter (fun c -> fst c = next || snd c = next) components
+              for comp in bridgeable do
+                  let next' = if snd comp = next then fst comp else snd comp
+                  yield! build (comp :: bridge) next' (Set.remove comp components) }
+    let solve maximiser = set >> build [] 0 >> Seq.maxBy maximiser >> strength
+    let solver = {parse=parseEachLine asComponent; solvePart1 = solve strength; solvePart2 = solve (fun c -> (List.length c, strength c))}
+
 let runSolver day =
     let run solver fileName =
         let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
@@ -443,14 +455,14 @@ let runSolver day =
     | 9  -> run Day9.solver  | 10 -> run Day10.solver | 11 -> run Day11.solver | 12 -> run Day12.solver
     | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver | 16 -> run Day16.solver
     | 17 -> run Day17.solver | 18 -> run Day18.solver | 19 -> run Day19.solver | 20 -> run Day20.solver
-    | 21 -> run Day21.solver | 22 -> run Day22.solver | 23 -> run Day23.solver
+    | 21 -> run Day21.solver | 22 -> run Day22.solver | 23 -> run Day23.solver | 24 -> run Day24.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
 [<EntryPoint>]
 let main argv =
     let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-        | "ALL" -> for i in 1..23 do runDay i
+        | "ALL" -> for i in 1..24 do runDay i
         | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0

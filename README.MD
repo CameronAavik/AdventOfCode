@@ -54,3 +54,5 @@ Below is the results of timing one run for each day/part so far:
 	Day 22-2 24913.60ms
 	Day 23-1     0.06ms
 	Day 23-2     2.67ms
+	Day 24-1  2034.38ms
+	Day 24-2  1993.37ms
