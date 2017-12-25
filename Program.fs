@@ -439,6 +439,31 @@ module Day24 =
     let solve maximiser = set >> build [] 0 >> Seq.maxBy maximiser >> strength
     let solver = {parse=parseEachLine asComponent; solvePart1 = solve strength; solvePart2 = solve (fun c -> (List.length c, strength c))}
 
+module Day25 =
+    let lastWordTrimmedBy (trim : char) line = (splitBy " " Array.last line).TrimEnd(trim)
+    let parseInstruction (lines : string list) = 
+        let getAction i = (lastWordTrimmedBy '.' lines.[i] |> int, lastWordTrimmedBy '.' lines.[i + 1] = "left", lastWordTrimmedBy '.' lines.[i + 2])
+        (lastWordTrimmedBy ':' lines.[0], (getAction 2, getAction 6))
+    let parseInstructions lines = lines |> Seq.skip 3 |> Seq.chunkBySize 10 |> Seq.map (Seq.toList >> parseInstruction) |> Map.ofSeq
+    let parseBlueprint lines =
+        let initState = lastWordTrimmedBy '.' (Seq.head lines)
+        let steps = splitBy " " Array.head (lines |> Seq.tail |> Seq.head).[36..] |> int
+        (initState, steps, parseInstructions lines)
+    
+    let solve (initState, steps, instructions) =
+        let rec step ls x rs state = function
+            | 0 -> Seq.sum ls + x + Seq.sum rs
+            | n ->
+                let instruction = Map.find state instructions
+                let (newValue, isLeft, newState) = if x = 0 then fst instruction else snd instruction
+                let newLs, newX, newRs = 
+                    if isLeft then match ls with l :: ls' -> (ls', l, newValue :: rs) | [] -> ([], 0, newValue :: rs)
+                    else           match rs with r :: rs' -> (newValue :: ls, r, rs') | [] -> (newValue :: ls, 0, [])
+                step newLs newX newRs newState (n - 1)
+        step [] 0 [] initState steps
+
+    let solver = {parse = parseBlueprint; solvePart1 = solve; solvePart2 = (fun _ -> "Advent of Code Finished!")}
+        
 let runSolver day =
     let run solver fileName =
         let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
@@ -456,13 +481,14 @@ let runSolver day =
     | 13 -> run Day13.solver | 14 -> run Day14.solver | 15 -> run Day15.solver | 16 -> run Day16.solver
     | 17 -> run Day17.solver | 18 -> run Day18.solver | 19 -> run Day19.solver | 20 -> run Day20.solver
     | 21 -> run Day21.solver | 22 -> run Day22.solver | 23 -> run Day23.solver | 24 -> run Day24.solver
+    | 25 -> run Day25.solver
     | day -> (fun _ -> printfn "Invalid Problem: %i" day)
 
 [<EntryPoint>]
 let main argv =
     let runDay day = runSolver day (sprintf "input_files\\day%i.txt" day)
     match argv.[0] with
-        | "ALL" -> for i in 1..24 do runDay i
+        | "ALL" -> for i in 1..25 do runDay i
         | x -> runDay (int x)
     Console.ReadKey() |> ignore
     0
