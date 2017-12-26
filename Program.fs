@@ -401,22 +401,27 @@ module Day21 =
         
     let solver = {parse = parseEachLine asRule >> Seq.collect genPerms >> Seq.toList; solvePart1 = solve 5; solvePart2 = solve 18}
 
-module Day22 = 
-    type Coord = {x: int; y: int}
-    let toGridMap grid = 
-        let center = (String.length (Seq.head grid)) / 2
-        grid |> Seq.mapi (fun i r -> Seq.mapi (fun j c -> ({x=j-center;y=i-center}, if c = '#' then 2 else 0)) r) |> Seq.collect id |> Map.ofSeq
-
-    let move p = function 0 -> {p with y=p.y-1} | 1 -> {p with x=p.x+1} | 2 -> {p with y=p.y+1} | 3 -> {p with x=p.x-1} | _ -> p
-    let solve jump iterations initialGrid = 
-        let rec step pos dir grid infected = function
+module Day22 =
+    open System.Collections.Generic
+    // tuples are slow to hash by default for some reason, convert the coord to a long instead. Value determined by n^2+n=Int64.MaxValue
+    let toHash (x, y) = x + 3037000500L * y
+    let toGridMap lines = 
+        let grid = new Dictionary<int64, int>();
+        let center = (String.length (Seq.head lines)) / 2
+        let defaultEntries = lines |> Seq.mapi (fun i r -> Seq.mapi (fun j c -> ((j-center, i-center), if c = '#' then 2 else 0)) r) |> Seq.collect id
+        for (x, y), v in defaultEntries do grid.[toHash (int64 x, int64 y)] <- v
+        grid
+    
+    let move (x, y) = function 0 -> (x, y - 1L) | 1 -> (x + 1L, y) | 2 -> (x, y + 1L) | 3 -> (x - 1L, y) | _ -> (x, y)
+    let solve jump iterations (grid : Dictionary<int64, int>) = 
+        let rec step pos dir infected = function
             | 0 -> infected
             | n ->
-                let node = getOrDefault pos grid 0
-                let newDir = (dir + node + 3) % 4
-                let newState = (node + jump) % 4
-                step (move pos newDir) newDir (Map.add pos newState grid) (infected + if newState = 2 then 1 else 0) (n - 1)
-        step {x=0; y=0} 0 initialGrid 0 iterations
+                let node = grid.GetValueOrDefault(toHash pos, 0)
+                let dir', node' = (dir + node + 3) % 4, (node + jump) % 4
+                grid.[toHash pos] <- node'
+                step (move pos dir') dir' (infected + if node' = 2 then 1 else 0) (n - 1)
+        step (0L, 0L) 0 0 iterations
 
     let solver = {parse = parseEachLine asString >> toGridMap; solvePart1 = solve 2 10000; solvePart2 = solve 1 10000000}
 
@@ -469,7 +474,7 @@ let runSolver day =
         let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
         let timePart part solve =
             let (_, t) = time solve (fileName |> File.ReadLines |> solver.parse)
-            printfn "Day %02i-%i %8.2fms" day part t
+            printfn "Day %02i-%i %7.2fms" day part t
         let runPart part solve = 
             printfn "Day %02i-%i %O" day part (fileName |> File.ReadLines |> solver.parse |> solve)
         runPart 1 solver.solvePart1
