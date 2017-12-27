@@ -409,7 +409,7 @@ module Day21 =
 
 module Day22 =
     open System.Collections.Generic
-    // tuples are slow to hash by default for some reason, convert the coord to a long instead. Value determined by n^2+n=Int64.MaxValue
+    // tuples are slow when used as a map/dictionary key for some reason, convert the coord to a long instead. Value determined by n^2+n=Int64.MaxValue
     let toHash (x, y) = x + 3037000500L * y
     let toGridMap lines = 
         // Map was too slow, we use a mutable Dictionary instead
