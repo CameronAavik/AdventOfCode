@@ -10,7 +10,7 @@ Given that I am new to F#, I was interested in seeing if I could achieve C#-like
 
 All days (except Day 22) are completely pure and do not do any mutations.
 
-Below is the results of timing one run for each day/part so far:
+Below is the results of timing one run for each day/part:
 
 	Day 01-1   15.62ms 1047
 	Day 01-2   11.47ms 982
