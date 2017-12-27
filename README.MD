@@ -10,52 +10,53 @@ All days (except Day 22) are completely pure and do not do any mutations.
 
 Below is the results of timing one run for each day/part so far:
 
-	Day 01-1   13.35ms
-	Day 01-2   10.33ms
-	Day 02-1    3.97ms
-	Day 02-2   13.43ms
-	Day 03-1    1.07ms
-	Day 03-2   13.40ms
-	Day 04-1    8.47ms
-	Day 04-2    7.49ms
-	Day 05-1  422.26ms
-	Day 05-2  884.44ms
-	Day 06-1   69.72ms
-	Day 06-2   60.53ms
-	Day 07-1    6.31ms
-	Day 07-2   42.22ms
-	Day 08-1   16.35ms
-	Day 08-2    4.08ms
-	Day 09-1    1.88ms
-	Day 09-2    0.47ms
-	Day 10-1    4.70ms
-	Day 10-2    7.71ms
-	Day 11-1    2.53ms
-	Day 11-2    0.53ms
-	Day 12-1    6.21ms
-	Day 12-2   18.66ms
-	Day 13-1    1.48ms
-	Day 13-2   58.76ms
-	Day 14-1  133.11ms
-	Day 14-2  198.88ms
-	Day 15-1  850.02ms
-	Day 15-2  713.38ms
-	Day 16-1   11.04ms
-	Day 16-2  115.01ms
-	Day 17-1    2.75ms
-	Day 17-2  387.27ms
-	Day 18-1   12.77ms
-	Day 18-2   65.62ms
-	Day 19-1    3.45ms
-	Day 19-2    2.14ms
-	Day 20-1   23.24ms
-	Day 20-2   63.93ms
-	Day 21-1   11.07ms
-	Day 21-2 1015.90ms
-	Day 22-1    2.55ms
-	Day 22-2  674.10ms
-	Day 23-1    0.06ms
-	Day 23-2    2.67ms
-	Day 24-1 1212.94ms
-	Day 24-2 1131.49ms
-	Day 25-1  949.84ms
+	Day 01-1   13.37ms 1047
+	Day 01-2   10.27ms 982
+	Day 02-1    3.94ms 53460
+	Day 02-2   14.32ms 282
+	Day 03-1    1.05ms 326
+	Day 03-2   12.22ms 363010
+	Day 04-1    7.97ms 337
+	Day 04-2    6.89ms 231
+	Day 05-1  418.96ms 387096
+	Day 05-2  904.09ms 28040648
+	Day 06-1   66.89ms 14029
+	Day 06-2   71.99ms 2765
+	Day 07-1    8.68ms vvsvez
+	Day 07-2   50.97ms 362
+	Day 08-1   23.69ms 5946
+	Day 08-2    4.76ms 6026
+	Day 09-1    2.19ms 11846
+	Day 09-2    0.46ms 6285
+	Day 10-1    5.03ms 38415
+	Day 10-2    7.89ms 9de8846431eef262be78f590e39a4848
+	Day 11-1    2.82ms 715
+	Day 11-2    0.61ms 1512
+	Day 12-1    6.38ms 288
+	Day 12-2   21.87ms 211
+	Day 13-1    2.11ms 1840
+	Day 13-2   59.95ms 3850260
+	Day 14-1  163.70ms 8304
+	Day 14-2  231.79ms 1018
+	Day 15-1  811.55ms 600
+	Day 15-2  678.48ms 313
+	Day 16-1    9.64ms ceijbfoamgkdnlph
+	Day 16-2  113.59ms pnhajoekigcbflmd
+	Day 17-1    2.87ms 1561
+	Day 17-2  393.55ms 33454823
+	Day 18-1   12.80ms 7071
+	Day 18-2   63.55ms 8001
+	Day 19-1    3.40ms GSXDIPWTU
+	Day 19-2    2.02ms 16100
+	Day 20-1   23.64ms 300
+	Day 20-2   62.41ms 502
+	Day 21-1    7.28ms 142
+	Day 21-2  995.58ms 1879071
+	Day 22-1    2.14ms 5182
+	Day 22-2  458.54ms 2512008
+	Day 23-1    0.06ms 9409
+	Day 23-2    2.23ms 913
+	Day 24-1 1131.99ms 2006
+	Day 24-2 1118.03ms 1994
+	Day 25-1  583.21ms 4287
+	Day 25-2    0.13ms Advent of Code Finished!
