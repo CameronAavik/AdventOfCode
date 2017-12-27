@@ -8,7 +8,7 @@ If you were wanting to look at the code, all solutions are in the one file: [Pro
 
 Given that I am new to F#, I was interested in seeing if I could achieve C#-like performance while still following functional programming practices.
 
-All days (except Day 22) are completely pure and do not do any mutations.
+All solutions (except Day 22) are completely pure and do not do any mutations.
 
 Below is the results of timing one run for each day/part:
 
