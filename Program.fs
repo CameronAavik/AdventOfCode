@@ -373,28 +373,25 @@ module Day21 =
     let maxIndex p = Array2D.length1 p - 1
     let flatten grid = seq {for x in [0..maxIndex grid] do for y in [0..maxIndex grid] do yield grid.[x, y]}
     let asRule = splitBy " => " (Array.map (splitBy "/" array2D) >> (fun arr -> (arr.[0], arr.[1])))
-    let gridToStr = flatten >> Seq.toArray >> System.String
+    let gridToStr = flatten >> Seq.fold (fun str x -> str + x.ToString()) ""
     let genPerms (pattern, out) =
         let f (p : 'a [,]) = Array2D.mapi (fun x y _ -> p.[x, maxIndex p - y]) p // flips
         let r (p : 'a [,]) = Array2D.mapi (fun x y _ -> p.[maxIndex p - y, x]) p // rotates
         let rec gen p = seq { yield p; yield (f p); yield! gen (r p)}
         gen pattern |> Seq.take 8 |> Seq.map (fun p -> (gridToStr p, out))
     
-    let gridToSubgrids grid =
+    let iterate grid (rules : Map<string, char[,]>) =
         let s1 = maxIndex grid + 1
         let s2 = if (s1 % 2) = 0 then 2 else 3
-        Array2D.init (s1 / s2) (s1 / s2) (fun x y -> grid.[s2*x .. s2*(x+1)-1, s2*y .. s2*(y+1)-1])
-    
-    let combineSubgrids (subgrids : 'a [,] [,]) = 
-        let s1 = Array2D.length1 subgrids.[0, 0]
-        let s2 = s1 * Array2D.length1 subgrids
-        Array2D.init s2 s2 (fun x y -> subgrids.[x/s1,y/s1].[x%s1,y%s1])
-    
-    let getActiveCount = flatten >> Seq.sumBy (fun c -> if c = '#' then 1 else 0)
+        let size = s1 / s2
+        let subgrids = seq {for x in [0..size-1] do for y in [0..size-1] do yield grid.[s2*x .. s2*(x+1)-1, s2*y .. s2*(y+1)-1]}
+        let enhancedSubgrids = subgrids |> Seq.map gridToStr |> Seq.map (Map.find >< rules) |> Seq.toArray
+        let s2' = s2 + 1
+        Array2D.init (s2' * size) (s2' * size) (fun x y -> enhancedSubgrids.[(x/s2' * size) + (y/s2')].[x%s2',y%s2'])
+            
+    let getActiveCount = flatten >> Seq.filter (fun c -> c = '#') >> Seq.length
     let solve iterations rules =
-        let enhanceSubgrid grid = Map.find (gridToStr grid) rules
-        let iterate = gridToSubgrids >> Array2D.map enhanceSubgrid >> combineSubgrids
-        let rec getIterations grid = seq { yield grid; yield! getIterations (iterate grid)}
+        let rec getIterations grid = seq { yield grid; yield! getIterations (iterate grid rules)}
         getIterations (array2D [".#.";"..#";"###"]) |> Seq.item iterations |> getActiveCount
         
     let solver = {parse = parseEachLine asRule >> Seq.collect genPerms >> Map.ofSeq; solvePart1 = solve 5; solvePart2 = solve 18}
