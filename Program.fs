@@ -435,10 +435,12 @@ module Day24 =
     let strength = List.sumBy (fun c -> fst c + snd c)
     let rec build bridge next components =
         seq { yield bridge
-              let bridgeable = Set.filter (fun c -> fst c = next || snd c = next) components
-              for comp in bridgeable do
-                  let next' = if snd comp = next then fst comp else snd comp
-                  yield! build (comp :: bridge) next' (Set.remove comp components) }
+              if Set.contains (next, next) components then yield! build ((next, next) :: bridge) next (Set.remove (next, next) components)
+              else
+                  let bridgeable = Set.filter (fun c -> fst c = next || snd c = next) components
+                  for comp in bridgeable do
+                      let next' = if snd comp = next then fst comp else snd comp
+                      yield! build (comp :: bridge) next' (Set.remove comp components) }
     let solve maximiser = set >> build [] 0 >> Seq.maxBy maximiser >> strength
     let solver = {parse=parseEachLine asComponent; solvePart1 = solve strength; solvePart2 = solve (fun c -> (List.length c, strength c))}
 
@@ -475,8 +477,8 @@ let runSolver day =
             printfn "Day %02i-%i %7.2fms" day part t
         let runPart part solve = 
             printfn "Day %02i-%i %O" day part (fileName |> File.ReadLines |> solver.parse |> solve)
-        timePart 1 solver.solvePart1
-        timePart 2 solver.solvePart2
+        runPart 1 solver.solvePart1
+        runPart 2 solver.solvePart2
     match day with
     | 1  -> run Day1.solver  | 2  -> run Day2.solver  | 3  -> run Day3.solver  | 4  -> run Day4.solver
     | 5  -> run Day5.solver  | 6  -> run Day6.solver  | 7  -> run Day7.solver  | 8  -> run Day8.solver
