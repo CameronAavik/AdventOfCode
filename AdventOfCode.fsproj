@@ -8,13 +8,13 @@
   <ItemGroup>
     <Compile Include="Program.fs" />
     <Compile Include="Main.fs" />
-    <Content Include="input_files\*.txt">
+    <Content Include="input_files\**\*.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.2.3" />
+    <PackageReference Update="FSharp.Core" Version="4.5.4" />
   </ItemGroup>
 
 </Project>
