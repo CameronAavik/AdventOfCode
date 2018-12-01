@@ -18,6 +18,9 @@ module Utils =
     let (|?) (a: 'a option) b = if a.IsSome then a.Value else b
     // this is a get or default for map
     let getOrDefault key map ``default`` = if Map.containsKey key map then Map.find key map else ``default``
+    // curry and uncurry for making working with tuples easier
+    let curry f a b = f (a,b)
+    let uncurry f (a,b) = f a b
 
     // every day has a corresponding Day record which defines how to parse the file, then two functions for soving each part respectively
     type Day<'a, 'b, 'c> = {parse: string seq -> 'a; part1: 'a -> 'b; part2: 'a -> 'c}
@@ -497,13 +500,15 @@ module Year2017 =
 module Year2018 =
     module Day1 =
         let solvePart2 changes =
-            let cumulativeSum = Seq.scan (+) 0 changes |> Seq.tail |> Seq.toArray // exclude 0 at the start
-            let sumSet = Set.ofArray cumulativeSum
-            let finalSum = Array.last cumulativeSum
-            let rec iterate sums =
-                let newSums = (Array.map ((+) finalSum) sums)
-                let firstMatch = Array.tryFind (fun i -> Set.contains i sumSet) newSums
-                match firstMatch with | Some x -> x | None -> iterate newSums
-            iterate cumulativeSum
+            let shift = Seq.sum changes
+            let getDiff ((xi, xf), (yi, yf)) = if shift > 0 then (yf - xf, xi, yf) else (yf - xf, yi, xf)
+            Seq.toArray changes
+            |> Array.scan (+) 0
+            |> Array.take (Seq.length changes)
+            |> Array.mapi (curry id)
+            |> Array.groupBy (fun x -> (snd x) %! shift)
+            |> Array.map(fun g -> snd g |> Array.sort |> Array.pairwise |> Array.map getDiff)
+            |> Array.concat
+            |> Array.min
 
-        let solver = {parse = parseEachLine asInt; part1 = Seq.sum; part2 = solvePart2}
+        let solver = {parse = parseEachLine asInt; part1 = Seq.sum; part2 = solvePart2 >> (fun (_, _, f) -> f)}
