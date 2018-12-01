@@ -497,13 +497,13 @@ module Year2017 =
 module Year2018 =
     module Day1 =
         let solvePart2 changes =
-            let changeList = Seq.toList changes
-            let rec iterate freq freqs i =
-                let newFreq = freq + changeList.[i]
-                if Set.contains newFreq freqs then
-                    newFreq
-                else
-                    iterate newFreq (Set.add newFreq freqs) ((i + 1) % changeList.Length)
-            iterate 0 Set.empty 0
+            let cumulativeSum = Seq.scan (+) 0 changes |> Seq.tail |> Seq.toArray // exclude 0 at the start
+            let sumSet = Set.ofArray cumulativeSum
+            let finalSum = Array.last cumulativeSum
+            let rec iterate sums =
+                let newSums = (Array.map ((+) finalSum) sums)
+                let firstMatch = Array.tryFind (fun i -> Set.contains i sumSet) newSums
+                match firstMatch with | Some x -> x | None -> iterate newSums
+            iterate cumulativeSum
 
         let solver = {parse = parseEachLine asInt; part1 = Seq.sum; part2 = solvePart2}
