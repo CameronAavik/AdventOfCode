@@ -512,3 +512,20 @@ module Year2018 =
             |> Array.min
 
         let solver = {parse = parseEachLine asInt; part1 = Seq.sum; part2 = solvePart2 >> (fun (_, _, f) -> f)}
+
+    module Day2 =
+        let solvePart1 gifts =
+            let contains i = Seq.exists (fun (_, k) -> Seq.length k = i) >> (fun x -> if x then 1 else 0)
+            let toTwosAndThrees = Seq.groupBy id >> (fun x -> (contains 2 x, contains 3 x))
+            let twos, threes = Seq.map toTwosAndThrees gifts |> Seq.reduce (fun (a, b) (c, d) -> (a + c, b + d))
+            twos * threes
+
+        let solvePart2 gifts =
+            let getStrs str = Seq.init (String.length str) (fun ind -> String.mapi (fun i x -> if i = ind then '_' else x) str)
+            Seq.map getStrs gifts
+            |> Seq.concat
+            |> Seq.groupBy id
+            |> Seq.find (fun (_, s) -> Seq.length s = 2)
+            |> (fun (s, _) -> Seq.filter ((<>)'_') s |> String.Concat)
+
+        let solver = {parse = parseEachLine asString; part1 = solvePart1; part2 = solvePart2}
