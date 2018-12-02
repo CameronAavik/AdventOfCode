@@ -515,14 +515,14 @@ module Year2018 =
 
     module Day2 =
         let solvePart1 gifts =
-            let contains i = Seq.exists (fun (_, k) -> Seq.length k = i) >> (fun x -> if x then 1 else 0)
-            let toTwosAndThrees = Seq.groupBy id >> (fun x -> (contains 2 x, contains 3 x))
-            let twos, threes = Seq.map toTwosAndThrees gifts |> Seq.reduce (fun (a, b) (c, d) -> (a + c, b + d))
-            twos * threes
+            let containsCount i = Seq.groupBy id >> Seq.exists (fun (_, k) -> Seq.length k = i)
+            let countContains i = Seq.map (containsCount i) >> Seq.filter id >> Seq.length
+            (countContains 2 gifts) * (countContains 3 gifts)
 
         let solvePart2 gifts =
-            let getStrs str = Seq.init (String.length str) (fun ind -> String.mapi (fun i x -> if i = ind then '_' else x) str)
-            Seq.map getStrs gifts
+            let replaceNth str n = String.mapi (fun i x -> if i = n then '_' else x) str
+            gifts
+            |> Seq.map (fun str -> Seq.init (String.length str) (replaceNth str))
             |> Seq.concat
             |> Seq.groupBy id
             |> Seq.find (fun (_, s) -> Seq.length s = 2)

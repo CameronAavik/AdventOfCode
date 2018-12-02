@@ -62,5 +62,5 @@ Below is the results of timing one run for each day/part:
     Year 2017 Day 25-2    0.20ms Advent of Code Finished!
     Year 2018 Day 01-1    0.46ms 516
     Year 2018 Day 01-2   10.91ms 71892
-    Year 2018 Day 02-1   11.73ms 7470
-    Year 2018 Day 02-2   19.68ms kqzxdenujwcstybmgvyiofrrd
+    Year 2018 Day 02-1   15.72ms 7470
+    Year 2018 Day 02-2   17.19ms kqzxdenujwcstybmgvyiofrrd
