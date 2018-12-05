@@ -8,7 +8,7 @@ module Utils =
     let asString, asInt, asStringArray, asIntArray = id, int, Array.map id, Array.map int
     let splitBy (c : string) f (str : string) = str.Split([| c |], StringSplitOptions.None) |> f
     let parseFirstLine f = Seq.head >> f
-    let parseEachLine f = Seq.map f
+    let parseEachLine = Seq.map
 
     // this is an infix flip, for example you can replace (fun a -> a / 2) with (><) (/) 2
     let (><) f a b = f b a
@@ -17,7 +17,7 @@ module Utils =
     // option coalescing operator
     let (|?) (a: 'a option) b = if a.IsSome then a.Value else b
     // this is a get or default for map
-    let getOrDefault key map ``default`` = if Map.containsKey key map then Map.find key map else ``default``
+    let getOrDefault key map ``default``= Map.tryFind key map |? ``default``
     // curry and uncurry for making working with tuples easier
     let curry f a b = f (a,b)
     let uncurry f (a,b) = f a b
@@ -313,7 +313,7 @@ module Year2017 =
         type Computer = { code: (string * (string array)) list; pc : int; registers: Map<string, int64>; buffer: int64 list }
         let defaultComp code = {code = Seq.toList code; pc = 0; registers = Map.empty; buffer = []}
         // computer helper functions
-        let getVal comp value = Int64.TryParse(value) |> (fun (isInt, i) -> if isInt then i else getOrDefault value comp.registers 0L)
+        let getVal comp (value : string) = Int64.TryParse(value) |> (fun (isInt, i) -> if isInt then i else getOrDefault value comp.registers 0L)
         let jump offset comp = {comp with pc = comp.pc + offset}
         let updateRegister register value comp = {comp with registers = Map.add register value comp.registers}
         let queue comp = function | None -> comp | Some x -> {comp with buffer = comp.buffer @ [x]}
@@ -638,3 +638,14 @@ module Year2018 =
             >> (fun (guard, (minute, _)) -> guard * minute)
 
         let solver = {parse = Seq.sort >> parseEachLine asLog; part1 = solvePart1; part2 = solvePart2}
+    
+    module Day5 =
+        let remainingPolymerLength =
+            let processUnit polymer ch =
+                match polymer with
+                | x :: xs when abs (ch - x) = 32 -> xs
+                | xs -> ch :: xs
+            Seq.map int >> Seq.fold processUnit [] >> List.length
+        let filterChars ch = Seq.filter (fun c -> int c <> ch && (int c - 32) <> ch)
+        let solvePart2 str = Seq.init 26 ((+)65 >> filterChars >< str >> remainingPolymerLength) |> Seq.min
+        let solver = {parse = parseFirstLine asString; part1 = remainingPolymerLength; part2 = solvePart2}
