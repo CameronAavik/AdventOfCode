@@ -645,7 +645,10 @@ module Year2018 =
                 match polymer with
                 | x :: xs when abs (ch - x) = 32 -> xs
                 | xs -> ch :: xs
-            Seq.map int >> Seq.fold processUnit [] >> List.length
-        let filterChars ch = Seq.filter (fun c -> int c <> ch && (int c - 32) <> ch)
-        let solvePart2 str = Seq.init 26 ((+)65 >> filterChars >< str >> remainingPolymerLength) |> Seq.min
-        let solver = {parse = parseFirstLine asString; part1 = remainingPolymerLength; part2 = solvePart2}
+            Seq.fold processUnit []
+        let filterChars ch = Seq.filter (fun c -> c <> ch && (c - 32) <> ch)
+        let solvePart1 = Seq.map int >> remainingPolymerLength >> Seq.length
+        let solvePart2 (str : string) =
+            let reducedStr = str |> Seq.map int |> remainingPolymerLength
+            Seq.init 26 ((+)65 >> filterChars >< reducedStr >> remainingPolymerLength >> Seq.length) |> Seq.min
+        let solver = {parse = parseFirstLine asString; part1 = solvePart1; part2 = solvePart2}
