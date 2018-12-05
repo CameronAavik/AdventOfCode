@@ -30,6 +30,7 @@ module Main =
         | 2018 ->
             match day with
             | 1  -> run Year2018.Day1.solver  | 2  -> run Year2018.Day2.solver  | 3  -> run Year2018.Day3.solver
+            | 4  -> run Year2018.Day4.solver
             | day -> (fun _ -> printfn "Invalid Day: %i (Year %i)" day year)
         | year -> (fun _ -> printfn "Invalid Year: %i" year)
 
@@ -39,7 +40,7 @@ module Main =
         match argv.[0] with
             | "ALL" ->
                 for i in 1..25 do runDay i 2017
-                for i in 1..3 do runDay i 2018
+                for i in 1..4 do runDay i 2018
             | x -> // 2018.1 for Day 1 2018
                 let parts = x.Split('.')
                 runDay (int parts.[1]) (int parts.[0])

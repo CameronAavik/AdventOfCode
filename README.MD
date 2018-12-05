@@ -66,3 +66,5 @@ Below is the results of timing one run for each day/part:
     Year 2018 Day 02-2   17.19ms kqzxdenujwcstybmgvyiofrrd
     Year 2018 Day 03-1   25.23ms 110891
     Year 2018 Day 03-2   31.90ms 297
+    Year 2018 Day 04-1   18.80ms 84636
+    Year 2018 Day 04-2    4.09ms 91679
