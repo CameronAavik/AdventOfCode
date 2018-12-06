@@ -652,3 +652,51 @@ module Year2018 =
             let reducedStr = str |> Seq.map int |> remainingPolymer
             Seq.init 26 ((+)65 >> filterChars reducedStr >> remainingPolymer >> Seq.length) |> Seq.min
         let solver = {parse = parseFirstLine asString; part1 = solvePart1; part2 = solvePart2}
+
+    module Day6 =
+        let asPoint = splitBy ", " (fun x -> (int x.[0], int x.[1]))
+
+        let getRanges points = 
+            let xs = points |> Seq.map fst
+            let ys = points |> Seq.map snd
+            Seq.min xs, Seq.max xs, Seq.min ys, Seq.max ys
+        let rangeToCoords (minX, maxX, minY, maxY) =
+            seq {minX .. maxX} |> Seq.collect (fun x -> seq {minY .. maxY} |> Seq.map (fun y -> (x, y)))
+        let manhattan (x, y) (px, py) = abs (px-x) + abs (py-y)
+
+        let getClosestNodes (x, y) = Seq.groupBy (manhattan (x, y)) >> Seq.minBy fst >> snd >> Seq.toArray
+        let isBorder (minX, maxX, minY, maxY) (x, y) = x = minX || x = maxX || y = minY || y = maxY
+
+        let solvePart1 points =
+            let ranges = getRanges points
+            let gridCoords = rangeToCoords ranges |> Seq.toArray
+            let closestNodes = gridCoords |> Array.map (fun p -> (p, getClosestNodes p points))
+            let infinitePoints = closestNodes |> Array.filter (fst >> isBorder ranges) |> Array.collect snd |> Set.ofArray
+            let includedNodes = Set.difference (Set.ofSeq points) infinitePoints
+            closestNodes
+            |> Array.filter (snd >> Seq.length >> (=)1)
+            |> Array.collect snd
+            |> Array.groupBy id
+            |> Array.filter (fst >> Set.contains >< includedNodes)
+            |> Array.map (snd >> Array.length)
+            |> Array.max
+
+        let getDists1D pts =
+            let rec step l r lc rc i dists pts =
+                match pts with
+                | [] -> dists
+                | x :: xs when x = i -> step l r (lc + 1) (rc - 1) i dists xs
+                | _ -> step (l + lc) (r - rc) lc rc (i + 1) ((l+r) :: dists) pts
+            let sorted = Seq.sort pts |> Seq.toList
+            let leftmost = List.head sorted
+            let total = List.sumBy ((><) (-) leftmost) sorted
+            step 0 total 0 (List.length sorted) leftmost [] sorted
+
+        let solvePart2 pts =
+            let xDists = Seq.map fst pts |> getDists1D |> List.sort
+            let yDists = Seq.map snd pts |> getDists1D |> List.sort
+            xDists
+            |> List.collect (fun x -> yDists |> List.takeWhile (fun y -> x + y < 10000))
+            |> List.length
+
+        let solver = {parse = parseEachLine asPoint; part1 = solvePart1; part2 = solvePart2}
