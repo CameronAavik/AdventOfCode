@@ -661,10 +661,15 @@ module Year2018 =
             let ys = points |> Seq.map snd
             Seq.min xs, Seq.max xs, Seq.min ys, Seq.max ys
         let rangeToCoords (minX, maxX, minY, maxY) =
-            seq {minX .. maxX} |> Seq.collect (fun x -> seq {minY .. maxY} |> Seq.map (fun y -> (x, y)))
+            seq {for x in minX .. maxX do
+                    for y in minY .. maxY do
+                        yield (x, y)}
         let manhattan (x, y) (px, py) = abs (px-x) + abs (py-y)
 
-        let getClosestNodes (x, y) = Seq.groupBy (manhattan (x, y)) >> Seq.minBy fst >> snd >> Seq.toArray
+        let getClosestNodes (x, y) pts =
+            let dists = pts |> Seq.map (fun p -> (manhattan (x, y) p, p)) |> Seq.toArray
+            let minDist, _ = dists |> Array.min
+            dists |> Array.filter (fst >> (=)minDist) |> Array.map snd
         let isBorder (minX, maxX, minY, maxY) (x, y) = x = minX || x = maxX || y = minY || y = maxY
 
         let solvePart1 points =
