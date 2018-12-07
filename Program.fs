@@ -656,26 +656,16 @@ module Year2018 =
     module Day6 =
         let asPoint = splitBy ", " (fun x -> (int x.[0], int x.[1]))
 
-        let manhattan (x, y) (px, py) = abs (px-x) + abs (py-y)
-        
-        let region (minX, maxX, minY, maxY) =
-            seq {for x in minX .. maxX do for y in minY .. maxY do yield (x, y)}
-
         let getRanges points = 
             let xs = points |> Seq.map fst
             let ys = points |> Seq.map snd
             Seq.min xs, Seq.max xs, Seq.min ys, Seq.max ys
+        let rangeToCoords (minX, maxX, minY, maxY) =
+            seq {for x in minX .. maxX do
+                    for y in minY .. maxY do
+                        yield (x, y)}
 
-        //let part1 pts =
-        //    let toRegion c =
-        //        let choices =
-        //            pts
-        //            |> Seq.map (fun coord -> (coord, manhattan c coord))
-        //            |> Seq.sortBy snd
-        //            |> Seq.groupBy snd
-        //    let ranges = getRanges pts
-        //    let box0 = region (minX, maxX, minY, maxY)
-        //    let box1 = region (minX-1, maxX+1, minY-1, maxY+1)
+        let manhattan (x, y) (px, py) = abs (px-x) + abs (py-y)
 
         let getClosestNodes (x, y) pts =
             let dists = pts |> Seq.map (fun p -> (manhattan (x, y) p, p)) |> Seq.toArray
@@ -685,7 +675,7 @@ module Year2018 =
 
         let solvePart1 points =
             let ranges = getRanges points
-            let gridCoords = region ranges |> Seq.toArray
+            let gridCoords = rangeToCoords ranges |> Seq.toArray
             let closestNodes = gridCoords |> Array.map (fun p -> (p, getClosestNodes p points))
             let infinitePoints = closestNodes |> Array.filter (fst >> isBorder ranges) |> Array.collect snd |> Set.ofArray
             let includedNodes = Set.difference (Set.ofSeq points) infinitePoints
