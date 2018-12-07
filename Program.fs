@@ -656,15 +656,26 @@ module Year2018 =
     module Day6 =
         let asPoint = splitBy ", " (fun x -> (int x.[0], int x.[1]))
 
+        let manhattan (x, y) (px, py) = abs (px-x) + abs (py-y)
+        
+        let region (minX, maxX, minY, maxY) =
+            seq {for x in minX .. maxX do for y in minY .. maxY do yield (x, y)}
+
         let getRanges points = 
             let xs = points |> Seq.map fst
             let ys = points |> Seq.map snd
             Seq.min xs, Seq.max xs, Seq.min ys, Seq.max ys
-        let rangeToCoords (minX, maxX, minY, maxY) =
-            seq {for x in minX .. maxX do
-                    for y in minY .. maxY do
-                        yield (x, y)}
-        let manhattan (x, y) (px, py) = abs (px-x) + abs (py-y)
+
+        //let part1 pts =
+        //    let toRegion c =
+        //        let choices =
+        //            pts
+        //            |> Seq.map (fun coord -> (coord, manhattan c coord))
+        //            |> Seq.sortBy snd
+        //            |> Seq.groupBy snd
+        //    let ranges = getRanges pts
+        //    let box0 = region (minX, maxX, minY, maxY)
+        //    let box1 = region (minX-1, maxX+1, minY-1, maxY+1)
 
         let getClosestNodes (x, y) pts =
             let dists = pts |> Seq.map (fun p -> (manhattan (x, y) p, p)) |> Seq.toArray
@@ -674,7 +685,7 @@ module Year2018 =
 
         let solvePart1 points =
             let ranges = getRanges points
-            let gridCoords = rangeToCoords ranges |> Seq.toArray
+            let gridCoords = region ranges |> Seq.toArray
             let closestNodes = gridCoords |> Array.map (fun p -> (p, getClosestNodes p points))
             let infinitePoints = closestNodes |> Array.filter (fst >> isBorder ranges) |> Array.collect snd |> Set.ofArray
             let includedNodes = Set.difference (Set.ofSeq points) infinitePoints
@@ -705,3 +716,52 @@ module Year2018 =
             |> List.length
 
         let solver = {parse = parseEachLine asPoint; part1 = solvePart1; part2 = solvePart2}
+    
+    module Day7 =
+        let asEdge = splitBy " " (fun x -> (x.[1], x.[7]))
+
+        let toGraph key value = Seq.groupBy key >> Seq.map (fun (k, v) -> (k, Seq.map value v)) >> Map.ofSeq
+        let getKeySet = Map.toSeq >> Seq.map fst >> Set.ofSeq
+        let solve workers edges =
+            let initialSuccessors = toGraph fst snd edges
+            let initialPredecessors = toGraph snd fst edges
+            let nodes = Set.union (getKeySet initialSuccessors) (getKeySet initialPredecessors)
+            
+            let getTaskTime task = int (char task) - 4
+            let getNextTask predecessors =
+                let hasNoPredecessors task = getOrDefault task predecessors Set.empty |> Set.isEmpty
+                Seq.sort >> Seq.tryFind hasNoPredecessors
+            
+            let shiftTimeAndRemoveFinished minTime =
+                List.filter (fst >> (<>) minTime) // remove elves that have minTime left
+                >> List.map (fun (time, task) -> (time - minTime, task)) // subtract minTime remaining
+
+            let removeFromPredecessors predecessors toRemove =
+                let newPredecessors s =  Set.difference (Map.find s predecessors) toRemove
+                toRemove
+                |> Seq.collect (fun t -> Map.find t initialSuccessors) // find successors
+                |> Seq.map (fun s -> (s, newPredecessors s)) // generate new predecessor set for each successor
+                |> Seq.fold (fun m (k, v) -> Map.add k v m) predecessors // update the predecessor map
+
+            let rec step t tasks elves predecessors order =
+                if Set.isEmpty tasks then
+                    (order |> Seq.rev |> String.concat ""), ((List.max elves |> fst) + t)
+                else
+                    match getNextTask predecessors tasks with
+                    | Some x when List.length elves < workers ->
+                        step t (Set.remove x tasks) ((getTaskTime x, x)::elves) predecessors (x::order)
+                    | _ -> 
+                        let minTime = elves |> List.map fst |> List.min
+                        let newElves = shiftTimeAndRemoveFinished minTime elves
+                        let newPredecessors =
+                            elves
+                            |> List.filter (fst >> (=)minTime) // if the task was finished
+                            |> List.map snd // get the task
+                            |> Set.ofList
+                            |> removeFromPredecessors predecessors // remove task from predecessor map
+                        step (t + minTime) tasks newElves newPredecessors order
+
+            let predecessorMap = initialPredecessors |> Map.map (fun _ v -> Set.ofSeq v)
+            step 0 nodes [] predecessorMap []  
+
+        let solver = {parse = parseEachLine asEdge; part1 = solve 1 >> fst; part2 = solve 5 >> snd}
