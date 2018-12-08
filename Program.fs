@@ -760,17 +760,17 @@ module Year2018 =
         let solver = {parse = parseEachLine asEdge; part1 = solve 1 >> fst; part2 = solve 5 >> snd}
 
     module Day8 =
-        let rec getTree tree =
-            let subChildren, metadata = List.item 0 tree, List.item 1 tree
-            let totals, tree' =
-                List.init subChildren id
-                |> List.mapFold (fun tree' _ -> getTree tree') (List.skip 2 tree)
-            let meta = List.take metadata tree'
-            let metaTotal = List.sum meta
-            let value =
-                if subChildren = 0 then metaTotal
-                else meta |> List.sumBy (fun m -> List.tryItem (m - 1) totals |? (0, 0) |> snd)
-            ((List.sumBy fst totals) + metaTotal, value), (List.skip metadata tree')
-        let solve = Array.toList >> getTree >> fst
+        let solve getValue =
+            let rec getTree tree =
+                let subChildren, metadata = List.item 0 tree, List.item 1 tree
+                let subValues, tree' = List.mapFold (fun t _ -> getTree t) (List.skip 2 tree) [1..subChildren]
+                let meta, remainingTree = List.splitAt metadata tree'
+                getValue meta subValues, remainingTree
+            Array.toList >> getTree >> fst
+        
+        let part1Value meta subValues = (List.sum meta) + (List.sum subValues)
+        let part2Value meta subValues =
+            let getSubtotal i = List.tryItem (i - 1) subValues |? 0
+            List.sumBy (if List.isEmpty subValues then id else getSubtotal) meta
 
-        let solver = {parse = parseFirstLine (splitBy " " asIntArray); part1 = solve >> fst; part2 = solve >> snd}
+        let solver = {parse = parseFirstLine (splitBy " " asIntArray); part1 = solve part1Value; part2 = solve part2Value}
