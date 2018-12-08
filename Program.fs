@@ -758,3 +758,19 @@ module Year2018 =
             step 0 nodes [] predecessorMap []  
 
         let solver = {parse = parseEachLine asEdge; part1 = solve 1 >> fst; part2 = solve 5 >> snd}
+
+    module Day8 =
+        let rec getTree tree =
+            let subChildren, metadata = List.item 0 tree, List.item 1 tree
+            let totals, tree' =
+                List.init subChildren id
+                |> List.mapFold (fun tree' _ -> getTree tree') (List.skip 2 tree)
+            let meta = List.take metadata tree'
+            let metaTotal = List.sum meta
+            let value =
+                if subChildren = 0 then metaTotal
+                else meta |> List.sumBy (fun m -> List.tryItem (m - 1) totals |? (0, 0) |> snd)
+            ((List.sumBy fst totals) + metaTotal, value), (List.skip metadata tree')
+        let solve = Array.toList >> getTree >> fst
+
+        let solver = {parse = parseFirstLine (splitBy " " asIntArray); part1 = solve >> fst; part2 = solve >> snd}
