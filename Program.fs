@@ -656,36 +656,39 @@ module Year2018 =
     module Day6 =
         let asPoint = splitBy ", " (fun x -> (int x.[0], int x.[1]))
 
-        let getRanges points = 
-            let xs = points |> Seq.map fst
-            let ys = points |> Seq.map snd
-            Seq.min xs, Seq.max xs, Seq.min ys, Seq.max ys
-        let rangeToCoords (minX, maxX, minY, maxY) =
-            seq {for x in minX .. maxX do
-                    for y in minY .. maxY do
-                        yield (x, y)}
+        let manhattan x y (px, py) = abs (px-x) + abs (py-y)
+        let getClosestNode (pts : (int * int) array) x y =
+            let updateMin (currentMin, nodes) ptIndex =
+                let pt = pts.[ptIndex]
+                let dist = manhattan x y pt
+                if   dist < currentMin then (dist, ptIndex::[])
+                elif dist = currentMin then (currentMin, ptIndex::nodes)
+                else                        (currentMin, nodes)
+            let numPoints = Array.length pts
+            Seq.init numPoints id |> Seq.fold updateMin (Int32.MaxValue, []) |> snd
 
-        let manhattan (x, y) (px, py) = abs (px-x) + abs (py-y)
-
-        let getClosestNodes (x, y) pts =
-            let dists = pts |> Seq.map (fun p -> (manhattan (x, y) p, p)) |> Seq.toArray
-            let minDist, _ = dists |> Array.min
-            dists |> Array.filter (fst >> (=)minDist) |> Array.map snd
-        let isBorder (minX, maxX, minY, maxY) (x, y) = x = minX || x = maxX || y = minY || y = maxY
-
-        let solvePart1 points =
-            let ranges = getRanges points
-            let gridCoords = rangeToCoords ranges |> Seq.toArray
-            let closestNodes = gridCoords |> Array.map (fun p -> (p, getClosestNodes p points))
-            let infinitePoints = closestNodes |> Array.filter (fst >> isBorder ranges) |> Array.collect snd |> Set.ofArray
-            let includedNodes = Set.difference (Set.ofSeq points) infinitePoints
-            closestNodes
-            |> Array.filter (snd >> Seq.length >> (=)1)
-            |> Array.collect snd
-            |> Array.groupBy id
-            |> Array.filter (fst >> Set.contains >< includedNodes)
-            |> Array.map (snd >> Array.length)
-            |> Array.max
+        let getRanges =
+            let updateRanges (minX, maxX, minY, maxY) (x, y) =
+                min x minX, max x maxX, min y minY, max y maxY
+            Seq.fold updateRanges (Int32.MaxValue, Int32.MinValue, Int32.MaxValue, Int32.MinValue)
+        
+        let row i (arr: 'T[,]) = arr.[i..i, *] |> Seq.cast<'T> |> Seq.toArray
+        let col i (arr: 'T[,]) = arr.[*, i..i] |> Seq.cast<'T> |> Seq.toArray
+        let solvePart1 pts =
+            let minX, maxX, minY, maxY = getRanges pts
+            let width, height = maxX - minX, maxY - minY
+            let offsetPts = pts |> Seq.map (fun (x, y) -> (x - minX, y - minY)) |> Seq.toArray
+            let grid = Array2D.init (height + 1) (width + 1) (getClosestNode offsetPts)
+            let borders = Array.concat [row 0 grid; row height grid; col 0 grid; col width grid] |> Seq.concat
+            let excluded = Set.ofSeq borders
+            grid
+            |> Seq.cast<int list>
+            |> Seq.filter (fun dups -> List.length dups = 1)
+            |> Seq.map List.head
+            |> Seq.countBy id
+            |> Seq.filter (fst >> (Set.contains >< excluded) >> not)
+            |> Seq.maxBy snd
+            |> snd
 
         let getDists1D pts =
             let rec step l r lc rc i dists pts =
