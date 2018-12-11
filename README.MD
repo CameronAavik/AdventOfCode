@@ -80,3 +80,5 @@ Below is the results of timing one run for each day/part:
     Year 2018 Day 09-2 3007.83ms 3553108197
     Year 2018 Day 10-1   29.55ms <solution omitted since it's visual>
     Year 2018 Day 10-2    2.59ms 10656
+    Year 2018 Day 11-1   15.62ms 20,41
+    Year 2018 Day 11-2  321.33ms 236,270,11
