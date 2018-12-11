@@ -6,8 +6,44 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Include="Common.fs" />
+    <Compile Include="Challenges\2017\Day01.fs" />
+    <Compile Include="Challenges\2017\Day02.fs" />
+    <Compile Include="Challenges\2017\Day03.fs" />
+    <Compile Include="Challenges\2017\Day04.fs" />
+    <Compile Include="Challenges\2017\Day05.fs" />
+    <Compile Include="Challenges\2017\Day06.fs" />
+    <Compile Include="Challenges\2017\Day07.fs" />
+    <Compile Include="Challenges\2017\Day08.fs" />
+    <Compile Include="Challenges\2017\Day09.fs" />
+    <Compile Include="Challenges\2017\Day10.fs" />
+    <Compile Include="Challenges\2017\Day11.fs" />
+    <Compile Include="Challenges\2017\Day12.fs" />
+    <Compile Include="Challenges\2017\Day13.fs" />
+    <Compile Include="Challenges\2017\Day14.fs" />
+    <Compile Include="Challenges\2017\Day15.fs" />
+    <Compile Include="Challenges\2017\Day16.fs" />
+    <Compile Include="Challenges\2017\Day17.fs" />
+    <Compile Include="Challenges\2017\Day18.fs" />
+    <Compile Include="Challenges\2017\Day19.fs" />
+    <Compile Include="Challenges\2017\Day20.fs" />
+    <Compile Include="Challenges\2017\Day21.fs" />
+    <Compile Include="Challenges\2017\Day22.fs" />
+    <Compile Include="Challenges\2017\Day23.fs" />
+    <Compile Include="Challenges\2017\Day24.fs" />
+    <Compile Include="Challenges\2017\Day25.fs" />
+    <Compile Include="Challenges\2018\Day01.fs" />
+    <Compile Include="Challenges\2018\Day02.fs" />
+    <Compile Include="Challenges\2018\Day03.fs" />
+    <Compile Include="Challenges\2018\Day04.fs" />
+    <Compile Include="Challenges\2018\Day05.fs" />
+    <Compile Include="Challenges\2018\Day06.fs" />
+    <Compile Include="Challenges\2018\Day07.fs" />
+    <Compile Include="Challenges\2018\Day08.fs" />
+    <Compile Include="Challenges\2018\Day09.fs" />
+    <Compile Include="Challenges\2018\Day10.fs" />
+    <Compile Include="Challenges\2018\Day11.fs" />
     <Compile Include="Program.fs" />
-    <Compile Include="Main.fs" />
 	<Content Include="input_files\**\*.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
