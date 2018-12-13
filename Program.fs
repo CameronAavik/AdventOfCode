@@ -29,17 +29,17 @@ let runSolver day year =
         | 1  -> run Year2018Day01.solver | 2  -> run Year2018Day02.solver | 3  -> run Year2018Day03.solver
         | 4  -> run Year2018Day04.solver | 5  -> run Year2018Day05.solver | 6  -> run Year2018Day06.solver
         | 7  -> run Year2018Day07.solver | 8  -> run Year2018Day08.solver | 9  -> run Year2018Day09.solver
-        | 10 -> run Year2018Day10.solver | 11 -> run Year2018Day11.solver
+        | 10 -> run Year2018Day10.solver | 11 -> run Year2018Day11.solver | 12 -> run Year2018Day12.solver
         | day -> (fun _ -> printfn "Invalid Day: %i (Year %i)" day year)
     | year -> (fun _ -> printfn "Invalid Year: %i" year)
 
 [<EntryPoint>]
 let main argv =
-    let runDay day year = runSolver day year (sprintf "input_files\\%i\\day%i.txt" year day)
+    let runDay day year = runSolver day year (sprintf "input_files\\%i\\day%02i.txt" year day)
     match argv.[0] with
         | "ALL" ->
             for i in 1..25 do runDay i 2017
-            for i in 1..11 do runDay i 2018
+            for i in 1..12 do runDay i 2018
         | x -> // 2018.1 for Day 1 2018
             let parts = x.Split('.')
             runDay (int parts.[1]) (int parts.[0])

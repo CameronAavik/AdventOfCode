@@ -4,6 +4,11 @@ open CameronAavik.AdventOfCode.Common
 
 let asEdge = splitBy " " (fun x -> (x.[1], x.[7]))
 
+let getOrDefault key map ``default``= 
+    match Map.tryFind key map with
+    | Some v -> v
+    | None -> ``default``
+
 let toGraph key value = Seq.groupBy key >> Seq.map (fun (k, v) -> (k, Seq.map value v)) >> Map.ofSeq
 let getKeySet = Map.toSeq >> Seq.map fst >> Set.ofSeq
 let solve workers edges =

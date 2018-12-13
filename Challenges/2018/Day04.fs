@@ -2,6 +2,11 @@
 
 open CameronAavik.AdventOfCode.Common
 
+let getOrDefault key map ``default``= 
+    match Map.tryFind key map with
+    | Some v -> v
+    | None -> ``default``
+
 type Activity = StartShift of int | Wake | Sleep
 let asLog (str : string) =
     let parts = str.Split(":] ".ToCharArray())

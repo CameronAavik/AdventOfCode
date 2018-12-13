@@ -3,6 +3,11 @@
 open CameronAavik.AdventOfCode.Common
 
 let asMarblesGame = splitBy " " (fun s -> (int s.[0], int s.[6]))
+
+let getOrDefault key map ``default``= 
+    match Map.tryFind key map with
+    | Some v -> v
+    | None -> ``default``
         
 // circular zipper thing, not sure of a faster way to do this
 type Circle<'t> = {before: 't list; cur: 't; after: 't list}
