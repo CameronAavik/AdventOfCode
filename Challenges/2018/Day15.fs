@@ -191,13 +191,10 @@ let getScore elfDamage stopAtElfDeath gridLines =
 
 let solvePart1 = getScore 3 false >> snd
    
-let solvePart2 gridLines = 
-    let rec findFirstSuccessful i =
-        let isSuccessful, score = getScore i true gridLines
-        if isSuccessful then
-            score
-        else
-            findFirstSuccessful (i + 1)
-    findFirstSuccessful 3
+let solvePart2 gridLines =
+    Seq.initInfinite (fun i -> getScore (i + 4) true gridLines)
+    |> Seq.skipWhile (fun (elvesSurvived, _) -> not elvesSurvived)
+    |> Seq.head
+    |> snd
 
 let solver = {parse = parseEachLine asString; part1 = solvePart1; part2 = solvePart2}
