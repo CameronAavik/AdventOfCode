@@ -37,8 +37,8 @@ let stepToClosestTarget grid src targets excludedNodes =
         let nextLevelNodes = nextLevel |> Set.map snd
         // see if we have found any targets in this level
         let intersection = Set.intersect targets nextLevelNodes
-        let newSeen = Set.union seen nextLevelNodes
         if Set.isEmpty intersection then
+            let newSeen = Set.union seen nextLevelNodes
             let processNode nextLevel (start, node) =
                 openNeighbours grid node
                 |> List.filter (fun p -> Set.contains p newSeen |> not)
