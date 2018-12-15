@@ -4,13 +4,14 @@ open CameronAavik.AdventOfCode.Common
 open BenchmarkDotNet.Running
 open BenchmarkDotNet.Attributes
 
-let getSolver year day part =
+let getSolver year day part printResult =
     let run (solver : Day<'a, 'b, 'c>) =
         let run part solve =
             let fileName = (sprintf "input_files\\%i\\day%02i.txt" year day)
             fun _ ->
                 let result = fileName |> File.ReadLines |> solver.parse |> solve
-                printfn "Year %i Day %02i-%i %O" year day part result
+                if printResult then
+                    printfn "Year %i Day %02i-%i %O" year day part result
         match part with
         | 1 -> run 1 solver.part1
         | 2 -> run 2 solver.part2
@@ -52,7 +53,7 @@ type Bench() =
 
     [<GlobalSetup>]
     member self.GlobalSetupData() =
-        solverFunc <- getSolver self.Year self.Day self.Part
+        solverFunc <- getSolver self.Year self.Day self.Part false
 
     [<Benchmark>]
     member self.RunPart () = solverFunc ()
@@ -60,7 +61,7 @@ type Bench() =
 
 [<EntryPoint>]
 let main argv =
-    let runPart year day part = getSolver year day part ()
+    let runPart year day part = getSolver year day part true ()
     let runDay year day = for part in 1..2 do runPart year day part
     let runYear year = for day in 1..25 do runDay year day
     match argv.[0] with
