@@ -33,16 +33,23 @@ let openNeighbours (grid : CaveCell [,]) = neighbours >> List.filter (fun (x, y)
 let readingOrder (x, y) = (y, x)
 
 let stepToClosestTarget grid src targets excludedNodes =
+    // - seen is a set of (x, y) coords that shouldn't be visited again
+    // - nextLevel are the coords that are all equal shortest distance away from
+    //   src. It is a set of ((sx, sy), (x, y)) coords where (sx, sy) is the
+    //   first step taken after src to get here and (x, y) is the coord.
+    //   Using this we are able to find the shortest path with the first step
+    //   that comes first in reading order
     let rec bfs seen nextLevel =
         let nextLevelNodes = nextLevel |> Set.map snd
         // see if we have found any targets in this level
         let intersection = Set.intersect targets nextLevelNodes
         if Set.isEmpty intersection then
             let newSeen = Set.union seen nextLevelNodes
+            // take a node and add any unseen neighbours to the next levl
             let processNode nextLevel (start, node) =
                 openNeighbours grid node
                 |> List.filter (fun p -> Set.contains p newSeen |> not)
-                |> List.fold (fun ls l -> (start, l) :: ls) nextLevel
+                |> List.fold (fun ls l -> (start, l) :: ls) nextLevel // start is propagated to next level
             let nextLevel =
                 nextLevel
                 |> Set.toList
@@ -58,17 +65,19 @@ let stepToClosestTarget grid src targets excludedNodes =
             |> Seq.filter (fun t -> snd t = closestTarget) // find all items in next level at the closest target
             |> Seq.map fst // get the starting steps that took them there
             |> Seq.minBy readingOrder // get the starting step first in the reading order
-    let firstLevel = Set.difference (openNeighbours grid src |> Set.ofList) excludedNodes
     let initSeen = excludedNodes |> Set.add src
-    bfs initSeen (Set.map (fun p -> (p, p)) firstLevel)
+    let firstLevel =
+        Set.difference (openNeighbours grid src |> Set.ofList) excludedNodes
+        |> Set.map (fun p -> (p, p)) // first step source will be itself
+    bfs initSeen firstLevel
 
 type CaveState = {
-    locations: Map<int * int, int>;
-    units: Map<int, Unit>;
-    endedAtEndOfRound: bool;
-    ended: bool;
-    elfDied: bool;
-    round: int;
+    locations: Map<int * int, int>; // maps (x, y) coords to unit index
+    units: Map<int, Unit>; // maps unit index to the unit
+    endedAtEndOfRound: bool; // if true, then it did not end mid-round (needed for outcome calculation)
+    ended: bool; // indicates if all of either the elves or goblins are dead
+    elfDied: bool; // indicates if an elf has died
+    round: int; // the round number, increments after the round is finished
 }
 
 let createState units =
