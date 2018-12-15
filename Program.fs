@@ -1,16 +1,20 @@
 ﻿open System
-open System.Diagnostics
 open System.IO
 open CameronAavik.AdventOfCode.Common
+open BenchmarkDotNet.Running
+open BenchmarkDotNet.Attributes
 
-let runSolver day year =
-    let run (solver : Day<'a, 'b, 'c>) fileName =
-        let time f x = Stopwatch.StartNew() |> (fun sw -> (f x, sw.Elapsed.TotalMilliseconds))
+let getSolver year day part =
+    let run (solver : Day<'a, 'b, 'c>) =
         let run part solve =
-            let (result, t) = time solve (fileName |> File.ReadLines |> solver.parse)
-            printfn "Year %i Day %02i-%i %7.2fms %O" year day part t result
-        run 1 solver.part1
-        run 2 solver.part2
+            let fileName = (sprintf "input_files\\%i\\day%02i.txt" year day)
+            fun _ ->
+                let result = fileName |> File.ReadLines |> solver.parse |> solve
+                printfn "Year %i Day %02i-%i %O" year day part result
+        match part with
+        | 1 -> run 1 solver.part1
+        | 2 -> run 2 solver.part2
+        | _ -> fun _ -> ()
     match year with
     | 2017 ->
         match day with
@@ -23,7 +27,7 @@ let runSolver day year =
         | 19 -> run Year2017Day19.solver | 20 -> run Year2017Day20.solver | 21 -> run Year2017Day21.solver
         | 22 -> run Year2017Day22.solver | 23 -> run Year2017Day23.solver | 24 -> run Year2017Day24.solver
         | 25 -> run Year2017Day25.solver
-        | day -> (fun _ -> printfn "Invalid Day: %i (Year %i)" day year)
+        | day -> fun _ -> printfn "Invalid Day: %i (Year %i)" day year
     | 2018 ->
         match day with
         | 1  -> run Year2018Day01.solver | 2  -> run Year2018Day02.solver | 3  -> run Year2018Day03.solver
@@ -31,19 +35,44 @@ let runSolver day year =
         | 7  -> run Year2018Day07.solver | 8  -> run Year2018Day08.solver | 9  -> run Year2018Day09.solver
         | 10 -> run Year2018Day10.solver | 11 -> run Year2018Day11.solver | 12 -> run Year2018Day12.solver
         | 13 -> run Year2018Day13.solver | 14 -> run Year2018Day14.solver | 15 -> run Year2018Day15.solver
-        | day -> (fun _ -> printfn "Invalid Day: %i (Year %i)" day year)
-    | year -> (fun _ -> printfn "Invalid Year: %i" year)
+        | day -> fun _ -> printfn "Invalid Day: %i (Year %i)" day year
+    | year -> fun _ -> printfn "Invalid Year: %i" year
+
+type Bench() =
+    let mutable solverFunc : unit -> unit = fun _ -> ()
+    
+    [<Params (2017, 2018)>]
+    member val public Year = 0 with get, set
+
+    [<Params (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)>]
+    member val public Day = 0 with get, set
+
+    [<Params (1, 2)>]
+    member val public Part = 0 with get, set
+
+    [<GlobalSetup>]
+    member self.GlobalSetupData() =
+        solverFunc <- getSolver self.Year self.Day self.Part
+
+    [<Benchmark>]
+    member self.RunPart () = solverFunc ()
+
 
 [<EntryPoint>]
 let main argv =
-    let runDay day year = runSolver day year (sprintf "input_files\\%i\\day%02i.txt" year day)
+    let runPart year day part = getSolver year day part ()
+    let runDay year day = for part in 1..2 do runPart year day part
+    let runYear year = for day in 1..25 do runDay year day
     match argv.[0] with
-        | "ALL" ->
-            for i in 1..25 do runDay i 2017
-            for i in 1..15 do runDay i 2018
-        | x -> // 2018.1 for Day 1 2018
-            let parts = x.Split('.')
-            runDay (int parts.[1]) (int parts.[0])
+        | "BENCH" -> BenchmarkRunner.Run<Bench>() |> ignore
+        | "ALL" -> for year in 2017..2018 do runYear year
+        | x ->
+            let parts = x.Split('.') |> Array.map int
+            match parts.Length with
+            | 1 -> runYear parts.[0]
+            | 2 -> runDay parts.[0] parts.[1]
+            | 3 -> runPart parts.[0] parts.[1] parts.[2]
+            | _ -> ()
     Console.ReadKey() |> ignore
     0
 
