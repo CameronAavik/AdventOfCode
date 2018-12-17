@@ -52,6 +52,7 @@
     <Compile Include="Challenges\2018\Day14.fs" />
     <Compile Include="Challenges\2018\Day15.fs" />
     <Compile Include="Challenges\2018\Day16.fs" />
+    <Compile Include="Challenges\2018\Day17.fs" />
     <Compile Include="Program.fs" />
     <Content Include="input_files\**\*.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
