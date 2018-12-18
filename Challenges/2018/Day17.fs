@@ -33,24 +33,21 @@ let processWaterSource maxY grid (x, y) =
     match Map.tryFind (x, y) grid with
     | Some MovingWater ->
         let rec processYPos grid sources y =
-            if y > maxY then
-                grid, sources
-            else
-                match Map.tryFind (x, y) grid with
-                | Some Clay | Some StillWater ->
-                    let prevY = y - 1
-                    let left, leftOverflow, sources = search x prevY (-1) grid sources
-                    let right, rightOverflow, sources = search x prevY 1 grid sources
-                    let isOverflow = leftOverflow || rightOverflow
-                    let tileType = if isOverflow then MovingWater else StillWater
-                    let grid = 
-                        seq { for x = left to right do yield ((x, prevY), tileType)}
-                        |> Seq.fold (fun grid (k, v) -> Map.add k v grid) grid
-                    processYPos grid sources prevY
-                | Some MovingWater ->
-                    grid, sources
-                | Some Sand | None ->
-                    processYPos (grid |> Map.add (x, y) MovingWater) sources (y + 1)
+            match Map.tryFind (x, y) grid with
+            | _ when (y > maxY) -> grid, sources
+            | Some MovingWater -> grid, sources
+            | Some Clay | Some StillWater ->
+                let prevY = y - 1
+                let left, leftOverflow, sources = search x prevY (-1) grid sources
+                let right, rightOverflow, sources = search x prevY 1 grid sources
+                let isOverflow = leftOverflow || rightOverflow
+                let tileType = if isOverflow then MovingWater else StillWater
+                let grid = 
+                    seq { for x = left to right do yield ((x, prevY), tileType)}
+                    |> Seq.fold (fun grid (k, v) -> Map.add k v grid) grid
+                processYPos grid sources prevY
+            | Some Sand | None ->
+                processYPos (grid |> Map.add (x, y) MovingWater) sources (y + 1)
         processYPos grid [] (y + 1)
     | _ -> grid, []
 
