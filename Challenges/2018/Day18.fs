@@ -42,7 +42,7 @@ let step grid =
         |> getNextCellState cur
     Array2D.mapi getNextState grid
 
-let score (grid : Acre [,]) =
+let score grid =
     let counts = grid |> Seq.cast<Acre> |> Seq.fold addNeighbourToCounts zeroCounts
     counts.lumberyards * counts.treeAcres
 
