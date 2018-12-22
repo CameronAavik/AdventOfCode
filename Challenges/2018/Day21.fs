@@ -6,22 +6,22 @@ let getSeed =
     // after comparing many inputs, the only lines that was different was line 8 
     Seq.item 8 >> splitBy " " (fun p -> int p.[1])
 
-let rec getNextTerminatingValue innerVal acc =
-    let innerVal =
-        acc &&& 0xFF
-        |> (+) innerVal
-        |> (&&&) 0xFFFFFF
-        |> (*) 65899
-        |> (&&&) 0xFFFFFF
-    if acc < 256 then
-        innerVal
-    else
-        getNextTerminatingValue innerVal (acc >>> 8)
+let getNextTerminatingValue seed prev =
+    let applyByte value =
+        (+) value
+        >> (&&&) 0xFFFFFF
+        >> (*) 65899
+        >> (&&&) 0xFFFFFF
+    
+    let b = prev ||| 0x10000
+    [|0; 8; 16|]
+    |> Array.map (fun shift -> b >>> shift &&& 0xFF)
+    |> Array.fold applyByte seed
 
-let solvePart1 seed = getNextTerminatingValue seed 0x10000
+let solvePart1 seed = getNextTerminatingValue seed 0
 let solvePart2 seed =
     let rec findLastUnique prev seen =
-        let next = getNextTerminatingValue seed (prev ||| 0x10000)
+        let next = getNextTerminatingValue seed prev
         if Set.contains next seen then
             prev
         else
