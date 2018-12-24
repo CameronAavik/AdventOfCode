@@ -65,7 +65,7 @@ let getBounds bots =
 let initialOctohedron bots =
     let minX, maxX, minY, maxY, minZ, maxZ = getBounds bots
     let pos = {x=(minX + maxX)/2; y=(minY + maxY)/2; z=(minZ + maxZ)/2}
-    let radius = bots |> Array.map (fun b -> manhattan pos b.pos - b.radius) |> Array.max
+    let radius = bots |> Array.map (fun b -> manhattan pos b.pos + b.radius) |> Array.max
     {pos=pos; radius=radius}
 
 let getOverlapping octohedron = Array.filter (asOctohedron >> doOctohedronsOverlap octohedron)
