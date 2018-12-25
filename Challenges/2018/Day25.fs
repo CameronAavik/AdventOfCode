@@ -2,7 +2,7 @@
 
 open CameronAavik.AdventOfCode.Common
 
-let manhattan p0 p1 = Array.zip p0 p1 |> Array.map (fun (c0, c1) -> abs (c0 - c1)) |> Array.sum
+let manhattan p0 p1 = Array.zip p0 p1 |> Array.sumBy (fun (c0, c1) -> abs (c0 - c1))
 let solve points =
     let rec countComponents count unseen =
         let rec findComponent queue unseen =
