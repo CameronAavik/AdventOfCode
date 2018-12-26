@@ -10,7 +10,7 @@ module Common =
 
     // helper methods for parsing
     let parseFirstLine f = Seq.head >> f
-    let parseEachLine = Seq.map
+    let parseEachLine f = Seq.map f >> Seq.toArray
     let parseEachLineIndexed = Seq.mapi
     let asString : string -> string = id
     let asInt : string -> int = int
