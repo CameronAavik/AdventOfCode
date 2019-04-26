@@ -7,7 +7,7 @@ open BenchmarkDotNet.Attributes
 let getSolver year day part printResult =
     let run (solver : Day<'a, 'b, 'c>) =
         let run part solve =
-            let fileName = (sprintf "input_files\\%i\\day%02i.txt" year day)
+            let fileName = Path.Combine("input_files", year.ToString(), (sprintf "day%02i.txt" day))
             fun _ ->
                 let result = fileName |> File.ReadLines |> solver.parse |> solve
                 if printResult then
