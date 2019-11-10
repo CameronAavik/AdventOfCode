@@ -78,7 +78,6 @@ let main argv =
             | 2 -> runDay parts.[0] parts.[1]
             | 3 -> runPart parts.[0] parts.[1] parts.[2]
             | _ -> ()
-    Console.ReadKey() |> ignore
     0
 
 // Note: I used to use this file as the file that had all my solutions. I have
