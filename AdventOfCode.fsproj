@@ -68,7 +68,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.11.3" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
     <PackageReference Include="FSharpx.Collections" Version="2.0.0-beta3" />
   </ItemGroup>
 

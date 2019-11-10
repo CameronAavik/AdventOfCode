@@ -51,6 +51,7 @@ let benchmarkJob =
         .WithIterationTime(TimeInterval.FromMilliseconds(250.))
         .WithMinIterationCount(10)
         .WithMaxIterationCount(15)
+        .DontEnforcePowerPlan()
 
 let benchmarkConfig =
     DefaultConfig.Instance
