@@ -99,4 +99,4 @@ let searchForMin allBots initialOctohedron =
 
 let solvePart2 bots = searchForMin bots (initialOctohedron bots)
 
-let solver = {parse = File.ReadLines >> parseEachLineIndexed asNanobot >> Seq.toArray; part1 = solvePart1; part2 = solvePart2}
+let solver = {parse = parseEachLineIndexed asNanobot >> Seq.toArray; part1 = solvePart1; part2 = solvePart2}

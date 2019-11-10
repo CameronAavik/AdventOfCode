@@ -10,9 +10,13 @@ module Common =
     type Day<'a, 'b, 'c> = { parse: string -> 'a; part1: 'a -> 'b; part2: 'a -> 'c }
 
     // helper methods for parsing
-    let parseFirstLine f = File.ReadLines >> Seq.head >> f
+    let parseFirstLine f (fileName : string) =
+        use fs = new FileStream(fileName, FileMode.Open)
+        use reader = new StreamReader(fs)
+        f (reader.ReadLine())
+
     let parseEachLine f = File.ReadLines >> Seq.map f
-    let parseEachLineIndexed f = Seq.mapi f
+    let parseEachLineIndexed f = File.ReadLines >> Seq.mapi f
     let asString : string -> string = id
     let asInt : string -> int = int
     let asStringArray : string [] -> string [] = Array.map string
