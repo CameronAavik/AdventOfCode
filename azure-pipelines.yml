@@ -1,7 +1,3 @@
-# Starter pipeline
-# Start with a minimal pipeline that you can customize to build and deploy your code.
-# Add steps that build, run tests, deploy, and more:
-# https://aka.ms/yaml
 
 trigger:
 - master
@@ -14,3 +10,10 @@ steps:
   inputs:
     command: 'build'
     projects: './AdventOfCode.fsproj'
+  displayName: .NET Build
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'run'
+    projects: './AdventOfCode.fsproj'
+    arguments: 'BENCH'
+  displayName: Run Benchmarks
