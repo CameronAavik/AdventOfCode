@@ -1,6 +1,7 @@
 ﻿module Year2018Day16
 
 open CameronAavik.AdventOfCode.Common
+open System.IO
 
 type Registers = int * int * int * int
 let get i ((r0, r1, r2, r3) : Registers) =
@@ -142,4 +143,4 @@ let solvePart2 (samples : Sample list, instructions) =
     List.fold applyInstruction (0, 0, 0, 0) instructions
     |> get 0
 
-let solver = {parse = parseInput; part1 = solvePart1; part2 = solvePart2}
+let solver = {parse = File.ReadLines >> parseInput; part1 = solvePart1; part2 = solvePart2}

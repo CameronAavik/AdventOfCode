@@ -1,0 +1,16 @@
+
+trigger:
+- master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'build'
+    projects: './AdventOfCode.fsproj'
+    arguments: -c Release -o $(Build.ArtifactStagingDirectory)
+  displayName: .NET Build
+- script: dotnet $(Build.ArtifactStagingDirectory)/AdventOfCode.dll BENCH
+  displayName: Run Benchmarks

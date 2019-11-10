@@ -3,6 +3,7 @@
 open CameronAavik.AdventOfCode.Common
 open FSharpx.Collections
 open System
+open System.IO
 
 type Vec3 =
     {x: int; y: int; z: int}

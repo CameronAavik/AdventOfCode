@@ -2,6 +2,7 @@
 
 open CameronAavik.AdventOfCode.Common
 open System.Text.RegularExpressions
+open System.IO
 
 type DamageType = Slashing | Radiation | Fire | Bludgeoning | Cold
 type Team = ImmuneSystem | Infection
@@ -135,4 +136,4 @@ let solvePart2 groups =
     |> Seq.find (fun (winner, _) -> winner = Some ImmuneSystem)
     |> snd
 
-let solver = {parse = parseGroups; part1 = solvePart1; part2 = solvePart2}
+let solver = {parse = File.ReadLines >> parseGroups; part1 = solvePart1; part2 = solvePart2}
