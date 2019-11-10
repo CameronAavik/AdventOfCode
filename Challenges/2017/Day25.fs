@@ -1,6 +1,7 @@
 ﻿module Year2017Day25
 
 open CameronAavik.AdventOfCode.Common
+open System.IO
 
 // I frequently needed the last word without the last letter (unnecessary punctuation)
 let lastWord line = splitBy " " Array.last line |> (fun word -> word.Remove(word.Length - 1))
@@ -26,4 +27,4 @@ let solve (initState, steps, instructions) =
             step newLs newX newRs newState (n - 1)
     step [] 0 [] initState steps
 
-let solver = {parse = parseBlueprint; part1 = solve; part2 = (fun _ -> "Advent of Code Finished!")}
+let solver = {parse = id; part1 = File.ReadLines >> parseBlueprint >> solve; part2 = (fun _ -> "Advent of Code Finished!")}

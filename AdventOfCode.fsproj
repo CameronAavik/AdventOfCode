@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
@@ -11,249 +11,71 @@
 
   <ItemGroup>
     <Compile Include="Common.fs" />
-    <Compile Include="Challenges\2016\Day11.fs" />
-    <Folder Include="Challenges\2017\" />
-    <Folder Include="Challenges\2018\" />
+    <Compile Include="Challenges\2017\Day01.fs" />
+    <Compile Include="Challenges\2017\Day02.fs" />
+    <Compile Include="Challenges\2017\Day03.fs" />
+    <Compile Include="Challenges\2017\Day04.fs" />
+    <Compile Include="Challenges\2017\Day05.fs" />
+    <Compile Include="Challenges\2017\Day06.fs" />
+    <Compile Include="Challenges\2017\Day07.fs" />
+    <Compile Include="Challenges\2017\Day08.fs" />
+    <Compile Include="Challenges\2017\Day09.fs" />
+    <Compile Include="Challenges\2017\Day10.fs" />
+    <Compile Include="Challenges\2017\Day11.fs" />
+    <Compile Include="Challenges\2017\Day12.fs" />
+    <Compile Include="Challenges\2017\Day13.fs" />
+    <Compile Include="Challenges\2017\Day14.fs" />
+    <Compile Include="Challenges\2017\Day15.fs" />
+    <Compile Include="Challenges\2017\Day16.fs" />
+    <Compile Include="Challenges\2017\Day17.fs" />
+    <Compile Include="Challenges\2017\Day18.fs" />
+    <Compile Include="Challenges\2017\Day19.fs" />
+    <Compile Include="Challenges\2017\Day20.fs" />
+    <Compile Include="Challenges\2017\Day21.fs" />
+    <Compile Include="Challenges\2017\Day22.fs" />
+    <Compile Include="Challenges\2017\Day23.fs" />
+    <Compile Include="Challenges\2017\Day24.fs" />
+    <Compile Include="Challenges\2017\Day25.fs" />
+    <Compile Include="Challenges\2018\Day01.fs" />
+    <Compile Include="Challenges\2018\Day02.fs" />
+    <Compile Include="Challenges\2018\Day03.fs" />
+    <Compile Include="Challenges\2018\Day04.fs" />
+    <Compile Include="Challenges\2018\Day05.fs" />
+    <Compile Include="Challenges\2018\Day06.fs" />
+    <Compile Include="Challenges\2018\Day07.fs" />
+    <Compile Include="Challenges\2018\Day08.fs" />
+    <Compile Include="Challenges\2018\Day09.fs" />
+    <Compile Include="Challenges\2018\Day10.fs" />
+    <Compile Include="Challenges\2018\Day11.fs" />
+    <Compile Include="Challenges\2018\Day12.fs" />
+    <Compile Include="Challenges\2018\Day13.fs" />
+    <Compile Include="Challenges\2018\Day14.fs" />
+    <Compile Include="Challenges\2018\Day15.fs" />
+    <Compile Include="Challenges\2018\Day16.fs" />
+    <Compile Include="Challenges\2018\Day17.fs" />
+    <Compile Include="Challenges\2018\Day18.fs" />
+    <Compile Include="Challenges\2018\Day19.fs" />
+    <Compile Include="Challenges\2018\Day20.fs" />
+    <Compile Include="Challenges\2018\Day21.fs" />
+    <Compile Include="Challenges\2018\Day22.fs" />
+    <Compile Include="Challenges\2018\Day23.fs" />
+    <Compile Include="Challenges\2018\Day24.fs" />
+    <Compile Include="Challenges\2018\Day25.fs" />
+    <Compile Include="Runner.fs" />
+    <Compile Include="Benchmarking.fs" />
     <Compile Include="Program.fs" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Content Include="InputFiles\2016\day01.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day02.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day03.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day04.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day05.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day06.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day07.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day08.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day09.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day10.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day11.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day12.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day13.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day14.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day15.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day16.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day17.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day18.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day19.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day20.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day21.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day22.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day23.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day24.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2016\day25.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day01.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day02.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day03.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day04.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day05.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day06.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day07.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day08.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day09.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day10.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day11.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day12.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day13.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day14.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day15.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day16.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day17.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day18.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day19.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day20.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day21.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day22.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day23.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day24.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2017\day25.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day01.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day02.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day03.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day04.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day05.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day06.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day07.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day08.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day09.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day10.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day11.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day12.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day13.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day14.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day15.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day16.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day17.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day18.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day19.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day20.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day21.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day22.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day23.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day24.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="InputFiles\2018\day25.txt">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <Content Include="input_files\**\*.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.11.3" />
-    <PackageReference Include="FSharpx.Collections" Version="2.0.0-beta3" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
+    <PackageReference Include="FSharpx.Collections" Version="2.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="4.5.4" />
+    <PackageReference Update="FSharp.Core" Version="4.7.0" />
   </ItemGroup>
-
-  <ItemGroup />
 
 </Project>

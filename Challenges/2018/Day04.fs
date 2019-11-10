@@ -1,6 +1,7 @@
 ﻿module Year2018Day04
 
 open CameronAavik.AdventOfCode.Common
+open System.IO
 
 let getOrDefault key map ``default``= 
     match Map.tryFind key map with
@@ -60,4 +61,4 @@ let solvePart2 =
     >> Seq.maxBy (snd >> snd)
     >> (fun (guard, (minute, _)) -> guard * minute)
 
-let solver = {parse = Seq.sort >> parseEachLine asLog; part1 = solvePart1; part2 = solvePart2}
+let solver = {parse = File.ReadLines >> Seq.sort >> Seq.map asLog; part1 = solvePart1; part2 = solvePart2}
