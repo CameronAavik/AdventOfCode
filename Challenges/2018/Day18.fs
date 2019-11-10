@@ -1,6 +1,7 @@
 ﻿module Year2018Day18
 
 open CameronAavik.AdventOfCode.Common
+open System.IO
 
 type Acre = Open | Trees | Lumberyard
 let charToAcre = 
@@ -58,4 +59,4 @@ let solvePart2 grid =
         | None -> stepCached (i + 1) (step grid) (Map.add grid i cache)
     stepCached 0 grid Map.empty
 
-let solver = {parse = parseAcres; part1 = solvePart1; part2 = solvePart2}
+let solver = {parse = File.ReadLines >> parseAcres; part1 = solvePart1; part2 = solvePart2}

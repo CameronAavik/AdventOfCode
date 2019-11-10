@@ -17,4 +17,4 @@ let solve points =
         | [] -> count
     countComponents 0 (Seq.toList points)
 
-let solver = {parse = parseEachLine (splitBy "," asIntArray); part1 = solve; part2 = (fun _ -> "Advent of Code Finished!")}
+let solver = {parse = id; part1 = parseEachLine (splitBy "," asIntArray) >> solve; part2 = (fun _ -> "Advent of Code Finished!")}

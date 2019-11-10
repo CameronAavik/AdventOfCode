@@ -1,6 +1,7 @@
 ﻿module Year2018Day19
 
 open CameronAavik.AdventOfCode.Common
+open System.IO
 
 let getUniqueVals lines =
     let lines = lines |> Seq.toArray
@@ -42,4 +43,4 @@ let getFactors target =
 
 let solve f = f >> getFactors >> Seq.sum
 
-let solver = {parse = getUniqueVals; part1 = solve getPart1Target; part2 = solve getPart2Target}
+let solver = {parse = File.ReadLines >> getUniqueVals; part1 = solve getPart1Target; part2 = solve getPart2Target}
