@@ -10,7 +10,7 @@ steps:
   inputs:
     command: 'build'
     projects: './AdventOfCode.fsproj'
-    arguments: -c Release -o $(Build.ArtifactStagingDirectory)'
+    arguments: -c Release -o $(Build.ArtifactStagingDirectory)
   displayName: .NET Build
-- script: dotnet run $(Build.ArtifactStagingDirectory)'/AdventOfCode.dll BENCH
+- script: dotnet run $(Build.ArtifactStagingDirectory)/AdventOfCode.dll BENCH
   displayName: Run Benchmarks
