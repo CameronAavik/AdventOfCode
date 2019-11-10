@@ -1,6 +1,7 @@
 ﻿module Year2018Day21
 
 open CameronAavik.AdventOfCode.Common
+open System.IO
 
 let getSeed =
     // after comparing many inputs, the only lines that was different was line 8 
@@ -28,4 +29,4 @@ let solvePart2 seed =
             findLastUnique next (Set.add next seen)
     findLastUnique 0 Set.empty
 
-let solver = {parse = getSeed; part1 = solvePart1; part2 = solvePart2}
+let solver = {parse = File.ReadLines >> getSeed; part1 = solvePart1; part2 = solvePart2}

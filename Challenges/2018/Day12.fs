@@ -1,6 +1,7 @@
 ﻿module Year2018Day12
 
 open CameronAavik.AdventOfCode.Common
+open System.IO
 
 let parsePlants lines =
     let initState = lines |> Seq.head |> splitBy ": " (fun line -> line.[1])
@@ -46,4 +47,4 @@ let solvePart2 (initState, rules) =
             findRepeat (i + 1) nextState nextStartIndex
     findRepeat 0 initState 0
 
-let solver = {parse = parsePlants; part1 = solvePart1; part2 = solvePart2}
+let solver = {parse = File.ReadLines >> parsePlants; part1 = solvePart1; part2 = solvePart2}

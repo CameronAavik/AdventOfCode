@@ -2,6 +2,7 @@
 
 open CameronAavik.AdventOfCode.Common
 open FSharpx.Collections
+open System.IO
 
 type Maze = {depth: int; tx: int; ty: int}
 let getDepthAndTarget lines =
@@ -121,4 +122,4 @@ let solvePart2 maze =
     let grid = genGrid maze (maze.tx + 1) (maze.ty + 1)
     shortestPathLength maze grid {x=0; y=0; tool=Torch} {x=maze.tx; y=maze.ty; tool=Torch}
 
-let solver = {parse = getDepthAndTarget; part1 = solvePart1; part2 = solvePart2}
+let solver = {parse = File.ReadLines >> getDepthAndTarget; part1 = solvePart1; part2 = solvePart2}

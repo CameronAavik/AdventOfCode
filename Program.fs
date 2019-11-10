@@ -1,15 +1,17 @@
-﻿open System
-open System.IO
+﻿open System.IO
 open CameronAavik.AdventOfCode.Common
 open BenchmarkDotNet.Running
 open BenchmarkDotNet.Attributes
+open BenchmarkDotNet.Jobs
+open BenchmarkDotNet.Horology
+open BenchmarkDotNet.Configs
 
 let getSolver year day part printResult =
     let run (solver : Day<'a, 'b, 'c>) =
         let run part solve =
             let fileName = Path.Combine("input_files", year.ToString(), (sprintf "day%02i.txt" day))
             fun _ ->
-                let result = fileName |> File.ReadLines |> solver.parse |> solve
+                let result = fileName |> solver.parse |> solve
                 if printResult then
                     printfn "Year %i Day %02i-%i %O" year day part result
         match part with
@@ -43,6 +45,17 @@ let getSolver year day part printResult =
         | day -> fun _ -> printfn "Invalid Day: %i (Year %i)" day year
     | year -> fun _ -> printfn "Invalid Year: %i" year
 
+let benchmarkJob = 
+    Job.Default
+        .WithWarmupCount(1)
+        .WithIterationTime(TimeInterval.FromMilliseconds(250.))
+        .WithMinIterationCount(10)
+        .WithMaxIterationCount(15)
+
+let benchmarkConfig =
+    DefaultConfig.Instance
+        .With(benchmarkJob.AsDefault())
+
 type Bench() =
     let mutable solverFunc : unit -> unit = fun _ -> ()
     
@@ -69,7 +82,7 @@ let main argv =
     let runDay year day = for part in 1..2 do runPart year day part
     let runYear year = for day in 1..25 do runDay year day
     match argv.[0] with
-        | "BENCH" -> BenchmarkRunner.Run<Bench>() |> ignore
+        | "BENCH" -> BenchmarkRunner.Run<Bench>(benchmarkConfig) |> ignore
         | "ALL" -> for year in 2017..2018 do runYear year
         | x ->
             let parts = x.Split('.') |> Array.map int
