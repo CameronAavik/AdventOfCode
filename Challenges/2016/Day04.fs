@@ -32,12 +32,7 @@ let solvePart1 lines =
     |> Seq.sumBy (fun s -> s.sector)
 
 let solvePart2 lines =
-    for line in lines do
-        let name = rot line.sector line.name
-        if name.Contains("north") then
-            printfn "%A, %A" name line.sector
-        else
-            ()
-    ()
+    let line = lines |> Seq.find (fun line -> (rot line.sector line.name).Contains("north"))
+    line.sector
 
 let solver = { parse = parse; part1 = solvePart1; part2 = solvePart2 }

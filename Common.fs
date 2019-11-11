@@ -18,6 +18,7 @@ module Common =
 
     let parseEachLine f = File.ReadLines >> Seq.map f
     let parseEachLineIndexed f = File.ReadLines >> Seq.mapi f
+
     let asString : string -> string = id
     let asInt : string -> int = int
     let asStringArray : string [] -> string [] = Array.map string

@@ -4,33 +4,36 @@ open CameronAavik.AdventOfCode.Common
 open System.Security.Cryptography
 
 let parse = parseFirstLine asString
+let md5Obj = MD5.Create()
 
-let md5 (msg : string) : string =
-    use md5 = MD5.Create()
-    msg
-    |> System.Text.Encoding.ASCII.GetBytes
-    |> md5.ComputeHash
-    |> Seq.map (fun c -> c.ToString("x2"))
-    |> Seq.reduce ( + )
+let asHexDigit num = 
+    match num with
+    | num when num < 10uy -> '0' + char num
+    | _ -> 'a' + char (num - 10uy)
 
-let hash salt number = salt + (string number) |> md5
+let md5StartsWith5Zeroes (msg : string) : bool * char * char =
+    let hash =
+        msg
+        |> System.Text.Encoding.ASCII.GetBytes
+        |> md5Obj.ComputeHash
+    let isValid = hash.[0] = 0uy && hash.[1] = 0uy && (hash.[2] &&& 0xF0uy) = 0uy
+    isValid, asHexDigit (hash.[2] &&& 0x0Fuy), asHexDigit (hash.[3] >>> 4)
 
-let isValidHash (h : string) = h.StartsWith("00000")
+let hashStartsWith5Zeroes salt number = salt + (string number) |> md5StartsWith5Zeroes
 
 let solvePart1 doorId =
-    Seq.initInfinite (hash doorId)
-    |> Seq.filter isValidHash
+    Seq.initInfinite (hashStartsWith5Zeroes doorId)
+    |> Seq.filter (fun (isValid, _, _) -> isValid)
     |> Seq.take 8
-    |> Seq.map (fun h -> h.[5])
+    |> Seq.map (fun (_, d, _) -> d)
     |> charsToStr
 
 let isValidIndex idx = '0' <= idx && idx < '8'
 
 let solvePart2 doorId = 
     let rec searchNext count seen mapping =
-        let h = hash doorId count
-        let index, c = h.[5], h.[6]
-        if isValidHash h && isValidIndex index && not (Set.contains index seen) then
+        let isValidHash, index, c = hashStartsWith5Zeroes doorId count
+        if isValidHash && isValidIndex index && not (Set.contains index seen) then
             let newSeen = Set.add index seen
             let newMap = Map.add index c mapping
             if Set.count newSeen = 8 then

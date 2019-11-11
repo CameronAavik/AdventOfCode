@@ -52,10 +52,11 @@ let solvePart1 lines =
 
 let solvePart2 lines =
     let grid = Seq.fold applyDir strip lines
-    for row in 0..5 do
-        for col in 0..49 do
-            printf "%c" (if grid.[row, col] = 1 then '#' else ' ')
-        printfn ""
-    ()
+    seq {
+        for row in 0..5 do
+            '\n'
+            for col in 0..49 do
+                (if grid.[row, col] = 1 then '#' else ' ') }
+        |> charsToStr
 
 let solver = { parse = parse; part1 = solvePart1; part2 = solvePart2 }

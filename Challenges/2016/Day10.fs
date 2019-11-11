@@ -77,6 +77,7 @@ let solvePart1 lines =
         let c1, c2 = v.chips
         c1.IsSome && c2.IsSome && c1.Value = 17 && c2.Value = 61 )
     |> fst
+    |> snd
 
 let solvePart2 lines = 
     let botMap = Seq.fold updateBotMap Map.empty lines

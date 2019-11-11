@@ -11,6 +11,31 @@
 
   <ItemGroup>
     <Compile Include="Common.fs" />
+    <Compile Include="Challenges\2016\Day01.fs" />
+    <Compile Include="Challenges\2016\Day02.fs" />
+    <Compile Include="Challenges\2016\Day03.fs" />
+    <Compile Include="Challenges\2016\Day04.fs" />
+    <Compile Include="Challenges\2016\Day05.fs" />
+    <Compile Include="Challenges\2016\Day06.fs" />
+    <Compile Include="Challenges\2016\Day07.fs" />
+    <Compile Include="Challenges\2016\Day08.fs" />
+    <Compile Include="Challenges\2016\Day09.fs" />
+    <Compile Include="Challenges\2016\Day10.fs" />
+    <Compile Include="Challenges\2016\Day11.fs" />
+    <Compile Include="Challenges\2016\Day12.fs" />
+    <Compile Include="Challenges\2016\Day13.fs" />
+    <Compile Include="Challenges\2016\Day14.fs" />
+    <Compile Include="Challenges\2016\Day15.fs" />
+    <Compile Include="Challenges\2016\Day16.fs" />
+    <Compile Include="Challenges\2016\Day17.fs" />
+    <Compile Include="Challenges\2016\Day18.fs" />
+    <Compile Include="Challenges\2016\Day19.fs" />
+    <Compile Include="Challenges\2016\Day20.fs" />
+    <Compile Include="Challenges\2016\Day21.fs" />
+    <Compile Include="Challenges\2016\Day22.fs" />
+    <Compile Include="Challenges\2016\Day23.fs" />
+    <Compile Include="Challenges\2016\Day24.fs" />
+    <Compile Include="Challenges\2016\Day25.fs" />
     <Compile Include="Challenges\2017\Day01.fs" />
     <Compile Include="Challenges\2017\Day02.fs" />
     <Compile Include="Challenges\2017\Day03.fs" />
@@ -64,7 +89,7 @@
     <Compile Include="Runner.fs" />
     <Compile Include="Benchmarking.fs" />
     <Compile Include="Program.fs" />
-    <Content Include="input_files\**\*.txt">
+    <Content Include="InputFiles\**\*.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
@@ -72,6 +97,7 @@
   <ItemGroup>
     <PackageReference Include="BenchmarkDotNet" Version="0.12.0" />
     <PackageReference Include="FSharpx.Collections" Version="2.0.0" />
+    <PackageReference Include="GraphFS" Version="0.0.30" />
   </ItemGroup>
 
   <ItemGroup>

@@ -2,8 +2,8 @@
 
 open CameronAavik.AdventOfCode.Common
 
-let parse (lines : string seq) =
-    lines
+let parse (filename : string) =
+    filename
 
 let solvePart1 lines =
     ()
