@@ -8,7 +8,7 @@ module Program =
         let runYear year = for day in 1..25 do runDay year day
         match argv.[0] with
             | "BENCH" -> Benchmarking.runBenchmarks()
-            | "ALL" -> for year in 2017..2018 do runYear year
+            | "ALL" -> for year in 2016..2018 do runYear year
             | x ->
                 let parts = x.Split('.') |> Array.map int
                 match parts.Length with
