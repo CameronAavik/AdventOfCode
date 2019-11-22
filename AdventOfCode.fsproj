@@ -11,6 +11,31 @@
 
   <ItemGroup>
     <Compile Include="Common.fs" />
+    <Compile Include="Challenges\2015\Day01.fs" />
+    <Compile Include="Challenges\2015\Day02.fs" />
+    <Compile Include="Challenges\2015\Day03.fs" />
+    <Compile Include="Challenges\2015\Day04.fs" />
+    <Compile Include="Challenges\2015\Day05.fs" />
+    <Compile Include="Challenges\2015\Day06.fs" />
+    <Compile Include="Challenges\2015\Day07.fs" />
+    <Compile Include="Challenges\2015\Day08.fs" />
+    <Compile Include="Challenges\2015\Day09.fs" />
+    <Compile Include="Challenges\2015\Day10.fs" />
+    <Compile Include="Challenges\2015\Day11.fs" />
+    <Compile Include="Challenges\2015\Day12.fs" />
+    <Compile Include="Challenges\2015\Day13.fs" />
+    <Compile Include="Challenges\2015\Day14.fs" />
+    <Compile Include="Challenges\2015\Day15.fs" />
+    <Compile Include="Challenges\2015\Day16.fs" />
+    <Compile Include="Challenges\2015\Day17.fs" />
+    <Compile Include="Challenges\2015\Day18.fs" />
+    <Compile Include="Challenges\2015\Day19.fs" />
+    <Compile Include="Challenges\2015\Day20.fs" />
+    <Compile Include="Challenges\2015\Day21.fs" />
+    <Compile Include="Challenges\2015\Day22.fs" />
+    <Compile Include="Challenges\2015\Day23.fs" />
+    <Compile Include="Challenges\2015\Day24.fs" />
+    <Compile Include="Challenges\2015\Day25.fs" />
     <Compile Include="Challenges\2016\Day01.fs" />
     <Compile Include="Challenges\2016\Day02.fs" />
     <Compile Include="Challenges\2016\Day03.fs" />
