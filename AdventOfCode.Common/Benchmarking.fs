@@ -38,7 +38,7 @@ module Benchmarking =
                 .WithMaxIterationCount(15)
                 .DontEnforcePowerPlan()
         
-        let summaryStyle = new SummaryStyle(true, SizeUnit.B, TimeUnit.Millisecond, false)
+        let summaryStyle = new SummaryStyle(true, SizeUnit.B, TimeUnit.Nanosecond, false)
         
         let benchmarkConfig =
             DefaultConfig.Instance
