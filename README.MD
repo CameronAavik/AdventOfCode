@@ -1,3 +1,5 @@
 # Advent of Code
 
-These are my solutions in F# for Advent of Code 2017 and 2018. If you were wanting to try it out, you should be able to open the .sln file in Visual Studio 2017 with Visual F# tools installed and it should all just work.
+These are my solutions in F# for Advent of Code 2016-2019 (2015 will be finished soon).
+
+The solutions to each of the Advent of Code questions can be found inside the Solutions folder for each year.
