@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29503.13
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "AdventOfCode", "AdventOfCode.fsproj", "{2C3AB970-F7E7-491B-B294-EEEAD9C6B180}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8481A066-FC02-4D81-A501-633A0C68B011}"
 	ProjectSection(SolutionItems) = preProject
 		.gitignore = .gitignore
@@ -12,16 +10,42 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.MD = README.MD
 	EndProjectSection
 EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "AdventOfCode.2018", "AdventOfCode.2018\AdventOfCode.2018.fsproj", "{3B6BDED5-5491-4ACB-A32A-53FD95937D52}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdventOfCode.Common", "AdventOfCode.Common\AdventOfCode.Common.fsproj", "{372EDF4E-248A-4585-8AB9-5F75905159EE}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "AdventOfCode.2017", "AdventOfCode.2017\AdventOfCode.2017.fsproj", "{4F3063B6-A5AB-423B-9E5E-B7B34B9E9755}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "AdventOfCode.2016", "AdventOfCode.2016\AdventOfCode.2016.fsproj", "{0BB60F36-85D5-49FD-A571-3FD74D77A637}"
+EndProject
+Project("{6EC3EE1D-3C4E-46DD-8F32-0CC8E7565705}") = "AdventOfCode.2019", "AdventOfCode.2019\AdventOfCode.2019.fsproj", "{DF7AA6F8-2123-49E7-9213-5FDB655CEECE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{2C3AB970-F7E7-491B-B294-EEEAD9C6B180}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{2C3AB970-F7E7-491B-B294-EEEAD9C6B180}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{2C3AB970-F7E7-491B-B294-EEEAD9C6B180}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{2C3AB970-F7E7-491B-B294-EEEAD9C6B180}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B6BDED5-5491-4ACB-A32A-53FD95937D52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B6BDED5-5491-4ACB-A32A-53FD95937D52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B6BDED5-5491-4ACB-A32A-53FD95937D52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B6BDED5-5491-4ACB-A32A-53FD95937D52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{372EDF4E-248A-4585-8AB9-5F75905159EE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{372EDF4E-248A-4585-8AB9-5F75905159EE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{372EDF4E-248A-4585-8AB9-5F75905159EE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{372EDF4E-248A-4585-8AB9-5F75905159EE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F3063B6-A5AB-423B-9E5E-B7B34B9E9755}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F3063B6-A5AB-423B-9E5E-B7B34B9E9755}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F3063B6-A5AB-423B-9E5E-B7B34B9E9755}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F3063B6-A5AB-423B-9E5E-B7B34B9E9755}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0BB60F36-85D5-49FD-A571-3FD74D77A637}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0BB60F36-85D5-49FD-A571-3FD74D77A637}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0BB60F36-85D5-49FD-A571-3FD74D77A637}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0BB60F36-85D5-49FD-A571-3FD74D77A637}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DF7AA6F8-2123-49E7-9213-5FDB655CEECE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DF7AA6F8-2123-49E7-9213-5FDB655CEECE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DF7AA6F8-2123-49E7-9213-5FDB655CEECE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DF7AA6F8-2123-49E7-9213-5FDB655CEECE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
