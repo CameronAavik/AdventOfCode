@@ -5,6 +5,7 @@ These are my solutions in F# for Advent of Code 2015-2019.
 ## Solutions
 
 | Day | 2015 | 2016 | 2017 | 2018 | 2019 |
+| --- | ---- | ---- | ---- | ---- | ---- |
 | 1  | [2015.1](/AdventOfCode.2015/Solutions/Day01.fs)  | [2016.1](/AdventOfCode.2016/Solutions/Day01.fs)  | [2017.1](/AdventOfCode.2017/Solutions/Day01.fs)  | [2018.1](/AdventOfCode.2018/Solutions/Day01.fs)  | [2019.1](/AdventOfCode.2019/Solutions/Day01.fs)  |
 | 2  | [2015.2](/AdventOfCode.2015/Solutions/Day02.fs)  | [2016.2](/AdventOfCode.2016/Solutions/Day02.fs)  | [2017.2](/AdventOfCode.2017/Solutions/Day02.fs)  | [2018.2](/AdventOfCode.2018/Solutions/Day02.fs)  |  |
 | 3  | [2015.3](/AdventOfCode.2015/Solutions/Day03.fs)  | [2016.3](/AdventOfCode.2016/Solutions/Day03.fs)  | [2017.3](/AdventOfCode.2017/Solutions/Day03.fs)  | [2018.3](/AdventOfCode.2018/Solutions/Day03.fs)  |  |
