@@ -34,7 +34,3 @@ module Program =
                 | 2 -> runPart parts.[0] parts.[1]
                 | _ -> ()
         0
-
-// Note: I used to use this file as the file that had all my solutions. I have
-// since restructured my projects, see the Challenges directory for solutions
-// if you found your way here through one of my links somewhere.

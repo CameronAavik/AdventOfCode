@@ -1,6 +1,6 @@
 {
   "profiles": {
-    "AdventOfCode.2018": {
+    "AdventOfCode.2019": {
       "commandName": "Project",
       "commandLineArgs": "ALL"
     }
