@@ -2,10 +2,10 @@
 
 open CameronAavik.AdventOfCode.Common
 
-type ProgramState = { PC : int; Intcode : Map<int, int>; Halt : bool }
-let get i state = state.Intcode.[i]
-let set i x state = { state with Intcode = Map.add i x state.Intcode }
-let incPC state = {state with PC = state.PC + 4}
+type ProgramState = { PC : int; IntCode : Map<int, int>; Halt : bool }
+let get i state = state.IntCode.[i]
+let set i x state = { state with IntCode = Map.add i x state.IntCode }
+let incPC state = { state with PC = state.PC + 4 }
 
 let step state =
     match get state.PC state with
@@ -26,18 +26,18 @@ let rec stepUntilHalt s =
 // converts array to Map where key is the array index
 let intCodeToMap intCode = intCode |> Array.indexed |> Map.ofArray
 
-let solve verb noun intCodeMap =
-    let intCodeMap = intCodeMap |> Map.add 1 verb |> Map.add 2 noun
-    stepUntilHalt { PC = 0; Intcode = intCodeMap; Halt = false } |> get 0
+let solve noun verb intCodeMap =
+    let intCodeMap = intCodeMap |> Map.add 1 noun |> Map.add 2 verb
+    stepUntilHalt { PC = 0; IntCode = intCodeMap; Halt = false } |> get 0
 
 let solvePart1 intCode = solve 12 2 (intCodeToMap intCode)
     
 let solvePart2 intCode = 
     let intCodeMap = intCodeToMap intCode
     seq {
-        for verb = 0 to 99 do
-            for noun = 0 to 99 do
-                if solve verb noun intCodeMap = 19690720 then
+        for noun = 0 to 99 do
+            for verb = 0 to 99 do
+                if solve noun verb intCodeMap = 19690720 then
                     100 * noun + verb } |> Seq.head
 
 let solver = { parse = parseFirstLine extractInts; part1 = solvePart1; part2 = solvePart2 }
