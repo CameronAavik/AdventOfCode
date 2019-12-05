@@ -5,10 +5,10 @@ open CameronAavik.AdventOfCode.Y2019.Common.IntCodeVM
 
 let solve noun verb =
     bootProgram
-    >> setValue (Position 1) noun
-    >> setValue (Position 2) verb
+    >> setVal (Position 1) noun
+    >> setVal (Position 2) verb
     >> runUntilHalt
-    >> getValue (Position 0)
+    >> getVal (Position 0)
 
 let solvePart2 intCode = 
     seq {
