@@ -8,7 +8,6 @@ let solve systemId =
     >> writeToInput systemId
     >> runUntilHalt
     >> readAllOutput
-    >> fst
     >> Seq.last
 
 let solver = { parse = parseIntCodeFromFile; part1 = solve 1; part2 = solve 5 }

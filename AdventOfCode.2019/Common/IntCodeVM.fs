@@ -33,14 +33,10 @@ module IntCodeVM =
     
     let writeToOutput addr state = { state with Output = Queue.conj (getValue addr state) state.Output }
     let readFromOutput state =
-        match state.Output with
-        | Queue.Cons (i, is) -> i, { state with Output = is }
-        | Queue.Nil -> failwith "Tried to read output from empty buffer"
-
-    let readAllOutput state =
-        match state.Output with
-        | Queue.Nil -> failwith "Tried to read output from empty buffer"
-        | q -> Queue.toSeq q, { state with Output = Queue.empty }
+        match Queue.tryUncons state.Output with
+        | Some i -> i
+        | None -> failwith "Tried to read output from empty buffer"
+    let readAllOutput state = Queue.toSeq state.Output
     
     let incPC i state = { state with PC = state.PC + i }
     let jmpPC i state = { state with PC = (getValue i state) }
