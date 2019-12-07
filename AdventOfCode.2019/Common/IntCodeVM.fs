@@ -41,8 +41,14 @@ module IntCodeVM =
     let writeToOutput addr state = { state with Output = Queue.conj (getVal addr state) state.Output }
     let readFromOutput state =
         match Queue.tryUncons state.Output with
-        | Some i -> i
+        | Some (i, is) -> i, { state with Output = is }
         | None -> failwith "Tried to read output from empty buffer"
+
+    let tryReadFromOutput state =
+        match Queue.tryUncons state.Output with
+        | Some (i, is) -> Some i, { state with Output = is }
+        | None -> None, state
+
     let readAllOutput state = Queue.toSeq state.Output
     
     type Operation =
@@ -104,3 +110,7 @@ module IntCodeVM =
     let rec runUntilHalt s =
         if s.IsHalted then s
         else executeInstruction s |> runUntilHalt
+
+    let rec runUntilOutput s =
+        if (s.Output |> Queue.isEmpty |> not) || s.IsHalted then s
+        else executeInstruction s |> runUntilOutput
