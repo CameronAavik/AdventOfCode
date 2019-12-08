@@ -3,10 +3,10 @@
 open CameronAavik.AdventOfCode.Common
 
 type Prism = { W : int; H : int; L : int; }
-let asPrism (arr : int []) =
-    { W = arr.[0]; H = arr.[1]; L = arr.[2]}
+let asPrism (arr : string []) =
+    { W = int arr.[0]; H = int arr.[1]; L = int arr.[2]}
 
-let parse = parseEachLine extractInts >> Seq.map asPrism
+let parse = parseEachLine (splitBy "x" asPrism)
 
 let solvePart1 input =
     input
