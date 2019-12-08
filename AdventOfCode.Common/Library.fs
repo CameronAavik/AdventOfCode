@@ -21,6 +21,7 @@ module Common =
 
     let asString : string -> string = id
     let asInt : string -> int = int
+    let asCharArray (s : string) = s.ToCharArray ()
     let asStringArray : string [] -> string [] = Array.map string
     let asIntArray : string [] -> int [] = Array.map int
     let splitBy (c : string) f (str : string) = str.Split([| c |], StringSplitOptions.None) |> f
