@@ -16,7 +16,7 @@ let runAmpWithSignal signal =
     >> runUntilOutput
     >> tryReadFromOutput
 
-type AmpState = Running of signal: int | Completed of signal: int
+type AmpState = Running of signal: int64 | Completed of signal: int64
 
 let runAmpInState state amp =
     match state with
@@ -41,12 +41,12 @@ let rec processAmps2 state amps =
     | newAmps, state' -> processAmps2 state' newAmps
 
 let solve processAmps minId maxId intCode =
-    let getThrusterSignal (ampIds : int []) =
+    let getThrusterSignal (ampIds : int64 []) =
         Array.init 5 (fun i -> bootProgram intCode |> writeToInput (ampIds.[i]))
-        |> processAmps (Running 0)
+        |> processAmps (Running 0L)
 
     permutations (set [minId .. maxId])
     |> Seq.map (List.toArray >> getThrusterSignal)
     |> Seq.max
 
-let solver = { parse = parseIntCodeFromFile; part1 = solve processAmps1 0 4; part2 = solve processAmps2 5 9 }
+let solver = { parse = parseIntCodeFromFile; part1 = solve processAmps1 0L 4L; part2 = solve processAmps2 5L 9L }

@@ -10,7 +10,7 @@ module Program =
         match day with
         | 1  -> run Year2019Day01.solver | 2  -> run Year2019Day02.solver | 3  -> run Year2019Day03.solver
         | 4  -> run Year2019Day04.solver | 5  -> run Year2019Day05.solver | 6  -> run Year2019Day06.solver
-        | 7  -> run Year2019Day07.solver | 8  -> run Year2019Day08.solver //| 9  -> run Year2019Day09.solver
+        | 7  -> run Year2019Day07.solver | 8  -> run Year2019Day08.solver | 9  -> run Year2019Day09.solver
         //| 10 -> run Year2019Day10.solver | 11 -> run Year2019Day11.solver | 12 -> run Year2019Day12.solver
         //| 13 -> run Year2019Day13.solver | 14 -> run Year2019Day14.solver | 15 -> run Year2019Day15.solver
         //| 16 -> run Year2019Day16.solver | 17 -> run Year2019Day17.solver | 18 -> run Year2019Day18.solver

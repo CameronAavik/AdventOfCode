@@ -10,4 +10,4 @@ let solve systemId =
     >> readAllOutput
     >> Seq.last
 
-let solver = { parse = parseIntCodeFromFile; part1 = solve 1; part2 = solve 5 }
+let solver = { parse = parseIntCodeFromFile; part1 = solve 1L; part2 = solve 5L }
