@@ -2,6 +2,7 @@
 
 open CameronAavik.AdventOfCode
 open CameronAavik.AdventOfCode.Common
+open CameronAavik.AdventOfCode.Benchmarking
 
 module Program =
     let getSolver day part printAnswer =
@@ -19,12 +20,17 @@ module Program =
         | 25 -> run Year2018Day25.solver
         | day -> fun _ -> printfn "Invalid Day: %i (Year %i)" day 2018
 
+    type Bench2018() =
+        inherit Bench() with
+            override _.GetSolverFunc day part () =
+                getSolver day part false ()
+
     [<EntryPoint>]
     let main argv =
         let runPart day part = getSolver day part true ()
         let runDay day = for part in 1..2 do runPart day part
         match argv.[0] with
-            | "BENCH" -> Benchmarking.runBenchmarks getSolver
+            | "BENCH" -> Benchmarking.runBenchmarks<Bench2018>()
             | "ALL" -> for day in 1..25 do runDay day
             | x ->
                 let parts = x.Split('.') |> Array.map int

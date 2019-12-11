@@ -9,10 +9,12 @@ open BenchmarkDotNet.Configs
 open BenchmarkDotNet.Running
 
 module Benchmarking =
-    let mutable getSolver = fun _ _ _ _ -> ()
 
+    [<AbstractClass>]
     type Bench() =
         let mutable solverFunc : unit -> unit = fun _ -> ()
+
+        abstract member GetSolverFunc : int -> int -> unit -> unit
     
         [<Params (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25)>]
         member val public Day = 0 with get, set
@@ -22,14 +24,12 @@ module Benchmarking =
 
         [<GlobalSetup>]
         member self.GlobalSetupData() =
-            solverFunc <- getSolver self.Day self.Part false
+            solverFunc <- self.GetSolverFunc self.Day self.Part
 
         [<Benchmark>]
         member __.RunPart () = solverFunc ()
 
-    let runBenchmarks getSolverFunc =
-        getSolver <- getSolverFunc
-
+    let runBenchmarks<'T when 'T :> Bench> () =
         let benchmarkJob = 
             Job.Default
                 .WithWarmupCount(1)
@@ -45,4 +45,4 @@ module Benchmarking =
                 .With(benchmarkJob.AsDefault())
                 .With(summaryStyle)
 
-        BenchmarkRunner.Run<Bench>(benchmarkConfig) |> ignore
+        BenchmarkRunner.Run<'T>(benchmarkConfig) |> ignore
