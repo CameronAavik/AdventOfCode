@@ -23,11 +23,11 @@ let printGrid grid =
     let minX, maxX, minY, maxY = Map.fold (fun bounds pos _ -> updateBounds bounds pos) (0, 0, 0, 0) grid
 
     seq {
-        '\n'
         for y = minY to maxY do
+            '\n'
             for x = minX to maxX do
                 if (Map.tryFind (x, y) grid = Some 1L) then '█' else ' '
-            '\n' } |> charsToStr
+    } |> charsToStr
 
 let solvePart1 =
     bootProgram
@@ -36,7 +36,7 @@ let solvePart1 =
     
 let solvePart2 = 
     bootProgram
-    >> run (Map.ofList [(0, 0), 0L]) (0, 0) (0, -1)
+    >> run (Map.ofList [(0, 0), 1L]) (0, 0) (0, -1)
     >> printGrid
 
 let solver = { parse = parseIntCodeFromFile; part1 = solvePart1; part2 = solvePart2 }
