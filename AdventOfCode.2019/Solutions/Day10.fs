@@ -6,7 +6,7 @@ open CameronAavik.AdventOfCode.Common
 let parseLine = Seq.map (function | '#' -> true | _ -> false) >> Seq.toArray
 let parse = parseEachLine parseLine >> Seq.toArray
 
-// returns all rotations (in the form of an x, y delta) that can point to another point on the grid
+// returns all rotations (in the form of a (x, y) delta) that can point to another point on the grid
 // will not return two rotations that are colinear.
 let getAllPossibleRotations (x, y) (width, height) =
     let rec gcd x y =
@@ -62,14 +62,22 @@ let angleFromVertical (dx, dy) =
 let solvePart2 asteroids = 
     let x, y = fst (getBestAsteroid asteroids)
 
-    let ax, ay =
+    let asteroidsByRotation =
         getAllPossibleRotations (x, y) (dimensions asteroids)
         |> Seq.sortBy angleFromVertical
         |> Seq.map (asteroidsInRange asteroids (x, y))
         |> Seq.filter (List.isEmpty >> not)
-        |> Seq.item 199
-        |> List.head
+        |> Seq.toArray
 
+    let rec getNthAsteroid n asteroids =
+        let rotations = asteroids |> Array.length
+        if rotations = 0 then failwith "Not enough asteroids"
+        elif n < rotations then asteroids.[n] |> List.head
+        else
+            let asteroidsAfterRotation = asteroids |> Array.map List.tail |> Array.filter (List.isEmpty >> not)
+            getNthAsteroid (n - rotations) asteroidsAfterRotation
+
+    let ax, ay = getNthAsteroid 199 asteroidsByRotation
     ax * 100 + ay
 
 let solver = { parse = parse; part1 = solvePart1; part2 = solvePart2 }
