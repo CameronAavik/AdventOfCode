@@ -8,15 +8,16 @@ let move (x, y) (dx, dy) = (x + dx, y + dy)
 
 let rec run grid pos dir prog =
     let paintToWrite = Map.tryFind pos grid |> Option.defaultValue 0L
-    let prog = prog |> writeToInput paintToWrite |> runUntilOutput
+    let prog = prog |> writeToInput paintToWrite
 
-    if prog.IsHalted then grid
-    else
-        let paint, prog = readFromOutput prog
-        let turnDir, prog = prog |> runUntilOutput |> readFromOutput
+    let paint, prog = readFromOutput prog
+    let turnDir, prog = readFromOutput prog
 
+    match paint, turnDir with
+    | Some paint, Some turnDir ->
         let newDir = turn dir turnDir
         run (Map.add pos paint grid) (move pos newDir) newDir prog
+    | _ -> grid
 
 let printGrid grid =
     let updateBounds (x1, x2, y1, y2) (x, y) = (min x x1, max x x2, min y y1, max y y2)

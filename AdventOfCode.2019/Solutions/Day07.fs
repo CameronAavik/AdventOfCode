@@ -13,8 +13,8 @@ let rec permutations items =
 
 let runAmpWithSignal signal =
     writeToInput signal
-    >> runUntilOutput
-    >> tryReadFromOutput
+    >> runUntilOutputOrHalt
+    >> readFromOutput
 
 type AmpState = Running of signal: int64 | Completed of signal: int64
 

@@ -9,5 +9,6 @@ let solve boostMode =
     >> runUntilHalt
     >> readFromOutput
     >> fst
+    >> Option.get
 
 let solver = { parse = parseIntCodeFromFile; part1 = solve 1L; part2 = solve 2L }
