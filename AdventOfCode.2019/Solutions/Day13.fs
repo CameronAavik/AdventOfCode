@@ -24,27 +24,27 @@ type GameData =
 
         d
 
-    static member processProgramOutput a b c d =
+    static member processSingleProgramOutput a b c d =
         match a, b with
         | -1L, 0L -> { d with Score = c }
         | _ -> GameData.addTile (a, b) c d
 
-    static member blocks d = d.Blocks
-
-let readAllOutput data prog =
-    let output, prog = prog |> runUntilInputRequired |> readAllOutput
-    let data =
+    static member processAllProgramOutput output data =
         output
         |> Seq.chunkBySize 3
         |> Seq.map (fun a -> a.[0], a.[1], a.[2])
-        |> Seq.fold (fun d (a, b, c) -> GameData.processProgramOutput a b c d) data
+        |> Seq.fold (fun d (a, b, c) -> GameData.processSingleProgramOutput a b c d) data
 
-    data, prog
+    static member fromProgramOutput output = GameData.processAllProgramOutput output GameData.create
+
+    static member blocks d = d.Blocks
 
 let solvePart1 =
     bootProgram
-    >> readAllOutput GameData.create
+    >> runUntilHalt
+    >> readAllOutput
     >> fst
+    >> GameData.fromProgramOutput
     >> GameData.blocks
     >> Set.count
 
@@ -56,20 +56,19 @@ let getMoveToMake (bx, by) (px, py) prevX =
     elif px = finalX then 0L
     else 1L
 
-let play prog =
-    let rec play' prevX data prog =
-        let data, prog = readAllOutput data prog
-        if data.Blocks.IsEmpty then data.Score
-        else
-            prog
-            |> writeToInput (getMoveToMake data.Ball data.Paddle prevX)
-            |> play' (fst data.Ball) data
-    play' 0L GameData.create prog
+let handleGameOutput output (prevX, data) =
+    let data = GameData.processAllProgramOutput output data
+    let input = 
+        if data.Blocks.IsEmpty then None
+        else Some (getMoveToMake data.Ball data.Paddle prevX)
+    input, (fst data.Ball, data)
     
-
 let solvePart2 = 
     bootProgram
     >> setVal (Position 0L) 2L
-    >> play
+    >> setCallbackSingle handleGameOutput (0L, GameData.create)
+    >> runUntilHalt
+    >> getInputCallbackState
+    >> (fun (_, s) -> s.Score)
 
 let solver = { parse = parseIntCodeFromFile; part1 = solvePart1; part2 = solvePart2 }

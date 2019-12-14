@@ -5,26 +5,32 @@ open FSharpx.Collections
 
 type IntCodeState =
     | Running
-    | Debugging of IntCodeDebugData
     | WaitingOnInput
     | Halted
     | Error of string
 
-and IntCodeDebugData =
+type InputMethod<'T> =
+    | Queue of Queue<int64>
+    | CallbackSingle of (int64 array -> 'T -> int64 option * 'T) * 'T
+    | CallbackMultiple of (int64 array -> 'T -> int64 list * 'T) * 'T * (int64 list)
+
+and IntCodeDebugData<'T> =
     { PCFrequencies : Map<int64, int>
       WrittenAddresses : Set<int64> 
       ExecutionTime : int64
       Breakpoints : Set<int64>
-      ConditionalBreakpoints : (IntCodeVM -> bool) list }
+      ConditionalBreakpoints : (IntCodeVM<'T> -> bool) list;
+      IsDebuggerEnabled : bool }
 
-and IntCodeVM = 
+and IntCodeVM<'T> = 
     { PC : int64
       Memory : Map<int64, int64>
-      Input : Queue<int64>
+      Input : InputMethod<'T>
       Output : Queue<int64>
       State : IntCodeState
-      RelativeBase : int64;
-      Overrides : Map<int64, IntCodeVM -> IntCodeVM> }
+      RelativeBase : int64
+      DebugData : IntCodeDebugData<'T>
+      Overrides : Map<int64, IntCodeVM<'T> -> IntCodeVM<'T>> }
 
 module IntCodeVM =
     let parseIntCodeFromFile = 
@@ -32,15 +38,16 @@ module IntCodeVM =
         >> Array.mapi (fun i v -> (int64 i, v))
         >> Map.ofArray
 
-    let createDebugData = 
+    let createDebugData isEnabled = 
         { PCFrequencies = Map.empty
           WrittenAddresses = Set.empty
           ExecutionTime = 0L
           Breakpoints = Set.empty
-          ConditionalBreakpoints = List.empty }
+          ConditionalBreakpoints = List.empty;
+          IsDebuggerEnabled = isEnabled }
 
-    let bootProgram intCode = { PC = 0L; Memory = intCode; Input = Queue.empty; Output = Queue.empty; State = Running; RelativeBase = 0L; Overrides = Map.empty }
-    let debugProgram intCode = { bootProgram intCode with State = Debugging createDebugData }
+    let bootProgram intCode = { PC = 0L; Memory = intCode; Input = Queue Queue.empty; Output = Queue.empty; State = Running; RelativeBase = 0L; Overrides = Map.empty; DebugData = createDebugData false }
+    let debugProgram intCode = { bootProgram intCode with DebugData = createDebugData true }
 
     let addNewPC pc debug =
         let curCount = Map.tryFind pc debug.PCFrequencies |> Option.defaultValue 0
@@ -52,26 +59,16 @@ module IntCodeVM =
     let addNewWrittenAddress addr debug =
         { debug with WrittenAddresses = Set.add addr debug.WrittenAddresses }
 
+    let isDebug state = state.DebugData.IsDebuggerEnabled
+
     let applyIfDebug f state =
-        match state.State with
-        | Debugging d -> { state with State = Debugging (f d) }
-        | _ -> state
+        if isDebug state then { state with DebugData = f state.DebugData }
+        else state
 
-    let addBreakpoint pc state =
-        match state.State with
-        | Debugging d -> { state with State = Debugging { d with Breakpoints = Set.add pc d.Breakpoints } }
-        | _ -> state
-
-    let addStateCondBreakpoint bp state =
-        match state.State with
-        | Debugging d -> { state with State = Debugging { d with ConditionalBreakpoints = bp :: d.ConditionalBreakpoints } }
-        | _ -> state
-
+    let addBreakpoint pc state = applyIfDebug (fun d -> { d with Breakpoints = Set.add pc d.Breakpoints }) state
+    let addStateCondBreakpoint bp state = applyIfDebug (fun d -> { d with ConditionalBreakpoints = bp :: d.ConditionalBreakpoints }) state
     let addDebugCondBreakpoint bp state =
-        let debugBp s =
-            match s.State with
-            | Debugging d -> bp d
-            | _ -> false
+        let debugBp s = if isDebug s then bp s.DebugData else false
         addStateCondBreakpoint debugBp state
     
     type Param = Position of int64 | Immediate of int64 | Relative of int64
@@ -99,10 +96,36 @@ module IntCodeVM =
         | Relative i -> setVal (Position (i + state.RelativeBase)) x state
         | Immediate i -> { state with State = Error (sprintf "Tried to set value at address %i via immediate mode" i) }
 
-    let readFromInput addr state =
+    let rec readFromInput addr state =
         match state.Input with
-        | Queue.Cons (i, is) -> setVal addr i { state with Input = is }
-        | Queue.Nil -> { state with State = WaitingOnInput; PC = state.PC - 2L }
+        | Queue (Queue.Cons (i, is)) -> setVal addr i { state with Input = Queue is }
+        | Queue Queue.Nil -> { state with State = WaitingOnInput; PC = state.PC - 2L }
+        | CallbackSingle (f, s) ->
+            let output = state.Output |> Queue.toSeq |> Seq.toArray
+            let state = { state with Output = Queue.empty }
+            let input, s' = f output s
+            match input with
+            | Some x -> 
+                let state = setVal addr x state
+                { state with Input = CallbackSingle (f, s') }
+            | None -> { state with Input = CallbackSingle (f, s'); State = Halted }
+        | CallbackMultiple (f, s, items) ->
+            match items with
+            | x :: xs -> 
+                let state = setVal addr x state
+                { state with Input = CallbackMultiple (f, s, xs) }
+            | [] -> 
+                let output = state.Output |> Queue.toSeq |> Seq.toArray
+                let state = { state with Output = Queue.empty }
+                let inputs, s' = f output s
+                match inputs with
+                | [] -> { state with Input = CallbackMultiple (f, s', inputs); State = Halted }
+                | xs -> { state with Input = CallbackMultiple (f, s', xs) } |> readFromInput addr
+
+    let getInputCallbackState state =
+        match state.Input with
+        | CallbackMultiple (_, s, _) | CallbackSingle (_, s) -> s
+        | Queue _ -> failwith "Input is a queue, there is no state"
     
     let writeToOutput addr state = { state with Output = Queue.conj (getVal addr state) state.Output }
 
@@ -204,8 +227,8 @@ module IntCodeVM =
         |> Array.map (fun (pc, _) -> printInstruction pc state debug)
 
     let testBreakAndTracepoints state =
-        match state.State with
-        | Debugging debug ->
+        if isDebug state then
+            let debug = state.DebugData
             if Set.contains state.PC debug.Breakpoints then
                 let instrData = printAllInstructions state debug
                 if false then
@@ -218,26 +241,31 @@ module IntCodeVM =
                     if true then
                         String.concat "\n" instrData |> printfn "%s"
                     printfn "Hit tracepoint %i at PC=%i; N=%i" i state.PC debug.ExecutionTime
-        | _ -> ()
         state
 
     let rec runUntilHalt s =
         match s.State with
-        | Running | Debugging _ -> executeInstruction s |> testBreakAndTracepoints  |> runUntilHalt
+        | Running -> executeInstruction s |> testBreakAndTracepoints  |> runUntilHalt
         | _ -> s
 
     let rec runUntilOutputOrHalt s =
         match s.State with
-        | Running | Debugging _ when s.Output.IsEmpty -> executeInstruction s |> testBreakAndTracepoints |> runUntilOutputOrHalt
+        | Running when s.Output.IsEmpty -> executeInstruction s |> testBreakAndTracepoints |> runUntilOutputOrHalt
         | _ -> s
 
     let rec runUntilInputRequired s =
         match s.State with
-        | Running | Debugging _ -> executeInstruction s |> testBreakAndTracepoints |> runUntilInputRequired
+        | Running -> executeInstruction s |> testBreakAndTracepoints |> runUntilInputRequired
         | WaitingOnInput -> { s with State = Running }
         | _ -> s
 
-    let writeToInput value state = { state with Input = Queue.conj value state.Input }
+    let writeToInput value state = 
+        match state.Input with
+        | Queue q -> { state with Input = Queue (Queue.conj value q) }
+        | CallbackSingle _ | CallbackMultiple _ -> state
+
+    let setCallbackSingle f initInputState state = { state with Input = CallbackSingle (f, initInputState) }
+    let setCallbackMultiple f initInputState state = { state with Input = CallbackMultiple (f, initInputState, []) }
 
     let readFromOutput state =
         let state = runUntilOutputOrHalt state
