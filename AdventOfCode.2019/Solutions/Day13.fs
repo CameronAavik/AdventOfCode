@@ -2,14 +2,16 @@
 
 open CameronAavik.AdventOfCode.Common
 open CameronAavik.AdventOfCode.Y2019.Common.IntCodeVM
+open CameronAavik.AdventOfCode.Y2019.Common
 
 type GameData =
     { Ball : int64 * int64
       Paddle : int64 * int64
+      BallDirection : int64
       Blocks : Set<int64 * int64>
       Score : int64 }
 
-    static member create = { Ball = (-1L, -1L); Paddle = (-1L, -1L); Blocks = Set.empty; Score = 0L }
+    static member create = { Ball = (-1L, -1L); Paddle = (-1L, -1L); Blocks = Set.empty; Score = 0L; BallDirection = 0L }
 
     static member addTile pos tile d =
         // update block counts
@@ -19,7 +21,7 @@ type GameData =
         let d = 
             match tile with
             | 3L -> { d with Paddle = pos }
-            | 4L -> { d with Ball = pos }
+            | 4L -> { d with Ball = pos; BallDirection = if fst d.Ball < fst pos then 1L else -1L }
             | _ -> d
 
         d
@@ -39,36 +41,27 @@ type GameData =
 
     static member blocks d = d.Blocks
 
+let provideInput state = 
+    if state.Blocks.IsEmpty then Seq.empty
+    else
+        let bx, by = state.Ball
+        let px, py = state.Paddle
+        let finalX = bx + (py - by - 1L) * state.BallDirection
+        seq { if px > finalX then -1L
+              elif px = finalX then 0L
+              else 1L }
+
+let gameIO = CallbackIO.create GameData.create GameData.processAllProgramOutput provideInput
+
 let solvePart1 =
-    bootProgram
-    >> runUntilHalt
-    >> readAllOutput
-    >> fst
-    >> GameData.fromProgramOutput
-    >> GameData.blocks
-    >> Set.count
-
-let getMoveToMake (bx, by) (px, py) prevX =
-    let dir = if prevX < bx then 1L else -1L
-    let finalX = bx + (py - by - 1L) * dir
-
-    if px > finalX then -1L
-    elif px = finalX then 0L
-    else 1L
-
-let handleGameOutput output (prevX, data) =
-    let data = GameData.processAllProgramOutput output data
-    let input = 
-        if data.Blocks.IsEmpty then None
-        else Some (getMoveToMake data.Ball data.Paddle prevX)
-    input, (fst data.Ball, data)
+    bootProgram gameIO
+    >> run
+    >> getFromIOState (fun (_, g) -> g.Blocks.Count)
     
 let solvePart2 = 
-    bootProgram
+    bootProgram gameIO
     >> setVal (Position 0L) 2L
-    >> setCallbackSingle handleGameOutput (0L, GameData.create)
-    >> runUntilHalt
-    >> getInputCallbackState
-    >> (fun (_, s) -> s.Score)
+    >> run
+    >> getFromIOState (fun (_, s) -> s.Score)
 
 let solver = { parse = parseIntCodeFromFile; part1 = solvePart1; part2 = solvePart2 }

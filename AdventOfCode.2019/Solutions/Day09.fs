@@ -1,13 +1,14 @@
 ﻿module Year2019Day09
 
 open CameronAavik.AdventOfCode.Common
+open CameronAavik.AdventOfCode.Y2019.Common
 open CameronAavik.AdventOfCode.Y2019.Common.IntCodeVM
 
 let solve boostMode =
-    bootProgram
-    >> writeToInput boostMode
-    >> runUntilHalt
-    >> readFromOutput
+    bootProgram (QueueIO.create)
+    >> writeInputToQueue boostMode
+    >> run
+    >> readOutputFromQueue
     >> fst
     >> Option.get
 

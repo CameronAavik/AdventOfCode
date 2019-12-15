@@ -9,14 +9,81 @@ type IntCodeState =
     | Halted
     | Error of string
 
-type InputMethod<'T> =
-    | Queue of Queue<int64>
-    | CallbackSingle of (int64 array -> 'T -> int64 option * 'T) * 'T
-    | CallbackMultiple of (int64 array -> 'T -> int64 list * 'T) * 'T * (int64 list)
+type IOHandler<'T> =
+    abstract member HandleOutput : int64 -> 'T -> 'T
+    abstract member GetInput : 'T -> int64 option * 'T
+    abstract member HandleHalt : 'T -> 'T
 
-and IntCodeDebugData<'T> =
+type IO<'T> = IO of 'T * IOHandler<'T> with
+    static member create state handler = IO (state, handler)
+    static member HandleOutput output (IO (state, handler)) =
+        let newState = handler.HandleOutput output state
+        IO (newState, handler)
+    static member GetInput (IO (state, handler)) =
+        let input, newState = handler.GetInput state
+        input, IO (newState, handler)
+    static member HandleHalt (IO (state, handler)) = IO (handler.HandleHalt state, handler)
+    static member MapState f (IO (state, handler)) = (IO (f state, handler))
+
+module NoIO =
+    let private noIOHandler<'T> = 
+        { new IOHandler<'T> with
+            member _.HandleOutput _ s = s
+            member _.GetInput _ = failwith "No Input Available" 
+            member _.HandleHalt s = s }
+    
+    let create = IO ((), noIOHandler<unit>)
+
+type IOQueues =
+    { Input : Queue<int64>
+      Output : Queue<int64> }
+
+    static member writeToInput i q = { q with Input = Queue.conj i q.Input }
+    static member writeSeqToInput iSeq q = Seq.fold (fun q i -> IOQueues.writeToInput i q) q iSeq
+    static member tryReadFromInput q = 
+        match q.Input with
+        | Queue.Cons (i, is) -> Some i, { q with Input = is }
+        | Queue.Nil -> None, q
+    static member writeToOutput i q = { q with Output = Queue.conj i q.Output }
+    static member tryReadFromOutput q = 
+        match q.Output with
+        | Queue.Cons (i, is) -> Some i, { q with Output = is }
+        | Queue.Nil -> None, q
+    static member readAllOutput q = Queue.toSeq q.Output, { q with Output = Queue.empty }
+
+    static member create = { Input = Queue.empty; Output = Queue.empty }
+
+module QueueIO =
+    let private queueIOHandler =
+        { new IOHandler<IOQueues> with
+            member _.HandleOutput i s = IOQueues.writeToOutput i s
+            member _.GetInput s = IOQueues.tryReadFromInput s 
+            member _.HandleHalt s = s }
+
+    let create = IO (IOQueues.create, queueIOHandler)
+
+module CallbackIO =
+    let private callbackIOHandler<'T> (handleOutput : int64 seq -> 'T -> 'T) (provideInput : 'T -> int64 seq) =
+        { new IOHandler<IOQueues * 'T> with
+            member _.HandleOutput i ((q, s) : IOQueues * 'T) = IOQueues.writeToOutput i q, s
+            member _.GetInput ((q, s) : IOQueues * 'T) =
+                match IOQueues.tryReadFromInput q with
+                | Some i, q -> Some i, (q, s)
+                | None, q ->
+                    let outputSeq, q = IOQueues.readAllOutput q
+                    let newS = handleOutput outputSeq s
+                    let q = IOQueues.writeSeqToInput (provideInput newS) q
+                    let i, q = IOQueues.tryReadFromInput q
+                    i, (q, newS)
+            member _.HandleHalt ((q, s) : IOQueues * 'T) =
+                let outputSeq, q = IOQueues.readAllOutput q
+                q, handleOutput outputSeq s }
+
+    let create initState handleOutput provideInput = IO ((IOQueues.create, initState), callbackIOHandler handleOutput provideInput)
+
+type IntCodeDebugData<'T> =
     { PCFrequencies : Map<int64, int>
-      WrittenAddresses : Set<int64> 
+      WrittenAddresses : Set<int64>
       ExecutionTime : int64
       Breakpoints : Set<int64>
       ConditionalBreakpoints : (IntCodeVM<'T> -> bool) list;
@@ -25,8 +92,7 @@ and IntCodeDebugData<'T> =
 and IntCodeVM<'T> = 
     { PC : int64
       Memory : Map<int64, int64>
-      Input : InputMethod<'T>
-      Output : Queue<int64>
+      IO : IO<'T>
       State : IntCodeState
       RelativeBase : int64
       DebugData : IntCodeDebugData<'T>
@@ -46,8 +112,8 @@ module IntCodeVM =
           ConditionalBreakpoints = List.empty;
           IsDebuggerEnabled = isEnabled }
 
-    let bootProgram intCode = { PC = 0L; Memory = intCode; Input = Queue Queue.empty; Output = Queue.empty; State = Running; RelativeBase = 0L; Overrides = Map.empty; DebugData = createDebugData false }
-    let debugProgram intCode = { bootProgram intCode with DebugData = createDebugData true }
+    let bootProgram io intCode = { PC = 0L; Memory = intCode; IO = io; State = Running; RelativeBase = 0L; Overrides = Map.empty; DebugData = createDebugData false }
+    let debugProgram io intCode = { bootProgram intCode io with DebugData = createDebugData true }
 
     let addNewPC pc debug =
         let curCount = Map.tryFind pc debug.PCFrequencies |> Option.defaultValue 0
@@ -96,38 +162,15 @@ module IntCodeVM =
         | Relative i -> setVal (Position (i + state.RelativeBase)) x state
         | Immediate i -> { state with State = Error (sprintf "Tried to set value at address %i via immediate mode" i) }
 
-    let rec readFromInput addr state =
-        match state.Input with
-        | Queue (Queue.Cons (i, is)) -> setVal addr i { state with Input = Queue is }
-        | Queue Queue.Nil -> { state with State = WaitingOnInput; PC = state.PC - 2L }
-        | CallbackSingle (f, s) ->
-            let output = state.Output |> Queue.toSeq |> Seq.toArray
-            let state = { state with Output = Queue.empty }
-            let input, s' = f output s
-            match input with
-            | Some x -> 
-                let state = setVal addr x state
-                { state with Input = CallbackSingle (f, s') }
-            | None -> { state with Input = CallbackSingle (f, s'); State = Halted }
-        | CallbackMultiple (f, s, items) ->
-            match items with
-            | x :: xs -> 
-                let state = setVal addr x state
-                { state with Input = CallbackMultiple (f, s, xs) }
-            | [] -> 
-                let output = state.Output |> Queue.toSeq |> Seq.toArray
-                let state = { state with Output = Queue.empty }
-                let inputs, s' = f output s
-                match inputs with
-                | [] -> { state with Input = CallbackMultiple (f, s', inputs); State = Halted }
-                | xs -> { state with Input = CallbackMultiple (f, s', xs) } |> readFromInput addr
+    let readFromInput addr state =
+        let input, io = IO.GetInput state.IO
+        match input with
+        | Some i -> setVal addr i { state with IO = io }
+        | None -> { state with State = WaitingOnInput; IO = io }
 
-    let getInputCallbackState state =
-        match state.Input with
-        | CallbackMultiple (_, s, _) | CallbackSingle (_, s) -> s
-        | Queue _ -> failwith "Input is a queue, there is no state"
-    
-    let writeToOutput addr state = { state with Output = Queue.conj (getVal addr state) state.Output }
+    let writeToOutput addr state =
+        let output = getVal addr state 
+        { state with IO = IO.HandleOutput output state.IO }
 
     type Operation =
         | Add of Param * Param * Param
@@ -149,7 +192,11 @@ module IntCodeVM =
         | Halt -> 1
 
     let setPC i state = { state with PC = (getVal i state) }
-    let nextPC op state = { state with PC = state.PC + int64 (instructionLength op) }
+    let nextPC op state =
+        match state.State with
+        | Running -> { state with PC = state.PC + int64 (instructionLength op) }
+        | _ -> state
+
     let adjustRelativeBase amount state = { state with RelativeBase = state.RelativeBase + amount }
     
     let getOperationAtPC pc state =
@@ -193,7 +240,7 @@ module IntCodeVM =
             | SetIfLessThan (p1, p2, dst) -> state |> setVal dst (if (apply2 (<) p1 p2 state) then 1L else 0L) |> nextPC op
             | SetIfEqual    (p1, p2, dst) -> state |> setVal dst (if (apply2 (=) p1 p2 state) then 1L else 0L) |> nextPC op
             | AdjustBase addr -> state |> adjustRelativeBase (getVal addr state) |> nextPC op
-            | Halt -> { state with State = Halted }
+            | Halt -> { state with State = Halted; IO = IO.HandleHalt state.IO }
 
     let printInstruction pc state debug =
         let isMutated addr = Set.contains addr debug.WrittenAddresses
@@ -243,35 +290,16 @@ module IntCodeVM =
                     printfn "Hit tracepoint %i at PC=%i; N=%i" i state.PC debug.ExecutionTime
         state
 
-    let rec runUntilHalt s =
+    let mapIO f s = { s with IO = IO.MapState f s.IO; State = if s.State = WaitingOnInput then Running else s.State }
+    let getFromIOState f { IO = IO (s, _) } = f s
+
+    let writeInputToQueue i s = mapIO (IOQueues.writeToInput i) s
+    let readOutputFromQueue (s : IntCodeVM<IOQueues>) =
+        let (IO (q, h)) = s.IO
+        let output, q = IOQueues.tryReadFromOutput q
+        output, { s with IO = IO (q, h) }
+
+    let rec run s =
         match s.State with
-        | Running -> executeInstruction s |> testBreakAndTracepoints  |> runUntilHalt
+        | Running -> executeInstruction s |> testBreakAndTracepoints  |> run
         | _ -> s
-
-    let rec runUntilOutputOrHalt s =
-        match s.State with
-        | Running when s.Output.IsEmpty -> executeInstruction s |> testBreakAndTracepoints |> runUntilOutputOrHalt
-        | _ -> s
-
-    let rec runUntilInputRequired s =
-        match s.State with
-        | Running -> executeInstruction s |> testBreakAndTracepoints |> runUntilInputRequired
-        | WaitingOnInput -> { s with State = Running }
-        | _ -> s
-
-    let writeToInput value state = 
-        match state.Input with
-        | Queue q -> { state with Input = Queue (Queue.conj value q) }
-        | CallbackSingle _ | CallbackMultiple _ -> state
-
-    let setCallbackSingle f initInputState state = { state with Input = CallbackSingle (f, initInputState) }
-    let setCallbackMultiple f initInputState state = { state with Input = CallbackMultiple (f, initInputState, []) }
-
-    let readFromOutput state =
-        let state = runUntilOutputOrHalt state
-        match Queue.tryUncons state.Output with
-        | Some (i, is) -> Some i, { state with Output = is }
-        | None -> None, state
-
-    let readAllOutput state = 
-        Queue.toSeq state.Output, { state with Output = Queue.empty }

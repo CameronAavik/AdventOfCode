@@ -1,6 +1,7 @@
 ﻿module Year2019Day07
 
 open CameronAavik.AdventOfCode.Common
+open CameronAavik.AdventOfCode.Y2019.Common
 open CameronAavik.AdventOfCode.Y2019.Common.IntCodeVM
 
 let rec permutations items =
@@ -12,9 +13,9 @@ let rec permutations items =
                     x :: xs }
 
 let runAmpWithSignal signal =
-    writeToInput signal
-    >> runUntilOutputOrHalt
-    >> readFromOutput
+    mapIO (IOQueues.writeToInput signal)
+    >> run
+    >> readOutputFromQueue
 
 type AmpState = Running of signal: int64 | Completed of signal: int64
 
@@ -41,8 +42,9 @@ let rec processAmps2 state amps =
     | newAmps, state' -> processAmps2 state' newAmps
 
 let solve processAmps minId maxId intCode =
+    let program = bootProgram (QueueIO.create) intCode
     let getThrusterSignal (ampIds : int64 []) =
-        Array.init 5 (fun i -> bootProgram intCode |> writeToInput (ampIds.[i]))
+        Array.init 5 (fun i -> program |> writeInputToQueue (ampIds.[i]))
         |> processAmps (Running 0L)
 
     permutations (set [minId .. maxId])
