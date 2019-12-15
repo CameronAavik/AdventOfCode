@@ -1,13 +1,14 @@
 ﻿module Year2019Day02
 
 open CameronAavik.AdventOfCode.Common
+open CameronAavik.AdventOfCode.Y2019.Common
 open CameronAavik.AdventOfCode.Y2019.Common.IntCodeVM
 
 let solve noun verb =
-    bootProgram
+    bootProgram NoIO.create
     >> setVal (Position 1L) noun
     >> setVal (Position 2L) verb
-    >> runUntilHalt
+    >> run
     >> getVal (Position 0L)
 
 let solvePart2 intCode = 
