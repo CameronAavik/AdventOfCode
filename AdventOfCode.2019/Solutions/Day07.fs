@@ -1,8 +1,7 @@
 ﻿module Year2019Day07
 
 open CameronAavik.AdventOfCode.Common
-open CameronAavik.AdventOfCode.Y2019.Common
-open CameronAavik.AdventOfCode.Y2019.Common.IntCodeVM
+open CameronAavik.AdventOfCode.Y2019.Common.Intcode
 
 let rec permutations items =
     seq { 
@@ -12,20 +11,26 @@ let rec permutations items =
                 for xs in permutations (Set.remove x items) do
                     x :: xs }
 
-let runAmpWithSignal signal =
-    mapIO (IOQueues.writeToInput signal)
-    >> run
-    >> readOutputFromQueue
+let provideInput systemId =
+    function
+    | Input f -> f systemId
+    | s -> s
+
+let tryReadOutput =
+    function
+    | Output (o, c) -> Some o, c
+    | c -> None, c
+
+let runAmpWithSignal signal = provideInput signal >> tryReadOutput
 
 type AmpState = Running of signal: int64 | Completed of signal: int64
 
 let runAmpInState state amp =
     match state with
     | Running i -> 
-        let outputSignal, newAmpState = runAmpWithSignal i amp
-        match outputSignal with 
-        | Some o -> newAmpState, Running o 
-        | None   -> newAmpState, Completed i
+        match runAmpWithSignal i amp with
+        | Some x, c -> c, Running x.[0]
+        | None, c -> c, Completed i
     | Completed _ -> amp, state
 
 let runAllAmps state amps =
@@ -42,13 +47,13 @@ let rec processAmps2 state amps =
     | newAmps, state' -> processAmps2 state' newAmps
 
 let solve processAmps minId maxId intCode =
-    let program = bootProgram (QueueIO.create) intCode
+    let program = Computer.create intCode |> run
     let getThrusterSignal (ampIds : int64 []) =
-        Array.init 5 (fun i -> program |> writeInputToQueue (ampIds.[i]))
+        Array.init 5 (fun i -> program |> provideInput (ampIds.[i]))
         |> processAmps (Running 0L)
 
     permutations (set [minId .. maxId])
     |> Seq.map (List.toArray >> getThrusterSignal)
     |> Seq.max
 
-let solver = { parse = parseIntCodeFromFile; part1 = solve processAmps1 0L 4L; part2 = solve processAmps2 5L 9L }
+let solver = { parse = parseIntCode; part1 = solve processAmps1 0L 4L; part2 = solve processAmps2 5L 9L }

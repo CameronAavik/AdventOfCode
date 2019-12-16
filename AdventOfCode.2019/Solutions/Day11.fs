@@ -1,8 +1,7 @@
 ﻿module Year2019Day11
 
 open CameronAavik.AdventOfCode.Common
-open CameronAavik.AdventOfCode.Y2019.Common
-open CameronAavik.AdventOfCode.Y2019.Common.IntCodeVM
+open CameronAavik.AdventOfCode.Y2019.Common.Intcode
 
 let turn (dx, dy) dir = if dir = 0L then (dy, -dx) else (-dy, dx)
 let move (x, y) (dx, dy) = (x + dx, y + dy)
@@ -25,8 +24,7 @@ let readOutput output =
         >> GameState.move
     | _ -> id
 
-let writeInput state =
-    seq { Map.tryFind state.Pos state.Grid |> Option.defaultValue 0L }
+let writeInput state = Map.tryFind state.Pos state.Grid |> Option.defaultValue 0L
 
 let printGrid grid =
     let updateBounds (x1, x2, y1, y2) (x, y) = (min x x1, max x x2, min y y1, max y y2)
@@ -39,18 +37,22 @@ let printGrid grid =
                 if (Map.tryFind (x, y) grid = Some 1L) then '█' else ' '
     } |> charsToStr
 
-let programIO = CallbackIO.create GameState.create readOutput writeInput
+let rec runProgram state =
+    function
+    | Input f -> writeInput state |> f |> runProgram state
+    | Output (o, s) -> runProgram (readOutput o state) s
+    | Halted -> state
 
 let solvePart1 =
-    bootProgram programIO
+    Computer.create
     >> run
-    >> getFromIOState (fun (_, s) -> s.Grid.Count)
+    >> runProgram GameState.create
+    >> (fun s -> s.Grid.Count)
     
 let solvePart2 = 
-    bootProgram programIO
-    >> mapIO (fun (q, s) -> q, GameState.paintPos 1L s)
+    Computer.create
     >> run
-    >> getFromIOState (fun (_, s) -> s.Grid)
-    >> printGrid
+    >> runProgram (GameState.create |> GameState.paintPos 1L)
+    >> (fun s -> printGrid s.Grid)
 
-let solver = { parse = parseIntCodeFromFile; part1 = solvePart1; part2 = solvePart2 }
+let solver = { parse = parseIntCode; part1 = solvePart1; part2 = solvePart2 }

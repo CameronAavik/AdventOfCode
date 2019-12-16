@@ -1,16 +1,23 @@
 ﻿module Year2019Day05
 
 open CameronAavik.AdventOfCode.Common
-open CameronAavik.AdventOfCode.Y2019.Common
-open CameronAavik.AdventOfCode.Y2019.Common.IntCodeVM
+open CameronAavik.AdventOfCode.Y2019.Common.Intcode
 
+let provideInput systemId =
+    function
+    | Input f -> f systemId
+    | _ -> failwith "Expected an input"
+
+let readOutput =
+    function
+    | Output (o, _) -> o
+    | _ -> failwith "Expected an output"
+    
 let solve systemId =
-    bootProgram QueueIO.create
-    >> writeInputToQueue systemId
+    Computer.create
     >> run
-    >> getFromIOState id
-    >> IOQueues.readAllOutput
-    >> fst
-    >> Seq.last
+    >> provideInput systemId
+    >> readOutput
+    >> List.last
 
-let solver = { parse = parseIntCodeFromFile; part1 = solve 1L; part2 = solve 5L }
+let solver = { parse = parseIntCode; part1 = solve 1L; part2 = solve 5L }

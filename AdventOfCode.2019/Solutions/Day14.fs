@@ -2,20 +2,22 @@
 
 open CameronAavik.AdventOfCode.Common
 
-let asItemWithAmount = splitBy " " (fun t -> t.[1], int64 t.[0])
-let asRecipeInputs = splitBy ", " (Array.map asItemWithAmount)
+type Ingredient = { Name : string; Amount : int64 }
+let asIngredient = splitBy " " (fun t -> { Name = t.[1]; Amount = int64 t.[0] })
+
+type Recipe = { AmountProduced : int64; Ingredients : Ingredient array }
 let asRecipe line =
     let lhs, rhs = splitBy " => " (fun t -> t.[0], t.[1]) line
-    let recipe = asRecipeInputs lhs
-    let item, amount = asItemWithAmount rhs
-    item, (amount, recipe)
+    let ingredients = splitBy ", " (Array.map asIngredient) lhs
+    let producedIngredient = asIngredient rhs
+    producedIngredient.Name, { AmountProduced = producedIngredient.Amount; Ingredients = ingredients }
 
 // If value is set to 0, remove it instead of adding it
 let setItem k v m = if v = 0L then Map.remove k m else Map.add k v m
 let findOrZero k m = Map.tryFind k m |> Option.defaultValue 0L
 
 type RecipeState = 
-    { Recipes : Map<string, int64 * ((string * int64) array)>
+    { Recipes : Map<string, Recipe>
       ItemsToMake : Map<string, int64>
       LeftoverItems : Map<string, int64> }
 
@@ -36,13 +38,13 @@ let ceilDivision a b = (a / b) + (if a % b = 0L then 0L else 1L)
 let rec reduceItemsToOre recipeState = 
     match Map.tryPick (fun k v -> if k <> "ORE" then Some (k, v) else None) recipeState.ItemsToMake with
     | Some (item, amountToMake) ->
-        let recipeOutput, recipe = recipeState.Recipes.[item]
-        let recipesToMake = ceilDivision amountToMake recipeOutput
+        let recipe = recipeState.Recipes.[item]
+        let recipesToMake = ceilDivision amountToMake recipe.AmountProduced
         
-        recipe
-        |> Array.fold (fun state (item, amount) -> RecipeState.addNewItemsToBeMade item (recipesToMake * amount) state) recipeState
+        recipe.Ingredients
+        |> Array.fold (fun state ing -> RecipeState.addNewItemsToBeMade ing.Name (recipesToMake * ing.Amount) state) recipeState
         |> RecipeState.setItemsToMake item 0L
-        |> RecipeState.setLeftovers item (recipeOutput * recipesToMake - amountToMake)
+        |> RecipeState.setLeftovers item (recipe.AmountProduced * recipesToMake - amountToMake)
         |> reduceItemsToOre
     | None -> recipeState.ItemsToMake.["ORE"]
 

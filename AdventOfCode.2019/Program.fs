@@ -13,7 +13,7 @@ module Program =
         | 4  -> run Year2019Day04.solver | 5  -> run Year2019Day05.solver | 6  -> run Year2019Day06.solver
         | 7  -> run Year2019Day07.solver | 8  -> run Year2019Day08.solver | 9  -> run Year2019Day09.solver
         | 10 -> run Year2019Day10.solver | 11 -> run Year2019Day11.solver | 12 -> run Year2019Day12.solver
-        | 13 -> run Year2019Day13.solver | 14 -> run Year2019Day14.solver //| 15 -> run Year2019Day15.solver
+        | 13 -> run Year2019Day13.solver | 14 -> run Year2019Day14.solver | 15 -> run Year2019Day15.solver
         //| 16 -> run Year2019Day16.solver | 17 -> run Year2019Day17.solver | 18 -> run Year2019Day18.solver
         //| 19 -> run Year2019Day19.solver | 20 -> run Year2019Day20.solver | 21 -> run Year2019Day21.solver
         //| 22 -> run Year2019Day22.solver | 23 -> run Year2019Day23.solver | 24 -> run Year2019Day24.solver

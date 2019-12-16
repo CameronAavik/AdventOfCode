@@ -1,8 +1,7 @@
 ﻿module Year2019Day13
 
 open CameronAavik.AdventOfCode.Common
-open CameronAavik.AdventOfCode.Y2019.Common.IntCodeVM
-open CameronAavik.AdventOfCode.Y2019.Common
+open CameronAavik.AdventOfCode.Y2019.Common.Intcode
 
 type GameData =
     { Ball : int64 * int64
@@ -42,26 +41,35 @@ type GameData =
     static member blocks d = d.Blocks
 
 let provideInput state = 
-    if state.Blocks.IsEmpty then Seq.empty
+    if state.Blocks.IsEmpty then None
     else
         let bx, by = state.Ball
         let px, py = state.Paddle
         let finalX = bx + (py - by - 1L) * state.BallDirection
-        seq { if px > finalX then -1L
-              elif px = finalX then 0L
-              else 1L }
+        if px > finalX then Some -1L
+            elif px = finalX then Some 0L
+            else Some 1L
 
-let gameIO = CallbackIO.create GameData.create GameData.processAllProgramOutput provideInput
+let rec runProgram state =
+    function
+    | Input f -> 
+        match provideInput state with
+        | Some i -> f i |> runProgram state
+        | None -> state
+    | Output (o, s) -> runProgram (GameData.processAllProgramOutput o state) s
+    | Halted -> state
 
 let solvePart1 =
-    bootProgram gameIO
+    Computer.create
     >> run
-    >> getFromIOState (fun (_, g) -> g.Blocks.Count)
+    >> runProgram (GameData.create)
+    >> (fun g -> g.Blocks.Count)
     
 let solvePart2 = 
-    bootProgram gameIO
-    >> setVal (Position 0L) 2L
+    Computer.create
+    >> Computer.set 0 2L
     >> run
-    >> getFromIOState (fun (_, s) -> s.Score)
+    >> runProgram (GameData.create)
+    >> (fun s -> s.Score)
 
-let solver = { parse = parseIntCodeFromFile; part1 = solvePart1; part2 = solvePart2 }
+let solver = { parse = parseIntCode; part1 = solvePart1; part2 = solvePart2 }
