@@ -55,6 +55,9 @@
     <Content Include="InputFiles\day15.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="InputFiles\day16.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Common\Intcode.fs" />
     <Compile Include="Solutions\Day01.fs" />
     <Compile Include="Solutions\Day02.fs" />
@@ -71,11 +74,13 @@
     <Compile Include="Solutions\Day13.fs" />
     <Compile Include="Solutions\Day14.fs" />
     <Compile Include="Solutions\Day15.fs" />
+    <Compile Include="Solutions\Day16.fs" />
     <Compile Include="Solutions\DayTemplate.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Extreme.Numerics" Version="7.0.10" />
     <PackageReference Include="FSharpx.Collections" Version="2.1.1" />
   </ItemGroup>
 
