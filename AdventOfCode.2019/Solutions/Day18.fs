@@ -49,8 +49,9 @@ let astar start isDest heuristic getEdges rep =
             else
                 seen.Add (rep vertex) |> ignore
                 getEdges vertex
-                |> Seq.map (fun (v, d) -> (dist + d, v))
-                |> Seq.map (fun (dist, v) -> ((heuristic v) + dist, -dist, v))
+                |> Seq.map (fun (v, d) ->
+                    let dist = dist + d
+                    (heuristic v) + dist, -dist, v)
                 |> Set.ofSeq
                 |> Set.union fringe'
                 |> astar'

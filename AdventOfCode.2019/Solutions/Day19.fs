@@ -60,9 +60,6 @@ let solvePart2 intcode =
             else
                 BeamArea.increaseHeight (99 - height) isBeam beamArea |> seek
     
-    { TopRight = (0, 0); BottomLeft = (0, 0) }
-    |> BeamArea.increaseHeight 99 isBeam
-    |> BeamArea.increaseWidth 99 isBeam
-    |> seek 
+    seek { TopRight = (0, 0); BottomLeft = (0, 0) }
 
 let solver = { parse = parseIntCode; part1 = solvePart1; part2 = solvePart2 }
