@@ -14,9 +14,10 @@ type Maze =
     { Grid : Cell [] []
       Entrance : int * int
       Exit : int * int
-      Portals: Map<int * int, int * int> }
+      Portals: Map<int * int, int * int>;
+      UnmatchedPortals : Map<string, int * int> }
 
-    static member create grid = { Grid = grid; Entrance = (-1, -1); Exit = (-1, -1); Portals = Map.empty }
+    static member create grid = { Grid = grid; Entrance = (-1, -1); Exit = (-1, -1); Portals = Map.empty; UnmatchedPortals = Map.empty }
 
 let portalNameLocations (x, y) =
     [|
@@ -30,33 +31,28 @@ let parseMaze (grid : Cell [] []) =
     let width = grid.[0].Length
     let height = grid.Length
 
-    let at (x, y) = grid.[y].[x]
-    let tryGetPortalName (x, y) =
-        portalNameLocations (x, y)
-        |> Array.choose (fun (p1, p2) ->
-            match at p1, at p2 with
+    let cellAt (x, y) = grid.[y].[x]
+    let tryGetPortalName =
+        portalNameLocations
+        >> Array.choose (fun (p1, p2) ->
+            match cellAt p1, cellAt p2 with
             | Outside a, Outside b -> charsToStr [a; b] |> Some
             | _ -> None)
-        |> Array.tryHead
+        >> Array.tryHead
 
-    ({| Maze = Maze.create grid; TempPortals = Map.empty |}, [| 0 .. height - 1 |])
-    ||> Array.fold (fun m y ->
-        (m, [| 0 .. width - 1|])
-        ||> Array.fold (fun m x ->
-            match at (x, y) with
-            | Open ->
-                match tryGetPortalName (x, y) with
-                | Some "AA" -> {| m with Maze = { m.Maze with Entrance = (x, y) } |}
-                | Some "ZZ" -> {| m with Maze = { m.Maze with Exit = (x, y) } |}
-                | Some s ->
-                    match Map.tryFind s m.TempPortals with
-                    | Some (x2, y2) ->
-                        let newMaze = { m.Maze with Portals = m.Maze.Portals |> Map.add (x, y) (x2, y2) |> Map.add (x2, y2) (x, y) }
-                        {| m with Maze = newMaze; TempPortals = Map.remove s m.TempPortals |}
-                    | None -> {| m with TempPortals = Map.add s (x, y) m.TempPortals |}
-                | None -> m
-            | _ -> m))
-    |> (fun m -> m.Maze)
+    (Maze.create grid, seq { for y in 0 .. height - 1 do for x in 0 .. width - 1 -> (x, y) })
+    ||> Seq.fold (fun m pos ->
+        match cellAt pos with
+        | Open ->
+            match tryGetPortalName pos with
+            | Some "AA" -> { m with Entrance = pos }
+            | Some "ZZ" -> { m with Exit = pos }
+            | Some s ->
+                match Map.tryFind s m.UnmatchedPortals with
+                | Some dest -> { m with Portals = m.Portals |> Map.add pos dest |> Map.add dest pos }
+                | None -> { m with UnmatchedPortals = Map.add s pos m.UnmatchedPortals }
+            | None -> m
+        | _ -> m)
 
 let parse = parseEachLine (Seq.map parseCell >> Seq.toArray) >> Seq.toArray >> parseMaze
 
@@ -99,8 +95,12 @@ let solvePart1 maze =
     |> Option.get
     
 let solvePart2 maze = 
+    let width = maze.Grid.[0].Length
+    let height = maze.Grid.Length
+    let isOuterEdge (x, y) = 
+        x <= 2 || x >= (width - 3) || y <= 2 || y >= (height - 3)
+
     let cellAt (x, y) = maze.Grid.[y].[x]
-    let isOuterEdge (x, y) = x <= 2 || x >= (maze.Grid.[0].Length - 3) || y <= 2 || y >= (maze.Grid.Length - 3)
     
     let heuristic (level, _) = level
     let getEdges (level, pos) =
