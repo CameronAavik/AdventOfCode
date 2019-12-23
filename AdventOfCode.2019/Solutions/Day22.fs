@@ -49,7 +49,7 @@ let shuffleToAffine deckSize =
     function
     | Deal ->   { Mod = deckSize; Scale = -1I;      Shift = deckSize - 1I }
     | Cut i ->  { Mod = deckSize; Scale = 1I;       Shift = deckSize - (bigint i) }
-    | Incr i -> { Mod = deckSize; Scale = bigint i; Shift = 0I; }
+    | Incr i -> { Mod = deckSize; Scale = bigint i; Shift = 0I }
 
 let solve deckSize iterations position =
     Seq.map (shuffleToAffine deckSize)
