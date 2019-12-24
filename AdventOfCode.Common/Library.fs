@@ -3,6 +3,7 @@
 open System
 open System.IO
 open System.Text.RegularExpressions
+open System.Collections.Generic
 
 // This is a set of methods that I found myself using many times in my solutions
 module Common =
@@ -28,4 +29,26 @@ module Common =
     let splitBy (c : string) f (str : string) = str.Split([| c |], StringSplitOptions.None) |> f
     let extractInts str = [| for m in Regex.Matches(str, "(-?\d+)") -> int m.Value |]
     let withRegex regex str = [| for m in Regex.Match(str, regex).Groups -> m.Value|] |> Array.tail
+
     let charsToStr (chars : char seq) = chars |> Seq.map string |> String.concat ""
+
+    let inline repeatN n f x =
+        let rec aux n x =
+            if n = 0 then x
+            else f x |> aux (n - 1)
+        aux n x
+
+    let inline repeatUntil f pred x =
+        let rec aux x =
+            if pred x then x
+            else f x |> aux
+        aux x
+
+    let inline repeatUntilDuplicate f x =
+        let seen = new HashSet<_>()
+        let rec aux x =
+            if seen.Contains(x) then x
+            else
+                seen.Add(x) |> ignore
+                f x |> aux
+        aux x
