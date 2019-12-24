@@ -7,8 +7,8 @@ let lineToCells = Seq.map (fun c -> if c = '#' then 1 else 0)
 let gridToBits = Seq.indexed >> Seq.sumBy (fun (i, v) -> v * pown 2 i)
 let parse = parseEachLine lineToCells >> Seq.collect id >> gridToBits
 
-let getBit n b = (b >>> n) &&& 1
-let getBitAt (x, y) n = getBit (y * 5 + x) n
+let inline getBit n b = (b >>> n) &&& 1
+let inline getBitAt (x, y) n = getBit (y * 5 + x) n
 
 type Dir = Left | Right | Up | Down
 let neighbours (x, y) =
@@ -18,13 +18,15 @@ let neighbours (x, y) =
        (x, y + 1), Down |]
 
 let nextState state getBugCountAt =
-    [| 0 .. 24 |]
-    |> Array.map (fun c ->
-        let cur = getBit c state
-        let x, y = c % 5, c / 5
-        let neighbourBugs = neighbours (x, y) |> Array.sumBy (fun (pos, dir) -> getBugCountAt pos dir)
-        if (neighbourBugs = 1) || (cur = 0 && neighbourBugs = 2) then 1 else 0)
-    |> gridToBits
+    let rec nextState' c acc =
+        if c = 25 then acc
+        else
+            let cur = getBit c state
+            let x, y = c % 5, c / 5
+            let neighbourBugs = neighbours (x, y) |> Array.sumBy (fun (pos, dir) -> getBugCountAt pos dir)
+            let bit = if (neighbourBugs = 1) || (cur = 0 && neighbourBugs = 2) then 1 else 0
+            nextState' (c + 1) ((acc <<< 1) + bit)
+    nextState' 0 0
 
 let solvePart1 (bugs) =
     let getBugsAt n (x, y) _ =
@@ -38,20 +40,23 @@ let solvePart1 (bugs) =
 
     stepUntilRepeat Set.empty bugs
 
-let stepLayer layer layers =
-    let prevLayer = Map.tryFind (layer - 1) layers |> Option.defaultValue 0
-    let nextLayer = Map.tryFind (layer + 1) layers |> Option.defaultValue 0
+let stepLayer layer (layers : int []) =
+    let prevLayer = if layer = 0 then 0 else layers.[layer - 1]
+    let nextLayer = if layer = layers.Length - 1 then 0 else layers.[layer + 1]
     let curLayer = layers.[layer]
+
+    if curLayer = 0 && prevLayer = 0 && nextLayer = 0 then 0
+    else
 
     let getPositionsOfSide =
         function
-        | Left ->  [| for y in 0 .. 4 -> (4, y)|]
-        | Right -> [| for y in 0 .. 4 -> (0, y)|]
-        | Up ->    [| for x in 0 .. 4 -> (x, 4)|]
-        | Down ->  [| for x in 0 .. 4 -> (x, 0)|]
+        | Left  -> 0b10000_10000_10000_10000_10000
+        | Right -> 0b00001_00001_00001_00001_00001
+        | Up    -> 0b11111_00000_00000_00000_00000
+        | Down  -> 0b00000_00000_00000_00000_11111
 
     let getBugsAt (x, y) dir =
-        if (x, y) = (2, 2) then getPositionsOfSide dir |> Array.sumBy (fun pos -> getBitAt pos nextLayer)
+        if (x, y) = (2, 2) then BitOperations.PopCount(getPositionsOfSide dir &&& nextLayer |> uint64)
         elif x < 0 then getBitAt (1, 2) prevLayer
         elif x >= 5 then getBitAt (3, 2) prevLayer
         elif y < 0 then getBitAt (2, 1) prevLayer
@@ -60,25 +65,17 @@ let stepLayer layer layers =
 
     nextState curLayer getBugsAt
 
-let stepAllLayers atTime layers =
-    let layers' =
-        layers
-        |> Map.add (-atTime - 1) 0
-        |> Map.add (atTime + 1) 0
-    Map.map (fun k _ -> stepLayer k layers') layers'
+let stepAllLayers layers = Array.Parallel.mapi (fun k _ -> stepLayer k layers) layers
 
 let getBugCount bits = BitOperations.PopCount(uint32 (bits &&& ~~~(1 <<< 12)))
 
 let solvePart2 (cells) =
-    let layers = Map.empty |> Map.add 0 cells
-    let iterations = 200
-
     let rec repeatUntilTime time layers =
-        if time = iterations then layers
-        else stepAllLayers time layers |> repeatUntilTime (time + 1)
+        if time = 0 then layers
+        else stepAllLayers layers |> repeatUntilTime (time - 1)
 
-    repeatUntilTime 0 layers 
-    |> Map.toSeq
-    |> Seq.sumBy (snd >> getBugCount)
+    Array.init 201 (fun i -> if i = 100 then cells else 0)
+    |> repeatUntilTime 200
+    |> Array.sumBy getBugCount
 
 let solver = { parse = parse; part1 = solvePart1; part2 = solvePart2 }
