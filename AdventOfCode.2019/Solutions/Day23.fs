@@ -8,10 +8,7 @@ let rec provideInput inputs =
     | x :: xs ->
         function
         | Input f -> f x |> provideInput xs
-        | Output (o1, s) ->
-            match provideInput inputs s with
-            | Output (o2, s') -> Output (o1 @ o2, s')
-            | s' -> Output (o1, s')
+        | Output (o1, s) -> Output (o1, provideInput inputs s)
         | Halted -> failwith "Halted while still providing input"
     | [] -> id
 
@@ -53,8 +50,7 @@ type Network =
 
     static member isIdle network =
         network.Computers
-        |> Map.exists (fun _ v -> match v with Input _ -> false | _ -> true)
-        |> not
+        |> Map.forall (fun _ v -> match v with Input _ -> true | _ -> false)
 
     static member create intcode =
         let comp = Computer.create intcode |> run
