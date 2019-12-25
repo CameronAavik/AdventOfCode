@@ -82,6 +82,9 @@
     <Content Include="InputFiles\day24.txt">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="InputFiles\day25.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Compile Include="Common\Intcode.fs" />
     <Compile Include="Solutions\Day01.fs" />
     <Compile Include="Solutions\Day02.fs" />
@@ -107,6 +110,7 @@
     <Compile Include="Solutions\Day22.fs" />
     <Compile Include="Solutions\Day23.fs" />
     <Compile Include="Solutions\Day24.fs" />
+    <Compile Include="Solutions\Day25.fs" />
     <Compile Include="Solutions\DayTemplate.fs" />
     <Compile Include="Program.fs" />
   </ItemGroup>
