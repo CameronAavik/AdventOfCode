@@ -3,10 +3,11 @@
 open BenchmarkDotNet.Reports
 open BenchmarkDotNet.Attributes
 open BenchmarkDotNet.Columns
-open BenchmarkDotNet.Horology
 open BenchmarkDotNet.Jobs
 open BenchmarkDotNet.Configs
 open BenchmarkDotNet.Running
+open Perfolizer.Horology
+open System.Globalization
 
 module Benchmarking =
 
@@ -38,11 +39,11 @@ module Benchmarking =
                 .WithMaxIterationCount(15)
                 .DontEnforcePowerPlan()
         
-        let summaryStyle = new SummaryStyle(true, SizeUnit.B, TimeUnit.Nanosecond, false)
+        let summaryStyle = new SummaryStyle(CultureInfo.InvariantCulture, true, SizeUnit.B, TimeUnit.Nanosecond, false)
         
         let benchmarkConfig =
             DefaultConfig.Instance
-                .With(benchmarkJob.AsDefault())
-                .With(summaryStyle)
+                .AddJob(benchmarkJob.AsDefault())
+                .WithSummaryStyle(summaryStyle)
 
         BenchmarkRunner.Run<'T>(benchmarkConfig) |> ignore

@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -114,7 +114,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FSharpx.Collections" Version="2.1.1" />
+    <PackageReference Include="FSharpx.Collections" Version="2.1.3" />
     <PackageReference Include="GraphFS" Version="0.0.30" />
   </ItemGroup>
 
