@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AdventOfCode.2015": {
+      "commandName": "Project",
+      "commandLineArgs": "ALL"
+    }
+  }
+}
