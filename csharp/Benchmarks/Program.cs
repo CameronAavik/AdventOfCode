@@ -12,13 +12,14 @@ namespace AdventOfCode.CSharp.Benchmarks
         public override string? ToString() => $"{Year}.{Day:D2}";
     }
 
+    //[MemoryDiagnoser]
     public class Solvers
     {
         [ParamsSource(nameof(Problems))]
         public Problem Problem = default!;
 
         private ISolver solver = default!;
-        private ReadOnlyMemory<byte> fileBytes = default!;
+        private ReadOnlyMemory<char> fileBytes = default!;
 
         public static IEnumerable<Problem> Problems()
         {
@@ -38,7 +39,7 @@ namespace AdventOfCode.CSharp.Benchmarks
         public void GlobalSetup()
         {
             solver = (ISolver)Activator.CreateInstance(GetSolverType(Problem.Year, Problem.Day)!)!;
-            fileBytes = File.ReadAllBytes($"input/{Problem.Year}/day{Problem.Day:D2}.txt");
+            fileBytes = File.ReadAllText($"input/{Problem.Year}/day{Problem.Day:D2}.txt").AsMemory();
         }
 
         [Benchmark]
@@ -49,6 +50,10 @@ namespace AdventOfCode.CSharp.Benchmarks
             var assembly = year switch
             {
                 2015 => typeof(Y2015.Solvers.Day1).Assembly,
+                2016 => typeof(Y2016.Solvers.Day1).Assembly,
+                2017 => typeof(Y2017.Solvers.Day1).Assembly,
+                2018 => typeof(Y2018.Solvers.Day1).Assembly,
+                2019 => typeof(Y2019.Solvers.Day1).Assembly,
                 _ => null
             };
 

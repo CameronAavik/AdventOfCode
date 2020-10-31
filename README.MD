@@ -6,7 +6,7 @@ These are my solutions in C# and F# for Advent of Code 2015-2019.
 
 | Day | 2015 | 2016 | 2017 | 2018 | 2019 |
 | ---: | :---: | :---: | :---: | :---: | :---: |
-| 1  | [C#](/csharp/2015/Solvers/Day01.fs)\|[F#](/fsharp/2015/Solutions/Day01.fs) | [F#](/fsharp/2016/Solutions/Day01.fs) | [F#](/fsharp/2017/Solutions/Day01.fs) | [F#](/fsharp/2018/Solutions/Day01.fs) | [F#](/fsharp/2019/Solutions/Day01.fs) |
+| 1  | [C#](/csharp/2015/Solvers/Day01.fs) \| [F#](/fsharp/2015/Solutions/Day01.fs) | [F#](/fsharp/2016/Solutions/Day01.fs) | [F#](/fsharp/2017/Solutions/Day01.fs) | [F#](/fsharp/2018/Solutions/Day01.fs) | [F#](/fsharp/2019/Solutions/Day01.fs) |
 | 2  | [F#](/fsharp/2015/Solutions/Day02.fs) | [F#](/fsharp/2016/Solutions/Day02.fs) | [F#](/fsharp/2017/Solutions/Day02.fs) | [F#](/fsharp/2018/Solutions/Day02.fs) | [F#](/fsharp/2019/Solutions/Day02.fs) |
 | 3  | [F#](/fsharp/2015/Solutions/Day03.fs) | [F#](/fsharp/2016/Solutions/Day03.fs) | [F#](/fsharp/2017/Solutions/Day03.fs) | [F#](/fsharp/2018/Solutions/Day03.fs) | [F#](/fsharp/2019/Solutions/Day03.fs) |
 | 4  | [F#](/fsharp/2015/Solutions/Day04.fs) | [F#](/fsharp/2016/Solutions/Day04.fs) | [F#](/fsharp/2017/Solutions/Day04.fs) | [F#](/fsharp/2018/Solutions/Day04.fs) | [F#](/fsharp/2019/Solutions/Day04.fs) |
