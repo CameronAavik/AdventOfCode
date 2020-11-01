@@ -3,7 +3,7 @@ using System;
 
 namespace AdventOfCode.CSharp.Y2019.Solvers
 {
-    public class Day1 : ISolver
+    public class Day01 : ISolver
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {

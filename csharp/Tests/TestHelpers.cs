@@ -11,7 +11,7 @@ namespace AdventOfCode.CSharp.Tests
             where T : ISolver, new()
         {
             string year = typeof(T).Namespace!.Split('.')[2][1..];
-            string dayNumber = typeof(T).Name[3..].PadLeft(2, '0');
+            string dayNumber = typeof(T).Name[3..];
             var solver = new T();
             ReadOnlySpan<char> file = File.ReadAllText($"input/{year}/day{dayNumber}.txt");
             var soln = solver.Solve(file);

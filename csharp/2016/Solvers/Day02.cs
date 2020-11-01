@@ -4,7 +4,7 @@ using System.Text;
 
 namespace AdventOfCode.CSharp.Y2016.Solvers
 {
-    public class Day2 : ISolver
+    public class Day02 : ISolver
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {

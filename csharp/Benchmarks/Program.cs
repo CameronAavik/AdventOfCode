@@ -49,11 +49,11 @@ namespace AdventOfCode.CSharp.Benchmarks
         {
             var assembly = year switch
             {
-                2015 => typeof(Y2015.Solvers.Day1).Assembly,
-                2016 => typeof(Y2016.Solvers.Day1).Assembly,
-                2017 => typeof(Y2017.Solvers.Day1).Assembly,
-                2018 => typeof(Y2018.Solvers.Day1).Assembly,
-                2019 => typeof(Y2019.Solvers.Day1).Assembly,
+                2015 => typeof(Y2015.Solvers.Day01).Assembly,
+                2016 => typeof(Y2016.Solvers.Day01).Assembly,
+                2017 => typeof(Y2017.Solvers.Day01).Assembly,
+                2018 => typeof(Y2018.Solvers.Day01).Assembly,
+                2019 => typeof(Y2019.Solvers.Day01).Assembly,
                 _ => null
             };
 
@@ -61,7 +61,7 @@ namespace AdventOfCode.CSharp.Benchmarks
             {
                 foreach (Type t in assembly.GetTypes())
                 {
-                    if (t.Name == $"Day{day}")
+                    if (t.Name == $"Day{day:D2}")
                     {
                         return t;
                     }

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace AdventOfCode.CSharp.Y2016.Solvers
 {
-    public class Day1 : ISolver
+    public class Day01 : ISolver
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {

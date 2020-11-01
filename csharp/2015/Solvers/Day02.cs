@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace AdventOfCode.CSharp.Y2015.Solvers
 {
-    public class Day2 : ISolver
+    public class Day02 : ISolver
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {
@@ -40,7 +40,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         private static int ParseIntUntilX(ReadOnlySpan<char> present, ref int i)
         {
             char c;
-            int val = present[i++];
+            int val = present[i++] - '0';
             while ((c = present[i++]) != 'x')
             {
                 val = 10 * val + (c - '0');
@@ -52,7 +52,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static int ParseIntUntilEnd(ReadOnlySpan<char> present, ref int i)
         {
-            int val = present[i++];
+            int val = present[i++] - '0';
             while (i < present.Length)
             {
                 val = 10 * val + (present[i++] - '0');

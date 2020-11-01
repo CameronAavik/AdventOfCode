@@ -1,11 +1,10 @@
 ﻿using AdventOfCode.CSharp.Common;
 using System;
 using System.Collections.Generic;
-using System.Net;
 
 namespace AdventOfCode.CSharp.Y2018.Solvers
 {
-    public class Day1 : ISolver
+    public class Day01 : ISolver
     {
         public class Frequency
         {
