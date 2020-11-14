@@ -25,9 +25,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 }
             }
 
-            return new Solution(
-                part1: currentFloor.ToString(),
-                part2: firstBasementFloor.ToString());
+            return new Solution(part1: currentFloor, part2: firstBasementFloor);
         }
     }
 }

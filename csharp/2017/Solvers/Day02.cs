@@ -49,7 +49,7 @@ namespace AdventOfCode.CSharp.Y2017.Solvers
                 part2 += quotient;
             }
 
-            return new Solution(part1.ToString(), part2.ToString());
+            return new Solution(part1, part2);
         }
     }
 }

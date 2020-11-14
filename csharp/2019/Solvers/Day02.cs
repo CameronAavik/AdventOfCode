@@ -23,12 +23,12 @@ namespace AdventOfCode.CSharp.Y2019.Solvers
                     if (Run(memory, noun, verb) == 19690720)
                     {
                         int part2 = 100 * noun + verb;
-                        return new Solution(part1.ToString(), part2.ToString());
+                        return new Solution(part1, part2);
                     }
                 }
             }
 
-            return new Solution(part1.ToString(), "NOT FOUND");
+            throw new Exception("Unable to find solution for part 2");
         }
 
         private static int Run(int[] memory, int noun, int verb)

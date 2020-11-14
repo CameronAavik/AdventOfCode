@@ -1,0 +1,56 @@
+﻿using AdventOfCode.CSharp.Common;
+using System;
+using System.Collections.Generic;
+
+namespace AdventOfCode.CSharp.Y2015.Solvers
+{
+    public class Day03 : ISolver
+    {
+        public Solution Solve(ReadOnlySpan<char> input)
+        {
+            var seen = new HashSet<uint>();
+
+            RunSanta(input, seen, start: 0, step: 1);
+            int part1 = seen.Count;
+
+            seen.Clear();
+            RunSanta(input, seen, start: 0, step: 2);
+            RunSanta(input, seen, start: 1, step: 2);
+            int part2 = seen.Count;
+
+            return new Solution(part1, part2);
+        }
+
+        private static void RunSanta(ReadOnlySpan<char> moves, HashSet<uint> seen, int start, int step)
+        {
+            // get starting coordinates 
+            uint x = UInt16.MaxValue / 2;
+            uint y = UInt16.MaxValue / 2;
+
+            // pack them into a single uint
+            uint encodedPos = x << 16 | y;
+            seen.Add(encodedPos);
+
+            for (int i = start; i < moves.Length; i += step)
+            {
+                switch (moves[i])
+                {
+                    case '^':
+                        encodedPos += 1;
+                        break;
+                    case 'v':
+                        encodedPos -= 1;
+                        break;
+                    case '>':
+                        encodedPos += 1 << 16;
+                        break;
+                    case '<':
+                        encodedPos -= 1 << 16;
+                        break;
+                }
+
+                seen.Add(encodedPos);
+            }
+        }
+    }
+}

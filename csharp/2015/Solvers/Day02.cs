@@ -25,7 +25,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 part2 += smallestFacePerimeter + smallestFaceArea * side2;
             }
 
-            return new Solution(part1.ToString(), part2.ToString());
+            return new Solution(part1, part2);
         }
 
         private static void ParseDimensionString(ReadOnlySpan<char> present, out int side0, out int side1, out int side2)

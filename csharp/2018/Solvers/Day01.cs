@@ -58,9 +58,7 @@ namespace AdventOfCode.CSharp.Y2018.Solvers
                 prev = freq;
             }
 
-            return new Solution(
-                part1: freqTotal.ToString(),
-                part2: minFreq.ToString());
+            return new Solution(part1: freqTotal, part2: minFreq);
         }
     }
 }

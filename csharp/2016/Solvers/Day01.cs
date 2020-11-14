@@ -43,8 +43,8 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             int distanceToDestination = ManhattanDistance(pos);
 
             return new Solution(
-                part1: distanceToDestination.ToString(),
-                part2: distanceToFirstRepeatedLocation.ToString());
+                part1: distanceToDestination,
+                part2: distanceToFirstRepeatedLocation);
         }
 
         private static int ManhattanDistance(Vec2 vec) => Math.Abs(vec.X) + Math.Abs(vec.Y);

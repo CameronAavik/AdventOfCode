@@ -21,9 +21,7 @@ namespace AdventOfCode.CSharp.Y2019.Solvers
                 }
             }
 
-            return new Solution(
-                part1.ToString(),
-                part2.ToString());
+            return new Solution(part1, part2);
         }
     }
 }

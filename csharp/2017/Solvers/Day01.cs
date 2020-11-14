@@ -25,7 +25,7 @@ namespace AdventOfCode.CSharp.Y2017.Solvers
                 }
             }
 
-            return new Solution(part1.ToString(), part2.ToString());
+            return new Solution(part1, part2);
         }
     }
 }
