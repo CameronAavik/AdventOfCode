@@ -23,11 +23,15 @@ module Intcode =
             ({ PC = 0; RelBase = 0; Memory = Map.empty }, Array.indexed intcode)
             ||> Array.fold (fun c (i, v) -> Computer.set i v c)
 
+    [<NoComparison>]
+    [<NoEquality>]
     type ProgramState =
         | Output of int64 list * ProgramState
         | Input of (int64 -> ProgramState)
         | Halted
 
+    [<NoComparison>]
+    [<NoEquality>]
     [<RequireQualifiedAccess>]
     type InstructionResult =
         | Complete of Computer

@@ -17,7 +17,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             var part1 = new StringBuilder();
             var part2 = new StringBuilder();
 
-            foreach (var line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.Split('\n'))
             {
                 foreach (char dir in line)
                 {

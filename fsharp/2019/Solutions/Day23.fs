@@ -21,6 +21,8 @@ let rec readPackets =
         { Dest = int dest; X = x; Y = y } :: ps, p
     | p -> [], p
 
+[<NoComparison>]
+[<NoEquality>]
 type Network =
     { Computers : Map<int, ProgramState> 
       NatPacket : Packet option 

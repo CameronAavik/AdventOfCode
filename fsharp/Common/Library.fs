@@ -9,6 +9,8 @@ open System.Collections.Generic
 module Common =
     // Every day has a corresponding Day record which defines how to parse the file
     // then two functions for solving each part respectively
+    [<NoComparison>]
+    [<NoEquality>]
     type Day<'a, 'b, 'c> = { parse: string -> 'a; part1: 'a -> 'b; part2: 'a -> 'c }
 
     // helper methods for parsing

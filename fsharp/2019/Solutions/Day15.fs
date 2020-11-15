@@ -13,6 +13,8 @@ let readOutput =
     | Output (o, _) -> o
     | _ -> failwith "Expected an output"
 
+[<NoComparison>]
+[<NoEquality>]
 type Robot =
     { Pos : int * int
       IsOxygen : bool

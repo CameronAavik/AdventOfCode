@@ -28,5 +28,8 @@ let getMissingWeight tower =
     |> Seq.map (fun (_, v) -> (snd v.[1] |> Seq.head |> snd) + (fst v.[0]) - (fst v.[1]))
     |> Seq.min
 
-let part1 tower = findRoot tower (Seq.head tower).Key
+let part1 tower =
+    let head = Seq.head tower
+    findRoot tower head.Key
+
 let solver = {parse = parseEachLine asProgram >> Map.ofSeq; part1 = part1; part2 = getMissingWeight}

@@ -14,7 +14,7 @@ namespace AdventOfCode.CSharp.Tests
             string dayNumber = typeof(T).Name[3..];
             var solver = new T();
             ReadOnlySpan<char> file = File.ReadAllText($"input/{year}/day{dayNumber}.txt");
-            var soln = solver.Solve(file);
+            Solution soln = solver.Solve(file);
 
             Assert.Equal(part1, soln.Part1);
             Assert.Equal(part2, soln.Part2);
