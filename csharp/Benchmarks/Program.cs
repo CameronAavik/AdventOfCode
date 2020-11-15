@@ -1,15 +1,16 @@
-﻿using BenchmarkDotNet.Attributes;
-using BenchmarkDotNet.Running;
-using AdventOfCode.CSharp.Common;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using BenchmarkDotNet.Configs;
-using Perfolizer.Horology;
-using BenchmarkDotNet.Jobs;
-using BenchmarkDotNet.Columns;
-using BenchmarkDotNet.Reports;
+using System.Linq;
 using System.Reflection;
+using AdventOfCode.CSharp.Common;
+using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Configs;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Reports;
+using BenchmarkDotNet.Running;
+using Perfolizer.Horology;
 
 namespace AdventOfCode.CSharp.Benchmarks
 {
@@ -28,6 +29,8 @@ namespace AdventOfCode.CSharp.Benchmarks
 
         public static IEnumerable<Problem> Problems()
         {
+            // Uncomment to benchmark a specific problem
+            // yield return new Problem(2016, 3);
             for (int year = 2015; year <= 2019; year++)
             {
                 for (int day = 1; day <= 25; day++)
@@ -77,15 +80,21 @@ namespace AdventOfCode.CSharp.Benchmarks
         }
     }
 
-    class Program
+    public class Program
     {
-        private static readonly IConfig s_config = DefaultConfig.Instance
+        static void Main() => BenchmarkRunner.Run<Solvers>(Config);
+
+        private static IConfig Config => DefaultConfig.Instance
             .AddJob(Job.Default
                 .WithWarmupCount(1)
                 .WithIterationTime(TimeInterval.FromMilliseconds(250)))
-            .AddColumn(StatisticColumn.Median, StatisticColumn.Min, StatisticColumn.Max)
-            .WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Microsecond));
+            .WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Microsecond))
+            .ClearColumns()
+            .AddColumn(new CustomColumn("Year", ColumnCategory.Params, bench => GetProblemParam(bench).Year.ToString()))
+            .AddColumn(new CustomColumn("Day", ColumnCategory.Params, bench => GetProblemParam(bench).Day.ToString()))
+            .AddColumn(StatisticColumn.Mean);
 
-        static void Main() => BenchmarkRunner.Run<Solvers>(s_config);
+        private static Problem GetProblemParam(BenchmarkCase benchmark) =>
+            (Problem)benchmark.Parameters.Items.Single(i => i.Name == nameof(Solvers.Problem)).Value;
     }
 }

@@ -1,5 +1,4 @@
 using AdventOfCode.CSharp.Y2015.Solvers;
-using System;
 using Xunit;
 
 namespace AdventOfCode.CSharp.Tests
