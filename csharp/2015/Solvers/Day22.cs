@@ -68,8 +68,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 // Try use magic missile
                 if (state.Mana >= 53)
                 {
-                    var stateAfterPlayerTurn = state with { BossHP = Math.Max(state.BossHP - 4, 0), Mana = state.Mana - 53 };
-                    if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out var stateAfterBossTurn))
+                    GameState stateAfterPlayerTurn = state with { BossHP = Math.Max(state.BossHP - 4, 0), Mana = state.Mana - 53 };
+                    if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out GameState stateAfterBossTurn))
                     {
                         pq.EnqueueOrUpdate(stateAfterBossTurn, usedMana + 53);
                     }
@@ -78,14 +78,14 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 // Try use drain
                 if (state.Mana >= 73)
                 {
-                    var stateAfterPlayerTurn = state with
+                    GameState stateAfterPlayerTurn = state with
                     {
                         BossHP = Math.Max(state.BossHP - 2, 0),
                         PlayerHP = state.PlayerHP + 2,
                         Mana = state.Mana - 73
                     };
 
-                    if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out var stateAfterBossTurn))
+                    if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out GameState stateAfterBossTurn))
                     {
                         pq.EnqueueOrUpdate(stateAfterBossTurn, usedMana + 73);
                     }
@@ -94,8 +94,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 // Try use shield
                 if (state.Mana >= 113 & state.Shield == 0)
                 {
-                    var stateAfterPlayerTurn = state with { Shield = 6, Mana = state.Mana - 113 };
-                    if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out var stateAfterBossTurn))
+                    GameState stateAfterPlayerTurn = state with { Shield = 6, Mana = state.Mana - 113 };
+                    if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out GameState stateAfterBossTurn))
                     {
                         pq.EnqueueOrUpdate(stateAfterBossTurn, usedMana + 113);
                     }
@@ -104,8 +104,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 // Try use poison
                 if (state.Mana >= 173 & state.Poison == 0)
                 {
-                    var stateAfterPlayerTurn = state with { Poison = 6, Mana = state.Mana - 173 };
-                    if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out var stateAfterBossTurn))
+                    GameState stateAfterPlayerTurn = state with { Poison = 6, Mana = state.Mana - 173 };
+                    if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out GameState stateAfterBossTurn))
                     {
                         pq.EnqueueOrUpdate(stateAfterBossTurn, usedMana + 173);
                     }
@@ -114,22 +114,23 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 // Try use recharge
                 if (state.Mana >= 229 & state.Recharge == 0)
                 {
-                    var stateAfterPlayerTurn = state with { Recharge = 5, Mana = state.Mana - 229 };
-                    if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out var stateAfterBossTurn))
+                    GameState stateAfterPlayerTurn = state with { Recharge = 5, Mana = state.Mana - 229 };
+                    if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out GameState stateAfterBossTurn))
                     {
                         pq.EnqueueOrUpdate(stateAfterBossTurn, usedMana + 229);
                     }
                 }
             }
 
-            throw new Exception("Unable to beat the boss");
+            ThrowHelper.ThrowException("Unable to beat the boss");
+            return default;
         }
 
         private static void ParseInput(ReadOnlySpan<char> input, out int bossHp, out int bossDamage)
         {
             int firstNewlineIndex = input.IndexOf('\n');
-            bossHp = Int32.Parse(input[12..firstNewlineIndex]);
-            bossDamage = Int32.Parse(input[(firstNewlineIndex + 9)..]);
+            bossHp = int.Parse(input[12..firstNewlineIndex]);
+            bossDamage = int.Parse(input[(firstNewlineIndex + 9)..]);
         }
 
         private static bool SimulateBossTurn(GameState state, int bossDamage, out GameState newState)

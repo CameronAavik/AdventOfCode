@@ -12,7 +12,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             var peopleSet = new HashSet<string>();
             var happinesses = new Dictionary<(string A, string B), int>();
 
-            foreach (var line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.Split('\n'))
             {
                 ParseLine(line, out string personA, out string personB, out int happiness);
 
@@ -53,7 +53,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             int sign = line[firstSpaceIndex + 7] == 'g' ? 1 : -1;
             int happinessStartIndex = firstSpaceIndex + 12;
             int happinessLength = line[happinessStartIndex..].IndexOf(' ');
-            happiness = sign * Int32.Parse(line.Slice(happinessStartIndex, happinessLength));
+            happiness = sign * int.Parse(line.Slice(happinessStartIndex, happinessLength));
 
             int lastSpaceIndex = line.LastIndexOf(' ');
             personB = line[(lastSpaceIndex + 1)..^1].ToString();
@@ -67,8 +67,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 people[p] = p;
             }
 
-            int maxHappiness = Int32.MinValue;
-            foreach (var permutation in new PermutationIterator<int>(people))
+            int maxHappiness = int.MinValue;
+            foreach (Span<int> permutation in new PermutationIterator<int>(people))
             {
                 int totalHappiness = 0;
                 int prevPerson = permutation[^1];

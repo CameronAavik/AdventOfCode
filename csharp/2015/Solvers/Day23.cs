@@ -21,25 +21,25 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         public Solution Solve(ReadOnlySpan<char> input)
         {
             var instructions = new List<Instruction>();
-            foreach (var line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.Split('\n'))
             {
-                int ParseReg(ReadOnlySpan<char> line) => line[4] == 'a' ? 0 : 1;
+                static int ParseReg(ReadOnlySpan<char> line) => line[4] == 'a' ? 0 : 1;
 
-                var instruction = line[2] switch
+                Instruction instruction = line[2] switch
                 {
                     'f' => new Instruction(InstructionType.Half, ParseReg(line)),
                     'l' => new Instruction(InstructionType.Triple, ParseReg(line)),
                     'c' => new Instruction(InstructionType.Increment, ParseReg(line)),
-                    'p' => new Instruction(InstructionType.Jump, -1, Int32.Parse(line[4..])),
-                    'e' => new Instruction(InstructionType.JumpIfEven, ParseReg(line), Int32.Parse(line[7..])),
-                    'o' => new Instruction(InstructionType.JumpIfOne, ParseReg(line), Int32.Parse(line[7..])),
-                    _ => throw new Exception("Invalid instruction")
+                    'p' => new Instruction(InstructionType.Jump, -1, int.Parse(line[4..])),
+                    'e' => new Instruction(InstructionType.JumpIfEven, ParseReg(line), int.Parse(line[7..])),
+                    'o' => new Instruction(InstructionType.JumpIfOne, ParseReg(line), int.Parse(line[7..])),
+                    _ => default!
                 };
 
                 instructions.Add(instruction);
             }
 
-            var instructionArr = instructions.ToArray();
+            Instruction[] instructionArr = instructions.ToArray();
 
             int part1 = Simulate(instructionArr, 0);
             int part2 = Simulate(instructionArr, 1);
@@ -54,7 +54,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             int i = 0;
             while (i >= 0 && i < instructions.Length)
             {
-                var instruction = instructions[i];
+                Instruction instruction = instructions[i];
                 switch (instruction.Type)
                 {
                     case InstructionType.Half:

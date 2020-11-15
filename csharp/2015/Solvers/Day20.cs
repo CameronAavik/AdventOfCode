@@ -6,14 +6,14 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
     public class Day20 : ISolver
     {
         // first 10 primes, add more primes if needed?
-        private static readonly int[] Primes = new int[]
+        private static readonly int[] s_primes = new int[]
         {
             2, 3, 5, 7, 11, 13, 17, 19, 23, 29
         };
 
         public Solution Solve(ReadOnlySpan<char> input)
         {
-            int target = Int32.Parse(input);
+            int target = int.Parse(input);
             int part1 = SolvePart1(target);
             int part2 = SolvePart2(target);
             return new Solution(part1, part2);
@@ -27,12 +27,12 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 
             // essentially we are iterating through different combinations of prime factorisations
             // 
-            int best = Int32.MaxValue;
-            int[] counts = new int[Primes.Length];
-            int[] totals = new int[Primes.Length];
-            int[] muls = new int[Primes.Length];
+            int best = int.MaxValue;
+            int[] counts = new int[s_primes.Length];
+            int[] totals = new int[s_primes.Length];
+            int[] muls = new int[s_primes.Length];
 
-            for (int i = 0; i < Primes.Length; i++)
+            for (int i = 0; i < s_primes.Length; i++)
             {
                 totals[i] = 1;
                 muls[i] = 1;
@@ -41,11 +41,11 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             int cur = 0;
             int prod = 1;
             int mulProd = 1;
-            while(cur < Primes.Length)
+            while(cur < s_primes.Length)
             {
                 if (prod < target && mulProd < best)
                 {
-                    int prime = Primes[cur];
+                    int prime = s_primes[cur];
                     mulProd *= prime;
                     counts[cur]++;
                     muls[cur] *= prime;

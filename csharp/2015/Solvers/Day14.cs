@@ -10,6 +10,15 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 
         public class ReindeerState
         {
+            public ReindeerState(Reindeer data)
+            {
+                Data = data;
+                DistanceTraveled = 0;
+                Points = 0;
+                DurationLeft = data.FlyDuration;
+                IsFlying = true;
+            }
+
             public Reindeer Data { get; init; }
 
             public int DistanceTraveled { get; set; }
@@ -24,7 +33,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         public Solution Solve(ReadOnlySpan<char> input)
         {
             var reindeers = new List<Reindeer>();
-            foreach (var line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.Split('\n'))
             {
                 reindeers.Add(ParseLine(line));
             }
@@ -32,12 +41,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             var reindeerStates = new ReindeerState[reindeers.Count];
             for (int i = 0; i < reindeerStates.Length; i++)
             {
-                reindeerStates[i] = new ReindeerState
-                {
-                    Data = reindeers[i],
-                    DurationLeft = reindeers[i].FlyDuration,
-                    IsFlying = true
-                };
+                reindeerStates[i] = new ReindeerState(reindeers[i]);
             }
 
             for (int i = 0; i < 2503; i++)
@@ -45,13 +49,14 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 int furthestDistance = 0;
                 for (int j = 0; j < reindeerStates.Length; j++)
                 {
-                    var reindeerState = reindeerStates[j];
+                    ReindeerState reindeerState = reindeerStates[j];
                     if (reindeerState.IsFlying)
                     {
                         reindeerState.DistanceTraveled += reindeerState.Data.Speed;
                     }
 
-                    if (--reindeerState.DurationLeft == 0)
+                    int durationLeft = --reindeerState.DurationLeft;
+                    if (durationLeft == 0)
                     {
                         reindeerState.IsFlying = !reindeerState.IsFlying;
                         reindeerState.DurationLeft = reindeerState.IsFlying
@@ -74,7 +79,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             int maxDistance = 0;
             int maxPoints = 0;
 
-            foreach (var state in reindeerStates)
+            foreach (ReindeerState state in reindeerStates)
             {
                 maxDistance = Math.Max(state.DistanceTraveled, maxDistance);
                 maxPoints = Math.Max(state.Points, maxPoints);
@@ -95,13 +100,13 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 switch (tokenIndex++)
                 {
                     case 3:
-                        speed = Int32.Parse(token);
+                        speed = int.Parse(token);
                         break;
                     case 6:
-                        flyDuration = Int32.Parse(token);
+                        flyDuration = int.Parse(token);
                         break;
                     case 13:
-                        restDuration = Int32.Parse(token);
+                        restDuration = int.Parse(token);
                         break;
                 }
             }

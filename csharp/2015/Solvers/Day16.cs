@@ -27,13 +27,13 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             int sue2 = 0;
 
             int sue = 1;
-            foreach (var line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.Split('\n'))
             {
                 int tokenIndex = 0;
-                string itemName = String.Empty;
+                string itemName = string.Empty;
                 bool canBePart1 = true;
                 bool canBePart2 = true;
-                foreach (var token in line.Split(' '))
+                foreach (ReadOnlySpan<char> token in line.Split(' '))
                 {
                     if (tokenIndex % 2 == 0 && tokenIndex > 0)
                     {
@@ -43,7 +43,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                     {
                         if (items.TryGetValue(itemName, out int expectedCount))
                         {
-                            int count = Int32.Parse(token.TrimEnd(','));
+                            int count = int.Parse(token.TrimEnd(','));
 
                             bool isValidPart1 = count == expectedCount;
                             bool isValidPart2 = itemName switch

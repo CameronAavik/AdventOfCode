@@ -9,9 +9,9 @@ namespace AdventOfCode.CSharp.Y2019.Solvers
         {
             int part1 = 0;
             int part2 = 0;
-            foreach (var massStr in input.Split('\n'))
+            foreach (ReadOnlySpan<char> massStr in input.Split('\n'))
             {
-                int mass = Int32.Parse(massStr);
+                int mass = int.Parse(massStr);
                 int fuel = mass / 3 - 2;
                 part1 += fuel;
                 while (fuel > 0)

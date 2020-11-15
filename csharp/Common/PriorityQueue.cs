@@ -15,12 +15,9 @@ namespace AdventOfCode.CSharp.Common
     public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement Element, TPriority Priority)> where TElement : notnull
     {
         private const int DefaultCapacity = 4;
-
-        private readonly IComparer<TPriority> _priorityComparer;
         private readonly Dictionary<TElement, int> _index;
 
         private HeapEntry[] _heap;
-        private int _count;
         private int _version;
 
         #region Constructors
@@ -43,7 +40,7 @@ namespace AdventOfCode.CSharp.Common
         {
             if (initialCapacity < 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(initialCapacity));
+                ThrowHelper.ThrowArgumentOutOfRangeException(nameof(initialCapacity));
             }
 
             if (initialCapacity == 0)
@@ -56,7 +53,7 @@ namespace AdventOfCode.CSharp.Common
             }
 
             _index = new Dictionary<TElement, int>(initialCapacity, comparer: elementComparer);
-            _priorityComparer = priorityComparer ?? Comparer<TPriority>.Default;
+            Comparer = priorityComparer ?? Comparer<TPriority>.Default;
         }
 
         public PrioritySet(IEnumerable<(TElement Element, TPriority Priority)> values) : this(values, null, null)
@@ -66,24 +63,24 @@ namespace AdventOfCode.CSharp.Common
 
         public PrioritySet(IEnumerable<(TElement Element, TPriority Priority)> values, IComparer<TPriority>? comparer, IEqualityComparer<TElement>? elementComparer)
         {
-            _priorityComparer = comparer ?? Comparer<TPriority>.Default;
+            Comparer = comparer ?? Comparer<TPriority>.Default;
             _index = new Dictionary<TElement, int>(elementComparer);
             _heap = Array.Empty<HeapEntry>();
-            _count = 0;
+            Count = 0;
 
             AppendRaw(values);
             Heapify();
         }
         #endregion
 
-        public int Count => _count;
-        public IComparer<TPriority> Comparer => _priorityComparer;
+        public int Count { get; private set; }
+        public IComparer<TPriority> Comparer { get; }
 
         public void Enqueue(TElement element, TPriority priority)
         {
             if (_index.ContainsKey(element))
             {
-                throw new InvalidOperationException("Duplicate element");
+                ThrowHelper.ThrowInvalidOperationException("Duplicate element");
             }
 
             _version++;
@@ -92,9 +89,9 @@ namespace AdventOfCode.CSharp.Common
 
         public TElement Peek()
         {
-            if (_count == 0)
+            if (Count == 0)
             {
-                throw new InvalidOperationException("queue is empty");
+                ThrowHelper.ThrowInvalidOperationException("queue is empty");
             }
 
             return _heap[0].Element;
@@ -102,7 +99,7 @@ namespace AdventOfCode.CSharp.Common
 
         public bool TryPeek(out TElement element, out TPriority priority)
         {
-            if (_count == 0)
+            if (Count == 0)
             {
                 element = default!;
                 priority = default!;
@@ -115,9 +112,9 @@ namespace AdventOfCode.CSharp.Common
 
         public TElement Dequeue()
         {
-            if (_count == 0)
+            if (Count == 0)
             {
-                throw new InvalidOperationException("queue is empty");
+                ThrowHelper.ThrowInvalidOperationException("queue is empty");
             }
 
             _version++;
@@ -127,7 +124,7 @@ namespace AdventOfCode.CSharp.Common
 
         public bool TryDequeue(out TElement element, out TPriority priority)
         {
-            if (_count == 0)
+            if (Count == 0)
             {
                 element = default!;
                 priority = default!;
@@ -141,7 +138,7 @@ namespace AdventOfCode.CSharp.Common
 
         public TElement EnqueueDequeue(TElement element, TPriority priority)
         {
-            if (_count == 0)
+            if (Count == 0)
             {
                 return element;
             }
@@ -152,11 +149,11 @@ namespace AdventOfCode.CSharp.Common
                 // calling Enqueue(); Dequeue() operations sequentially.
                 // Might consider changing to a Dequeue(); Enqueue() equivalent
                 // which is more forgiving under certain scenaria.
-                throw new InvalidOperationException("Duplicate element");
+                ThrowHelper.ThrowInvalidOperationException("Duplicate element");
             }
 
             ref HeapEntry minEntry = ref _heap[0];
-            if (_priorityComparer.Compare(priority, minEntry.Priority) <= 0)
+            if (Comparer.Compare(priority, minEntry.Priority) <= 0)
             {
                 return element;
             }
@@ -172,15 +169,15 @@ namespace AdventOfCode.CSharp.Common
         public void Clear()
         {
             _version++;
-            if (_count > 0)
+            if (Count > 0)
             {
                 //if (RuntimeHelpers.IsReferenceOrContainsReferences<HeapEntry>())
                 {
-                    Array.Clear(_heap, 0, _count);
+                    Array.Clear(_heap, 0, Count);
                 }
 
                 _index.Clear();
-                _count = 0;
+                Count = 0;
             }
         }
 
@@ -194,7 +191,7 @@ namespace AdventOfCode.CSharp.Common
             }
 
             _version++;
-            RemoveIndex(index, out var _, out var _);
+            RemoveIndex(index, out TElement _, out TPriority _);
             return true;
         }
 
@@ -223,7 +220,7 @@ namespace AdventOfCode.CSharp.Common
             }
         }
 
-        public Enumerator GetEnumerator() => new Enumerator(this);
+        public Enumerator GetEnumerator() => new(this);
         IEnumerator<(TElement Element, TPriority Priority)> IEnumerable<(TElement Element, TPriority Priority)>.GetEnumerator() => new Enumerator(this);
         IEnumerator IEnumerable.GetEnumerator() => new Enumerator(this);
 
@@ -246,7 +243,7 @@ namespace AdventOfCode.CSharp.Common
             {
                 PrioritySet<TElement, TPriority> queue = _queue;
 
-                if (queue._version == _version && _index < queue._count)
+                if (queue._version == _version && _index < queue.Count)
                 {
                     ref HeapEntry entry = ref queue._heap[_index];
                     _current = (entry.Element, entry.Priority);
@@ -256,7 +253,7 @@ namespace AdventOfCode.CSharp.Common
 
                 if (queue._version != _version)
                 {
-                    throw new InvalidOperationException("collection was modified");
+                    ThrowHelper.ThrowInvalidOperationException("collection was modified");
                 }
 
                 return false;
@@ -269,7 +266,7 @@ namespace AdventOfCode.CSharp.Common
             {
                 if (_queue._version != _version)
                 {
-                    throw new InvalidOperationException("collection was modified");
+                    ThrowHelper.ThrowInvalidOperationException("collection was modified");
                 }
 
                 _index = 0;
@@ -287,7 +284,7 @@ namespace AdventOfCode.CSharp.Common
         {
             HeapEntry[] heap = _heap;
 
-            for (int i = (_count - 1) >> 2; i >= 0; i--)
+            for (int i = (Count - 1) >> 2; i >= 0; i--)
             {
                 HeapEntry entry = heap[i]; // ensure struct is copied before sifting
                 SiftDown(i, in entry.Element, in entry.Priority);
@@ -296,21 +293,21 @@ namespace AdventOfCode.CSharp.Common
 
         private void Insert(in TElement element, in TPriority priority)
         {
-            if (_count == _heap.Length)
+            if (Count == _heap.Length)
             {
-                Resize(ref _heap);
+                PrioritySet<TElement, TPriority>.Resize(ref _heap);
             }
 
-            SiftUp(index: _count++, in element, in priority);
+            SiftUp(index: Count++, in element, in priority);
         }
 
         private void RemoveIndex(int index, out TElement element, out TPriority priority)
         {
-            Debug.Assert(index < _count);
+            Debug.Assert(index < Count);
 
             (element, priority) = _heap[index];
 
-            int lastElementPos = --_count;
+            int lastElementPos = --Count;
             ref HeapEntry lastElement = ref _heap[lastElementPos];
 
             if (lastElementPos > 0)
@@ -332,7 +329,7 @@ namespace AdventOfCode.CSharp.Common
             TElement element;
             ref HeapEntry entry = ref _heap[index];
 
-            switch (_priorityComparer.Compare(newPriority, entry.Priority))
+            switch (Comparer.Compare(newPriority, entry.Priority))
             {
                 // priority is decreased, sift upward
                 case < 0:
@@ -355,20 +352,20 @@ namespace AdventOfCode.CSharp.Common
         private void AppendRaw(IEnumerable<(TElement Element, TPriority Priority)> values)
         {
             // TODO: specialize on ICollection types
-            var heap = _heap;
-            var index = _index;
-            int count = _count;
+            PrioritySet<TElement, TPriority>.HeapEntry[] heap = _heap;
+            Dictionary<TElement, int> index = _index;
+            int count = Count;
 
             foreach ((TElement element, TPriority priority) in values)
             {
                 if (count == heap.Length)
                 {
-                    Resize(ref heap);
+                    PrioritySet<TElement, TPriority>.Resize(ref heap);
                 }
 
                 if (!index.TryAdd(element, count))
                 {
-                    throw new ArgumentException("duplicate elements", nameof(values));
+                    ThrowHelper.ThrowArgumentException("duplicate elements", nameof(values));
                 }
 
                 ref HeapEntry entry = ref heap[count];
@@ -378,7 +375,7 @@ namespace AdventOfCode.CSharp.Common
             }
 
             _heap = heap;
-            _count = count;
+            Count = count;
         }
 
         private void SiftUp(int index, in TElement element, in TPriority priority)
@@ -388,7 +385,7 @@ namespace AdventOfCode.CSharp.Common
                 int parentIndex = (index - 1) >> 2;
                 ref HeapEntry parent = ref _heap[parentIndex];
 
-                if (_priorityComparer.Compare(parent.Priority, priority) <= 0)
+                if (Comparer.Compare(parent.Priority, priority) <= 0)
                 {
                     // parentPriority <= priority, heap property is satisfed
                     break;
@@ -408,7 +405,7 @@ namespace AdventOfCode.CSharp.Common
         private void SiftDown(int index, in TElement element, in TPriority priority)
         {
             int minChildIndex;
-            int count = _count;
+            int count = Count;
             HeapEntry[] heap = _heap;
 
             while ((minChildIndex = (index << 2) + 1) < count)
@@ -420,7 +417,7 @@ namespace AdventOfCode.CSharp.Common
                 for (int nextChildIndex = minChildIndex + 1; nextChildIndex < childUpperBound; nextChildIndex++)
                 {
                     ref HeapEntry nextChild = ref heap[nextChildIndex];
-                    if (_priorityComparer.Compare(nextChild.Priority, minChild.Priority) < 0)
+                    if (Comparer.Compare(nextChild.Priority, minChild.Priority) < 0)
                     {
                         minChildIndex = nextChildIndex;
                         minChild = ref nextChild;
@@ -428,7 +425,7 @@ namespace AdventOfCode.CSharp.Common
                 }
 
                 // compare with inserted priority
-                if (_priorityComparer.Compare(priority, minChild.Priority) <= 0)
+                if (Comparer.Compare(priority, minChild.Priority) <= 0)
                 {
                     // priority <= childPriority, heap property is satisfied
                     break;
@@ -445,7 +442,7 @@ namespace AdventOfCode.CSharp.Common
             _index[element] = index;
         }
 
-        private void Resize(ref HeapEntry[] heap)
+        private static void Resize(ref HeapEntry[] heap)
         {
             int newSize = heap.Length == 0 ? DefaultCapacity : 2 * heap.Length;
             Array.Resize(ref heap, newSize);
@@ -466,17 +463,17 @@ namespace AdventOfCode.CSharp.Common
 #if DEBUG
         public void ValidateInternalState()
         {
-            if (_heap.Length < _count)
+            if (_heap.Length < Count)
             {
                 throw new Exception("invalid elements array length");
             }
 
-            if (_index.Count != _count)
+            if (_index.Count != Count)
             {
                 throw new Exception("Invalid heap index count");
             }
 
-            foreach ((var element, var idx) in _heap.Select((x, i) => (x.Element, i)).Skip(_count))
+            foreach ((var element, var idx) in _heap.Select((x, i) => (x.Element, i)).Skip(Count))
             {
                 if (!IsDefault(element))
                 {
@@ -484,7 +481,7 @@ namespace AdventOfCode.CSharp.Common
                 }
             }
 
-            foreach ((var priority, var idx) in _heap.Select((x, i) => (x.Priority, i)).Skip(_count))
+            foreach ((var priority, var idx) in _heap.Select((x, i) => (x.Priority, i)).Skip(Count))
             {
                 if (!IsDefault(priority))
                 {

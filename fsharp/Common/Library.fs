@@ -8,7 +8,7 @@ open System.Collections.Generic
 // This is a set of methods that I found myself using many times in my solutions
 module Common =
     // Every day has a corresponding Day record which defines how to parse the file
-    // then two functions for soving each part respectively
+    // then two functions for solving each part respectively
     type Day<'a, 'b, 'c> = { parse: string -> 'a; part1: 'a -> 'b; part2: 'a -> 'c }
 
     // helper methods for parsing

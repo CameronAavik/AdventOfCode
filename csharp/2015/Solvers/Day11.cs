@@ -7,8 +7,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {
-            var part1 = GetNextPassword(input);
-            var part2 = GetNextPassword(part1);
+            ReadOnlySpan<char> part1 = GetNextPassword(input);
+            ReadOnlySpan<char> part2 = GetNextPassword(part1);
             return new Solution(part1.ToString(), part2.ToString());
         }
 

@@ -20,14 +20,14 @@ namespace AdventOfCode.CSharp.Y2018.Solvers
             int freqIndex = 0;
             int freqTotal = 0;
             var freqs = new List<Frequency>();
-            foreach (var freqChange in input.Split('\n'))
+            foreach (ReadOnlySpan<char> freqChange in input.Split('\n'))
             {
                 freqs.Add(new Frequency { Value = freqTotal, Index = freqIndex });
                 freqIndex++;
-                freqTotal += Int32.Parse(freqChange);
+                freqTotal += int.Parse(freqChange);
             }
 
-            foreach (var freq in freqs)
+            foreach (Frequency freq in freqs)
             {
                 int mod = freq.Value % freqTotal;
                 freq.ModTotal = mod < 0 ? mod + freqTotal : mod;
@@ -39,10 +39,10 @@ namespace AdventOfCode.CSharp.Y2018.Solvers
                 : a.Value.CompareTo(b.Value));
 
             var prev = new Frequency { ModTotal = -1 };
-            int minDiff = Int32.MaxValue;
-            int minIndex = Int32.MaxValue;
+            int minDiff = int.MaxValue;
+            int minIndex = int.MaxValue;
             int minFreq = 0;
-            foreach (var freq in freqs)
+            foreach (Frequency freq in freqs)
             {
                 if (freq.ModTotal == prev.ModTotal)
                 {

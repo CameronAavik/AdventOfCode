@@ -23,9 +23,12 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 
         private static void RunSanta(ReadOnlySpan<char> moves, HashSet<uint> seen, int start, int step)
         {
+            const int unitX = 1 << 16;
+            const int unitY = 1;
+
             // get starting coordinates 
-            uint x = UInt16.MaxValue / 2;
-            uint y = UInt16.MaxValue / 2;
+            uint x = ushort.MaxValue / 2;
+            uint y = ushort.MaxValue / 2;
 
             // pack them into a single uint
             uint encodedPos = x << 16 | y;
@@ -36,16 +39,16 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 switch (moves[i])
                 {
                     case '^':
-                        encodedPos += 1;
+                        encodedPos += unitY;
                         break;
                     case 'v':
-                        encodedPos -= 1;
+                        encodedPos -= unitY;
                         break;
                     case '>':
-                        encodedPos += 1 << 16;
+                        encodedPos += unitX;
                         break;
                     case '<':
-                        encodedPos -= 1 << 16;
+                        encodedPos -= unitX;
                         break;
                 }
 

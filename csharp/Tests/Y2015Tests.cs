@@ -30,6 +30,6 @@ namespace AdventOfCode.CSharp.Tests
         [Fact] public void Day22() => TestHelpers.AssertDay<Day22>("953", "1289");
         [Fact] public void Day23() => TestHelpers.AssertDay<Day23>("184", "231");
         [Fact] public void Day24() => TestHelpers.AssertDay<Day24>("10439961859", "72050269");
-        [Fact] public void Day25() => TestHelpers.AssertDay<Day25>("8997277", String.Empty);
+        [Fact] public void Day25() => TestHelpers.AssertDay<Day25>("8997277", string.Empty);
     }
 }

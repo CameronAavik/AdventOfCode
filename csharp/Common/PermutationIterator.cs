@@ -12,10 +12,10 @@ namespace AdventOfCode.CSharp.Common
 
         public PermutationIterator(Span<T> span)
         {
-            this.Current = span;
-            this.HasMadeFirstMove = false;
-            this.StackPointer = 0;
-            this.Stack = new int[span.Length];
+            Current = span;
+            HasMadeFirstMove = false;
+            StackPointer = 0;
+            Stack = new int[span.Length];
         }
 
         public PermutationIterator<T> GetEnumerator() => this;

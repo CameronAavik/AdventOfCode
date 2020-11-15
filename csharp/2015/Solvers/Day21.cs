@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
     {
         public record Equipment(int Cost, int Damage, int Armor);
 
-        private static readonly Equipment[] Weapons = new Equipment[]
+        private static readonly Equipment[] s_weapons = new Equipment[]
         {
             new(8, 4, 0),
             new(10, 5, 0),
@@ -16,7 +16,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             new(74, 8, 0)
         };
 
-        private static readonly Equipment[] Armor = new Equipment[]
+        private static readonly Equipment[] s_armor = new Equipment[]
         {
             new(0, 0, 0),
             new(13, 0, 1),
@@ -26,7 +26,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             new(102, 0, 5)
         };
 
-        private static readonly Equipment[] Rings = new Equipment[]
+        private static readonly Equipment[] s_rings = new Equipment[]
         {
             new(0, 0, 0),
             new(25, 1, 0),
@@ -41,17 +41,17 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         {
             ParseInput(input, out int bossHp, out int bossDamage, out int bossArmor);
 
-            int cheapestWin = Int32.MaxValue;
-            int mostExpensiveLoss = Int32.MinValue;
+            int cheapestWin = int.MaxValue;
+            int mostExpensiveLoss = int.MinValue;
 
-            foreach (Equipment weapon in Weapons)
+            foreach (Equipment weapon in s_weapons)
             {
-                foreach (Equipment armor in Armor)
+                foreach (Equipment armor in s_armor)
                 {
-                    for (int ring1Index = 0; ring1Index < Rings.Length; ring1Index++)
+                    for (int ring1Index = 0; ring1Index < s_rings.Length; ring1Index++)
                     {
-                        Equipment ring1 = Rings[ring1Index];
-                        for (int ring2Index = ring1Index; ring2Index < Rings.Length; ring2Index++)
+                        Equipment ring1 = s_rings[ring1Index];
+                        for (int ring2Index = ring1Index; ring2Index < s_rings.Length; ring2Index++)
                         {
                             // can't pick same ring twice, except for no ring
                             if (ring1Index == ring2Index && ring1Index > 0)
@@ -59,7 +59,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                                 continue;
                             }
 
-                            Equipment purchase = Purchase(weapon, armor, ring1, Rings[ring2Index]);
+                            Equipment purchase = Purchase(weapon, armor, ring1, s_rings[ring2Index]);
                             if (DoesPlayerWin(purchase, bossHp, bossDamage, bossArmor))
                             {
                                 cheapestWin = Math.Min(purchase.Cost, cheapestWin);
@@ -80,9 +80,9 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         {
             int firstNewlineIndex = input.IndexOf('\n');
             int secondNewLineIndex = input.LastIndexOf('\n');
-            bossHp = Int32.Parse(input[12..firstNewlineIndex]);
-            bossDamage = Int32.Parse(input[(firstNewlineIndex + 9)..secondNewLineIndex]);
-            bossArmor = Int32.Parse(input[(secondNewLineIndex + 8)..]);
+            bossHp = int.Parse(input[12..firstNewlineIndex]);
+            bossDamage = int.Parse(input[(firstNewlineIndex + 9)..secondNewLineIndex]);
+            bossArmor = int.Parse(input[(secondNewLineIndex + 8)..]);
         }
 
         private static Equipment Purchase(Equipment weapon, Equipment armor, Equipment ring1, Equipment ring2)

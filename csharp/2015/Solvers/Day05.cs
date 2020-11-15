@@ -10,7 +10,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             int part1 = 0;
             int part2 = 0;
 
-            foreach (var line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.Split('\n'))
             {
                 int numVowels = 0;
                 bool containsPair = false;
@@ -78,7 +78,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 
                 if (containsRepeatPair && containsPalindromicTriple)
                 {
-                    part2 ++;
+                    part2++;
                 }
             }
 

@@ -12,16 +12,16 @@ namespace AdventOfCode.CSharp.Y2017.Solvers
             int part2 = 0;
 
             var nums = new List<int>();
-            foreach (var row in input.Split('\n'))
+            foreach (ReadOnlySpan<char> row in input.Split('\n'))
             {
-                int minValue = Int32.MaxValue;
-                int maxValue = Int32.MinValue;
+                int minValue = int.MaxValue;
+                int maxValue = int.MinValue;
                 int quotient = 0;
 
                 nums.Clear();
-                foreach (var cellStr in row.Split('\t'))
+                foreach (ReadOnlySpan<char> cellStr in row.Split('\t'))
                 {
-                    int cell = Int32.Parse(cellStr);
+                    int cell = int.Parse(cellStr);
                     minValue = Math.Min(minValue, cell);
                     maxValue = Math.Max(maxValue, cell);
 

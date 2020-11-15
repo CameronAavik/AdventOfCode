@@ -8,15 +8,15 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
     {
         public record Element(int MinContainers, int AllCount, int MinimizedCount)
         {
-            public static Element Zero = new Element(0, 0, 0);
+            public static readonly Element Zero = new(0, 0, 0);
         }
 
         public Solution Solve(ReadOnlySpan<char> input)
         {
             var sizes = new List<int>();
-            foreach (var size in input.Split('\n'))
+            foreach (ReadOnlySpan<char> size in input.Split('\n'))
             {
-                sizes.Add(Int32.Parse(size));
+                sizes.Add(int.Parse(size));
             }
 
             var M = new Element[151, sizes.Count];
@@ -68,7 +68,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 }
             }
 
-            var solution = M[150, sizes.Count - 1];
+            Element solution = M[150, sizes.Count - 1];
             return new Solution(part1: solution.AllCount, part2: solution.MinimizedCount);
 
         }

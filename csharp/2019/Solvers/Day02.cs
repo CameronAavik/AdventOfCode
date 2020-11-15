@@ -8,7 +8,7 @@ namespace AdventOfCode.CSharp.Y2019.Solvers
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {
-            var intCode = IntCode.ParseFromInput(input);
+            ReadOnlySpan<int> intCode = IntCode.ParseFromInput(input);
             int[] memory = intCode.ToArray();
 
             int part1 = Run(memory, 12, 2);
@@ -28,7 +28,8 @@ namespace AdventOfCode.CSharp.Y2019.Solvers
                 }
             }
 
-            throw new Exception("Unable to find solution for part 2");
+            ThrowHelper.ThrowException("Unable to find solution for part 2");
+            return default;
         }
 
         private static int Run(int[] memory, int noun, int verb)

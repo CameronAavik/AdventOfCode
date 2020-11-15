@@ -11,7 +11,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             var elements = new Dictionary<string, int>();
             var replacements = new List<List<List<int>>>(); // replacements[element][replacement][replacementElement]
 
-            foreach (var line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.Split('\n'))
             {
                 if (line.Length == 0)
                 {
@@ -20,7 +20,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 
                 int lhsLen = line[1] == ' ' ? 1 : 2;
                 string lhs = line[0..lhsLen].ToString();
-                var rhs = line[(lhsLen + 4)..];
+                ReadOnlySpan<char> rhs = line[(lhsLen + 4)..];
 
                 List<int> replacement = ParseMolecule(elements, replacements, rhs);
                 if (!elements.TryGetValue(lhs, out int lhsIndex))
@@ -35,8 +35,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 }
             }
 
-            var moleculeSpan = input[(input.LastIndexOf('\n') + 1)..];
-            var molecule = ParseMolecule(elements, replacements, moleculeSpan);
+            ReadOnlySpan<char> moleculeSpan = input[(input.LastIndexOf('\n') + 1)..];
+            List<int>? molecule = ParseMolecule(elements, replacements, moleculeSpan);
 
             int part1 = SolvePart1(replacements, molecule);
             int part2 = SolvePart2(elements, molecule);
@@ -54,7 +54,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             while (i < moleculeSpan.Length)
             {
                 string element;
-                if (i == moleculeSpan.Length - 1 || Char.IsUpper(moleculeSpan[i + 1]))
+                if (i == moleculeSpan.Length - 1 || char.IsUpper(moleculeSpan[i + 1]))
                 {
                     element = moleculeSpan[i].ToString();
                     i++;
@@ -98,7 +98,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 
                 // for each replacement for the current molecule, see if rep1 + next == cur + rep2
                 // if it is possible, don't count it.
-                foreach (var rep1 in replacements[cur])
+                foreach (List<int>? rep1 in replacements[cur])
                 {
                     if (rep1[0] != cur)
                     {
@@ -107,7 +107,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                     }
 
                     bool shouldCount = true;
-                    foreach (var rep2 in replacements[next])
+                    foreach (List<int> rep2 in replacements[next])
                     {
                         if (rep1.Count == rep2.Count && rep2[^1] == next)
                         {

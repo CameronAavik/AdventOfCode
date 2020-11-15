@@ -9,7 +9,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         public Solution Solve(ReadOnlySpan<char> input)
         {
             var rules = new Dictionary<string, string>();
-            foreach (var line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.Split('\n'))
             {
                 int lastSpaceIndex = line.LastIndexOf(' ');
                 string variableName = line[(lastSpaceIndex + 1)..].ToString();
@@ -28,8 +28,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 
             ushort GetValue(string variableName)
             {
-                ushort value;
-                if (UInt16.TryParse(variableName, out value))
+                if (ushort.TryParse(variableName, out ushort value))
                 {
                     return value;
                 }
@@ -57,7 +56,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                         'A' => leftVal & GetValue(rule[(firstSpaceIndex + 5)..]),
                         'O' => leftVal | GetValue(rule[(firstSpaceIndex + 4)..]),
                         'R' => leftVal >> GetValue(rule[(firstSpaceIndex + 8)..]),
-                        'L' => leftVal << GetValue(rule[(firstSpaceIndex + 8)..])
+                        'L' => leftVal << GetValue(rule[(firstSpaceIndex + 8)..]),
+                        _ => 0,
                     });
                 }
 

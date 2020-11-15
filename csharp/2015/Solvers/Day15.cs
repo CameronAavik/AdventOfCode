@@ -11,21 +11,21 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         {
             var ingredients = new Ingredient[4];
             int ingredientIndex = 0;
-            foreach (var line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.Split('\n'))
             {
                 int[] qualities = new int[4];
                 int calories = 0;
                 int i = 0;
                 int qualityIndex = 0;
-                foreach (var token in line.Split(' '))
+                foreach (ReadOnlySpan<char> token in line.Split(' '))
                 {
                     switch (i++)
                     {
                         case 2 or 4 or 6 or 8:
-                            qualities[qualityIndex++] = Int32.Parse(token[..^1]);
+                            qualities[qualityIndex++] = int.Parse(token[..^1]);
                             break;
                         case 10:
-                            calories = Int32.Parse(token);
+                            calories = int.Parse(token);
                             break;
                     }
                 }

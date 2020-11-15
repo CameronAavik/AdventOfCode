@@ -6,28 +6,33 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
 {
     public class Day01 : ISolver
     {
+        private const uint Up = 1;
+        private const uint Down = unchecked((uint)-Up);
+        private const uint Right = 1 << 16;
+        private const uint Left = unchecked((uint)-Right);
+
         public Solution Solve(ReadOnlySpan<char> input)
         {
-            // -x = left, +x = right
-            // -y = down, +y = up
-            var pos = new Vec2 { X = 0, Y = 0 };
-            var dir = new Vec2 { X = 0, Y = 1 };
+            // assume the origin is at 1 << 15, 1 << 15
+            const ushort xOrigin = 1 << 15;
+            const ushort yOrigin = 1 << 15;
 
-            var seenLocations = new HashSet<Vec2> { pos };
+            // pack the x and y ushorts into a uint
+            uint pos = unchecked((uint)xOrigin << 16 | yOrigin);
+            uint dir = Up;
+
+            var seenLocations = new HashSet<uint> { pos };
             int distanceToFirstRepeatedLocation = -1;
-
             foreach (ReadOnlySpan<char> instruction in input.Split(", "))
             {
-                dir = instruction[0] == 'L' 
-                    ? new Vec2 { X = -dir.Y, Y = dir.X }
-                    : new Vec2 { X = dir.Y, Y = -dir.X };
+                dir = MakeTurn(dir, instruction[0] == 'L');
 
-                int distance = Int32.Parse(instruction[1..]);
+                uint distance = uint.Parse(instruction[1..]);
                 if (distanceToFirstRepeatedLocation == -1)
                 {
-                    for (int i = 0; i < distance; i++)
+                    for (uint i = 0; i < distance; i++)
                     {
-                        pos += dir;
+                        pos = unchecked(pos + dir);
                         if (!seenLocations.Add(pos))
                         {
                             distanceToFirstRepeatedLocation = ManhattanDistance(pos);
@@ -36,7 +41,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                 }
                 else
                 {
-                    pos += dir * distance;
+                    pos = unchecked(pos + dir * distance);
                 }
             }
 
@@ -45,8 +50,22 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             return new Solution(
                 part1: distanceToDestination,
                 part2: distanceToFirstRepeatedLocation);
-        }
 
-        private static int ManhattanDistance(Vec2 vec) => Math.Abs(vec.X) + Math.Abs(vec.Y);
+            static uint MakeTurn(uint dir, bool isLeft) => dir switch
+            {
+                Left => isLeft ? Down : Up,
+                Down => isLeft ? Right : Left,
+                Right => isLeft ? Up : Down,
+                Up => isLeft ? Left : Right,
+                _ => default,
+            };
+
+            static int ManhattanDistance(uint pos)
+            {
+                int xAbs = Math.Abs((int)(pos >> 16) - xOrigin);
+                int yAbs = Math.Abs((int)(pos & 0xFFFF) - yOrigin);
+                return xAbs + yAbs;
+            }
+        }
     }
 }

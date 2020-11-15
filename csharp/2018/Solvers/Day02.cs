@@ -69,7 +69,7 @@ namespace AdventOfCode.CSharp.Y2018.Solvers
             for (int i = 0; i < halfHashes.Length; i++)
             {
                 int offset = i * lineLength;
-                int hash = String.GetHashCode(input.Slice(offset, halfLength));
+                int hash = string.GetHashCode(input.Slice(offset, halfLength));
                 halfHashes[i] = (hash, offset);
             }
 
@@ -84,7 +84,7 @@ namespace AdventOfCode.CSharp.Y2018.Solvers
             for (int i = 0; i < halfHashes.Length; i++)
             {
                 int offset = i * lineLength;
-                int hash = String.GetHashCode(input.Slice(offset + halfLength, halfLength));
+                int hash = string.GetHashCode(input.Slice(offset + halfLength, halfLength));
                 halfHashes[i] = (hash, offset);
             }
 
@@ -110,18 +110,17 @@ namespace AdventOfCode.CSharp.Y2018.Solvers
             int curHash = halfHashes[0].Hash;
             for (int i = 1; i < halfHashes.Length; i++)
             {
-                var hashData = halfHashes[i];
-                int hash = hashData.Hash;
-                if (hash == curHash)
+                (int Hash, int Offset) = halfHashes[i];
+                if (Hash == curHash)
                 {
-                    var curSpan = input.Slice(hashData.Offset, idLength);
+                    ReadOnlySpan<char> curSpan = input.Slice(Offset, idLength);
                     for (int j = hashStartIndex; j < i; j++)
                     {
-                        var otherSpan = input.Slice(halfHashes[j].Offset, idLength);
+                        ReadOnlySpan<char> otherSpan = input.Slice(halfHashes[j].Offset, idLength);
                         int diffIndex = GetIndexOfDifferentChar(curSpan, otherSpan);
                         if (diffIndex >= 0)
                         {
-                            answer = String.Concat(curSpan.Slice(0, diffIndex), otherSpan.Slice(diffIndex + 1));
+                            answer = string.Concat(curSpan.Slice(0, diffIndex), otherSpan.Slice(diffIndex + 1));
                             return true;
                         }
                     }
@@ -129,7 +128,7 @@ namespace AdventOfCode.CSharp.Y2018.Solvers
                 else
                 {
                     hashStartIndex = i;
-                    curHash = hash;
+                    curHash = Hash;
                 }
             }
 

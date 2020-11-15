@@ -4,6 +4,12 @@ using AdventOfCode.CSharp.Common;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using BenchmarkDotNet.Configs;
+using Perfolizer.Horology;
+using BenchmarkDotNet.Jobs;
+using BenchmarkDotNet.Columns;
+using BenchmarkDotNet.Reports;
+using System.Reflection;
 
 namespace AdventOfCode.CSharp.Benchmarks
 {
@@ -12,43 +18,42 @@ namespace AdventOfCode.CSharp.Benchmarks
         public override string? ToString() => $"{Year}.{Day:D2}";
     }
 
-    //[MemoryDiagnoser]
     public class Solvers
     {
         [ParamsSource(nameof(Problems))]
         public Problem Problem = default!;
 
-        private ISolver solver = default!;
-        private ReadOnlyMemory<char> fileBytes = default!;
+        private ISolver _solver = default!;
+        private ReadOnlyMemory<char> _fileBytes = default!;
 
         public static IEnumerable<Problem> Problems()
         {
-            //yield return new Problem(2015, 25);
-            for (int year = 2015; year <= 2019; year++)
-            {
-                for (int day = 1; day <= 25; day++)
-                {
-                    if (GetSolverType(year, day) != null)
-                    {
-                        yield return new Problem(year, day);
-                    }
-                }
-            }
+            yield return new Problem(2016, 1);
+            //for (int year = 2015; year <= 2019; year++)
+            //{
+            //    for (int day = 1; day <= 25; day++)
+            //    {
+            //        if (GetSolverType(year, day) != null)
+            //        {
+            //            yield return new Problem(year, day);
+            //        }
+            //    }
+            //}
         }
 
         [GlobalSetup]
         public void GlobalSetup()
         {
-            solver = (ISolver)Activator.CreateInstance(GetSolverType(Problem.Year, Problem.Day)!)!;
-            fileBytes = File.ReadAllText($"input/{Problem.Year}/day{Problem.Day:D2}.txt").AsMemory();
+            _solver = (ISolver)Activator.CreateInstance(GetSolverType(Problem.Year, Problem.Day)!)!;
+            _fileBytes = File.ReadAllText($"input/{Problem.Year}/day{Problem.Day:D2}.txt").AsMemory();
         }
 
         [Benchmark]
-        public Solution Solve() => solver.Solve(fileBytes.Span);
+        public Solution Solve() => _solver.Solve(_fileBytes.Span);
 
         private static Type? GetSolverType(int year, int day)
         {
-            var assembly = year switch
+            Assembly? assembly = year switch
             {
                 2015 => typeof(Y2015.Solvers.Day01).Assembly,
                 2016 => typeof(Y2016.Solvers.Day01).Assembly,
@@ -75,6 +80,13 @@ namespace AdventOfCode.CSharp.Benchmarks
 
     class Program
     {
-        static void Main() => BenchmarkRunner.Run<Solvers>();
+        private static readonly IConfig s_config = DefaultConfig.Instance
+            .AddJob(Job.Default
+                .WithWarmupCount(1)
+                .WithIterationTime(TimeInterval.FromMilliseconds(250)))
+            .AddColumn(StatisticColumn.Median, StatisticColumn.Min, StatisticColumn.Max)
+            .WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Microsecond));
+
+        static void Main() => BenchmarkRunner.Run<Solvers>(s_config);
     }
 }

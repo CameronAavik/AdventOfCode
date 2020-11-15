@@ -44,8 +44,9 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                     inputBuffer[i] = zeroByte;
                 }
 
-                int end = n * 10;
-                while (n < end)
+                // n will already be initialised at the correct value
+                int nEnd = n * 10;
+                for (; n < nEnd; n++)
                 {
                     _ = provider.TryComputeHash(inputBuffer, resultBuffer, out _);
                     if (resultBuffer[0] == 0 && resultBuffer[1] == 0)
@@ -78,8 +79,6 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                             break;
                         }
                     }
-
-                    n++;
                 }
 
                 extraBytes++;
