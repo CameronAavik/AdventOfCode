@@ -10,11 +10,16 @@ root = true
 indent_style = space
 indent_size = 4
 trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.txt]
+insert_final_newline = false
+trim_trailing_whitespace = false
+end_of_line = lf
 
 # C# files
 [*.cs]
 # New line preferences
-insert_final_newline = true
 csharp_new_line_before_open_brace = all
 csharp_new_line_before_else = true
 csharp_new_line_before_catch = true
@@ -179,7 +184,7 @@ indent_size = 2
 indent_size = 2
 
 # Shell scripts
-[*.{sh,txt}]
+[*.sh]
 end_of_line = lf
 
 [*.{cmd, bat}]
