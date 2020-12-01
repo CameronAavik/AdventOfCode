@@ -22,6 +22,8 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 numbers[length++] = num;
             }
 
+            Array.Sort(numbers, 0, length);
+
             int part1 = -1;
             int part2 = -1;
             for (int i = 0; i < length; i++)
@@ -31,13 +33,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 for (int j = i + 1; j < length; j++)
                 {
                     int b = numbers[j];
-                    if (b == part1B)
-                    {
-                        part1 = a * b;
-                        if (part2 >= 0)
-                            return new Solution(part1, part2);
-                    }
-                    else if (b < part1B)
+                    if (b < part1B)
                     {
                         int c = part1B - b;
                         if (numberSet[c] == 1)
@@ -46,6 +42,16 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                             if (part1 >= 0)
                                 return new Solution(part1, part2);
                         }
+                    }
+                    else if (b == part1B)
+                    {
+                        part1 = a * b;
+                        if (part2 >= 0)
+                            return new Solution(part1, part2);
+                    }
+                    else
+                    {
+                        break;
                     }
                 }
             }
