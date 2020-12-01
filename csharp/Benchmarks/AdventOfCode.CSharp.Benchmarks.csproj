@@ -18,6 +18,7 @@
     <ProjectReference Include="..\2017\AdventOfCode.CSharp.2017.csproj" />
     <ProjectReference Include="..\2018\AdventOfCode.CSharp.2018.csproj" />
     <ProjectReference Include="..\2019\AdventOfCode.CSharp.2019.csproj" />
+    <ProjectReference Include="..\2020\AdventOfCode.CSharp.2020.csproj" />
   </ItemGroup>
 
 </Project>

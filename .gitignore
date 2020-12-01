@@ -4,3 +4,6 @@ obj
 packages
 BenchmarkDotNet.Artifacts
 *.csproj.user
+.ionide
+.fake
+.vscode

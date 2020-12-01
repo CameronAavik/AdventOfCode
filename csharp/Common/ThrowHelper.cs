@@ -24,8 +24,5 @@ namespace AdventOfCode.CSharp.Common
         [MethodImpl(MethodImplOptions.NoInlining)]
         [DoesNotReturn]
         public static void ThrowInvalidOperationException(string message) => throw new InvalidOperationException(message);
-
-
-
     }
 }

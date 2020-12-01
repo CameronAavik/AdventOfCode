@@ -30,8 +30,8 @@ namespace AdventOfCode.CSharp.Benchmarks
         public static IEnumerable<Problem> Problems()
         {
             // Uncomment to benchmark a specific problem
-            //yield return new Problem(2016, 4);
-            for (int year = 2015; year <= 2019; year++)
+            //yield return new Problem(2020, 1);
+            for (int year = 2015; year <= 2020; year++)
             {
                 for (int day = 1; day <= 25; day++)
                 {
@@ -62,6 +62,7 @@ namespace AdventOfCode.CSharp.Benchmarks
                 2017 => typeof(Y2017.Solvers.Day01).Assembly,
                 2018 => typeof(Y2018.Solvers.Day01).Assembly,
                 2019 => typeof(Y2019.Solvers.Day01).Assembly,
+                2020 => typeof(Y2020.Solvers.Day01).Assembly,
                 _ => null
             };
 
