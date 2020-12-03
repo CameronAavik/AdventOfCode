@@ -11,7 +11,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             var elements = new Dictionary<string, int>();
             var replacements = new List<List<List<int>>>(); // replacements[element][replacement][replacementElement]
 
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 if (line.Length == 0)
                 {

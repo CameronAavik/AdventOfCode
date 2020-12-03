@@ -10,7 +10,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             int part1 = 0;
             int part2 = 0;
 
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 part1 += GetPart1Length(line);
                 part2 += GetPart2Length(line);

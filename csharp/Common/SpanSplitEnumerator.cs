@@ -41,24 +41,6 @@ namespace AdventOfCode.CSharp.Common
                 return true;
             }
 
-            public bool TryRead(out ReadOnlySpan<T> read)
-            {
-                if (MoveNext())
-                {
-                    read = Current;
-                    return true;
-                }
-
-                read = default;
-                return false;
-            }
-
-            public ReadOnlySpan<T> Read()
-            {
-                _ = MoveNext();
-                return Current;
-            }
-
             public ReadOnlySpan<T> Current { get; private set; }
         }
     }

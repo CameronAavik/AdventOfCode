@@ -21,7 +21,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         public Solution Solve(ReadOnlySpan<char> input)
         {
             var instructions = new List<Instruction>();
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 static int ParseReg(ReadOnlySpan<char> line) => line[4] == 'a' ? 0 : 1;
 

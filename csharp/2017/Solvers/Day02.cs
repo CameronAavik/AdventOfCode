@@ -12,7 +12,7 @@ namespace AdventOfCode.CSharp.Y2017.Solvers
             int part2 = 0;
 
             var nums = new List<int>();
-            foreach (ReadOnlySpan<char> row in input.Split('\n'))
+            foreach (ReadOnlySpan<char> row in input.SplitLines())
             {
                 int minValue = int.MaxValue;
                 int maxValue = int.MinValue;

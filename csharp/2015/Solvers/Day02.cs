@@ -11,7 +11,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             int part1 = 0;
             int part2 = 0;
 
-            foreach (ReadOnlySpan<char> present in input.Split('\n'))
+            foreach (ReadOnlySpan<char> present in input.SplitLines())
             {
                 ParseDimensionString(present, out int side0, out int side1, out int side2);
 

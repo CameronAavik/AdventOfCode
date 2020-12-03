@@ -11,7 +11,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         {
             var weightList = new List<int>();
             int totalWeight = 0;
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 int weight = int.Parse(line);
                 weightList.Add(weight);

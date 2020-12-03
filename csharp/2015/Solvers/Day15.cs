@@ -11,7 +11,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         {
             var ingredients = new Ingredient[4];
             int ingredientIndex = 0;
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 int[] qualities = new int[4];
                 int calories = 0;

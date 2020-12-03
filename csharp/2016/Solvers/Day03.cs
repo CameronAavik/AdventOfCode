@@ -13,7 +13,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
 
             int part2SideNum = 0;
             Span<int> prevSides = stackalloc int[6];
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 ParseLine(line, out int side1, out int side2, out int side3);
 

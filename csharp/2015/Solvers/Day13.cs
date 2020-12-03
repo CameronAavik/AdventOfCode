@@ -12,7 +12,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             var peopleSet = new HashSet<string>();
             var happinesses = new Dictionary<(string A, string B), int>();
 
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 ParseLine(line, out string personA, out string personB, out int happiness);
 
@@ -68,7 +68,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             }
 
             int maxHappiness = int.MinValue;
-            foreach (Span<int> permutation in new PermutationIterator<int>(people))
+            foreach (Span<int> permutation in people.AsSpan().GetPermutations())
             {
                 int totalHappiness = 0;
                 int prevPerson = permutation[^1];

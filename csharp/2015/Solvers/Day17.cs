@@ -14,7 +14,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         public Solution Solve(ReadOnlySpan<char> input)
         {
             var sizes = new List<int>();
-            foreach (ReadOnlySpan<char> size in input.Split('\n'))
+            foreach (ReadOnlySpan<char> size in input.SplitLines())
             {
                 sizes.Add(int.Parse(size));
             }

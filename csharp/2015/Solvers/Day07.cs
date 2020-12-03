@@ -9,7 +9,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         public Solution Solve(ReadOnlySpan<char> input)
         {
             var rules = new Dictionary<string, string>();
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 int lastSpaceIndex = line.LastIndexOf(' ');
                 string variableName = line[(lastSpaceIndex + 1)..].ToString();

@@ -8,8 +8,8 @@ namespace AdventOfCode.CSharp.Runner
     {
         static void Main(string[] args)
         {
-            var inputFile = File.ReadAllText("input/2020/day01.txt");
-            var solver = new Day01();
+            var inputFile = File.ReadAllText("input/2020/day03.txt");
+            var solver = new Day03();
             var soln = solver.Solve(inputFile);
             Console.WriteLine(soln.Part1);
             Console.WriteLine(soln.Part2);

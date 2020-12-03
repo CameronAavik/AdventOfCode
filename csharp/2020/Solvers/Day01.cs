@@ -10,7 +10,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             int length = 0;
             var numberSet = new byte[2048];
             var numbers = new int[512];
-            foreach (var line in input.Split('\n'))
+            foreach (var line in input.SplitLines())
             {
                 int num = line[0] - '0';
                 for (int i = 1; i < line.Length; i++)

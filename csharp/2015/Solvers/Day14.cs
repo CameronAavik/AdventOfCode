@@ -33,7 +33,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
         public Solution Solve(ReadOnlySpan<char> input)
         {
             var reindeers = new List<Reindeer>();
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 reindeers.Add(ParseLine(line));
             }

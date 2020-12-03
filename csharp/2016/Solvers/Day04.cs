@@ -15,7 +15,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             int part2 = -1;
 
             int[] letterCounts = new int[26];
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 int nameLength = line.LastIndexOf('-');
                 ReadOnlySpan<char> name = line.Slice(0, nameLength);

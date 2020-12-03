@@ -2,13 +2,15 @@
 
 These are my solutions in C# and F# for Advent of Code 2015-2020.
 
+C# Benchmarks are available here: [Link](/csharp/Benchmarks/Benchmarks.md)
+
 ## Solutions
 
 | Day | 2015 | 2016 | 2017 | 2018 | 2019 | 2020 |
 | ---: | :---: | :---: | :---: | :---: | :---: | :---: |
 | 1  | [C#](/csharp/2015/Solvers/Day01.cs) \| [F#](/fsharp/2015/Solutions/Day01.fs) | [C#](/csharp/2016/Solvers/Day01.cs) \| [F#](/fsharp/2016/Solutions/Day01.fs) | [C#](/csharp/2017/Solvers/Day01.cs) \| [F#](/fsharp/2017/Solutions/Day01.fs) | [C#](/csharp/2018/Solvers/Day01.cs) \| [F#](/fsharp/2018/Solutions/Day01.fs) | [C#](/csharp/2019/Solvers/Day01.cs) \| [F#](/fsharp/2019/Solutions/Day01.fs) | [C#](/csharp/2020/Solvers/Day01.cs) |
-| 2  | [C#](/csharp/2015/Solvers/Day02.cs) \| [F#](/fsharp/2015/Solutions/Day02.fs) | [C#](/csharp/2016/Solvers/Day02.cs) \| [F#](/fsharp/2016/Solutions/Day02.fs) | [C#](/csharp/2017/Solvers/Day02.cs) \| [F#](/fsharp/2017/Solutions/Day02.fs) | [C#](/csharp/2018/Solvers/Day02.cs) \| [F#](/fsharp/2018/Solutions/Day02.fs) | [C#](/csharp/2019/Solvers/Day02.cs) \| [F#](/fsharp/2019/Solutions/Day02.fs) | |
-| 3  | [C#](/csharp/2015/Solvers/Day03.cs) \| [F#](/fsharp/2015/Solutions/Day03.fs) | [C#](/csharp/2016/Solvers/Day03.cs) \| [F#](/fsharp/2016/Solutions/Day03.fs) | [F#](/fsharp/2017/Solutions/Day03.fs) | [F#](/fsharp/2018/Solutions/Day03.fs) | [F#](/fsharp/2019/Solutions/Day03.fs) | |
+| 2  | [C#](/csharp/2015/Solvers/Day02.cs) \| [F#](/fsharp/2015/Solutions/Day02.fs) | [C#](/csharp/2016/Solvers/Day02.cs) \| [F#](/fsharp/2016/Solutions/Day02.fs) | [C#](/csharp/2017/Solvers/Day02.cs) \| [F#](/fsharp/2017/Solutions/Day02.fs) | [C#](/csharp/2018/Solvers/Day02.cs) \| [F#](/fsharp/2018/Solutions/Day02.fs) | [C#](/csharp/2019/Solvers/Day02.cs) \| [F#](/fsharp/2019/Solutions/Day02.fs) | [C#](/csharp/2020/Solvers/Day02.cs) |
+| 3  | [C#](/csharp/2015/Solvers/Day03.cs) \| [F#](/fsharp/2015/Solutions/Day03.fs) | [C#](/csharp/2016/Solvers/Day03.cs) \| [F#](/fsharp/2016/Solutions/Day03.fs) | [F#](/fsharp/2017/Solutions/Day03.fs) | [F#](/fsharp/2018/Solutions/Day03.fs) | [F#](/fsharp/2019/Solutions/Day03.fs) | [C#](/csharp/2020/Solvers/Day03.cs) |
 | 4  | [C#](/csharp/2015/Solvers/Day04.cs) \| [F#](/fsharp/2015/Solutions/Day04.fs) | [C#](/csharp/2016/Solvers/Day04.cs) \| [F#](/fsharp/2016/Solutions/Day04.fs) | [F#](/fsharp/2017/Solutions/Day04.fs) | [F#](/fsharp/2018/Solutions/Day04.fs) | [F#](/fsharp/2019/Solutions/Day04.fs) | |
 | 5  | [C#](/csharp/2015/Solvers/Day05.cs) \| [F#](/fsharp/2015/Solutions/Day05.fs) | [C#](/csharp/2016/Solvers/Day05.cs) \| [F#](/fsharp/2016/Solutions/Day05.fs) | [F#](/fsharp/2017/Solutions/Day05.fs) | [F#](/fsharp/2018/Solutions/Day05.fs) | [F#](/fsharp/2019/Solutions/Day05.fs) | |
 | 6  | [C#](/csharp/2015/Solvers/Day06.cs) \| [F#](/fsharp/2015/Solutions/Day06.fs) | [F#](/fsharp/2016/Solutions/Day06.fs) | [F#](/fsharp/2017/Solutions/Day06.fs) | [F#](/fsharp/2018/Solutions/Day06.fs) | [F#](/fsharp/2019/Solutions/Day06.fs) | |

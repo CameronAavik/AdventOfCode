@@ -27,7 +27,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             int sue2 = 0;
 
             int sue = 1;
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 int tokenIndex = 0;
                 string itemName = string.Empty;

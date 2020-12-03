@@ -20,7 +20,7 @@ namespace AdventOfCode.CSharp.Y2018.Solvers
             int freqIndex = 0;
             int freqTotal = 0;
             var freqs = new List<Frequency>();
-            foreach (ReadOnlySpan<char> freqChange in input.Split('\n'))
+            foreach (ReadOnlySpan<char> freqChange in input.SplitLines())
             {
                 freqs.Add(new Frequency { Value = freqTotal, Index = freqIndex });
                 freqIndex++;

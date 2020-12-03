@@ -10,7 +10,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             const int part1Mask = 1 << 16;
             int[,] grid = new int[1000, 1000];
 
-            foreach (ReadOnlySpan<char> instruction in input.Split('\n'))
+            foreach (ReadOnlySpan<char> instruction in input.SplitLines())
             {
                 int x, y;
                 int x1, y1, x2, y2;

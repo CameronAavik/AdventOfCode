@@ -9,7 +9,7 @@ namespace AdventOfCode.CSharp.Y2019.Solvers
         {
             int part1 = 0;
             int part2 = 0;
-            foreach (ReadOnlySpan<char> massStr in input.Split('\n'))
+            foreach (ReadOnlySpan<char> massStr in input.SplitLines())
             {
                 int mass = int.Parse(massStr);
                 int fuel = mass / 3 - 2;

@@ -12,7 +12,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             // get list of towns and edges from input
             var townSet = new HashSet<string>();
             var distances = new Dictionary<(string From, string To), int>();
-            foreach (ReadOnlySpan<char> line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 ParseLine(line, out int distance, out string fromName, out string toName);
 
@@ -43,7 +43,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 
             int minDistance = int.MaxValue;
             int maxDistance = int.MinValue;
-            foreach (Span<int> perm in new PermutationIterator<int>(towns))
+            foreach (Span<int> perm in towns.AsSpan().GetPermutations())
             {
                 int pathDist = 0;
                 int prevTown = perm[0];
