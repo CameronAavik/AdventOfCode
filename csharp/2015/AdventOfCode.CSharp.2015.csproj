@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>AdventOfCode.CSharp.Y2015</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\AdventOfCode.CSharp.Common.csproj" />
+  </ItemGroup>
+
+</Project>

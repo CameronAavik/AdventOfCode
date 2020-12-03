@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Content Include="..\..\input\2015\*.*" CopyToOutputDirectory="PreserveNewest" Link="input\%(RecursiveDir)\%(Filename)%(Extension)" />
+    <Compile Include="Solutions\Day01.fs" />
+    <Compile Include="Solutions\Day02.fs" />
+    <Compile Include="Solutions\Day03.fs" />
+    <Compile Include="Solutions\Day04.fs" />
+    <Compile Include="Solutions\Day05.fs" />
+    <Compile Include="Solutions\Day06.fs" />
+    <Compile Include="Solutions\Day07.fs" />
+    <Compile Include="Solutions\Day08.fs" />
+    <Compile Include="Solutions\Day09.fs" />
+    <Compile Include="Solutions\Day10.fs" />
+    <Compile Include="Solutions\Day11.fs" />
+    <Compile Include="Solutions\Day12.fs" />
+    <Compile Include="Solutions\Day13.fs" />
+    <Compile Include="Solutions\Day14.fs" />
+    <Compile Include="Solutions\Day15.fs" />
+    <Compile Include="Solutions\Day16.fs" />
+    <Compile Include="Solutions\Day17.fs" />
+    <Compile Include="Solutions\Day18.fs" />
+    <Compile Include="Solutions\Day19.fs" />
+    <Compile Include="Solutions\Day20.fs" />
+    <Compile Include="Solutions\Day21.fs" />
+    <Compile Include="Solutions\Day22.fs" />
+    <Compile Include="Solutions\Day23.fs" />
+    <Compile Include="Solutions\Day24.fs" />
+    <Compile Include="Solutions\Day25.fs" />
+    <Compile Include="Program.fs" />
+  </ItemGroup>
+
+  <ItemGroup />
+
+  <ItemGroup>
+    <PackageReference Include="GraphFS" Version="0.0.30" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Common\AdventOfCode.FSharp.Common.fsproj" />
+  </ItemGroup>
+
+</Project>
