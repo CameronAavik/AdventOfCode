@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using System.Numerics;
-using System.Security;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers
