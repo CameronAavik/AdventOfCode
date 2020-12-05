@@ -26,16 +26,19 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static long CountTrees(ReadOnlySpan<char> input, int w, int h, int dx, int dy)
         {
+            int stride = w + 1;
             int x = 0;
             long total = 0;
             for (int y = 0; y < h; y += dy)
             {
-                if (input[y * (w + 1) + (x % w)] == '#')
+                if (input[y * stride + x] == '#')
                 {
                     total += 1;
                 }
 
                 x += dx;
+                if (x >= w)
+                    x -= w;
             }
 
             return total;
