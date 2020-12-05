@@ -37,7 +37,7 @@ namespace AdventOfCode.CSharp.Runner
         static void Main(string[] args)
         {
             int year = 2020;
-            int day = 4;
+            int day = 5;
 
             var solver = (ISolver)Activator.CreateInstance(GetSolverType(year, day)!)!;
             var input = File.ReadAllText($"input/{year}/day{day:D2}.txt");
