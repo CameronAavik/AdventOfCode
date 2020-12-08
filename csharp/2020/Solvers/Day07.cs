@@ -8,7 +8,6 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {
-
             var containsShinyGoldCache = new Dictionary<string, bool>();
             var totalChildBagsCache = new Dictionary<string, int>();
             var bagContents = new Dictionary<string, List<(int Count, string Colour)>>();
