@@ -1,4 +1,4 @@
-﻿Vixen can fly 19 km/s for 7 seconds, but then must rest for 124 seconds.
+Vixen can fly 19 km/s for 7 seconds, but then must rest for 124 seconds.
 Rudolph can fly 3 km/s for 15 seconds, but then must rest for 28 seconds.
 Donner can fly 19 km/s for 9 seconds, but then must rest for 164 seconds.
 Blitzen can fly 19 km/s for 9 seconds, but then must rest for 158 seconds.

@@ -1,4 +1,4 @@
-﻿Alice would gain 54 happiness units by sitting next to Bob.
+Alice would gain 54 happiness units by sitting next to Bob.
 Alice would lose 81 happiness units by sitting next to Carol.
 Alice would lose 42 happiness units by sitting next to David.
 Alice would gain 89 happiness units by sitting next to Eric.

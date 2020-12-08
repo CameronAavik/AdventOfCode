@@ -1,4 +1,4 @@
-﻿koq inc 675 if xrh >= -6
+koq inc 675 if xrh >= -6
 it inc -402 if s < -1
 g inc 283 if oj != -3
 it inc 355 if y <= 5

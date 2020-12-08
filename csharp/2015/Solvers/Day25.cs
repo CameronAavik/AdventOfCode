@@ -8,9 +8,11 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {
-            ReadOnlySpan<char> trimmed = input[80..]; // Trims redundant first 80 characters and leaves behind "3010, column 3019."
-            int row = int.Parse(trimmed[..trimmed.IndexOf(',')]);
-            int column = int.Parse(trimmed[(trimmed.LastIndexOf(' ') + 1)..^1]);
+            var reader = new SpanReader(input);
+            reader.SkipLength("To continue, please consult the code grid in the manual.  Enter the code at row ".Length);
+            int row = reader.ReadPosIntUntil(',');
+            reader.SkipLength(" column ".Length);
+            int column = reader.ReadPosIntUntil('.');
 
             int n = row + column - 1;
             int diagEnd = n * (n + 1) / 2;

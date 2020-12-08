@@ -1,4 +1,4 @@
-﻿set b 99
+set b 99
 set c b
 jnz a 2
 jnz 1 5

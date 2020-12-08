@@ -7,6 +7,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {
+            input = input.TrimEnd('\n');
             byte[] currentSequence = new byte[input.Length];
             int curLength = input.Length;
             for (int i = 0; i < input.Length; i++)

@@ -78,11 +78,13 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 
         private static void ParseInput(ReadOnlySpan<char> input, out int bossHp, out int bossDamage, out int bossArmor)
         {
-            int firstNewlineIndex = input.IndexOf('\n');
-            int secondNewLineIndex = input.LastIndexOf('\n');
-            bossHp = int.Parse(input[12..firstNewlineIndex]);
-            bossDamage = int.Parse(input[(firstNewlineIndex + 9)..secondNewLineIndex]);
-            bossArmor = int.Parse(input[(secondNewLineIndex + 8)..]);
+            var reader = new SpanReader(input);
+            reader.SkipLength("Hit Points: ".Length);
+            bossHp = reader.ReadPosIntUntil('\n');
+            reader.SkipLength("Damage: ".Length);
+            bossDamage = reader.ReadPosIntUntil('\n');
+            reader.SkipLength("Armor: ".Length);
+            bossArmor = reader.ReadPosIntUntil('\n');
         }
 
         private static Equipment Purchase(Equipment weapon, Equipment armor, Equipment ring1, Equipment ring2)

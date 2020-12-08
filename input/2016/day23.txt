@@ -1,4 +1,4 @@
-﻿cpy a b
+cpy a b
 dec b
 cpy a d
 cpy 0 a

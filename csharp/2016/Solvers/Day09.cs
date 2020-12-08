@@ -7,6 +7,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {
+            input = input.TrimEnd('\n');
             int part1 = SolvePart1(input);
             long part2 = SolvePart2(input);
 

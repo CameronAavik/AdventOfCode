@@ -1,4 +1,4 @@
-﻿rect 1x1
+rect 1x1
 rotate row y=0 by 7
 rect 1x1
 rotate row y=0 by 5

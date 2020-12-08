@@ -1,4 +1,4 @@
-﻿cpy a d
+cpy a d
 cpy 4 c
 cpy 633 b
 inc d

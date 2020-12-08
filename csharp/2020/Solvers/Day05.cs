@@ -9,12 +9,12 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
         public Solution Solve(ReadOnlySpan<char> input)
         {
             uint[] seen = new uint[32];
-            seen[0] |= 0xFFu; // fill in first row
+            int numSeats = input.Length / 11;
 
-            int part1 = 0;
+            int maxSeat = 0;
             for (int i = 0; i < input.Length; i += 11)
             {
-                // unrolling the loop to save precious milliseconds
+                // unrolling the loop to save precious microseconds
                 int seatId = 0;
                 if (input[i + 0] == 'B') seatId |= 1 << 9;
                 if (input[i + 1] == 'B') seatId |= 1 << 8;
@@ -27,21 +27,24 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 if (input[i + 8] == 'R') seatId |= 1 << 1;
                 if (input[i + 9] == 'R') seatId |= 1 << 0;
 
-                part1 = Math.Max(part1, seatId);
-                seen[seatId / 32] |= 1u << (seatId % 32);
+                if (seatId > maxSeat)
+                    maxSeat = seatId;
+
+                seen[seatId / 32] |= 1u << (seatId & 31);
             }
 
-            for (int i = 0; i < seen.Length; i++)
+            int minSeat = maxSeat - numSeats - 1;
+            for (int i = minSeat / 32 + 1; i < seen.Length; i++)
             {
-                var elem = seen[i];
+                uint elem = seen[i];
                 if (elem != 0xFFFFFFFFu)
                 {
                     int part2 = 32 * i + (31 - BitOperations.LeadingZeroCount(~elem));
-                    return new Solution(part1, part2);
+                    return new Solution(maxSeat, part2);
                 }
             }
 
-            return new Solution(part1, -1);
+            return new Solution(maxSeat, -1);
         }
     }
 }

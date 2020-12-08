@@ -40,8 +40,8 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             }
 
             // process the last group
-            part1 += BitOperations.PopCount(groupAnswers | personAnswers);
-            part2 += BitOperations.PopCount(groupAllAnswers & personAnswers);
+            part1 += BitOperations.PopCount(groupAnswers);
+            part2 += BitOperations.PopCount(groupAllAnswers);
 
             return new Solution(part1, part2);
         }

@@ -38,6 +38,24 @@ namespace AdventOfCode.CSharp.Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public ReadOnlySpan<char> ReadUntil(ReadOnlySpan<char> str)
+        {
+            int len = _input.IndexOf(str);
+            if (len == -1)
+            {
+                var ret = _input;
+                _input = ReadOnlySpan<char>.Empty;
+                return ret;
+            }
+            else
+            {
+                var ret = _input.Slice(0, len);
+                _input = _input.Slice(len + str.Length);
+                return ret;
+            }
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int ReadPosIntUntil(char c)
         {
             int ret = 0;

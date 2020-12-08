@@ -1,4 +1,4 @@
-﻿Sue 1: children: 1, cars: 8, vizslas: 7
+Sue 1: children: 1, cars: 8, vizslas: 7
 Sue 2: akitas: 10, perfumes: 10, children: 5
 Sue 3: cars: 5, pomeranians: 4, vizslas: 1
 Sue 4: goldfish: 5, children: 8, perfumes: 3

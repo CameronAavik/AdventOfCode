@@ -1,4 +1,4 @@
-﻿AlphaCentauri to Snowdin = 66
+AlphaCentauri to Snowdin = 66
 AlphaCentauri to Tambi = 28
 AlphaCentauri to Faerun = 60
 AlphaCentauri to Norrath = 34

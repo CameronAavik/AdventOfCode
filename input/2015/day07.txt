@@ -1,4 +1,4 @@
-﻿bn RSHIFT 2 -> bo
+bn RSHIFT 2 -> bo
 lf RSHIFT 1 -> ly
 fo RSHIFT 3 -> fq
 cj OR cp -> cq

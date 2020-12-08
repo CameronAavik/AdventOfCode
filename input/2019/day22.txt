@@ -1,4 +1,4 @@
-﻿deal into new stack
+deal into new stack
 cut 9037
 deal with increment 49
 cut -9932

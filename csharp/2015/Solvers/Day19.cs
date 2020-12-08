@@ -8,6 +8,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {
+            input = input.TrimEnd('\n');
             var elements = new Dictionary<string, int>();
             var replacements = new List<List<List<int>>>(); // replacements[element][replacement][replacementElement]
 

@@ -1,2 +1,2 @@
-﻿depth: 7740
+depth: 7740
 target: 12,763

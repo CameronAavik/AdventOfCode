@@ -17,7 +17,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             // create a buffer for the MD5 provider to store the result hash in
             Span<byte> resultBuffer = stackalloc byte[provider.HashSize / 8];
 
-            byte[] inputAsBytes = Encoding.ASCII.GetBytes(input.ToArray());
+            byte[] inputAsBytes = Encoding.ASCII.GetBytes(input.TrimEnd('\n').ToArray());
             int inputLen = inputAsBytes.Length;
 
             int extraBytes = 1;

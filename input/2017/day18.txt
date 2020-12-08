@@ -1,4 +1,4 @@
-﻿set i 31
+set i 31
 set a 1
 mul p 17
 jgz p p

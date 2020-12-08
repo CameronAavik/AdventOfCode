@@ -1,4 +1,4 @@
-﻿eyr:2029 pid:157374862
+eyr:2029 pid:157374862
 byr:1991 ecl:amb hcl:#a97842 hgt:178cm
 
 byr:1962 pid:547578491 eyr:2028 ecl:hzl hgt:65in iyr:2013 hcl:#623a2f

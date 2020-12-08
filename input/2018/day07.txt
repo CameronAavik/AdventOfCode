@@ -1,4 +1,4 @@
-﻿Step B must be finished before step X can begin.
+Step B must be finished before step X can begin.
 Step H must be finished before step P can begin.
 Step Y must be finished before step J can begin.
 Step Z must be finished before step I can begin.

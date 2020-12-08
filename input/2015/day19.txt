@@ -1,4 +1,4 @@
-﻿Al => ThF
+Al => ThF
 Al => ThRnFAr
 B => BCa
 B => TiB

@@ -1,4 +1,4 @@
-﻿rotate right 3 steps
+rotate right 3 steps
 swap letter b with letter a
 move position 3 to position 4
 swap position 0 with position 7
