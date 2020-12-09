@@ -9,18 +9,18 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
     {
         public Solution Solve(ReadOnlySpan<char> input)
         {
-            var part1 = 0;
-            var part2 = 0;
+            int part1 = 0;
+            int part2 = 0;
 
-            foreach (var line in input.Split('\n'))
+            foreach (ReadOnlySpan<char> line in input.Split('\n'))
             {
                 int i = 0;
                 int left = ParsePosInt(line, until: '-', ref i);
                 int right = ParsePosInt(line, until: ' ', ref i);
                 char letter = line[i];
-                var password = line.Slice(i + 3);
+                ReadOnlySpan<char> password = line.Slice(i + 3);
 
-                var letterCount = password.Count(letter);
+                int letterCount = password.Count(letter);
                 if (left <= letterCount && letterCount <= right)
                 {
                     part1++;

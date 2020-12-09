@@ -499,7 +499,7 @@ namespace AdventOfCode.CSharp.Common
 
             static bool IsDefault<T>(T value)
             {
-                T defaultVal = default;
+                T defaultVal = default!;
 
                 if (defaultVal is null)
                 {

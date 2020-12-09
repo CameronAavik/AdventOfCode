@@ -31,7 +31,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             }
 
             int part1 = 0;
-            foreach (var colour in bagContents.Keys)
+            foreach (string? colour in bagContents.Keys)
             {
                 if (ContainsShinyGold(colour, containsShinyGoldCache, bagContents))
                 {
@@ -63,7 +63,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             while (true)
             {
                 int count = reader.ReadPosIntUntil(' ');
-                var colour = reader.ReadUntil(count == 1 ? " bag" : " bags").ToString();
+                string? colour = reader.ReadUntil(count == 1 ? " bag" : " bags").ToString();
                 if (colour == "shiny gold")
                 {
                     containsShinyGold = true;
@@ -90,7 +90,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 return containsShinyGold;
             }
 
-            foreach (var (_, contentColour) in bagContents[colour])
+            foreach ((int _, string contentColour) in bagContents[colour])
             {
                 if (ContainsShinyGold(contentColour, cache, bagContents))
                 {
@@ -114,7 +114,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             }
 
             int total = 0;
-            foreach (var (count, contentColour) in bagContents[colour])
+            foreach ((int count, string contentColour) in bagContents[colour])
             {
                 total += count * (1 + GetTotalChildBags(contentColour, cache, bagContents));
             }

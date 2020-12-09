@@ -12,14 +12,14 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
 
             bool[] rowBuffer = new bool[50];
             bool[] colBuffer = new bool[6];
-            foreach (var line in input.SplitLines())
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 if (line[1] == 'e') // rect
                 {
-                    var dimensions = line.Slice(5);
-                    var xIndex = dimensions.IndexOf('x');
-                    var width = int.Parse(dimensions.Slice(0, xIndex));
-                    var height = int.Parse(dimensions.Slice(xIndex + 1));
+                    ReadOnlySpan<char> dimensions = line.Slice(5);
+                    int xIndex = dimensions.IndexOf('x');
+                    int width = int.Parse(dimensions.Slice(0, xIndex));
+                    int height = int.Parse(dimensions.Slice(xIndex + 1));
                     for (int y = 0; y < height; y++)
                     {
                         for (int x = 0; x < width; x++)
@@ -30,15 +30,15 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                 }
                 else if (line[7] == 'c') // rotate column
                 {
-                    var rotateData = line.Slice(16);
-                    var colLength = rotateData.IndexOf(' ');
-                    var column = int.Parse(rotateData.Slice(0, colLength));
-                    var rotateAmount = int.Parse(rotateData.Slice(colLength + 4));
+                    ReadOnlySpan<char> rotateData = line.Slice(16);
+                    int colLength = rotateData.IndexOf(' ');
+                    int column = int.Parse(rotateData.Slice(0, colLength));
+                    int rotateAmount = int.Parse(rotateData.Slice(colLength + 4));
 
                     for (int i = 0; i < 6; i++)
                     {
                         colBuffer[i] = pixels[column, i];
-                        var target = i - rotateAmount;
+                        int target = i - rotateAmount;
                         if (target < 0)
                         {
                             target += 6;
@@ -50,14 +50,14 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                 }
                 else // rotate row
                 {
-                    var rotateData = line.Slice(13);
-                    var row = rotateData[0] - '0';
-                    var rotateAmount = int.Parse(rotateData.Slice(5));
+                    ReadOnlySpan<char> rotateData = line.Slice(13);
+                    int row = rotateData[0] - '0';
+                    int rotateAmount = int.Parse(rotateData.Slice(5));
 
                     for (int i = 0; i < 50; i++)
                     {
                         rowBuffer[i] = pixels[i, row];
-                        var target = i - rotateAmount;
+                        int target = i - rotateAmount;
                         if (target < 0)
                         {
                             target += 50;
@@ -70,7 +70,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             }
 
             int part1 = 0;
-            foreach (var pixel in pixels)
+            foreach (bool pixel in pixels)
             {
                 if (pixel)
                 {

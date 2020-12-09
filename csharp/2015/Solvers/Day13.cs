@@ -16,8 +16,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             {
                 ParseLine(line, out string personA, out string personB, out int happiness);
 
-                peopleSet.Add(personA);
-                peopleSet.Add(personB);
+                _ = peopleSet.Add(personA);
+                _ = peopleSet.Add(personB);
 
                 happinesses[(personA, personB)] = happiness;
             }

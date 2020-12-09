@@ -36,9 +36,9 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void AddHashes(Vector256<uint> hashVector, int i, int maxI)
             {
-                var masked = Avx2.And(ZeroMask, hashVector);
-                var isZero = Avx2.CompareEqual(masked, Vector256<uint>.Zero);
-                var moveMask = Avx2.MoveMask(isZero.AsByte());
+                Vector256<uint> masked = Avx2.And(ZeroMask, hashVector);
+                Vector256<uint> isZero = Avx2.CompareEqual(masked, Vector256<uint>.Zero);
+                int moveMask = Avx2.MoveMask(isZero.AsByte());
 
                 if (moveMask != 0)
                 {
@@ -46,7 +46,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                     {
                         if ((moveMask & 0xF) != 0)
                         {
-                            var matchingHash = hashVector.GetElement(j);
+                            uint matchingHash = hashVector.GetElement(j);
                             int digit6 = (int)(matchingHash >> 16) & 0xF;
                             int digit7 = (int)(matchingHash >> 28) & 0xF;
 

@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="BenchmarkDotNet" Version="0.12.1.1468" />
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1.1474" />
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +19,7 @@
     <ProjectReference Include="..\2018\AdventOfCode.CSharp.2018.csproj" />
     <ProjectReference Include="..\2019\AdventOfCode.CSharp.2019.csproj" />
     <ProjectReference Include="..\2020\AdventOfCode.CSharp.2020.csproj" />
+    <ProjectReference Include="..\Runner\AdventOfCode.CSharp.Runner.csproj" />
   </ItemGroup>
 
 </Project>

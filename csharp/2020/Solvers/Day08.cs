@@ -6,13 +6,21 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
 {
     public class Day08 : ISolver
     {
-        enum Operation { Nop, Acc, Jmp }
+        public readonly struct Instruction
+        {
+            public readonly char Operation;
+            public readonly int Arg;
 
-        record Instruction(Operation Operation, int Arg);
+            public Instruction(char operation, int arg)
+            {
+                Operation = operation;
+                Arg = arg;
+            }
+        }
 
         public Solution Solve(ReadOnlySpan<char> input)
         {
-            var lines = input.Count('\n');
+            int lines = input.Count('\n');
             Instruction[] instructions = new Instruction[lines];
             int[] values = new int[lines];
 
@@ -20,10 +28,9 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             var reader = new SpanReader(input);
             while (!reader.Done)
             {
-                Operation op = reader.Peek() switch { 'a' => Operation.Acc, 'j' => Operation.Jmp, _ => Operation.Nop };
-                reader.SkipLength(4);
-                int mul = reader.Peek() == '+' ? 1 : -1;
-                reader.SkipLength(1);
+                char op = reader[0]; // store op by getting the first character. n = nop, a = acc, j = jmp
+                int mul = reader[4] == '+' ? 1 : -1;
+                reader.SkipLength("jmp +".Length);
                 int arg = mul * reader.ReadPosIntUntil('\n');
                 instructions[lineNumber] = new(op, arg);
                 values[lineNumber] = int.MinValue; // initial value that indicates we have not got a value yet
@@ -38,18 +45,18 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             int acc = 0;
             while (values[ip] == int.MinValue)
             {
-                var instruction = instructions[ip];
+                Instruction instruction = instructions[ip];
                 switch (instruction.Operation)
                 {
-                    case Operation.Nop:
+                    case 'n': // nop
                         ipsToFlip[ipsToFlipLen++] = ip;
                         values[ip++] = acc;
                         break;
-                    case Operation.Acc:
+                    case 'a': // acc
                         acc += instruction.Arg;
                         values[ip++] = acc;
                         break;
-                    case Operation.Jmp:
+                    case 'j': // jmp
                         ipsToFlip[ipsToFlipLen++] = ip;
                         values[ip] = acc;
                         ip += instruction.Arg;
@@ -65,8 +72,8 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 ip = ipsToFlip[i];
                 acc = values[ip];
 
-                var instruction = instructions[ip];
-                ip += instruction.Operation == Operation.Nop
+                Instruction instruction = instructions[ip];
+                ip += instruction.Operation == 'n' // nop
                     ? instruction.Arg // nop becomes jmp
                     : 1; // jmp becomes nop
 
@@ -75,14 +82,14 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                     instruction = instructions[ip];
                     switch (instruction.Operation)
                     {
-                        case Operation.Nop:
+                        case 'n':
                             values[ip++] = acc;
                             break;
-                        case Operation.Acc:
+                        case 'a':
                             acc += instruction.Arg;
                             values[ip++] = acc;
                             break;
-                        case Operation.Jmp:
+                        case 'j':
                             values[ip] = acc;
                             ip += instruction.Arg;
                             break;

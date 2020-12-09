@@ -10,7 +10,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             int part1 = 0;
             int part2 = 0;
 
-            foreach (var passport in input.Split("\n\n"))
+            foreach (ReadOnlySpan<char> passport in input.Split("\n\n"))
             {
                 byte fieldFlags = 0;
                 bool hasInvalidField = false;
@@ -18,14 +18,14 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 int i = 0;
                 while (i < passport.Length)
                 {
-                    var fieldName = passport.Slice(i, 3);
-                    var fieldLength = passport.Slice(i + 4).IndexOfAny("\n ");
+                    ReadOnlySpan<char> fieldName = passport.Slice(i, 3);
+                    int fieldLength = passport.Slice(i + 4).IndexOfAny("\n ");
                     if (fieldLength == -1)
                     {
                         fieldLength = passport.Length - i - 4;
                     }
 
-                    var fieldValue = passport.Slice(i + 4, fieldLength);
+                    ReadOnlySpan<char> fieldValue = passport.Slice(i + 4, fieldLength);
 
                     switch (fieldName[0])
                     {

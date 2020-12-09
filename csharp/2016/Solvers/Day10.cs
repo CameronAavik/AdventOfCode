@@ -12,8 +12,8 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             var botOutputs = new Dictionary<int, (bool IsLowBot, int Low, bool IsHighBot, int High)>();
             var valueQueue = new Queue<(bool IsBot, int Destination, int Value)>();
 
-            var maxBotId = 0;
-            var maxOutputId = 0;
+            int maxBotId = 0;
+            int maxOutputId = 0;
 
             // first pass we just keep track of where the bot sends its chips
             var parser = new SpanReader(input);
@@ -42,11 +42,11 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                 }
             }
 
-            var botValues = new int[maxBotId + 1];
-            var outputValues = new int[maxOutputId + 1];
+            int[]? botValues = new int[maxBotId + 1];
+            int[]? outputValues = new int[maxOutputId + 1];
 
             int part1 = 0;
-            while (valueQueue.TryDequeue(out var x))
+            while (valueQueue.TryDequeue(out (bool IsBot, int Destination, int Value) x))
             {
                 (bool isBot, int destination, int value) = x;
 
@@ -56,17 +56,17 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                     continue;
                 }
 
-                var curValue = botValues[destination];
+                int curValue = botValues[destination];
                 if (curValue == 0)
                 {
                     botValues[destination] = value;
                 }
                 else
                 {
-                    var destinations = botOutputs[destination];
+                    (bool IsLowBot, int Low, bool IsHighBot, int High) destinations = botOutputs[destination];
 
-                    var low = Math.Min(curValue, value);
-                    var high = Math.Max(curValue, value);
+                    int low = Math.Min(curValue, value);
+                    int high = Math.Max(curValue, value);
 
                     if (low == 17 && high == 61)
                     {

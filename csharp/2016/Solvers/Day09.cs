@@ -22,13 +22,13 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             {
                 if (input[i] == '(')
                 {
-                    var repLengthLength = input.Slice(i + 1).IndexOf('x');
-                    var repLengthStr = input.Slice(i + 1, repLengthLength);
-                    var repLength = int.Parse(repLengthStr);
+                    int repLengthLength = input.Slice(i + 1).IndexOf('x');
+                    ReadOnlySpan<char> repLengthStr = input.Slice(i + 1, repLengthLength);
+                    int repLength = int.Parse(repLengthStr);
 
-                    var repCountLength = input.Slice(i + 2 + repLengthLength).IndexOf(')');
-                    var repCountStr = input.Slice(i + 2 + repLengthLength, repCountLength);
-                    var repCount = int.Parse(repCountStr);
+                    int repCountLength = input.Slice(i + 2 + repLengthLength).IndexOf(')');
+                    ReadOnlySpan<char> repCountStr = input.Slice(i + 2 + repLengthLength, repCountLength);
+                    int repCount = int.Parse(repCountStr);
 
                     length += repLength * repCount;
                     i += 3 + repLengthLength + repCountLength + repLength;
@@ -51,17 +51,17 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             {
                 if (input[i] == '(')
                 {
-                    var repLengthLength = input.Slice(i + 1).IndexOf('x');
-                    var repLengthStr = input.Slice(i + 1, repLengthLength);
-                    var repLength = int.Parse(repLengthStr);
+                    int repLengthLength = input.Slice(i + 1).IndexOf('x');
+                    ReadOnlySpan<char> repLengthStr = input.Slice(i + 1, repLengthLength);
+                    int repLength = int.Parse(repLengthStr);
 
-                    var repCountLength = input.Slice(i + 2 + repLengthLength).IndexOf(')');
-                    var repCountStr = input.Slice(i + 2 + repLengthLength, repCountLength);
-                    var repCount = int.Parse(repCountStr);
+                    int repCountLength = input.Slice(i + 2 + repLengthLength).IndexOf(')');
+                    ReadOnlySpan<char> repCountStr = input.Slice(i + 2 + repLengthLength, repCountLength);
+                    int repCount = int.Parse(repCountStr);
 
-                    var rep = input.Slice(i + 3 + repLengthLength + repCountLength, repLength);
+                    ReadOnlySpan<char> rep = input.Slice(i + 3 + repLengthLength + repCountLength, repLength);
 
-                    var actualRepLength = SolvePart2(rep);
+                    long actualRepLength = SolvePart2(rep);
                     length += actualRepLength * repCount;
                     i += 3 + repLengthLength + repCountLength + repLength;
                 }

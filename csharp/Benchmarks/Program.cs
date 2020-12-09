@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
+﻿using System.Collections.Generic;
 using AdventOfCode.CSharp.Common;
+using AdventOfCode.CSharp.Runner;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Columns;
 using BenchmarkDotNet.Configs;
@@ -14,30 +11,20 @@ using Perfolizer.Horology;
 
 namespace AdventOfCode.CSharp.Benchmarks
 {
-    public record Problem(int Year, int Day)
+    public class Benchmarks
     {
-        public override string? ToString() => $"{Year}.{Day:D2}";
-    }
+        private readonly ISolver[,] _solvers = new ISolver[6, 25];
+        private readonly string?[,] _inputs = new string[6, 25];
 
-    public class Solvers
-    {
-        [ParamsSource(nameof(Problems))]
-        public Problem Problem = default!;
-
-        private ISolver _solver = default!;
-        private ReadOnlyMemory<char> _fileBytes = default!;
-
-        public static IEnumerable<Problem> Problems()
+        public static IEnumerable<object[]> AllDays()
         {
-            // Uncomment to benchmark a specific problem
-            //yield return new Problem(2020, 5);
-            for (int year = 2015; year <= 2020; year++)
+            for (int year = 2020; year <= 2020; year++)
             {
                 for (int day = 1; day <= 25; day++)
                 {
-                    if (GetSolverType(year, day) != null)
+                    if (AdventRunner.GetSolverType(year, day) != null)
                     {
-                        yield return new Problem(year, day);
+                        yield return new object[] { year, day };
                     }
                 }
             }
@@ -46,56 +33,34 @@ namespace AdventOfCode.CSharp.Benchmarks
         [GlobalSetup]
         public void GlobalSetup()
         {
-            _solver = (ISolver)Activator.CreateInstance(GetSolverType(Problem.Year, Problem.Day)!)!;
-            _fileBytes = File.ReadAllText($"input/{Problem.Year}/day{Problem.Day:D2}.txt").AsMemory();
+            foreach (object[]? days in AllDays())
+            {
+                int year = (int)days[0];
+                int day = (int)days[1];
+                _solvers[year - 2015, day - 1] = AdventRunner.GetSolver(year, day)!;
+                _inputs[year - 2015, day - 1] = AdventRunner.GetInput(year, day);
+            }
         }
 
         [Benchmark]
-        public Solution Solve() => _solver.Solve(_fileBytes.Span);
-
-        private static Type? GetSolverType(int year, int day)
-        {
-            Assembly? assembly = year switch
-            {
-                2015 => typeof(Y2015.Solvers.Day01).Assembly,
-                2016 => typeof(Y2016.Solvers.Day01).Assembly,
-                2017 => typeof(Y2017.Solvers.Day01).Assembly,
-                2018 => typeof(Y2018.Solvers.Day01).Assembly,
-                2019 => typeof(Y2019.Solvers.Day01).Assembly,
-                2020 => typeof(Y2020.Solvers.Day01).Assembly,
-                _ => null
-            };
-
-            if (assembly != null)
-            {
-                foreach (Type t in assembly.GetTypes())
-                {
-                    if (t.Name == $"Day{day:D2}")
-                    {
-                        return t;
-                    }
-                }
-            }
-
-            return null;
-        }
+        //[Arguments(2020, 9)]
+        [ArgumentsSource(nameof(AllDays))]
+        public Solution Solve(int year, int day) =>
+            _solvers[year - 2015, day - 1].Solve(_inputs[year - 2015, day - 1]);
     }
 
     public class Program
     {
-        static void Main() => BenchmarkRunner.Run<Solvers>(Config);
+        static void Main() => BenchmarkRunner.Run<Benchmarks>(Config);
 
         private static IConfig Config => DefaultConfig.Instance
-            .AddJob(Job.Default
-                .WithWarmupCount(1)
-                .WithIterationTime(TimeInterval.FromMilliseconds(250)))
+            .AddJob(Job.Default)
             .WithSummaryStyle(SummaryStyle.Default.WithTimeUnit(TimeUnit.Microsecond))
             .ClearColumns()
-            .AddColumn(new CustomColumn("Year", ColumnCategory.Params, bench => GetProblemParam(bench).Year.ToString()))
-            .AddColumn(new CustomColumn("Day", ColumnCategory.Params, bench => GetProblemParam(bench).Day.ToString()))
-            .AddColumn(StatisticColumn.Mean);
-
-        private static Problem GetProblemParam(BenchmarkCase benchmark) =>
-            (Problem)benchmark.Parameters.Items.Single(i => i.Name == nameof(Solvers.Problem)).Value;
+            .AddColumnProvider(DefaultColumnProviders.Descriptor)
+            .AddColumnProvider(DefaultColumnProviders.Params)
+            .AddColumn(StatisticColumn.P0)
+            .AddColumn(StatisticColumn.P50)
+            .AddColumn(StatisticColumn.P100);
     }
 }

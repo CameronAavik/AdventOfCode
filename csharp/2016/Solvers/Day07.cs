@@ -12,7 +12,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
 
             byte[] abas = new byte[26 * 26];
             byte[] babs = new byte[26 * 26];
-            foreach (var line in input.SplitLines())
+            foreach (ReadOnlySpan<char> line in input.SplitLines())
             {
                 Array.Clear(abas, 0, abas.Length);
                 Array.Clear(babs, 0, babs.Length);

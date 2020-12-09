@@ -25,13 +25,13 @@ namespace AdventOfCode.CSharp.Common
             int len = _input.IndexOf(c);
             if (len == -1)
             {
-                var ret = _input;
+                ReadOnlySpan<char> ret = _input;
                 _input = ReadOnlySpan<char>.Empty;
                 return ret;
             }
             else
             {
-                var ret = _input.Slice(0, len);
+                ReadOnlySpan<char> ret = _input.Slice(0, len);
                 _input = _input.Slice(len + 1);
                 return ret;
             }
@@ -43,13 +43,13 @@ namespace AdventOfCode.CSharp.Common
             int len = _input.IndexOf(str);
             if (len == -1)
             {
-                var ret = _input;
+                ReadOnlySpan<char> ret = _input;
                 _input = ReadOnlySpan<char>.Empty;
                 return ret;
             }
             else
             {
-                var ret = _input.Slice(0, len);
+                ReadOnlySpan<char> ret = _input.Slice(0, len);
                 _input = _input.Slice(len + str.Length);
                 return ret;
             }
@@ -58,8 +58,30 @@ namespace AdventOfCode.CSharp.Common
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int ReadPosIntUntil(char c)
         {
-            int ret = 0;
-            for (int i = 0; i < _input.Length; i++)
+            // we assume the first char is always a digit
+            int ret = _input[0] - '0';
+            for (int i = 1; i < _input.Length; i++)
+            {
+                char cur = _input[i];
+                if (cur == c)
+                {
+                    _input = _input.Slice(i + 1);
+                    return ret;
+                }
+
+                ret = ret * 10 + (cur - '0');
+            }
+
+            _input = ReadOnlySpan<char>.Empty;
+            return ret;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public long ReadPosLongUntil(char c)
+        {
+            // we assume the first char is always a digit
+            long ret = _input[0] - '0';
+            for (int i = 1; i < _input.Length; i++)
             {
                 char cur = _input[i];
                 if (cur == c)
@@ -77,6 +99,15 @@ namespace AdventOfCode.CSharp.Common
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public char Peek() => _input[0];
+
+        public char this[int i]
+        {
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get
+            {
+                return _input[i];
+            }
+        }
 
         public bool Done
         {
