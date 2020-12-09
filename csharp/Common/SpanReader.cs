@@ -20,6 +20,12 @@ namespace AdventOfCode.CSharp.Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void SkipUntil(char c)
+        {
+            _input = _input.Slice(_input.IndexOf(c) + 1);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ReadOnlySpan<char> ReadUntil(char c)
         {
             int len = _input.IndexOf(c);

@@ -18,7 +18,7 @@ namespace AdventOfCode.CSharp.Benchmarks
 
         public static IEnumerable<object[]> AllDays()
         {
-            for (int year = 2020; year <= 2020; year++)
+            for (int year = 2015; year <= 2020; year++)
             {
                 for (int day = 1; day <= 25; day++)
                 {
