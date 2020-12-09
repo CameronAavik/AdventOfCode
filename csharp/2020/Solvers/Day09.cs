@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
 using Microsoft.Toolkit.HighPerformance.Extensions;
@@ -8,8 +7,6 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
 {
     public class Day09 : ISolver
     {
-        private static readonly HashSet<long> s_last25Cache = new HashSet<long>(25);
-
         public Solution Solve(ReadOnlySpan<char> input)
         {
             int lines = input.Count('\n');
@@ -19,15 +16,14 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             var reader = new SpanReader(input);
             while (line < 25)
             {
-                long num = reader.ReadPosLongUntil('\n');
-                nums[line++] = num;
+                nums[line++] = reader.ReadPosLongUntil('\n');
             }
 
             while (!reader.Done)
             {
                 long num = reader.ReadPosLongUntil('\n');
                 nums[line] = num;
-                if (!IsSumInPrevious25(num, line, nums))
+                if (!IsSumInPrevious25(nums, line, num))
                 {
                     break;
                 }
@@ -41,18 +37,18 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsSumInPrevious25(long num, int line, long[] nums)
+        private static bool IsSumInPrevious25(long[] nums, int line, long num)
         {
-            s_last25Cache.Clear();
-            for (int i = line - 25; i <= line - i; i++)
+            for (int i = line - 25; i <= line - 2; i++)
             {
-                long v = nums[i];
-                if (s_last25Cache.Contains(num - v))
+                long target = num - nums[i];
+                for (int j = i + 1; j <= line - 1; j++)
                 {
-                    return true;
+                    if (nums[j] == target)
+                    {
+                        return true;
+                    }
                 }
-
-                s_last25Cache.Add(v);
             }
 
             return false;
