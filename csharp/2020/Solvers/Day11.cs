@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
 
@@ -14,26 +15,26 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
         private struct Seat
         {
             public short SeatData;
-            public readonly byte DistanceNW;
-            public readonly byte DistanceN;
-            public readonly byte DistanceNE;
-            public readonly byte DistanceW;
-            public readonly byte DistanceE;
-            public readonly byte DistanceSW;
-            public readonly byte DistanceS;
-            public readonly byte DistanceSE;
+            public readonly int NW;
+            public readonly int N;
+            public readonly int NE;
+            public readonly int W;
+            public readonly int E;
+            public readonly int SW;
+            public readonly int S;
+            public readonly int SE;
 
-            public Seat(short seatData, byte distNW, byte distN, byte distNE, byte distW, byte distE, byte distSW, byte distS, byte distSE)
+            public Seat(short seatData, int nw, int n, int ne, int w, int e, int sw, int s, int se)
             {
                 SeatData = seatData;
-                DistanceNW = distNW;
-                DistanceN = distN;
-                DistanceNE = distNE;
-                DistanceW = distW;
-                DistanceE = distE;
-                DistanceSW = distSW;
-                DistanceS = distS;
-                DistanceSE = distSE;
+                NW = nw;
+                N = n;
+                NE = ne;
+                W = w;
+                E = e;
+                SW = sw;
+                S = s;
+                SE = se;
             }
 
             public void FlipOccupiedFlag()
@@ -60,7 +61,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             MarkPaddingAsFinalised(seatsPart1, height, width);
 
             // store a set of all seats that are not finalised (we will be iterating over this)
-            var activeSeatsPart1 = new HashSet<int>();
+            var activeSeats = new List<int>();
 
             // populate input into seats
             int seatsIndex = width + 1; // index in seats where input starts
@@ -76,7 +77,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 }
                 else
                 {
-                    activeSeatsPart1.Add(seatsIndex);
+                    activeSeats.Add(seatsIndex);
                 }
 
                 seatsIndex++;
@@ -85,21 +86,20 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             // make a copy of the seats array and active seats since we can reuse it for part 2
             var seatsPart2 = new Seat[seatsPart1.Length];
             Array.Copy(seatsPart1, seatsPart2, seatsPart1.Length);
-            var activeSeatsPart2 = new HashSet<int>(activeSeatsPart1, activeSeatsPart1.Comparer);
 
-            foreach (var seat in activeSeatsPart1)
+            foreach (var seat in activeSeats)
             {
-                seatsPart1[seat] = new Seat(0, 1, 1, 1, 1, 1, 1, 1, 1); // all distances are 1 for part 1
+                seatsPart1[seat] = GetSeatPart1(seat, width);
             }
 
-            int part1 = Solve(seatsPart1, width, 4, activeSeatsPart1);
+            int part1 = Solve(seatsPart1, width, 4, activeSeats);
 
-            foreach (var seat in activeSeatsPart2)
+            foreach (var seat in activeSeats)
             {
-                seatsPart2[seat] = GetSeatWithDistsToNearestSeat(seatsPart2, seat, width, height);
+                seatsPart2[seat] = GetSeatPart2(seatsPart2, seat, width, height);
             }
 
-            int part2 = Solve(seatsPart2, width, 5, activeSeatsPart2);
+            int part2 = Solve(seatsPart2, width, 5, activeSeats);
 
             return new Solution(part1, part2);
         }
@@ -117,19 +117,35 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 seats[i].Finalise();
         }
 
-        private static Seat GetSeatWithDistsToNearestSeat(Seat[] seats, int seat, int width, int height)
+        private static Seat GetSeatPart1(int seat, int width)
         {
-            static byte GetDistance(Seat[] seats, int seat, int maxDist, int delta)
+            int prev = seat - width;
+            int next = seat + width;
+            return new Seat(seatData: 0,
+                nw: prev - 1,
+                n: prev,
+                ne: prev + 1,
+                w: seat - 1,
+                e: seat + 1,
+                sw: next - 1,
+                s: next,
+                se: next + 1);
+        }
+
+        private static Seat GetSeatPart2(Seat[] seats, int seat, int width, int height)
+        {
+            static int GetNeighbour(Seat[] seats, int seat, int maxDist, int delta)
             {
+                seat += delta;
                 for (byte i = 1; i < maxDist; i++)
                 {
-                    seat += delta;
                     if ((seats[seat].SeatData & (1 << Finalised)) == 0)
                     {
-                        return i;
+                        break;
                     }
+                    seat += delta;
                 }
-                return (byte)maxDist;
+                return seat;
             }
 
             int rowsAbove = Math.DivRem(seat, width, out int colsLeft);
@@ -138,26 +154,31 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
 
             return new Seat(
                 seatData: 0,
-                distNW: GetDistance(seats, seat, Math.Min(rowsAbove, colsLeft), -width - 1),
-                distN: GetDistance(seats, seat, rowsAbove, -width),
-                distNE: GetDistance(seats, seat, Math.Min(rowsAbove, colsRight), -width + 1),
-                distW: GetDistance(seats, seat, colsLeft, -1),
-                distE: GetDistance(seats, seat, colsRight, 1),
-                distSW: GetDistance(seats, seat, Math.Min(rowsBelow, colsLeft), width - 1),
-                distS: GetDistance(seats, seat, rowsBelow, width),
-                distSE: GetDistance(seats, seat, Math.Min(rowsBelow, colsRight), width + 1));
+                nw: GetNeighbour(seats, seat, Math.Min(rowsAbove, colsLeft), -width - 1),
+                n: GetNeighbour(seats, seat, rowsAbove, -width),
+                ne: GetNeighbour(seats, seat, Math.Min(rowsAbove, colsRight), -width + 1),
+                w: GetNeighbour(seats, seat, colsLeft, -1),
+                e: GetNeighbour(seats, seat, colsRight, 1),
+                sw: GetNeighbour(seats, seat, Math.Min(rowsBelow, colsLeft), width - 1),
+                s: GetNeighbour(seats, seat, rowsBelow, width),
+                se: GetNeighbour(seats, seat, Math.Min(rowsBelow, colsRight), width + 1));
         }
 
-        private static int Solve(Seat[] seats, int width, int neighboursForVacant, HashSet<int> activeSeats)
+        private static int Solve(Seat[] seats, int width, int neighboursForVacant, List<int> activeSeats)
         {
-            var seatsToFlip = new List<int>(activeSeats.Count);
-            var seatsToFinalise = new List<int>(activeSeats.Count);
+            var seatsToProcess = activeSeats.ToArray();
+            var seatsToProcessLen = seatsToProcess.Length;
+            var seatsToFlip = new int[activeSeats.Count];
+            var seatsToFlipLen = 0;
+            var seatsToFinalise = new int[activeSeats.Count];
+            var seatsToFinaliseLen = 0;
             while (true)
             {
-                // DebugSeats(seats, width, seats.Length / width);
-
-                foreach (var seat in activeSeats)
+                //DebugSeats(seats, width, seats.Length / width);
+                int newSeatsToProcessLen = 0;
+                for (int i = 0; i < seatsToProcessLen; i++)
                 {
+                    var seat = seatsToProcess[i];
                     var cur = seats[seat];
                     int totals = GetNeighbourTotals(seats, cur, width, seat);
                     int occupiedTotal = (totals >> Occupied) & 0xF;
@@ -169,45 +190,49 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                     {
                         if (occupiedTotal >= neighboursForVacant)
                         {
-                            seatsToFlip.Add(seat);
+                            seatsToFlip[seatsToFlipLen++] = seat;
                         }
                         else if (neighboursForVacant < finalisedTotal - occAndFinalTotal)
                         {
-                            seatsToFinalise.Add(seat);
+                            seatsToFinalise[seatsToFinaliseLen++] = seat;
+                            continue;
                         }
                     }
                     else
                     {
                         if (occupiedTotal == 0)
                         {
-                            seatsToFlip.Add(seat);
+                            seatsToFlip[seatsToFlipLen++] = seat;
                         }
                         else if (occAndFinalTotal >= 1 || finalisedTotal == 8)
                         {
-                            seatsToFinalise.Add(seat);
+                            seatsToFinalise[seatsToFinaliseLen++] = seat;
+                            continue;
                         }
                     }
+
+                    seatsToProcess[newSeatsToProcessLen++] = seat;
                 }
 
                 // if there are no seats to flip, we have finished
-                if (seatsToFlip.Count == 0)
+                if (seatsToFlipLen == 0)
                 {
                     break;
                 }
 
-                foreach (var seat in seatsToFlip)
+                for (int i = 0; i < seatsToFlipLen; i++)
                 {
-                    seats[seat].FlipOccupiedFlag();
+                    seats[seatsToFlip[i]].FlipOccupiedFlag();
                 }
 
-                foreach (var seat in seatsToFinalise)
+                for (int i = 0; i < seatsToFinaliseLen; i++)
                 {
-                    activeSeats.Remove(seat);
-                    seats[seat].Finalise();
+                    seats[seatsToFinalise[i]].Finalise();
                 }
 
-                seatsToFlip.Clear();
-                seatsToFinalise.Clear();
+                seatsToFlipLen = 0;
+                seatsToFinaliseLen = 0;
+                seatsToProcessLen = newSeatsToProcessLen;
             }
 
             return CountSeats(seats);
@@ -217,14 +242,14 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
         private static int GetNeighbourTotals(Seat[] seats, Seat cur, int width, int seat)
         {
             return
-                seats[seat - (width + 1) * cur.DistanceNW].SeatData +
-                seats[seat - width * cur.DistanceN].SeatData +
-                seats[seat - (width - 1) * cur.DistanceNE].SeatData +
-                seats[seat - cur.DistanceW].SeatData +
-                seats[seat + cur.DistanceE].SeatData +
-                seats[seat + (width - 1) * cur.DistanceSW].SeatData +
-                seats[seat + width * cur.DistanceS].SeatData +
-                seats[seat + (width + 1) * cur.DistanceSE].SeatData;
+                seats[cur.NW].SeatData +
+                seats[cur.N].SeatData +
+                seats[cur.NE].SeatData +
+                seats[cur.W].SeatData +
+                seats[cur.E].SeatData +
+                seats[cur.SW].SeatData +
+                seats[cur.S].SeatData +
+                seats[cur.SE].SeatData;
         }
 
         private static int CountSeats(Seat[] grid)
