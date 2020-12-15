@@ -62,6 +62,39 @@ namespace AdventOfCode.CSharp.Common
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public int ReadIntUntil(char c)
+        {
+            int i = 0;
+            bool isNeg = false;
+            if (_input[i] == '-')
+            {
+                isNeg = true;
+                i++;
+            }
+
+            // we assume the first char is always a digit
+            int ret = _input[i++] - '0';
+            for (; i < _input.Length; i++)
+            {
+                char cur = _input[i];
+                if (cur == c)
+                {
+                    _input = _input.Slice(i + 1);
+                    if (isNeg)
+                        ret = -ret;
+                    return ret;
+                }
+
+                ret = ret * 10 + (cur - '0');
+            }
+
+            _input = ReadOnlySpan<char>.Empty;
+            if (isNeg)
+                ret = -ret;
+            return ret;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int ReadPosIntUntil(char c)
         {
             // we assume the first char is always a digit
