@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Numerics;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers
@@ -14,7 +13,6 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
 
             long maskXs = 0; // ['X'] -> 1, ['0' or '1'] -> 0
             long mask1s = 0; // ['X' or '0'] -> 0, ['1'] -> 1
-            int numPermutations = 1; // stores the number of permutations for the mask in part 2
 
             var reader = new SpanReader(input);
             while (!reader.Done)
@@ -39,7 +37,6 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                         }
                     }
 
-                    numPermutations = 1 << BitOperations.PopCount((ulong)maskXs);
                     reader.SkipLength(37); // 36 digits + newline
                 }
                 else // mem
@@ -56,11 +53,13 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                     addr |= mask1s; // any 1's in the mask should be set to 1 in the address
                     addr &= ~maskXs; // any x's need to be set to 0 (since we will be iterating through permutations of bits in X)
 
-                    long mask = 0;
-                    for (int i = 0; i < numPermutations; i++)
+                    // iterate through submasks: https://cp-algorithms.com/algebra/all-submasks.html
+                    long mask = maskXs;
+                    mem2[addr] = val; // handle mask = 0 case
+                    while (mask != 0)
                     {
                         mem2[addr | mask] = val;
-                        mask = (mask - maskXs) & maskXs;
+                        mask = (mask - 1) & maskXs;
                     }
                 }
             }
