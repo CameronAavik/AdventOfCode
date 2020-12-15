@@ -8,7 +8,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
 {
     public class Day05 : ISolver
     {
-        private static readonly Vector256<uint>[] AsciiNumMasks = new Vector256<uint>[]
+        private static readonly Vector256<uint>[] s_asciiNumMasks = new Vector256<uint>[]
         {
             Vector256.Create(0x80u),
             Vector256.Create(0x80u << 8 | '0'),
@@ -19,24 +19,24 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
 
         private class PasswordBuilder
         {
-            private static readonly Vector256<uint> ZeroMask = Vector256.Create(0xF0FFFFu);
+            private static readonly Vector256<uint> s_zeroMask = Vector256.Create(0xF0FFFFu);
 
-            private char[] part1 = new char[8];
-            private char[] part2 = new char[8];
+            private readonly char[] _part1 = new char[8];
+            private readonly char[] _part2 = new char[8];
 
-            private int part1Index = 0;
-            private int part2Seen = 0;
+            private int _part1Index = 0;
+            private int _part2Seen = 0;
 
             public bool IsComplete { get; private set; } = false;
 
-            public string Part1 => new string(part1);
+            public string Part1 => new(_part1);
 
-            public string Part2 => new string(part2);
+            public string Part2 => new(_part2);
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void AddHashes(Vector256<uint> hashVector, int i, int maxI)
             {
-                Vector256<uint> masked = Avx2.And(ZeroMask, hashVector);
+                Vector256<uint> masked = Avx2.And(s_zeroMask, hashVector);
                 Vector256<uint> isZero = Avx2.CompareEqual(masked, Vector256<uint>.Zero);
                 int moveMask = Avx2.MoveMask(isZero.AsByte());
 
@@ -50,15 +50,15 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                             int digit6 = (int)(matchingHash >> 16) & 0xF;
                             int digit7 = (int)(matchingHash >> 28) & 0xF;
 
-                            if (part1Index < 8)
+                            if (_part1Index < 8)
                             {
-                                part1[part1Index++] = IntToHex(digit6);
+                                _part1[_part1Index++] = IntToHex(digit6);
                             }
 
-                            if (digit6 < 8 && part2[digit6] == 0)
+                            if (digit6 < 8 && _part2[digit6] == 0)
                             {
-                                part2[digit6] = IntToHex(digit7);
-                                if (++part2Seen == 8)
+                                _part2[digit6] = IntToHex(digit7);
+                                if (++_part2Seen == 8)
                                 {
                                     IsComplete = true;
                                 }
@@ -109,10 +109,10 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                 // need to put message end bit in 3rd uint when 2nd uint is full
                 if (len == 4)
                 {
-                    data[3] = AsciiNumMasks[0];
+                    data[3] = s_asciiNumMasks[0];
                 }
 
-                Vector256<uint> mask = AsciiNumMasks[len];
+                Vector256<uint> mask = s_asciiNumMasks[len];
                 data[14] = Vector256.Create((uint)(len + 8) * 8);
 
                 int end = start * 10;
@@ -141,11 +141,11 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                 // need to put message end bit in 4rd uint when 3nd uint is full
                 if (len == 8)
                 {
-                    data[4] = AsciiNumMasks[0];
+                    data[4] = s_asciiNumMasks[0];
                 }
 
-                Vector256<uint> mask1 = AsciiNumMasks[4];
-                Vector256<uint> mask2 = AsciiNumMasks[len - 4];
+                Vector256<uint> mask1 = s_asciiNumMasks[4];
+                Vector256<uint> mask2 = s_asciiNumMasks[len - 4];
                 data[14] = Vector256.Create((uint)(len + 8) * 8);
 
                 int end = start * 10;

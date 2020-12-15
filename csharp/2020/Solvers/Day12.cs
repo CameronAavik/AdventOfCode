@@ -19,9 +19,9 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             var reader = new SpanReader(input);
             while (!reader.Done)
             {
-                var dir = reader.Peek();
+                char dir = reader.Peek();
                 reader.SkipLength(1);
-                var amount = reader.ReadPosIntUntil('\n');
+                int amount = reader.ReadPosIntUntil('\n');
 
                 switch (dir)
                 {

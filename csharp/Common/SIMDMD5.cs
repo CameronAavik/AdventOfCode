@@ -10,11 +10,11 @@ namespace AdventOfCode.CSharp.Common
 {
     public static class SIMDMD5
     {
-        private static readonly Vec256 Mask = Vector256.Create(uint.MaxValue);
-        private static readonly Vec256 InitA = Vector256.Create(0x67452301u);
-        private static readonly Vec256 InitB = Vector256.Create(0xefcdab89u);
-        private static readonly Vec256 InitC = Vector256.Create(0x98badcfeu);
-        private static readonly Vec256 InitD = Vector256.Create(0x10325476u);
+        private static readonly Vec256 s_mask = Vector256.Create(uint.MaxValue);
+        private static readonly Vec256 s_initA = Vector256.Create(0x67452301u);
+        private static readonly Vec256 s_initB = Vector256.Create(0xefcdab89u);
+        private static readonly Vec256 s_initC = Vector256.Create(0x98badcfeu);
+        private static readonly Vec256 s_initD = Vector256.Create(0x10325476u);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Vec256 F(Vec256 x, Vec256 y, Vec256 z) => Avx2.Or(Avx2.And(x, y), Avx2.AndNot(x, z));
@@ -26,7 +26,7 @@ namespace AdventOfCode.CSharp.Common
         private static Vec256 H(Vec256 x, Vec256 y, Vec256 z) => Avx2.Xor(x, Avx2.Xor(y, z));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static Vec256 I(Vec256 x, Vec256 y, Vec256 z) => Avx2.Xor(y, Avx2.Or(x, Avx2.AndNot(z, Mask)));
+        private static Vec256 I(Vec256 x, Vec256 y, Vec256 z) => Avx2.Xor(y, Avx2.Or(x, Avx2.AndNot(z, s_mask)));
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static Vec256 RotateLeft(Vec256 a, byte s) =>
@@ -79,7 +79,7 @@ namespace AdventOfCode.CSharp.Common
         /// <returns></returns>
         public static Vec256 TransformAndReturnFirst4Bytes(Vec256[] data)
         {
-            Vec256 a = InitA, b = InitB, c = InitC, d = InitD;
+            Vec256 a = s_initA, b = s_initB, c = s_initC, d = s_initD;
 
             /* Round 1 */
             FF(ref a, b, c, d, data[0], 7, 0xd76aa478); /* 1 */
@@ -154,7 +154,7 @@ namespace AdventOfCode.CSharp.Common
             //II(ref c, d, a, b, data[2], 15, 0x2ad7d2bb); /* 63 */
             //II(ref b, c, d, a, data[9], 21, 0xeb86d391); /* 64 */
 
-            return Avx2.Add(a, InitA);
+            return Avx2.Add(a, s_initA);
         }
     }
 }

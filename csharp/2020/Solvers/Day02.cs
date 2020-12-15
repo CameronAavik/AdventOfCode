@@ -36,7 +36,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        int ParsePosInt(ReadOnlySpan<char> str, char until, ref int i)
+        static int ParsePosInt(ReadOnlySpan<char> str, char until, ref int i)
         {
             char c = str[i++];
             int num = c - '0';

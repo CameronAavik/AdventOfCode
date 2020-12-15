@@ -37,11 +37,13 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 SE = se;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void FlipOccupiedFlag()
             {
                 SeatData ^= 1 << Occupied;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void Finalise()
             {
                 SeatData |= (short)(SeatData << (OccupiedAndFinalised - Occupied));
@@ -51,55 +53,53 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
 
         public Solution Solve(ReadOnlySpan<char> input)
         {
-            var cols = input.IndexOf('\n');
-            var rows = input.Length / (cols + 1);
+            int cols = input.IndexOf('\n');
+            int rows = input.Length / (cols + 1);
 
             // padding row and column is added
-            var height = rows + 2;
-            var width = cols + 2;
+            int height = rows + 2;
+            int width = cols + 2;
             var seatsPart1 = new Seat[height * width];
             MarkPaddingAsFinalised(seatsPart1, height, width);
 
             // store a set of all seats that are not finalised (we will be iterating over this)
-            var activeSeats = new List<int>();
+            var activeSeats = new List<int>(cols * rows);
 
             // populate input into seats
             int seatsIndex = width + 1; // index in seats where input starts
-            foreach (var c in input)
+            foreach (char c in input)
             {
-                if (c == '\n')
+                switch (c)
                 {
-                    seatsIndex++; // skip a padding column
+                    case '\n':
+                        seatsIndex += 2; // skip a padding column
+                        break;
+                    case '.':
+                        seatsPart1[seatsIndex++].Finalise(); // floors start out as finalised
+                        break;
+                    default:
+                        activeSeats.Add(seatsIndex++);
+                        break;
                 }
-                else if (c == '.')
-                {
-                    seatsPart1[seatsIndex].Finalise(); // floors start out as finalised
-                }
-                else
-                {
-                    activeSeats.Add(seatsIndex);
-                }
-
-                seatsIndex++;
             }
 
             // make a copy of the seats array and active seats since we can reuse it for part 2
             var seatsPart2 = new Seat[seatsPart1.Length];
             Array.Copy(seatsPart1, seatsPart2, seatsPart1.Length);
 
-            foreach (var seat in activeSeats)
+            foreach (int seatIndex in activeSeats)
             {
-                seatsPart1[seat] = GetSeatPart1(seat, width);
+                seatsPart1[seatIndex] = GetSeatPart1(seatIndex, width);
             }
 
-            int part1 = Solve(seatsPart1, width, 4, activeSeats);
+            int part1 = Solve(seatsPart1, 4, activeSeats);
 
-            foreach (var seat in activeSeats)
+            foreach (int seatIndex in activeSeats)
             {
-                seatsPart2[seat] = GetSeatPart2(seatsPart2, seat, width, height);
+                seatsPart2[seatIndex] = GetSeatPart2(seatsPart2, seatIndex, width, height);
             }
 
-            int part2 = Solve(seatsPart2, width, 5, activeSeats);
+            int part2 = Solve(seatsPart2, 5, activeSeats);
 
             return new Solution(part1, part2);
         }
@@ -164,23 +164,22 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 se: GetNeighbour(seats, seat, Math.Min(rowsBelow, colsRight), width + 1));
         }
 
-        private static int Solve(Seat[] seats, int width, int neighboursForVacant, List<int> activeSeats)
+        private static int Solve(Seat[] seats, int neighboursForVacant, List<int> activeSeats)
         {
-            var seatsToProcess = activeSeats.ToArray();
-            var seatsToProcessLen = seatsToProcess.Length;
-            var seatsToFlip = new int[activeSeats.Count];
-            var seatsToFlipLen = 0;
-            var seatsToFinalise = new int[activeSeats.Count];
-            var seatsToFinaliseLen = 0;
+            int[] seatsToProcess = activeSeats.ToArray();
+            int seatsToProcessLen = seatsToProcess.Length;
+            int[] seatsToFlip = new int[activeSeats.Count];
+            int seatsToFlipLen = 0;
+            int[] seatsToFinalise = new int[activeSeats.Count];
+            int seatsToFinaliseLen = 0;
             while (true)
             {
-                //DebugSeats(seats, width, seats.Length / width);
                 int newSeatsToProcessLen = 0;
                 for (int i = 0; i < seatsToProcessLen; i++)
                 {
-                    var seat = seatsToProcess[i];
-                    var cur = seats[seat];
-                    int totals = GetNeighbourTotals(seats, cur, width, seat);
+                    int seat = seatsToProcess[i];
+                    Seat cur = seats[seat];
+                    int totals = GetNeighbourTotals(seats, cur);
                     int occupiedTotal = (totals >> Occupied) & 0xF;
                     int finalisedTotal = (totals >> Finalised) & 0xF;
                     int occAndFinalTotal = (totals >> OccupiedAndFinalised) & 0xF;
@@ -239,7 +238,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static int GetNeighbourTotals(Seat[] seats, Seat cur, int width, int seat)
+        private static int GetNeighbourTotals(Seat[] seats, Seat cur)
         {
             return
                 seats[cur.NW].SeatData +
@@ -255,30 +254,12 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
         private static int CountSeats(Seat[] grid)
         {
             int occupied = 0;
-            foreach (var seat in grid)
+            foreach (Seat seat in grid)
             {
                 occupied += seat.SeatData & (1 << Occupied);
             }
 
             return occupied;
-        }
-
-        private static void DebugSeats(Seat[] grid, int width, int height)
-        {
-            for (int row = 1; row < height - 1; row++)
-            {
-                for (int col = 1; col < width - 1; col++)
-                {
-                    var seat = grid[row * width + col].SeatData;
-                    var isVacant = (seat & (1 << Occupied)) == 0;
-                    var isFinalised = (seat & (1 << Finalised)) != 0;
-                    Console.Write(isVacant ? (isFinalised ? '.' : 'L') : '#');
-                }
-
-                Console.WriteLine();
-            }
-
-            Console.WriteLine();
         }
     }
 }

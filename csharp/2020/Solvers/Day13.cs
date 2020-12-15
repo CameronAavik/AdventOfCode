@@ -17,51 +17,42 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
 
             BigInteger product = 1;
             var buses = new List<(int n, int a)>();
-            int i = 0;
-            while (!reader.Done)
+            for (int i = 0; !reader.Done; i++)
             {
                 if (reader.Peek() == 'x')
                 {
                     reader.SkipLength("x,".Length);
+                    continue;
                 }
-                else
+
+                int busId = reader.ReadPosIntUntil(',');
+
+                // Part 1
+                int waitTime = busId - (earliestTime % busId);
+                if (waitTime < part1Time)
                 {
-                    var busId = reader.ReadPosIntUntil(',');
-
-                    // Part 1
-                    int firstTimeAfterEarliest = (earliestTime / busId) * busId;
-                    if (earliestTime % busId != 0)
-                    {
-                        firstTimeAfterEarliest += busId;
-                    }
-
-                    if (firstTimeAfterEarliest < part1Time)
-                    {
-                        part1Id = busId;
-                        part1Time = firstTimeAfterEarliest;
-                    }
-
-                    // Part 2
-                    product *= busId;
-
-                    int remainder = (busId - i) % busId;
-                    if (remainder < 0)
-                    {
-                        remainder += busId;
-                    }
-
-                    buses.Add((busId, remainder));
+                    part1Id = busId;
+                    part1Time = waitTime;
                 }
 
-                i++;
+                // Part 2
+                product *= busId;
+
+                int remainder = (busId - i) % busId;
+                if (remainder < 0)
+                {
+                    remainder += busId;
+                }
+
+                buses.Add((busId, remainder));
             }
 
-            int part1 = part1Id * (part1Time - earliestTime);
+            int part1 = part1Id * part1Time;
 
             BigInteger part2 = 0;
-            foreach ((var n, var a) in buses)
+            foreach ((int n, int a) in buses)
             {
-                var p = product / n;
+                BigInteger p = product / n;
                 part2 += a * BigInteger.ModPow(p, n - 2, n) * p;
             }
 

@@ -43,12 +43,12 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
 
         public Solution Solve(ReadOnlySpan<char> input)
         {
-            var part1Locs = ParseInput(input).ToArray();
+            byte[] part1Locs = ParseInput(input).ToArray();
             Array.Sort(part1Locs);
             var part1State = new State(part1Locs, 1);
             int part1 = FindStepsToFinish(part1State);
 
-            var part2Locs = new byte[part1Locs.Length + 2];
+            byte[] part2Locs = new byte[part1Locs.Length + 2];
             Array.Copy(part1Locs, 0, part2Locs, 2, part1Locs.Length);
             part2Locs[0] = 1 << 4 | 1;
             part2Locs[1] = 1 << 4 | 1;
@@ -117,7 +117,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             while (frontier.Count > 0)
             {
                 var newFrontier = new List<State>();
-                foreach (var state in frontier)
+                foreach (State state in frontier)
                 {
                     if (!seen.Add(state))
                     {
@@ -129,7 +129,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                         return steps;
                     }
 
-                    var curFloor = state.CurFloor;
+                    int curFloor = state.CurFloor;
 
                     for (int newLevel = curFloor - 1; newLevel <= curFloor + 1; newLevel += 2)
                     {
@@ -141,9 +141,9 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
 
                         for (int elem1 = 0; elem1 < len; elem1++)
                         {
-                            var locations1 = state.MaterialLocations[elem1];
-                            var isGen1OnFloor = locations1 >> 4 == curFloor;
-                            var isChip1OnFloor = (locations1 & 0xF) == curFloor;
+                            byte locations1 = state.MaterialLocations[elem1];
+                            bool isGen1OnFloor = locations1 >> 4 == curFloor;
+                            bool isChip1OnFloor = (locations1 & 0xF) == curFloor;
 
                             if (!isGen1OnFloor && !isChip1OnFloor)
                             {
@@ -170,7 +170,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
 
                             for (int elem2 = elem1 + 1; elem2 < len; elem2++)
                             {
-                                var locations2 = state.MaterialLocations[elem2];
+                                byte locations2 = state.MaterialLocations[elem2];
 
                                 // elem1 chip and elem2 chip
                                 if (isChip1OnFloor && (locations2 & 0xF) == curFloor && TryMove(state, newLevel, elem1, elem2, false, false, out newState))
@@ -205,8 +205,8 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             bool? isGen2,
             [NotNullWhen(returnValue: true)] out State? newState)
         {
-            var numMaterials = curState.MaterialLocations.Length;
-            var curFloor = curState.CurFloor;
+            int numMaterials = curState.MaterialLocations.Length;
+            int curFloor = curState.CurFloor;
 
             bool hasUnmatchedChipCurLevel = false;
             bool hasGeneratorCurLevel = false;
@@ -214,7 +214,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
             bool hasGeneratorNewLevel = false;
             for (int i = 0; i < numMaterials; i++)
             {
-                var locs = curState.MaterialLocations[i];
+                byte locs = curState.MaterialLocations[i];
 
                 // validate that the current level is valid after the move
                 if (locs >> 4 == curFloor && (i != elem1 || !isGen1) && (i != elem2 || isGen2 != true))
@@ -237,14 +237,14 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                 }
             }
 
-            if (hasUnmatchedChipCurLevel && hasGeneratorCurLevel || hasUnmatchedChipNewLevel && hasGeneratorNewLevel)
+            if ((hasUnmatchedChipCurLevel && hasGeneratorCurLevel) || (hasUnmatchedChipNewLevel && hasGeneratorNewLevel))
             {
                 newState = null;
                 return false;
             }
 
             // now we know this is a valid move
-            var newLocs = new byte[numMaterials];
+            byte[] newLocs = new byte[numMaterials];
             Array.Copy(curState.MaterialLocations, newLocs, numMaterials);
             newLocs[elem1] = isGen1
                 ? (byte)(newLevel << 4 | (curState.MaterialLocations[elem1] & 0xF))

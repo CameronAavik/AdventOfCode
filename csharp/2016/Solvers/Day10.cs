@@ -63,7 +63,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                 }
                 else
                 {
-                    (bool IsLowBot, int Low, bool IsHighBot, int High) destinations = botOutputs[destination];
+                    (bool IsLowBot, int Low, bool IsHighBot, int High) = botOutputs[destination];
 
                     int low = Math.Min(curValue, value);
                     int high = Math.Max(curValue, value);
@@ -73,8 +73,8 @@ namespace AdventOfCode.CSharp.Y2016.Solvers
                         part1 = destination;
                     }
 
-                    valueQueue.Enqueue((destinations.IsLowBot, destinations.Low, low));
-                    valueQueue.Enqueue((destinations.IsHighBot, destinations.High, high));
+                    valueQueue.Enqueue((IsLowBot, Low, low));
+                    valueQueue.Enqueue((IsHighBot, High, high));
                 }
             }
 
