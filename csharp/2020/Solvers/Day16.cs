@@ -56,20 +56,19 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 ParseTicket(ref reader, ticket);
 
                 // get sum of invalid values in the ticket
-                int errors = 0;
+                bool isValid = true;
                 foreach (int fieldVal in ticket)
                 {
                     // potentialFieldsByValue[fieldVal] will be 0 when no fields are valid for a fieldVal
                     if (fieldVal > maxFieldVal || potentialFieldsByValue[fieldVal] == 0)
                     {
-                        errors += fieldVal;
+                        part1 += fieldVal;
+                        isValid = false;
                     }
                 }
 
-                part1 += errors;
-
                 // only use valid tickets to refine fieldCandidates
-                if (errors == 0)
+                if (isValid)
                 {
                     for (int i = 0; i < fieldCandidates.Length; i++)
                     {
