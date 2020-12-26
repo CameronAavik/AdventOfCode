@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using System.Threading;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers

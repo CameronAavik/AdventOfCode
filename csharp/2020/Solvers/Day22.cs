@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Numerics;
+using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
 using Microsoft.Toolkit.HighPerformance.Extensions;
 
@@ -6,21 +9,34 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
 {
     public class Day22 : ISolver
     {
-        struct Deck
+        const int MaxCardValue = 50;
+
+        // 50 randomly generated numbers to use with buzhash
+        private static readonly uint[] s_buzHashTable = new uint[MaxCardValue + 1]
         {
-            private byte[] _data;
+            119564030, 1443776239, 730079727, 637016013, 1609741144, 1628178104, 959411748, 277699449, 1095401195, 2141407359,
+            1854243163, 1004465043, 470634801, 415392255, 1337243970, 517336758, 346301782, 1862853160, 1038920193, 1537224577,
+            397161517, 415214760, 1927010737, 1563126965, 464456291, 1600929911, 432269658, 1937776014, 339596328, 941709070,
+            1801487444, 666151923, 1222063719, 698053827, 737686581, 1185001291, 934247867, 327989044, 1178439112, 1417667540,
+            514509190, 1930851386, 1488309314, 1865466052, 1522586288, 631476122, 289764488, 1651811359, 480085310, 2142599053,
+            1870472761
+        };
+
+        class Deck
+        {
+            private readonly byte[] _data;
             private int _start;
             private int _end;
-            private int _len;
+            private readonly byte _maxCard;
+            private int _length;
+            private uint _hash;
 
-            public Deck(int capacity)
+            public Deck()
             {
-                _data = new byte[capacity];
-                _start = 0;
-                _end = 0;
-                _len = 0;
+                _data = new byte[MaxCardValue];
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public Deck(Deck deck, int length)
             {
                 _data = new byte[deck._data.Length];
@@ -30,29 +46,56 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 _end = _start + length;
                 if (_end >= _data.Length)
                     _end -= _data.Length;
-                _len = length;
+
+                _length = length;
+
+                byte maxCard = 0;
+                uint hash = 0;
+                int j = _start;
+                for (int i = 0; i < length; i++)
+                {
+                    byte card = _data[j++];
+
+                    maxCard = Math.Max(card, maxCard);
+                    hash ^= BitOperations.RotateLeft(s_buzHashTable[card], i);
+
+                    if (j == _data.Length)
+                        j = 0;
+                }
+
+                _maxCard = maxCard;
+                _hash = hash;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public byte DrawCard()
             {
                 byte card = _data[_start++];
-                if (_start >= _data.Length)
+                if (_start == _data.Length)
                     _start = 0;
-                _len--;
+                _length--;
+                _hash = BitOperations.RotateRight(_hash ^ s_buzHashTable[card], 1);
                 return card;
             }
 
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void PlaceCard(byte card)
             {
                 _data[_end++] = card;
-                if (_end >= _data.Length)
+                if (_end == _data.Length)
                     _end = 0;
-                _len++;
+                _hash ^= BitOperations.RotateLeft(s_buzHashTable[card], _length);
+                _length++;
             }
 
-            public int Length => _len;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public byte GetMaxCard() => _maxCard;
 
-            public bool IsEmpty => _len == 0;
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public int GetLength() => _length;
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public uint GetHash() => _hash;
 
             public int GetScore()
             {
@@ -77,22 +120,36 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             }
         }
 
+        readonly struct DeckState
+        {
+            private readonly uint _hash1;
+            private readonly uint _hash2;
+
+            public DeckState(Deck player1, Deck player2)
+            {
+                _hash1 = player1.GetHash();
+                _hash2 = player2.GetHash();
+            }
+
+            public override bool Equals(object? obj) => obj is DeckState state && _hash1 == state._hash1 && _hash2 == state._hash2;
+            public override int GetHashCode() => HashCode.Combine(_hash1, _hash2);
+        }
+
         public Solution Solve(ReadOnlySpan<char> input)
         {
             int player2Index = input.IndexOf("\n\n");
             ReadOnlySpan<char> player1Input = input.Slice(0, player2Index + 1);
             ReadOnlySpan<char> player2Input = input.Slice(player2Index + 2);
 
-            int totalCards = player1Input.Count('\n') - 1 + player2Input.Count('\n') - 1;
-            var part1Deck1 = new Deck(totalCards + 1);
-            var part1Deck2 = new Deck(totalCards + 1);
+            var part1Deck1 = new Deck();
+            var part1Deck2 = new Deck();
 
-            ParsePlayerCards(player1Input, ref part1Deck1);
-            ParsePlayerCards(player2Input, ref part1Deck2);
+            ParsePlayerCards(player1Input, part1Deck1);
+            ParsePlayerCards(player2Input, part1Deck2);
 
             // make a copy of the deck to use for part 2
-            var part2Deck1 = new Deck(part1Deck1, part1Deck1.Length);
-            var part2Deck2 = new Deck(part1Deck2, part1Deck2.Length);
+            var part2Deck1 = new Deck(part1Deck1, part1Deck1.GetLength());
+            var part2Deck2 = new Deck(part1Deck2, part1Deck2.GetLength());
 
             int part1 = Solve(part1Deck1, part1Deck2, isPart2: false);
             int part2 = Solve(part2Deck1, part2Deck2, isPart2: true);
@@ -100,7 +157,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             return new Solution(part1, part2);
         }
 
-        private static void ParsePlayerCards(ReadOnlySpan<char> input, ref Deck deck)
+        private static void ParsePlayerCards(ReadOnlySpan<char> input, Deck deck)
         {
             var reader = new SpanReader(input);
             reader.SkipLength("Player 1:\n".Length);
@@ -113,13 +170,13 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
 
         private static int Solve(Deck deck1, Deck deck2, bool isPart2)
         {
-            while (!deck1.IsEmpty && !deck2.IsEmpty)
+            while (deck1.GetLength() > 0 && deck2.GetLength() > 0)
             {
                 byte card1 = deck1.DrawCard();
                 byte card2 = deck2.DrawCard();
 
                 int winner;
-                if (isPart2 && card1 <= deck1.Length && card1 <= deck2.Length)
+                if (isPart2 && card1 <= deck1.GetLength() && card2 <= deck2.GetLength())
                 {
                     winner = RecursiveCombat(new Deck(deck1, card1), new Deck(deck2, card2));
                 }
@@ -144,13 +201,52 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 }
             }
 
-            Deck winningDeck = deck1.IsEmpty ? deck2 : deck1;
+            Deck winningDeck = deck1.GetLength() == 0 ? deck2 : deck1;
             return winningDeck.GetScore();
         }
 
         private static int RecursiveCombat(Deck deck1, Deck deck2)
         {
-            return 1;
+            if (deck1.GetMaxCard() > deck2.GetMaxCard())
+                return 1;
+
+            var seenStates = new HashSet<DeckState>();
+            while (deck1.GetLength() > 0 && deck2.GetLength() > 0)
+            {
+                byte card1 = deck1.DrawCard();
+                byte card2 = deck2.DrawCard();
+
+                // check to see if we have seen this deck state before
+                if (card2 == deck2.GetMaxCard() && !seenStates.Add(new DeckState(deck1, deck2)))
+                    return 1;
+
+                int winner;
+                if (card1 <= deck1.GetLength() && card2 <= deck2.GetLength())
+                {
+                    winner = RecursiveCombat(new Deck(deck1, card1), new Deck(deck2, card2));
+                }
+                else if (card1 < card2)
+                {
+                    winner = 2;
+                }
+                else
+                {
+                    winner = 1;
+                }
+
+                if (winner == 1)
+                {
+                    deck1.PlaceCard(card1);
+                    deck1.PlaceCard(card2);
+                }
+                else
+                {
+                    deck2.PlaceCard(card2);
+                    deck2.PlaceCard(card1);
+                }
+            }
+
+            return deck1.GetLength() == 0 ? 2 : 1;
         }
     }
 }
