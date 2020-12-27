@@ -33,7 +33,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
 
             public Deck()
             {
-                _data = new byte[MaxCardValue];
+                _data = new byte[MaxCardValue + 1];
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
