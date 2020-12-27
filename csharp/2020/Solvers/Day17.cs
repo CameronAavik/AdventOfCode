@@ -9,8 +9,8 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
     {
         const int X = 1 << 0; // 5 bits for X
         const int Y = 1 << 5; // 5 bits for Y
-        const int Z = 1 << 10; // 4 bits for Z
-        const int W = 1 << 14; // 4 bits for W
+        const int Z = 1 << 10; // 3 bits for Z
+        const int W = 1 << 13; // 3 bits for W
 
         public Solution Solve(ReadOnlySpan<char> input)
         {
@@ -40,17 +40,17 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
 
         private static int SolvePart1(List<int> inputActiveCubes, int width, int height)
         {
-            const int originZ = 6;
+            const int originZ = 0;
 
             int activeCubeCount = 0;
-            int[] activeCubes = new int[(width + 12) * (height + 12) * 13];
+            int[] activeCubes = new int[(width + 12) * (height + 12) * 7];
             foreach (int cube in inputActiveCubes)
             {
                 activeCubes[activeCubeCount++] = cube + originZ * Z;
             }
 
             int[] nextActiveCubes = new int[activeCubes.Length];
-            var counter = new Day17NeighbourCounter(activeCubes.Length, (originZ + 7) * Z);
+            var counter = new NeighbourCounter(activeCubes.Length, (originZ + 7) * Z);
             for (int iteration = 0; iteration < 6; iteration++)
             {
                 counter.ResetNeighbours();
@@ -85,23 +85,39 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 activeCubeCount = nextActiveCubesCount;
             }
 
-            return activeCubeCount;
+            int totalCubeCount = 0;
+            for (int i = 0; i < activeCubeCount; i++)
+            {
+                int cube = activeCubes[i];
+
+                int z = cube >> 10;
+                if (z == 0)
+                {
+                    totalCubeCount += 1;
+                }
+                else
+                {
+                    totalCubeCount += 2;
+                }
+            }
+
+            return totalCubeCount;
         }
 
         private static int SolvePart2(List<int> inputActiveCubes, int width, int height)
         {
-            const int originZ = 6;
-            const int originW = 6;
+            const int originZ = 0;
+            const int originW = 0;
 
             int activeCubeCount = 0;
-            int[] activeCubes = new int[(width + 12) * (height + 12) * 13 * 13];
+            int[] activeCubes = new int[(width + 12) * (height + 12) * 7 * 7];
             foreach (int cube in inputActiveCubes)
             {
                 activeCubes[activeCubeCount++] = cube + originZ * Z + originW * W;
             }
 
             int[] nextActiveCubes = new int[activeCubes.Length];
-            var counter = new Day17NeighbourCounter(activeCubes.Length, (originW + 7) * W);
+            var counter = new NeighbourCounter(activeCubes.Length, (originW + 7) * W);
             for (int iteration = 0; iteration < 6; iteration++)
             {
                 counter.ResetNeighbours();
@@ -136,16 +152,45 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 activeCubeCount = nextActiveCubesCount;
             }
 
-            return activeCubeCount;
+            int zwPlane = 0;
+            int wAxis = 0;
+            int wzAxis = 0;
+            int other = 0;
+            for (int i = 0; i < activeCubeCount; i++)
+            {
+                int cube = activeCubes[i];
+
+                int z = (cube >> 10) & 0b111;
+                int w = cube >> 13;
+
+                if (z == 0 && w == 0)
+                {
+                    zwPlane++;
+                }
+                else if (w == 0)
+                {
+                    wAxis++;
+                }
+                else if (w == z)
+                {
+                    wzAxis++;
+                }
+                else
+                {
+                    other++;
+                }
+            }
+
+            return zwPlane + 4 * wAxis + 4 * wzAxis + 8 * other;
         }
 
-        class Day17NeighbourCounter
+        class NeighbourCounter
         {
             private int[] _neighbours;
             private int _neighbourLen = 0;
             private int[] _neighbourTotals;
 
-            public Day17NeighbourCounter(int maxNeighboursLen, int maxNeighbourValue)
+            public NeighbourCounter(int maxNeighboursLen, int maxNeighbourValue)
             {
                 _neighbours = new int[maxNeighboursLen];
                 _neighbourTotals = new int[maxNeighbourValue + 1];
@@ -160,39 +205,83 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             public void UpdateNeighbourTotalsXYZW(int pos)
             {
-                UpdateNeighbourTotalsXYZ(pos - W);
-                UpdateNeighbourTotalsXYZ(pos);
-                UpdateNeighbourTotalsXYZ(pos + W);
-            }
+                int w = pos >> 13;
+                int z = (pos >> 10) & 0b111;
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UpdateNeighbourTotalsXYZ(int pos)
-            {
-                UpdateNeighbourTotalsXY(pos - Z);
-                UpdateNeighbourTotalsXY(pos);
+                // +w, +z
+                UpdateNeighbourTotalsXY(pos + W + Z, 1);
+
+                // +w
+                if (w < z)
+                {
+                    UpdateNeighbourTotalsXY(pos + W, z != w + 1 ? 1 : 2);
+                }
+
+                // +w, -z
+                if (w + 1 < z)
+                {
+                    UpdateNeighbourTotalsXY(pos + W - Z, z != w + 2 ? 1 : 2);
+                }
+
+                // +z
                 UpdateNeighbourTotalsXY(pos + Z);
+
+                // +0
+
+                UpdateNeighbourTotalsXY(pos, z != w + 1 ? 1 : (w != 0 ? 2 : 3));
+
+                // -z
+                if (w < z)
+                {
+                    int inc = 1;
+                    if (z == 1)
+                        inc *= 2;
+                    if (z == w + 1)
+                        inc *= 2;
+                    UpdateNeighbourTotalsXY(pos - Z, inc);
+                }
+
+                // -w
+                if (w != 0)
+                {
+                    UpdateNeighbourTotalsXYZ(pos - W, w != 1 ? 1 : 2);
+                }
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UpdateNeighbourTotalsXY(int pos)
+            public void UpdateNeighbourTotalsXYZ(int pos, int inc = 1)
             {
-                UpdateNeighbourTotalsX(pos - Y);
-                UpdateNeighbourTotalsX(pos);
-                UpdateNeighbourTotalsX(pos + Y);
+                int z = (pos >> 10) & 0b111;
+
+                if (z > 0)
+                {
+                    UpdateNeighbourTotalsXY(pos - Z, z != 1 ? inc : inc * 2);
+                }
+
+                UpdateNeighbourTotalsXY(pos, inc);
+                UpdateNeighbourTotalsXY(pos + Z, inc);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UpdateNeighbourTotalsX(int pos)
+            public void UpdateNeighbourTotalsXY(int pos, int inc = 1)
             {
-                UpdateNeighbourTotal(pos - X);
-                UpdateNeighbourTotal(pos);
-                UpdateNeighbourTotal(pos + X);
+                UpdateNeighbourTotalsX(pos - Y, inc);
+                UpdateNeighbourTotalsX(pos, inc);
+                UpdateNeighbourTotalsX(pos + Y, inc);
             }
 
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            public void UpdateNeighbourTotal(int pos)
+            public void UpdateNeighbourTotalsX(int pos, int inc = 1)
             {
-                if (_neighbourTotals[pos]++ == 0)
+                UpdateNeighbourTotal(pos - X, inc);
+                UpdateNeighbourTotal(pos, inc);
+                UpdateNeighbourTotal(pos + X, inc);
+            }
+
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            public void UpdateNeighbourTotal(int pos, int inc = 1)
+            {
+                if ((_neighbourTotals[pos] += inc) == inc)
                 {
                     _neighbours[_neighbourLen++] = pos;
                 }
