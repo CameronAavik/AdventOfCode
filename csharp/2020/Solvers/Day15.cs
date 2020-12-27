@@ -25,13 +25,42 @@ namespace AdventOfCode.CSharp.Y2020.Solvers
                 cur = value;
             }
 
+            int minZero = 0;
+            while (buffer[minZero] != 0)
+                minZero++;
+
             int part1 = cur;
 
-            while (i < 30000000)
+            // we use step to control how frequently we recalculate the smallest seen zero
+            const int step = 2048;
+            for (; i + step < 30000000; i += step)
+            {
+                for (int j = i; j < i + step; j++)
+                {
+                    int prev = buffer[cur];
+                    buffer[cur] = j;
+
+                    // while comparing against minZero might seem redundant, it makes the branch much more predictable and saves a lot of time
+                    if (cur < minZero || prev != 0)
+                    {
+                        cur = j - prev;
+                    }
+                    else
+                    {
+                        cur = 0;
+                    }
+                }
+
+                while (buffer[minZero] != 0)
+                    minZero++;
+            }
+
+            // since 30000000 is not always divisible by the step, we use one last loop to get to the end
+            for (; i < 30000000; i++)
             {
                 int prev_t = buffer[cur];
                 int value = prev_t == 0 ? 0 : i - prev_t;
-                buffer[cur] = i++;
+                buffer[cur] = i;
                 cur = value;
             }
 
