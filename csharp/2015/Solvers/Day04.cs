@@ -1,5 +1,4 @@
-﻿using System;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
 using System.Text;
 using AdventOfCode.CSharp.Common;
 
@@ -12,7 +11,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             const byte zeroByte = (byte)'0';
             const byte oneByte = (byte)'1';
 
-            using var provider = new MD5CryptoServiceProvider();
+            using var provider = MD5.Create();
 
             // create a buffer for the MD5 provider to store the result hash in
             Span<byte> resultBuffer = stackalloc byte[provider.HashSize / 8];
