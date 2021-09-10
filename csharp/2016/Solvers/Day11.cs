@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
+using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Extensions;
 
 namespace AdventOfCode.CSharp.Y2016.Solvers

@@ -43,4 +43,8 @@
     <ProjectReference Include="..\Common\AdventOfCode.FSharp.Common.fsproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Update="FSharp.Core" Version="5.0.3-beta.21352.5" />
+  </ItemGroup>
+
 </Project>

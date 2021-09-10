@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
+using Microsoft.Toolkit.HighPerformance;
 using Microsoft.Toolkit.HighPerformance.Extensions;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers
