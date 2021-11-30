@@ -7,3 +7,4 @@ BenchmarkDotNet.Artifacts
 .ionide
 .fake
 .vscode
+settings.local.json

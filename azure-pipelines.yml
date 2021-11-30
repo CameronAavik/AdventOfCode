@@ -6,11 +6,11 @@ pool:
 
 steps:
 - task: UseDotNet@2
-  displayName: 'Use .NET 5'
+  displayName: 'Use .NET 6'
   inputs:
-    packageType: sdk
-    version: 5.0.100
+    version: 6.0.100
     installationPath: $(Agent.ToolsDirectory)/dotnet
+
 - task: DotNetCoreCLI@2
   inputs:
     command: 'build'

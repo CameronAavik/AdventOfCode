@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Include="..\..\input\**\*.*" CopyToOutputDirectory="PreserveNewest" Link="input\%(RecursiveDir)\%(Filename)%(Extension)" />
+    <Content Include="..\..\input\**\*.*" CopyToOutputDirectory="Always" Link="input\%(RecursiveDir)\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
@@ -15,6 +15,13 @@
     <ProjectReference Include="..\2018\AdventOfCode.CSharp.2018.csproj" />
     <ProjectReference Include="..\2019\AdventOfCode.CSharp.2019.csproj" />
     <ProjectReference Include="..\2020\AdventOfCode.CSharp.2020.csproj" />
+    <ProjectReference Include="..\2021\AdventOfCode.CSharp.2021.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="settings.local.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

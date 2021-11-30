@@ -1,62 +1,58 @@
 ﻿using System;
 
-namespace AdventOfCode.CSharp.Common
+namespace AdventOfCode.CSharp.Common;
+
+public ref struct PermutationIterator<T>
 {
-    public ref struct PermutationIterator<T>
+    private bool HasMadeFirstMove { get; set; }
+
+    private int StackPointer { get; set; }
+
+    private int[] Stack { get; set; }
+
+    public PermutationIterator(Span<T> span)
     {
-        private bool HasMadeFirstMove { get; set; }
+        Current = span;
+        HasMadeFirstMove = false;
+        StackPointer = 0;
+        Stack = new int[span.Length];
+    }
 
-        private int StackPointer { get; set; }
+    public PermutationIterator<T> GetEnumerator() => this;
 
-        private int[] Stack { get; set; }
-
-        public PermutationIterator(Span<T> span)
+    public bool MoveNext()
+    {
+        // The first permutation is the input
+        if (!HasMadeFirstMove)
         {
-            Current = span;
-            HasMadeFirstMove = false;
-            StackPointer = 0;
-            Stack = new int[span.Length];
+            HasMadeFirstMove = true;
+            return true;
         }
 
-        public PermutationIterator<T> GetEnumerator() => this;
-
-        public bool MoveNext()
+        // iterate through all permutations using Heap's algorithm
+        // https://en.wikipedia.org/wiki/Heap%27s_algorithm
+        if (StackPointer >= Stack.Length)
         {
-            // The first permutation is the input
-            if (!HasMadeFirstMove)
-            {
-                HasMadeFirstMove = true;
-                return true;
-            }
+            return false;
+        }
 
-            // iterate through all permutations using Heap's algorithm
-            // https://en.wikipedia.org/wiki/Heap%27s_algorithm
+        while (Stack[StackPointer] >= StackPointer)
+        {
+            Stack[StackPointer++] = 0;
             if (StackPointer >= Stack.Length)
             {
                 return false;
             }
-
-            while (Stack[StackPointer] >= StackPointer)
-            {
-                Stack[StackPointer++] = 0;
-                if (StackPointer >= Stack.Length)
-                {
-                    return false;
-                }
-            }
-
-            int swapIndex = StackPointer % 2 == 0 ? 0 : Stack[StackPointer];
-
-            T t = Current[StackPointer];
-            Current[StackPointer] = Current[swapIndex];
-            Current[swapIndex] = t;
-
-            Stack[StackPointer]++;
-            StackPointer = 0;
-
-            return true;
         }
 
-        public Span<T> Current { get; }
+        int swapIndex = StackPointer % 2 == 0 ? 0 : Stack[StackPointer];
+
+        (Current[swapIndex], Current[StackPointer]) = (Current[StackPointer], Current[swapIndex]);
+        Stack[StackPointer]++;
+        StackPointer = 0;
+
+        return true;
     }
+
+    public Span<T> Current { get; }
 }

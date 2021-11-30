@@ -2,63 +2,62 @@
 using System;
 using System.Collections.Generic;
 
-namespace AdventOfCode.CSharp.Y2018.Solvers
+namespace AdventOfCode.CSharp.Y2018.Solvers;
+
+public class Day01 : ISolver
 {
-    public class Day01 : ISolver
+    public class Frequency
     {
-        public class Frequency
+        public int Value { get; set; }
+
+        public int Index { get; set; }
+
+        public int ModTotal { get; set; }
+    }
+
+    public Solution Solve(ReadOnlySpan<char> input)
+    {
+        int freqIndex = 0;
+        int freqTotal = 0;
+        var freqs = new List<Frequency>();
+        foreach (ReadOnlySpan<char> freqChange in input.SplitLines())
         {
-            public int Value { get; set; }
-
-            public int Index { get; set; }
-
-            public int ModTotal { get; set; }
+            freqs.Add(new Frequency { Value = freqTotal, Index = freqIndex });
+            freqIndex++;
+            freqTotal += int.Parse(freqChange);
         }
 
-        public Solution Solve(ReadOnlySpan<char> input)
+        foreach (Frequency freq in freqs)
         {
-            int freqIndex = 0;
-            int freqTotal = 0;
-            var freqs = new List<Frequency>();
-            foreach (ReadOnlySpan<char> freqChange in input.SplitLines())
-            {
-                freqs.Add(new Frequency { Value = freqTotal, Index = freqIndex });
-                freqIndex++;
-                freqTotal += int.Parse(freqChange);
-            }
+            int mod = freq.Value % freqTotal;
+            freq.ModTotal = mod < 0 ? mod + freqTotal : mod;
+        }
 
-            foreach (Frequency freq in freqs)
-            {
-                int mod = freq.Value % freqTotal;
-                freq.ModTotal = mod < 0 ? mod + freqTotal : mod;
-            }
+        // sort by mods first, then by value
+        freqs.Sort((a, b) => a.ModTotal != b.ModTotal
+            ? a.ModTotal.CompareTo(b.ModTotal)
+            : a.Value.CompareTo(b.Value));
 
-            // sort by mods first, then by value
-            freqs.Sort((a, b) => a.ModTotal != b.ModTotal
-                ? a.ModTotal.CompareTo(b.ModTotal)
-                : a.Value.CompareTo(b.Value));
-
-            var prev = new Frequency { ModTotal = -1 };
-            int minDiff = int.MaxValue;
-            int minIndex = int.MaxValue;
-            int minFreq = 0;
-            foreach (Frequency freq in freqs)
+        var prev = new Frequency { ModTotal = -1 };
+        int minDiff = int.MaxValue;
+        int minIndex = int.MaxValue;
+        int minFreq = 0;
+        foreach (Frequency freq in freqs)
+        {
+            if (freq.ModTotal == prev.ModTotal)
             {
-                if (freq.ModTotal == prev.ModTotal)
+                int diff = freq.Value - prev.Value;
+                if (diff < minDiff || (diff == minDiff && prev.Index < minIndex))
                 {
-                    int diff = freq.Value - prev.Value;
-                    if (diff < minDiff || (diff == minDiff && prev.Index < minIndex))
-                    {
-                        minDiff = diff;
-                        minIndex = prev.Index;
-                        minFreq = freq.Value;
-                    }
+                    minDiff = diff;
+                    minIndex = prev.Index;
+                    minFreq = freq.Value;
                 }
-
-                prev = freq;
             }
 
-            return new Solution(part1: freqTotal, part2: minFreq);
+            prev = freq;
         }
+
+        return new Solution(part1: freqTotal, part2: minFreq);
     }
 }

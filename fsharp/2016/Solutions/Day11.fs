@@ -65,17 +65,17 @@ let getActions state =
     seq {
         for f in possibleFloors do
             for g1 in curFloor.generators do
-                yield {fromFloor=curFloorNum; toFloor=f; generators=set [g1]; microchips=set[]}
+                yield {fromFloor=curFloorNum; toFloor=f; generators=set [g1]; microchips=set []}
                 for g2 in curFloor.generators do
                     if g1 <> g2 then
-                        yield {fromFloor=curFloorNum; toFloor=f; generators=set [g1; g2]; microchips=set[]}
+                        yield {fromFloor=curFloorNum; toFloor=f; generators=set [g1; g2]; microchips=set []}
                 for m2 in curFloor.microchips do
-                    yield {fromFloor=curFloorNum; toFloor=f; generators=set [g1]; microchips=set[m2]}
+                    yield {fromFloor=curFloorNum; toFloor=f; generators=set [g1]; microchips=set [m2]}
             for m1 in curFloor.microchips do
-                yield {fromFloor=curFloorNum; toFloor=f; generators=set []; microchips=set[m1]}
+                yield {fromFloor=curFloorNum; toFloor=f; generators=set []; microchips=set [m1]}
                 for m2 in curFloor.microchips do
                     if m1 <> m2 then
-                        yield {fromFloor=curFloorNum; toFloor=f; generators=set []; microchips=set[m1; m2]}
+                        yield {fromFloor=curFloorNum; toFloor=f; generators=set []; microchips=set [m1; m2]}
     } |> Seq.filter (isValidAction state)
 
 let heuristic src =

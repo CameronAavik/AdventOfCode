@@ -2,125 +2,124 @@
 using System.Collections.Generic;
 using AdventOfCode.CSharp.Common;
 
-namespace AdventOfCode.CSharp.Y2020.Solvers
+namespace AdventOfCode.CSharp.Y2020.Solvers;
+
+public class Day07 : ISolver
 {
-    public class Day07 : ISolver
+    public Solution Solve(ReadOnlySpan<char> input)
     {
-        public Solution Solve(ReadOnlySpan<char> input)
+        var containsShinyGoldCache = new Dictionary<string, bool>();
+        var totalChildBagsCache = new Dictionary<string, int>();
+        var bagContents = new Dictionary<string, List<(int Count, string Colour)>>();
+
+        var reader = new SpanReader(input);
+        while (!reader.Done)
         {
-            var containsShinyGoldCache = new Dictionary<string, bool>();
-            var totalChildBagsCache = new Dictionary<string, int>();
-            var bagContents = new Dictionary<string, List<(int Count, string Colour)>>();
+            ParseLine(ref reader, out string colour, out bool containsShiny, out List<(int Count, string Colour)> contents);
 
-            var reader = new SpanReader(input);
-            while (!reader.Done)
+            if (containsShiny)
             {
-                ParseLine(ref reader, out string colour, out bool containsShiny, out List<(int Count, string Colour)> contents);
-
-                if (containsShiny)
-                {
-                    containsShinyGoldCache[colour] = true;
-                }
-                else if (contents.Count == 0)
-                {
-                    containsShinyGoldCache[colour] = false;
-                    totalChildBagsCache[colour] = 0;
-                }
-
-                bagContents[colour] = contents;
+                containsShinyGoldCache[colour] = true;
+            }
+            else if (contents.Count == 0)
+            {
+                containsShinyGoldCache[colour] = false;
+                totalChildBagsCache[colour] = 0;
             }
 
-            int part1 = 0;
-            foreach (string? colour in bagContents.Keys)
-            {
-                if (ContainsShinyGold(colour, containsShinyGoldCache, bagContents))
-                {
-                    part1++;
-                }
-            }
-
-            int part2 = GetTotalChildBags("shiny gold", totalChildBagsCache, bagContents);
-            return new Solution(part1, part2);
+            bagContents[colour] = contents;
         }
 
-        private static void ParseLine(
-            ref SpanReader reader,
-            out string bagColour,
-            out bool containsShinyGold,
-            out List<(int Count, string Colour)> bagContents)
+        int part1 = 0;
+        foreach (string? colour in bagContents.Keys)
         {
-            containsShinyGold = false;
-            bagColour = reader.ReadUntil(" bags").ToString();
-            reader.SkipLength(" contain ".Length);
-            bagContents = new List<(int Count, string Colour)>();
-
-            if (reader.Peek() == 'n') // no other bags
+            if (ContainsShinyGold(colour, containsShinyGoldCache, bagContents))
             {
-                reader.SkipLength("no other bags.\n".Length);
+                part1++;
+            }
+        }
+
+        int part2 = GetTotalChildBags("shiny gold", totalChildBagsCache, bagContents);
+        return new Solution(part1, part2);
+    }
+
+    private static void ParseLine(
+        ref SpanReader reader,
+        out string bagColour,
+        out bool containsShinyGold,
+        out List<(int Count, string Colour)> bagContents)
+    {
+        containsShinyGold = false;
+        bagColour = reader.ReadUntil(" bags").ToString();
+        reader.SkipLength(" contain ".Length);
+        bagContents = new List<(int Count, string Colour)>();
+
+        if (reader.Peek() == 'n') // no other bags
+        {
+            reader.SkipLength("no other bags.\n".Length);
+            return;
+        }
+
+        while (true)
+        {
+            int count = reader.ReadPosIntUntil(' ');
+            string? colour = reader.ReadUntil(count == 1 ? " bag" : " bags").ToString();
+            if (colour == "shiny gold")
+            {
+                containsShinyGold = true;
+            }
+
+            bagContents.Add((count, colour));
+            if (reader.Peek() == '.')
+            {
+                reader.SkipLength(".\n".Length);
                 return;
             }
 
-            while (true)
-            {
-                int count = reader.ReadPosIntUntil(' ');
-                string? colour = reader.ReadUntil(count == 1 ? " bag" : " bags").ToString();
-                if (colour == "shiny gold")
-                {
-                    containsShinyGold = true;
-                }
-
-                bagContents.Add((count, colour));
-                if (reader.Peek() == '.')
-                {
-                    reader.SkipLength(".\n".Length);
-                    return;
-                }
-
-                reader.SkipLength(", ".Length);
-            }
+            reader.SkipLength(", ".Length);
         }
+    }
 
-        private static bool ContainsShinyGold(
-            string colour,
-            Dictionary<string, bool> cache,
-            Dictionary<string, List<(int Count, string Colour)>> bagContents)
+    private static bool ContainsShinyGold(
+        string colour,
+        Dictionary<string, bool> cache,
+        Dictionary<string, List<(int Count, string Colour)>> bagContents)
+    {
+        if (cache.TryGetValue(colour, out bool containsShinyGold))
         {
-            if (cache.TryGetValue(colour, out bool containsShinyGold))
-            {
-                return containsShinyGold;
-            }
-
-            foreach ((int _, string contentColour) in bagContents[colour])
-            {
-                if (ContainsShinyGold(contentColour, cache, bagContents))
-                {
-                    cache[colour] = true;
-                    return true;
-                }
-            }
-
-            cache[colour] = false;
-            return false;
+            return containsShinyGold;
         }
 
-        private static int GetTotalChildBags(
-            string colour,
-            Dictionary<string, int> cache,
-            Dictionary<string, List<(int Count, string Colour)>> bagContents)
+        foreach ((int _, string contentColour) in bagContents[colour])
         {
-            if (cache.TryGetValue(colour, out int childCount))
+            if (ContainsShinyGold(contentColour, cache, bagContents))
             {
-                return childCount;
+                cache[colour] = true;
+                return true;
             }
-
-            int total = 0;
-            foreach ((int count, string contentColour) in bagContents[colour])
-            {
-                total += count * (1 + GetTotalChildBags(contentColour, cache, bagContents));
-            }
-
-            cache[colour] = total;
-            return total;
         }
+
+        cache[colour] = false;
+        return false;
+    }
+
+    private static int GetTotalChildBags(
+        string colour,
+        Dictionary<string, int> cache,
+        Dictionary<string, List<(int Count, string Colour)>> bagContents)
+    {
+        if (cache.TryGetValue(colour, out int childCount))
+        {
+            return childCount;
+        }
+
+        int total = 0;
+        foreach ((int count, string contentColour) in bagContents[colour])
+        {
+            total += count * (1 + GetTotalChildBags(contentColour, cache, bagContents));
+        }
+
+        cache[colour] = total;
+        return total;
     }
 }

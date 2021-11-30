@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace AdventOfCode.CSharp.Common
+namespace AdventOfCode.CSharp.Common;
+
+public interface ISolver
 {
-    public interface ISolver
-    {
-        Solution Solve(ReadOnlySpan<char> input);
-    }
+    Solution Solve(ReadOnlySpan<char> input);
 }

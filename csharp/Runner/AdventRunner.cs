@@ -1,52 +1,91 @@
 ﻿using System;
 using System.IO;
+using System.Net;
+using System.Net.Http;
 using System.Reflection;
+using System.Text.Json;
+using System.Threading.Tasks;
 using AdventOfCode.CSharp.Common;
 
-namespace AdventOfCode.CSharp.Runner
+namespace AdventOfCode.CSharp.Runner;
+
+public static class AdventRunner
 {
-    public static class AdventRunner
+    private static readonly string? s_Cookie;
+    private static readonly string? s_InputCacheFolder;
+
+    static AdventRunner()
     {
-        public static string GetInput(int year, int day)
+        if (File.Exists("settings.local.json"))
         {
-            return File.ReadAllText($"input/{year}/day{day:D2}.txt");
+            var settingsJsonString = File.ReadAllText("settings.local.json");
+            var settings = JsonSerializer.Deserialize<JsonElement>(settingsJsonString);
+            s_Cookie = settings.GetProperty("SessionCookie").GetString();
+            s_InputCacheFolder = settings.GetProperty("InputCacheFolder").GetString();
+        }
+        else
+        {
+            s_Cookie = null;
+        }
+    }
+
+    public static async Task<string> GetInputAsync(int year, int day, bool fetchIfMissing = false)
+    {
+        string filename = $"input/{year}/day{day:D2}.txt";
+        if (File.Exists(filename))
+            return await File.ReadAllTextAsync(filename);
+
+        if (!fetchIfMissing || s_Cookie == null || s_InputCacheFolder == null)
+            throw new Exception("Unable to load input for year and day");
+
+        var baseAddress = new Uri("https://adventofcode.com");
+        var cookieContainer = new CookieContainer();
+        using var handler = new HttpClientHandler() { CookieContainer = cookieContainer };
+        using var client = new HttpClient(handler) { BaseAddress = baseAddress };
+        cookieContainer.Add(baseAddress, new Cookie("session", s_Cookie));
+        string inputData = await client.GetStringAsync($"/{year}/day/{day}/input");
+
+        //await File.WriteAllTextAsync(filename, inputData);
+        await File.WriteAllTextAsync(Path.Combine(s_InputCacheFolder, filename), inputData);
+
+        return inputData;
+    }
+
+    public static ISolver? GetSolver(int year, int day)
+    {
+        if (GetSolverType(year, day) is Type type)
+        {
+            return (ISolver?)Activator.CreateInstance(type);
         }
 
-        public static ISolver? GetSolver(int year, int day)
+        return null;
+    }
+
+    public static Type? GetSolverType(int year, int day)
+    {
+        Assembly? assembly = year switch
         {
-            if (GetSolverType(year, day) is Type type)
-            {
-                return (ISolver?)Activator.CreateInstance(type);
-            }
+            2015 => typeof(Y2015.Solvers.Day01).Assembly,
+            2016 => typeof(Y2016.Solvers.Day01).Assembly,
+            2017 => typeof(Y2017.Solvers.Day01).Assembly,
+            2018 => typeof(Y2018.Solvers.Day01).Assembly,
+            2019 => typeof(Y2019.Solvers.Day01).Assembly,
+            2020 => typeof(Y2020.Solvers.Day01).Assembly,
+            2021 => typeof(Y2021.Solvers.Day01).Assembly,
+            _ => null
+        };
 
-            return null;
-        }
-
-        public static Type? GetSolverType(int year, int day)
+        if (assembly != null)
         {
-            Assembly? assembly = year switch
+            foreach (Type t in assembly.GetTypes())
             {
-                2015 => typeof(Y2015.Solvers.Day01).Assembly,
-                2016 => typeof(Y2016.Solvers.Day01).Assembly,
-                2017 => typeof(Y2017.Solvers.Day01).Assembly,
-                2018 => typeof(Y2018.Solvers.Day01).Assembly,
-                2019 => typeof(Y2019.Solvers.Day01).Assembly,
-                2020 => typeof(Y2020.Solvers.Day01).Assembly,
-                _ => null
-            };
-
-            if (assembly != null)
-            {
-                foreach (Type t in assembly.GetTypes())
+                if (t.Name == $"Day{day:D2}")
                 {
-                    if (t.Name == $"Day{day:D2}")
-                    {
-                        return t;
-                    }
+                    return t;
                 }
             }
-
-            return null;
         }
+
+        return null;
     }
 }

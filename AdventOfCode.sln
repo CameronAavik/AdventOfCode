@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29503.13
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.31903.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8481A066-FC02-4D81-A501-633A0C68B011}"
 	ProjectSection(SolutionItems) = preProject
@@ -9,6 +9,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.gitignore = .gitignore
 		azure-pipelines.yml = azure-pipelines.yml
 		Directory.Build.props = Directory.Build.props
+		global.json = global.json
 		nuget.config = nuget.config
 		README.MD = README.MD
 	EndProjectSection
@@ -48,6 +49,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventOfCode.CSharp.2019", "csharp\2019\AdventOfCode.CSharp.2019.csproj", "{A820642F-A82A-4941-85AF-92AC725A5A4C}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AdventOfCode.CSharp.2020", "csharp\2020\AdventOfCode.CSharp.2020.csproj", "{6E746418-2A7C-4B5E-82AC-D9557303DEF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AdventOfCode.CSharp.2021", "csharp\AdventOfCode.CSharp.2021\AdventOfCode.CSharp.2021.csproj", "{D5B62445-7D24-48D3-A9FE-8C40507A22CA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -119,6 +122,10 @@ Global
 		{6E746418-2A7C-4B5E-82AC-D9557303DEF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E746418-2A7C-4B5E-82AC-D9557303DEF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E746418-2A7C-4B5E-82AC-D9557303DEF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5B62445-7D24-48D3-A9FE-8C40507A22CA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5B62445-7D24-48D3-A9FE-8C40507A22CA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5B62445-7D24-48D3-A9FE-8C40507A22CA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5B62445-7D24-48D3-A9FE-8C40507A22CA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -140,6 +147,7 @@ Global
 		{F432AC99-A6A1-4259-8F83-06825C0A7AD6} = {1121013E-8B28-494B-BF07-FB93C0AC2528}
 		{A820642F-A82A-4941-85AF-92AC725A5A4C} = {1121013E-8B28-494B-BF07-FB93C0AC2528}
 		{6E746418-2A7C-4B5E-82AC-D9557303DEF6} = {1121013E-8B28-494B-BF07-FB93C0AC2528}
+		{D5B62445-7D24-48D3-A9FE-8C40507A22CA} = {1121013E-8B28-494B-BF07-FB93C0AC2528}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A22E98AE-B2BE-4739-ABEF-43C18E08A584}
