@@ -11,21 +11,21 @@ namespace AdventOfCode.CSharp.Runner;
 
 public static class AdventRunner
 {
-    private static readonly string? s_Cookie;
-    private static readonly string? s_InputCacheFolder;
+    private static readonly string? s_cookie;
+    private static readonly string? s_inputCacheFolder;
 
     static AdventRunner()
     {
         if (File.Exists("settings.local.json"))
         {
-            var settingsJsonString = File.ReadAllText("settings.local.json");
-            var settings = JsonSerializer.Deserialize<JsonElement>(settingsJsonString);
-            s_Cookie = settings.GetProperty("SessionCookie").GetString();
-            s_InputCacheFolder = settings.GetProperty("InputCacheFolder").GetString();
+            string settingsJsonString = File.ReadAllText("settings.local.json");
+            JsonElement settings = JsonSerializer.Deserialize<JsonElement>(settingsJsonString);
+            s_cookie = settings.GetProperty("SessionCookie").GetString();
+            s_inputCacheFolder = settings.GetProperty("InputCacheFolder").GetString();
         }
         else
         {
-            s_Cookie = null;
+            s_cookie = null;
         }
     }
 
@@ -35,18 +35,18 @@ public static class AdventRunner
         if (File.Exists(filename))
             return await File.ReadAllTextAsync(filename);
 
-        if (!fetchIfMissing || s_Cookie == null || s_InputCacheFolder == null)
+        if (!fetchIfMissing || s_cookie == null || s_inputCacheFolder == null)
             throw new Exception("Unable to load input for year and day");
 
         var baseAddress = new Uri("https://adventofcode.com");
         var cookieContainer = new CookieContainer();
         using var handler = new HttpClientHandler() { CookieContainer = cookieContainer };
         using var client = new HttpClient(handler) { BaseAddress = baseAddress };
-        cookieContainer.Add(baseAddress, new Cookie("session", s_Cookie));
+        cookieContainer.Add(baseAddress, new Cookie("session", s_cookie));
         string inputData = await client.GetStringAsync($"/{year}/day/{day}/input");
 
         //await File.WriteAllTextAsync(filename, inputData);
-        await File.WriteAllTextAsync(Path.Combine(s_InputCacheFolder, filename), inputData);
+        await File.WriteAllTextAsync(Path.Combine(s_inputCacheFolder, filename), inputData);
 
         return inputData;
     }

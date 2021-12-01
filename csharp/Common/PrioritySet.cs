@@ -29,7 +29,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
     {
     }
 
-    public PrioritySet(IComparer<TPriority> comparer) : this(0, null, null)
+    public PrioritySet(IComparer<TPriority> comparer) : this(0, comparer, null)
     {
     }
 
@@ -469,7 +469,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             throw new Exception("Invalid heap index count");
         }
 
-        foreach ((var element, var idx) in _heap.Select((x, i) => (x.Element, i)).Skip(Count))
+        foreach ((TElement element, int idx) in _heap.Select((x, i) => (x.Element, i)).Skip(Count))
         {
             if (!IsDefault(element))
             {
@@ -477,7 +477,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             }
         }
 
-        foreach ((var priority, var idx) in _heap.Select((x, i) => (x.Priority, i)).Skip(Count))
+        foreach ((TPriority priority, int idx) in _heap.Select((x, i) => (x.Priority, i)).Skip(Count))
         {
             if (!IsDefault(priority))
             {
@@ -485,11 +485,11 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             }
         }
 
-        foreach (var kvp in _index)
+        foreach ((TElement key, int value) in _index)
         {
-            if (!_index.Comparer.Equals(_heap[kvp.Value].Element, kvp.Key))
+            if (!_index.Comparer.Equals(_heap[value].Element, key))
             {
-                throw new Exception($"Element '{kvp.Key}' maps to invalid heap location {kvp.Value} which contains '{_heap[kvp.Value].Element}'");
+                throw new Exception($"Element '{key}' maps to invalid heap location {value} which contains '{_heap[value].Element}'");
             }
         }
 

@@ -4,11 +4,7 @@
     <LangVersion>preview</LangVersion>
     <Features>strict</Features>
     <Nullable>enable</Nullable>
-    <WarningLevel>5</WarningLevel>
     <Tailcalls>true</Tailcalls>
-    <UseSharedCompilation>false</UseSharedCompilation>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
-    <TreatWarningsAsErrors>True</TreatWarningsAsErrors>
     <SuppressNETCoreSdkPreviewMessage>True</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
 </Project>

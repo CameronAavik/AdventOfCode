@@ -9,7 +9,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day11 : ISolver
 {
-    public readonly struct State
+    public readonly struct State : IEquatable<State>
     {
         public readonly byte[] MaterialLocations;
         public readonly int CurFloor;
@@ -20,16 +20,16 @@ public class Day11 : ISolver
             CurFloor = curFloor;
         }
 
-        public override bool Equals(object? obj)
+        public bool Equals(State other)
         {
-            if (obj is not State state || CurFloor != state.CurFloor)
+            if (CurFloor != other.CurFloor)
             {
                 return false;
             }
 
             for (int i = 0; i < MaterialLocations.Length; i++)
             {
-                if (!MaterialLocations[i].Equals(state.MaterialLocations[i]))
+                if (!MaterialLocations[i].Equals(other.MaterialLocations[i]))
                 {
                     return false;
                 }
@@ -39,6 +39,12 @@ public class Day11 : ISolver
         }
 
         public override int GetHashCode() => HashCode.Combine(MaterialLocations.GetDjb2HashCode(), CurFloor);
+
+        public override bool Equals(object? obj) => obj is State state && Equals(state);
+
+        public static bool operator ==(State left, State right) => left.Equals(right);
+
+        public static bool operator !=(State left, State right) => !(left == right);
     }
 
     public Solution Solve(ReadOnlySpan<char> input)

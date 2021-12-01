@@ -31,7 +31,7 @@ public class Day21 : ISolver
             foreach (ReadOnlySpan<char> allergen in allergensInFood.Split(", "))
             {
                 string allergenStr = allergen.ToString();
-                if (allgerenCandidates.TryGetValue(allergenStr, out var curSet))
+                if (allgerenCandidates.TryGetValue(allergenStr, out HashSet<string>? curSet))
                 {
                     curSet.IntersectWith(ingredientSet);
                 }
