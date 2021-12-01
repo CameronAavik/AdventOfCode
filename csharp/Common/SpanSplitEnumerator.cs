@@ -14,7 +14,7 @@ public ref struct SpanSplitEnumerator<T> where T : IEquatable<T>
         Current = default;
     }
 
-    public SpanSplitEnumerator<T> GetEnumerator() => this;
+    public readonly SpanSplitEnumerator<T> GetEnumerator() => this;
 
     public bool MoveNext()
     {

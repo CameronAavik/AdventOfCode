@@ -48,8 +48,8 @@ public class Benchmarks
     }
 
     [Benchmark]
-    //[Arguments(2020, 9)]
-    [ArgumentsSource(nameof(AllDays))]
+    [Arguments(2021, 1)]
+    //[ArgumentsSource(nameof(AllDays))]
     public Solution Solve(int year, int day) =>
         _solvers[year - 2015, day - 1].Solve(_inputs[year - 2015, day - 1]);
 }

@@ -139,7 +139,7 @@ public ref struct SpanReader
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public char Peek() => _input[0];
 
-    public char this[int i]
+    public readonly char this[int i]
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get
@@ -148,7 +148,7 @@ public ref struct SpanReader
         }
     }
 
-    public bool Done
+    public readonly bool Done
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         get

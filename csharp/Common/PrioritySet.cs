@@ -80,7 +80,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
         }
 
         _version++;
-        Insert(element, priority);
+        Insert(in element, in priority);
     }
 
     public TElement Peek()
@@ -212,7 +212,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
         }
         else
         {
-            Insert(element, priority);
+            Insert(in element, in priority);
         }
     }
 
@@ -255,8 +255,8 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             return false;
         }
 
-        public (TElement Element, TPriority Priority) Current => _current;
-        object IEnumerator.Current => _current;
+        public readonly (TElement Element, TPriority Priority) Current => _current;
+        readonly object IEnumerator.Current => _current;
 
         public void Reset()
         {
@@ -269,7 +269,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             _current = default;
         }
 
-        public void Dispose()
+        public readonly void Dispose()
         {
         }
     }
@@ -330,13 +330,13 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             // priority is decreased, sift upward
             case < 0:
                 element = entry.Element; // make a copy of the element before sifting
-                SiftUp(index, element, newPriority);
+                SiftUp(index, in element, in newPriority);
                 return;
 
             // priority is increased, sift downward
             case > 0:
                 element = entry.Element; // make a copy of the element before sifting
-                SiftDown(index, element, newPriority);
+                SiftDown(index, in element, in newPriority);
                 return;
 
             // priority is same as before, take no action

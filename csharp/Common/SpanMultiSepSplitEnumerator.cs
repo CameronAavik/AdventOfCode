@@ -14,7 +14,7 @@ public ref struct SpanMultiSepSplitEnumerator<T> where T : IEquatable<T>
         Current = default;
     }
 
-    public SpanMultiSepSplitEnumerator<T> GetEnumerator() => this;
+    public readonly SpanMultiSepSplitEnumerator<T> GetEnumerator() => this;
 
     public bool MoveNext()
     {
@@ -39,7 +39,7 @@ public ref struct SpanMultiSepSplitEnumerator<T> where T : IEquatable<T>
         return true;
     }
 
-    public bool TryRead(out ReadOnlySpan<T> read)
+    public readonly bool TryRead(out ReadOnlySpan<T> read)
     {
         if (MoveNext())
         {

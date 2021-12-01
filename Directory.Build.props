@@ -7,4 +7,9 @@
     <Tailcalls>true</Tailcalls>
     <SuppressNETCoreSdkPreviewMessage>True</SuppressNETCoreSdkPreviewMessage>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ErrorProne.NET.CoreAnalyzers" Version="0.4.0-beta.1" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+    <PackageReference Include="ErrorProne.NET.Structs" Version="0.4.0-beta.1" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive"/>
+  </ItemGroup>
 </Project>
