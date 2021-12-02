@@ -1,5 +1,4 @@
 ﻿using AdventOfCode.CSharp.Common;
-using Microsoft.Toolkit.HighPerformance;
 using System;
 using System.Runtime.CompilerServices;
 
