@@ -6,19 +6,19 @@ using AdventOfCode.CSharp.Common;
 using AdventOfCode.CSharp.Runner;
 
 int year = 2021;
-int day = 1;
+int day = 2;
 
 string input = await AdventRunner.GetInputAsync(year, day, fetchIfMissing: true);
 
-// process lines, edit selector if data needs to be processed
-var lines = input.TrimEnd('\n').Split('\n').Select(x => x).ToArray();
-
-int c = 0;
+var lines = input.TrimEnd('\n').Split('\n').Select(x =>
+{
+    // process line here
+    return x;
+}).ToArray();
 
 for (int i = 0; i < lines.Length; i++)
 {
     var line = lines[i];
-    c += 1;
 }
 
-Console.WriteLine(c);
+Console.WriteLine();

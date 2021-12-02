@@ -16,9 +16,9 @@ public class Day01 : ISolver
         int inputCursor = 0;
 
         // a, b, and c will store the three most recent measurements seen
-        int a = ReadLineAsInteger(in input, ref inputCursor);
-        int b = ReadLineAsInteger(in input, ref inputCursor);
-        int c = ReadLineAsInteger(in input, ref inputCursor);
+        int a = ReadLineAsInteger(input, ref inputCursor);
+        int b = ReadLineAsInteger(input, ref inputCursor);
+        int c = ReadLineAsInteger(input, ref inputCursor);
 
         // Check if the value increased within the first three readings
         if (b > a) part1++;
@@ -32,7 +32,7 @@ public class Day01 : ISolver
         while (inputCursor < input.Length)
         {
             // Measurement 1
-            int m = ReadLineAsInteger(in input, ref inputCursor);
+            int m = ReadLineAsInteger(input, ref inputCursor);
             if (m > c) part1++;
             if (m > a) part2++;
             a = m;
@@ -41,7 +41,7 @@ public class Day01 : ISolver
                 break;
 
             // Measurement 2
-            m = ReadLineAsInteger(in input, ref inputCursor);
+            m = ReadLineAsInteger(input, ref inputCursor);
             if (m > a) part1++;
             if (m > b) part2++;
             b = m;
@@ -50,7 +50,7 @@ public class Day01 : ISolver
                 break;
 
             // Measurement 3
-            m = ReadLineAsInteger(in input, ref inputCursor);
+            m = ReadLineAsInteger(input, ref inputCursor);
             if (m > b) part1++;
             if (m > c) part2++;
             c = m;
@@ -60,7 +60,7 @@ public class Day01 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadLineAsInteger(in ReadOnlySpan<char> span, ref int i)
+    public static int ReadLineAsInteger(ReadOnlySpan<char> span, ref int i)
     {
         // Assume that the first character is always a digit
         int ret = span[i++] - '0';
