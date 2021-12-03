@@ -1,6 +1,5 @@
 ﻿using AdventOfCode.CSharp.Common;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace AdventOfCode.CSharp.Y2021.Solvers;
 
@@ -18,35 +17,24 @@ public class Day02 : ISolver
             switch (input[i])
             {
                 case 'f': // forward
-                    i += "forward ".Length;
-                    int amount = ReadLineAsInteger(input, ref i);
+                    int amount = input[i + 8] - '0';
                     horizontal += amount;
                     part2Depth += part1DepthPart2Aim * amount;
+                    i += 10;
                     break;
                 case 'd': // down
-                    i += "down ".Length;
-                    part1DepthPart2Aim += ReadLineAsInteger(input, ref i);
+                    part1DepthPart2Aim += input[i + 5] - '0';
+                    i += 7;
                     break;
                 default: // up
-                    i += "up ".Length;
-                    part1DepthPart2Aim -= ReadLineAsInteger(input, ref i);
+                    part1DepthPart2Aim -= input[i + 3] - '0';
+                    i += 5;
                     break;
             }
         }
 
-        return new Solution(part1: horizontal * part1DepthPart2Aim, part2: horizontal * part2Depth);
-    }
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadLineAsInteger(ReadOnlySpan<char> span, ref int i)
-    {
-        // Assume that the first character is always a digit
-        int ret = span[i++] - '0';
-
-        char cur;
-        while ((cur = span[i++]) != '\n')
-            ret = ret * 10 + (cur - '0');
-
-        return ret;
+        return new Solution(
+            part1: horizontal * part1DepthPart2Aim,
+            part2: horizontal * part2Depth);
     }
 }
