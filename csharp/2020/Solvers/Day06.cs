@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day06 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
@@ -43,6 +43,7 @@ public class Day06 : ISolver
         part1 += BitOperations.PopCount(groupAnswers);
         part2 += BitOperations.PopCount(groupAllAnswers);
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 }

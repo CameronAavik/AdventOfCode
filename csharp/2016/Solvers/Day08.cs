@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day08 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         bool[,] pixels = new bool[50, 6];
 
@@ -77,7 +77,7 @@ public class Day08 : ISolver
             }
         }
 
-        char[] part2 = new char[10];
+        Span<char> part2 = stackalloc char[10];
         for (int i = 0; i < 10; i++)
         {
             int letterPixels = 0;
@@ -95,7 +95,8 @@ public class Day08 : ISolver
             part2[i] = OCR(letterPixels);
         }
 
-        return new Solution(part1.ToString(), new string(part2));
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     // borrowing OCR table from https://github.com/willkill07/AdventOfCode2016/blob/master/src/Day08.cpp

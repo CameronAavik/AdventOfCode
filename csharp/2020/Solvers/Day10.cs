@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day10 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int len = input.Count('\n');
         int[] nums = new int[len];
@@ -66,6 +66,7 @@ public class Day10 : ISolver
         int part1 = oneDiffs * threeDiffs;
         long part2 = ways2;
 
-        return new Solution(part1.ToString(), part2.ToString());
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 }

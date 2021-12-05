@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day13 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var reader = new SpanReader(input.TrimEnd('\n'));
         int earliestTime = reader.ReadPosIntUntil('\n');
@@ -58,6 +58,7 @@ public class Day13 : ISolver
 
         part2 %= product;
 
-        return new Solution(part1.ToString(), part2.ToString());
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 }

@@ -37,7 +37,7 @@ public class Day21 : ISolver
             new(80, 0, 3)
     };
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         ParseInput(input, out int bossHp, out int bossDamage, out int bossArmor);
 
@@ -73,7 +73,8 @@ public class Day21 : ISolver
             }
         }
 
-        return new Solution(part1: cheapestWin, part2: mostExpensiveLoss);
+        solution.SubmitPart1(cheapestWin);
+        solution.SubmitPart2(mostExpensiveLoss);
     }
 
     private static void ParseInput(ReadOnlySpan<char> input, out int bossHp, out int bossDamage, out int bossArmor)

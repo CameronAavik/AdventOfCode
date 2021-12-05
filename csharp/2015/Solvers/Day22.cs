@@ -7,12 +7,13 @@ public class Day22 : ISolver
 {
     public record GameState(int Mana, int PlayerHP, int BossHP, int Shield, int Poison, int Recharge);
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         ParseInput(input, out int bossHp, out int bossDamage);
         int part1 = Solve(bossHp, bossDamage, false);
         int part2 = Solve(bossHp, bossDamage, true);
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static int Solve(int bossHp, int bossDamage, bool hasExtraDamage)

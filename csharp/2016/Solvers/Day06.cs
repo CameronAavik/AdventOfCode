@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day06 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int width = input.IndexOf('\n');
         int[,] counts = new int[width + 1, 26];
@@ -55,6 +55,7 @@ public class Day06 : ISolver
             part2[c] = (char)('a' + minLetter);
         }
 
-        return new Solution(new string(part1), new string(part2));
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 }

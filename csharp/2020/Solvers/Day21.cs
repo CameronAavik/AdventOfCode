@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day21 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var ingredientCount = new Dictionary<string, int>();
         var allgerenCandidates = new Dictionary<string, HashSet<string>>();
@@ -84,6 +84,7 @@ public class Day21 : ISolver
         }
 
         string part2 = string.Join(',', ingredients);
-        return new Solution(part1.ToString(), part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 }

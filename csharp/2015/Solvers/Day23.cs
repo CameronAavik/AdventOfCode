@@ -18,7 +18,7 @@ public class Day23 : ISolver
 
     public record Instruction(InstructionType Type, int Arg1, int Arg2 = 0);
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var instructions = new List<Instruction>();
         foreach (ReadOnlySpan<char> line in input.SplitLines())
@@ -43,7 +43,8 @@ public class Day23 : ISolver
 
         int part1 = Simulate(instructionArr, 0);
         int part2 = Simulate(instructionArr, 1);
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static int Simulate(Instruction[] instructions, int aStart)

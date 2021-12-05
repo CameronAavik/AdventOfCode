@@ -9,7 +9,7 @@ public class Day04 : ISolver
     private static readonly string[] s_rotations =
         Enumerable.Range(0, 26).Select(i => Rotate("north", -i)).ToArray();
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int part1 = 0;
         int part2 = -1;
@@ -42,7 +42,8 @@ public class Day04 : ISolver
             Array.Clear(letterCounts, 0, 26);
         }
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static bool IsChecksumCorrect(int[] letterCounts, ReadOnlySpan<char> checksum)

@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day07 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var containsShinyGoldCache = new Dictionary<string, bool>();
         var totalChildBagsCache = new Dictionary<string, int>();
@@ -39,8 +39,10 @@ public class Day07 : ISolver
             }
         }
 
+        solution.SubmitPart1(part1);
+
         int part2 = GetTotalChildBags("shiny gold", totalChildBagsCache, bagContents);
-        return new Solution(part1, part2);
+        solution.SubmitPart2(part2);
     }
 
     private static void ParseLine(

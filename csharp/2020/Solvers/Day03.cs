@@ -5,7 +5,7 @@ using AdventOfCode.CSharp.Common;
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 public class Day03 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
 
     {
         int w = input.IndexOf('\n');
@@ -20,7 +20,8 @@ public class Day03 : ISolver
         long part1 = slope_3_1;
         long part2 = slope_1_1 * slope_3_1 * slope_5_1 * slope_7_1 * slope_1_2;
 
-        return new Solution(part1.ToString(), part2.ToString());
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

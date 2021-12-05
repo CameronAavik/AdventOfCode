@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day18 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         // we allocate two grids, each iteration switches which grid is used.
         // this means we can keep reusing the same grids over and over with no extra allocations.
@@ -83,7 +83,8 @@ public class Day18 : ISolver
             sum += light;
         }
 
-        return new Solution(part1: sum & 0xFFFF, part2: sum >> 16);
+        solution.SubmitPart1(sum & 0xFFFF);
+        solution.SubmitPart2(sum >> 16);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

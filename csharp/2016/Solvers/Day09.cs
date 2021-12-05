@@ -5,13 +5,14 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day09 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         input = input.TrimEnd('\n');
         int part1 = SolvePart1(input);
         long part2 = SolvePart2(input);
 
-        return new Solution(part1.ToString(), part2.ToString());
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static int SolvePart1(ReadOnlySpan<char> input)

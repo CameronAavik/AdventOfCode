@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2017.Solvers;
 
 public class Day02 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
@@ -49,6 +49,7 @@ public class Day02 : ISolver
             part2 += quotient;
         }
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 }

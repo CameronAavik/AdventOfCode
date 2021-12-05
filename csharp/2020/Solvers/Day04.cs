@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day04 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
@@ -72,7 +72,8 @@ public class Day04 : ISolver
             }
         }
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     public static bool IsValidBirthYear(ReadOnlySpan<char> span)

@@ -11,7 +11,7 @@ public class Day01 : ISolver
     private const uint Right = 1 << 16;
     private const uint Left = unchecked((uint)-Right);
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         // assume the origin is at 1 << 15, 1 << 15
         const ushort xOrigin = 1 << 15;
@@ -47,9 +47,8 @@ public class Day01 : ISolver
 
         int distanceToDestination = ManhattanDistance(pos);
 
-        return new Solution(
-            part1: distanceToDestination,
-            part2: distanceToFirstRepeatedLocation);
+        solution.SubmitPart1(distanceToDestination);
+        solution.SubmitPart2(distanceToFirstRepeatedLocation);
 
         static uint MakeTurn(uint dir, bool isLeft) => dir switch
         {

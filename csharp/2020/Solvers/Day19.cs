@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day19 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         // split input into the two sections
         int messagesStart = input.IndexOf("\n\n");
@@ -93,7 +93,8 @@ public class Day19 : ISolver
         // all messages in part 1 are valid for part 2
         part2 += part1;
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
 
         bool MatchesRule(ReadOnlySpan<char> str, int ruleNumber)
         {

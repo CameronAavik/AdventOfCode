@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day10 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         // negative means output, positive means bot
         var botOutputs = new Dictionary<int, (bool IsLowBot, int Low, bool IsHighBot, int High)>();
@@ -79,7 +79,8 @@ public class Day10 : ISolver
         }
 
         int part2 = outputValues[0] * outputValues[1] * outputValues[2];
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static void ParseBotInstruction(ref SpanReader parser, out int bot, out bool isLowBot, out int low, out bool isHighBot, out int high)

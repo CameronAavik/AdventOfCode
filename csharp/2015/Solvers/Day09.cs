@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day09 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         // get list of towns and edges from input
         var townSet = new HashSet<string>();
@@ -58,7 +58,8 @@ public class Day09 : ISolver
             maxDistance = Math.Max(maxDistance, pathDist);
         }
 
-        return new Solution(minDistance, maxDistance);
+        solution.SubmitPart1(minDistance);
+        solution.SubmitPart2(maxDistance);
     }
 
     private static void ParseLine(ReadOnlySpan<char> line, out int distance, out string fromName, out string toName)

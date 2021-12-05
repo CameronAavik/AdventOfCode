@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day09 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int lines = input.Count('\n');
         long[] nums = new long[lines];
@@ -33,7 +33,8 @@ public class Day09 : ISolver
 
         long part1 = nums[line];
         long part2 = SolvePart2(nums, part1);
-        return new Solution(part1.ToString(), part2.ToString());
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

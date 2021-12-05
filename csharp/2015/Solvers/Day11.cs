@@ -5,11 +5,12 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day11 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         ReadOnlySpan<char> part1 = GetNextPassword(input.TrimEnd('\n'));
         ReadOnlySpan<char> part2 = GetNextPassword(part1);
-        return new Solution(part1.ToString(), part2.ToString());
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static ReadOnlySpan<char> GetNextPassword(ReadOnlySpan<char> password)

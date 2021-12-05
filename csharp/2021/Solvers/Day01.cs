@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day01 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         // The counters which will store the solutions to both parts
         int part1 = 0;
@@ -56,7 +56,8 @@ public class Day01 : ISolver
             c = m;
         }
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

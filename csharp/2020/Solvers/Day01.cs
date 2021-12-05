@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day01 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int length = 0;
         byte[]? numberSet = new byte[2048];
@@ -39,15 +39,17 @@ public class Day01 : ISolver
                     if (numberSet[c] == 1)
                     {
                         part2 = a * b * c;
+                        solution.SubmitPart2(part2);
                         if (part1 >= 0)
-                            return new Solution(part1, part2);
+                            return;
                     }
                 }
                 else if (b == part1B)
                 {
                     part1 = a * b;
+                    solution.SubmitPart1(part1);
                     if (part2 >= 0)
-                        return new Solution(part1, part2);
+                        return;
                 }
                 else
                 {
@@ -55,7 +57,5 @@ public class Day01 : ISolver
                 }
             }
         }
-
-        return new Solution(part1, part2);
     }
 }

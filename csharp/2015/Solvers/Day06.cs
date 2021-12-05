@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day06 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         const int part1Mask = 1 << 16;
         int[,] grid = new int[1000, 1000];
@@ -66,7 +66,8 @@ public class Day06 : ISolver
             part2 += gridValue & 0xFFFF;
         }
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static void ParseArea(ReadOnlySpan<char> regionStr, out int x1, out int y1, out int x2, out int y2)

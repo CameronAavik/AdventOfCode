@@ -30,7 +30,7 @@ public class Day14 : ISolver
         public bool IsFlying { get; set; }
     }
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var reindeers = new List<Reindeer>();
         foreach (ReadOnlySpan<char> line in input.SplitLines())
@@ -85,7 +85,8 @@ public class Day14 : ISolver
             maxPoints = Math.Max(state.Points, maxPoints);
         }
 
-        return new Solution(maxDistance, maxPoints);
+        solution.SubmitPart1(maxDistance);
+        solution.SubmitPart2(maxPoints);
     }
 
     private static Reindeer ParseLine(ReadOnlySpan<char> line)

@@ -177,7 +177,7 @@ public class Day24Grid
 
 public class Day24 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var grid = new Day24Grid();
 
@@ -191,7 +191,8 @@ public class Day24 : ISolver
         }
 
         int part2 = grid.AliveCount;
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static void PopulateInitialBlackTiles(ReadOnlySpan<char> input, Day24Grid grid)

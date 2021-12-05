@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day02 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         const string part1Code = "123456789";
         const string part2Code = "0010002340567890ABC000E00";
@@ -14,8 +14,8 @@ public class Day02 : ISolver
         int part1x = 1, part1y = 1;
         int part2x = 2, part2y = 2;
 
-        var part1 = new StringBuilder();
-        var part2 = new StringBuilder();
+        var part1Writer = solution.GetPart1Writer();
+        var part2Writer = solution.GetPart2Writer();
 
         foreach (ReadOnlySpan<char> line in input.SplitLines())
         {
@@ -42,10 +42,12 @@ public class Day02 : ISolver
                 }
             }
 
-            part1.Append(part1Code[part1x + 3 * part1y]);
-            part2.Append(part2Code[part2x + 5 * part2y]);
+            part1Writer.Write(part1Code[part1x + 3 * part1y]);
+            part2Writer.Write(part2Code[part2x + 5 * part2y]);
         }
 
-        return new Solution(part1.ToString(), part2.ToString());
+        // Put a newline at the end to signify end of output
+        part1Writer.Complete();
+        part1Writer.Complete();
     }
 }

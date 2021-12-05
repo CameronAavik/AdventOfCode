@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day23 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         input = input.TrimEnd('\n');
         int[] part1Cups = new int[input.Length];
@@ -47,8 +47,10 @@ public class Day23 : ISolver
             cur = Iterate(part2Cups, cur);
         }
 
-        string part2 = GetPart2Answer(part2Cups).ToString();
-        return new Solution(part1, part2);
+        long part2 = GetPart2Answer(part2Cups);
+
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
 
         static string GetPart1Answer(int[] cups)
         {

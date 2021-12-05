@@ -11,7 +11,7 @@ public class Day17 : ISolver
         public static readonly Element Zero = new(0, 0, 0);
     }
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var sizes = new List<int>();
         foreach (ReadOnlySpan<char> size in input.SplitLines())
@@ -68,8 +68,8 @@ public class Day17 : ISolver
             }
         }
 
-        Element solution = M[150, sizes.Count - 1];
-        return new Solution(part1: solution.AllCount, part2: solution.MinimizedCount);
-
+        Element solutionElement = M[150, sizes.Count - 1];
+        solution.SubmitPart1(solutionElement.AllCount);
+        solution.SubmitPart2(solutionElement.MinimizedCount);
     }
 }

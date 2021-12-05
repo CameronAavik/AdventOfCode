@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day03 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int part1Total = 0;
         int part2Total = 0;
@@ -50,7 +50,8 @@ public class Day03 : ISolver
             }
         }
 
-        return new Solution(part1Total, part2Total);
+        solution.SubmitPart1(part1Total);
+        solution.SubmitPart2(part2Total);
     }
 
     private static void ParseLine(ReadOnlySpan<char> line, out int side1, out int side2, out int side3)

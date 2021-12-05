@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 {
     public class Day04 : ISolver
     {
-        public Solution Solve(ReadOnlySpan<char> input)
+        public void Solve(ReadOnlySpan<char> input, Solution solution)
         {
             const byte zeroByte = (byte)'0';
             const byte oneByte = (byte)'1';
@@ -83,7 +83,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 extraBytes++;
             }
 
-            return new Solution(part1, part2);
+            solution.SubmitPart1(part1);
+            solution.SubmitPart2(part2);
         }
     }
 }

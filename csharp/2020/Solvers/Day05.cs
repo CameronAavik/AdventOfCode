@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day05 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         uint[] seen = new uint[32];
         int numSeats = input.Length / 11;
@@ -33,6 +33,8 @@ public class Day05 : ISolver
             seen[seatId / 32] |= 1u << (seatId & 31);
         }
 
+        solution.SubmitPart1(maxSeat);
+
         int minSeat = maxSeat - numSeats - 1;
         for (int i = minSeat / 32 + 1; i < seen.Length; i++)
         {
@@ -40,10 +42,9 @@ public class Day05 : ISolver
             if (elem != 0xFFFFFFFFu)
             {
                 int part2 = 32 * i + (31 - BitOperations.LeadingZeroCount(~elem));
-                return new Solution(maxSeat, part2);
+                solution.SubmitPart2(part2);
+                return;
             }
         }
-
-        return new Solution(maxSeat, -1);
     }
 }

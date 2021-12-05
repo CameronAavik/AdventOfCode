@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day13 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int favouriteNumber = int.Parse(input);
 
@@ -44,7 +44,8 @@ public class Day13 : ISolver
             steps++;
         }
 
-        return new Solution(part1.Value, part2.Value);
+        solution.SubmitPart1(part1.Value);
+        solution.SubmitPart2(part2.Value);
 
         bool IsWall(int x, int y)
         {

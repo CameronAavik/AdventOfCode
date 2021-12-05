@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 {
     public class Day16 : ISolver
     {
-        public Solution Solve(ReadOnlySpan<char> input)
+        public void Solve(ReadOnlySpan<char> input, Solution solution)
         {
             var items = new Dictionary<string, int>
             {
@@ -73,7 +73,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 sue++;
             }
 
-            return new Solution(sue1, sue2);
+            solution.SubmitPart1(sue1);
+            solution.SubmitPart2(sue2);
         }
     }
 }

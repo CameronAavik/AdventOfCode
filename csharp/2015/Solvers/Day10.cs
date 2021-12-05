@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day10 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         input = input.TrimEnd('\n');
         byte[] currentSequence = new byte[input.Length];
@@ -51,7 +51,7 @@ public class Day10 : ISolver
             curLength = nextLength;
         }
 
-        int part2 = curLength;
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(curLength);
     }
 }

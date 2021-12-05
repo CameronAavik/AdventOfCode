@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day13 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var peopleSet = new HashSet<string>();
         var happinesses = new Dictionary<(string A, string B), int>();
@@ -42,7 +42,8 @@ public class Day13 : ISolver
         int part1 = GetOptimalHappiness(numPeople, adjMatrix);
         int part2 = GetOptimalHappiness(numPeople + 1, adjMatrix);
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static void ParseLine(ReadOnlySpan<char> line, out string personA, out string personB, out int happiness)

@@ -10,6 +10,9 @@ public class Benchmarks
     private readonly ISolver[,] _solvers = new ISolver[7, 25];
     private readonly string?[,] _inputs = new string[7, 25];
 
+    private readonly char[] _part1Buffer = new char[128];
+    private readonly char[] _part2Buffer = new char[128];
+
     public static IEnumerable<object[]> AllDays()
     {
         for (int year = 2015; year <= 2021; year++)
@@ -39,17 +42,30 @@ public class Benchmarks
     //[Benchmark]
     [Arguments(2015)]
     [Arguments(2020)]
-    public Solution[] SolveYear(int year)
+    public Solution SolveYear(int year)
     {
-        Solution[] solutions = new Solution[25];
+        var solution = new Solution(_part1Buffer, _part2Buffer);
         for (int day = 0; day < 25; day++)
-            solutions[day] = _solvers[year - 2015, day].Solve(_inputs[year - 2015, day]);
-        return solutions;
+        {
+            ISolver solver = _solvers[year - 2015, day - 1];
+            string input = _inputs[year - 2015, day - 1]!;
+            solver.Solve(input, solution);
+        }
+
+        return solution;
     }
 
     [Benchmark]
     [Arguments(2021, 1)]
+    [Arguments(2021, 2)]
+    [Arguments(2021, 3)]
+    [Arguments(2021, 4)]
     //[ArgumentsSource(nameof(AllDays))]
-    public Solution Solve(int year, int day) =>
-        _solvers[year - 2015, day - 1].Solve(_inputs[year - 2015, day - 1]);
+    public void Solve(int year, int day)
+    {
+        ISolver solver = _solvers[year - 2015, day - 1];
+        string input = _inputs[year - 2015, day - 1]!;
+        var solution = new Solution(_part1Buffer, _part2Buffer);
+        solver.Solve(input, solution);
+    }
 }

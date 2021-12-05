@@ -6,12 +6,13 @@ namespace AdventOfCode.CSharp.Y2019.Solvers;
 
 public class Day02 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         ReadOnlySpan<int> intCode = IntCode.ParseFromInput(input);
         int[] memory = intCode.ToArray();
 
         int part1 = Run(memory, 12, 2);
+        solution.SubmitPart1(part1);
 
         for (int noun = 0; noun < 100; noun++)
         {
@@ -23,13 +24,13 @@ public class Day02 : ISolver
                 if (Run(memory, noun, verb) == 19690720)
                 {
                     int part2 = 100 * noun + verb;
-                    return new Solution(part1, part2);
+                    solution.SubmitPart2(part2);
+                    return;
                 }
             }
         }
 
         ThrowHelper.ThrowException("Unable to find solution for part 2");
-        return default;
     }
 
     private static int Run(int[] memory, int noun, int verb)

@@ -50,7 +50,7 @@ public class Day11 : ISolver
         }
     }
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int cols = input.IndexOf('\n');
         int rows = input.Length / (cols + 1);
@@ -100,7 +100,8 @@ public class Day11 : ISolver
 
         int part2 = Solve(seatsPart2, 5, activeSeats);
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static void MarkPaddingAsFinalised(Seat[] seats, int height, int width)

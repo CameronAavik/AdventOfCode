@@ -18,7 +18,7 @@ public class Day08 : ISolver
         }
     }
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int lines = input.Count('\n');
         Instruction[] instructions = new Instruction[lines];
@@ -103,6 +103,7 @@ public class Day08 : ISolver
             }
         }
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 }

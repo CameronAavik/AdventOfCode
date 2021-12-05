@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day14 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var mem1 = new Dictionary<long, long>();
         var mem2 = new Dictionary<long, long>();
@@ -76,6 +76,7 @@ public class Day14 : ISolver
             part2 += v;
         }
 
-        return new Solution(part1.ToString(), part2.ToString());
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 }

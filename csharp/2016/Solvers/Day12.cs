@@ -32,7 +32,7 @@ public class Day12 : ISolver
         }
     }
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int lines = input.Count('\n');
         var instrs = new Instruction[lines];
@@ -60,7 +60,8 @@ public class Day12 : ISolver
         int part1 = Solve(instrs, 0);
         int part2 = Solve(instrs, 1);
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static Param ParseParamUntil(ref SpanReader reader, char until)

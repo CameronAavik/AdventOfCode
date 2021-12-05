@@ -12,7 +12,7 @@ public class Day16 : ISolver
 
     public record FieldsData(List<Field> Fields, int[] DepartureFields, int LargestFieldValue);
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var reader = new SpanReader(input);
 
@@ -87,7 +87,8 @@ public class Day16 : ISolver
             part2 *= myTicket[fieldIndexes[i]];
         }
 
-        return new Solution(part1.ToString(), part2.ToString());
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

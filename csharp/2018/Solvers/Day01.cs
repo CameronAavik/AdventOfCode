@@ -15,7 +15,7 @@ public class Day01 : ISolver
         public int ModTotal { get; set; }
     }
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int freqIndex = 0;
         int freqTotal = 0;
@@ -58,6 +58,7 @@ public class Day01 : ISolver
             prev = freq;
         }
 
-        return new Solution(part1: freqTotal, part2: minFreq);
+        solution.SubmitPart1(freqTotal);
+        solution.SubmitPart2(minFreq);
     }
 }

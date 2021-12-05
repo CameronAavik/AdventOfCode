@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day25 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var reader = new SpanReader(input);
         reader.SkipLength("To continue, please consult the code grid in the manual.  Enter the code at row ".Length);
@@ -19,6 +19,7 @@ public class Day25 : ISolver
         int repetitions = diagEnd - row;
 
         BigInteger part1 = (BigInteger.ModPow(252533, repetitions, 33554393) * 20151125) % 33554393;
-        return new Solution(part1.ToString(), string.Empty);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(string.Empty);
     }
 }

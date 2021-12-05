@@ -6,12 +6,10 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day12 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
-        int part1 = SolvePart1(input);
-        int part2 = SolvePart2(input);
-
-        return new Solution(part1, part2);
+        solution.SubmitPart1(SolvePart1(input));
+        solution.SubmitPart2(SolvePart2(input));
     }
 
     private static int SolvePart1(ReadOnlySpan<char> input)

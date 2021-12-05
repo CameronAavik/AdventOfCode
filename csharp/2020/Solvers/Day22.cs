@@ -134,7 +134,7 @@ public class Day22 : ISolver
         public override int GetHashCode() => HashCode.Combine(_hash1, _hash2);
     }
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int player2Index = input.IndexOf("\n\n");
         ReadOnlySpan<char> player1Input = input.Slice(0, player2Index + 1);
@@ -153,7 +153,8 @@ public class Day22 : ISolver
         int part1 = Solve(part1Deck1, part1Deck2, isPart2: false);
         int part2 = Solve(part2Deck1, part2Deck2, isPart2: true);
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static void ParsePlayerCards(ReadOnlySpan<char> input, Deck deck)

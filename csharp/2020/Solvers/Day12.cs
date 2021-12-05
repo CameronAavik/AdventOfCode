@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day12 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         // Part 1
         int x1 = 0, y1 = 0;
@@ -67,7 +67,8 @@ public class Day12 : ISolver
 
         int part1 = Math.Abs(x1) + Math.Abs(y1);
         int part2 = Math.Abs(x2) + Math.Abs(y2);
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day01 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int currentFloor = 0;
         int firstBasementFloor = 0;
@@ -25,6 +25,7 @@ public class Day01 : ISolver
             }
         }
 
-        return new Solution(part1: currentFloor, part2: firstBasementFloor);
+        solution.SubmitPart1(currentFloor);
+        solution.SubmitPart2(firstBasementFloor);
     }
 }

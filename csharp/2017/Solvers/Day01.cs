@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2017.Solvers;
 
 public class Day01 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int len = input.TrimEnd('\n').Length;
         int mid = len / 2;
@@ -25,6 +25,7 @@ public class Day01 : ISolver
             }
         }
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 }

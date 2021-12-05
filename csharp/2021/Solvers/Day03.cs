@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day03 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int bitsPerNumber = input.IndexOf('\n');
         int numbers = input.Length / (bitsPerNumber + 1);
@@ -105,6 +105,7 @@ public class Day03 : ISolver
         int epsilonRate = gammaRate ^ ((1 << bitsPerNumber) - 1);
         int part1 = gammaRate * epsilonRate;
         int part2 = oxygenRating * co2Rating;
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 }

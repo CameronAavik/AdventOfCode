@@ -11,12 +11,11 @@ public class Day20 : ISolver
             2, 3, 5, 7, 11, 13, 17, 19, 23, 29
     };
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int target = int.Parse(input);
-        int part1 = SolvePart1(target);
-        int part2 = SolvePart2(target);
-        return new Solution(part1, part2);
+        solution.SubmitPart1(SolvePart1(target));
+        solution.SubmitPart2(SolvePart2(target));
     }
 
     private static int SolvePart1(int target)

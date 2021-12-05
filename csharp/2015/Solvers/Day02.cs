@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day02 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
@@ -25,7 +25,8 @@ public class Day02 : ISolver
             part2 += smallestFacePerimeter + smallestFaceArea * side2;
         }
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static void ParseDimensionString(ReadOnlySpan<char> present, out int side0, out int side1, out int side2)

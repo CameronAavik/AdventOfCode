@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day24 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var weightList = new List<int>();
         int totalWeight = 0;
@@ -21,9 +21,8 @@ public class Day24 : ISolver
         int[] weightArr = weightList.ToArray();
         Array.Sort(weightArr);
 
-        string part1 = Solve(weightArr, totalWeight / 3).ToString();
-        string part2 = Solve(weightArr, totalWeight / 4).ToString();
-        return new Solution(part1, part2);
+        solution.SubmitPart1(Solve(weightArr, totalWeight / 3));
+        solution.SubmitPart2(Solve(weightArr, totalWeight / 4));
     }
 
     private static BigInteger Solve(int[] weights, int targetWeight)

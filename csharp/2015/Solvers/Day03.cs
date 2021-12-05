@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day03 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var seen = new HashSet<uint>();
 
@@ -18,7 +18,8 @@ public class Day03 : ISolver
         RunSanta(input, seen, start: 1, step: 2);
         int part2 = seen.Count;
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static void RunSanta(ReadOnlySpan<char> moves, HashSet<uint> seen, int start, int step)

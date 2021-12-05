@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day25 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var reader = new SpanReader(input);
         int key1 = reader.ReadPosIntUntil('\n');
@@ -22,6 +22,7 @@ public class Day25 : ISolver
 
         BigInteger part1 = BigInteger.ModPow(key2, loopSize, 20201227);
 
-        return new Solution(part1.ToString(), string.Empty);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(string.Empty);
     }
 }

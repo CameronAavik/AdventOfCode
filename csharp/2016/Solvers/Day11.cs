@@ -47,7 +47,7 @@ public class Day11 : ISolver
         public static bool operator !=(State left, State right) => !(left == right);
     }
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         byte[] part1Locs = ParseInput(input).ToArray();
         Array.Sort(part1Locs);
@@ -61,7 +61,8 @@ public class Day11 : ISolver
         var part2State = new State(part2Locs, 1);
         int part2 = FindStepsToFinish(part2State);
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static List<byte> ParseInput(ReadOnlySpan<char> input)

@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day07 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         var rules = new Dictionary<string, string>();
         foreach (ReadOnlySpan<char> line in input.SplitLines())
@@ -24,7 +24,8 @@ public class Day07 : ISolver
         knownValues["b"] = part1;
         ushort part2 = GetValue("a");
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
 
         ushort GetValue(string variableName)
         {

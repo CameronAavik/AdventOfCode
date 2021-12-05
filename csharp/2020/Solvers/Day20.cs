@@ -19,7 +19,7 @@ public class Day20 : ISolver
         public TileEdges Flip(int width) => new(ReverseBits(Top, width), ReverseBits(Bottom, width), Right, Left);
     }
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         (int TileId, int[] Tile)[] tiles = ParseTiles(input);
 
@@ -69,7 +69,8 @@ public class Day20 : ISolver
 
         int part2 = SolvePart2(tileLocations);
 
-        return new Solution(part1.ToString(), part2.ToString());
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static int SolvePart2(TileRotationData[,] tileLocations)

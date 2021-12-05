@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day19 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         input = input.TrimEnd('\n');
         var elements = new Dictionary<string, int>();
@@ -42,7 +42,8 @@ public class Day19 : ISolver
         int part1 = SolvePart1(replacements, molecule);
         int part2 = SolvePart2(elements, molecule);
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static List<int> ParseMolecule(

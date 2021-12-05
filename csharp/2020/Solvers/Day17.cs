@@ -12,7 +12,7 @@ public class Day17 : ISolver
     const int Z = 1 << 10; // 3 bits for Z
     const int W = 1 << 13; // 3 bits for W
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         const int originX = 6;
         const int originY = 6;
@@ -35,7 +35,8 @@ public class Day17 : ISolver
         int part1 = SolvePart1(activeCubes, width, height);
         int part2 = SolvePart2(activeCubes, width, height);
 
-        return new Solution(part1, part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static int SolvePart1(List<int> inputActiveCubes, int width, int height)

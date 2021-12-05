@@ -94,7 +94,7 @@ public class Day05 : ISolver
         }
     }
 
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         // data contains the password being hashed in a format optimised for the vectorised MD5 implementation
         Vector256<uint>[] data = new Vector256<uint>[16];
@@ -200,6 +200,7 @@ public class Day05 : ISolver
             upperDiv *= 10;
         }
 
-        return new Solution(pw.Part1, pw.Part2);
+        solution.SubmitPart1(pw.Part1);
+        solution.SubmitPart2(pw.Part2);
     }
 }

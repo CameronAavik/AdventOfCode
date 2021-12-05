@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day02 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int horizontal = 0;
         int part1DepthPart2Aim = 0; // depth for part 1, aim for part 2
@@ -33,8 +33,7 @@ public class Day02 : ISolver
             }
         }
 
-        return new Solution(
-            part1: horizontal * part1DepthPart2Aim,
-            part2: horizontal * part2Depth);
+        solution.SubmitPart1(horizontal * part1DepthPart2Aim);
+        solution.SubmitPart2(horizontal * part2Depth);
     }
 }

@@ -6,14 +6,15 @@ namespace AdventOfCode.CSharp.Y2018.Solvers;
 
 public class Day02 : ISolver
 {
-    public Solution Solve(ReadOnlySpan<char> input)
+    public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int lineLength = input.IndexOf('\n') + 1;
 
         int part1 = SolvePart1(input, lineLength);
         string part2 = SolvePart2(input, lineLength);
 
-        return new Solution(part1.ToString(), part2);
+        solution.SubmitPart1(part1);
+        solution.SubmitPart2(part2);
     }
 
     private static int SolvePart1(ReadOnlySpan<char> input, int lineLength)
