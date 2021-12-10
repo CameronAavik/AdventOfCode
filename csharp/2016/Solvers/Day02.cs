@@ -48,6 +48,6 @@ public class Day02 : ISolver
 
         // Put a newline at the end to signify end of output
         part1Writer.Complete();
-        part1Writer.Complete();
+        part2Writer.Complete();
     }
 }
