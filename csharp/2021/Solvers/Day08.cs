@@ -1,6 +1,5 @@
 ﻿using AdventOfCode.CSharp.Common;
 using System;
-using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace AdventOfCode.CSharp.Y2021.Solvers;
@@ -53,6 +52,7 @@ public class Day08 : ISolver
         solution.SubmitPart2(part2);
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int CalculateDigit(int digitMask, int bits, byte oneDigitMask, byte bdMask, ref int part1)
     {
         switch (bits)
@@ -88,6 +88,7 @@ public class Day08 : ISolver
         }
     }
 
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static byte ReadDigitAsMask(ReadOnlySpan<char> input, char until, ref int cursor, out int bits)
     {
         int digit = 1 << (input[cursor++] - 'a');
