@@ -56,10 +56,8 @@ public class Benchmarks
     }
 
     [Benchmark]
-    [Arguments(2021, 1)]
-    [Arguments(2021, 2)]
-    [Arguments(2021, 3)]
-    [Arguments(2021, 4)]
+    [Arguments(2015, 25)]
+    [Arguments(2021, 11)]
     //[ArgumentsSource(nameof(AllDays))]
     public void Solve(int year, int day)
     {
