@@ -37,7 +37,7 @@ public class Day11 : ISolver
     private static int Step(Span<int> octopi)
     {
         // Increase all the octopi by 1.
-        // If the value was less than 128, then set it to 128 first.
+        // If the value was less than 32, then set it to 32 first.
         for (int rowStart = 12; rowStart < 132; rowStart += 12)
             for (int i = rowStart + 1; i < rowStart + 11; i++)
                 octopi[i] = Math.Max(octopi[i], 32) + 1;
