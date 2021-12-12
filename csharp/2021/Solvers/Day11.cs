@@ -102,10 +102,9 @@ public class Day11 : ISolver
                 // Get a 1 in the lowest bit for each octopus that can be flashed
                 long canBeFlashed = (row & canBeFlashedFlagMask) >> 4;
 
-                int newFlashes = BitOperations.PopCount((ulong)canBeFlashed);
-                if (newFlashes > 0)
+                if (canBeFlashed > 0)
                 {
-                    flashes += newFlashes;
+                    flashes += BitOperations.PopCount((ulong)canBeFlashed);
 
                     // Set flashed octopi to 0
                     row &= ~(canBeFlashed * 0b111111);
