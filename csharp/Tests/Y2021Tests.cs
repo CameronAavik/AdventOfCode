@@ -17,4 +17,5 @@ public class Y2021Tests
     [Fact] public void Day10() => TestHelpers.AssertDay<Day10>("278475", "3015539998");
     [Fact] public void Day11() => TestHelpers.AssertDay<Day11>("1562", "268");
     [Fact] public void Day12() => TestHelpers.AssertDay<Day12>("3576", "84271");
+    [Fact] public void Day13() => TestHelpers.AssertDay<Day13>("682", "FAGURZHE");
 }
