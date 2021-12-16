@@ -28,6 +28,10 @@ public class Day14 : ISolver
         // The two pairs appear in the top and bottom 16 bits of the integer value
         Span<int> lookups = stackalloc int[26 * 26];
 
+        // Given the pair as the key, returns the four pairs that get created as a result after two iterations
+        // The four pairs appear in the four 16-bit sections of the long value
+        Span<long> lookups2 = stackalloc long[26 * 26];
+
         // Records a list of all the pair that can appear
         Span<int> possiblePairs = stackalloc int[26 * 26];
 
@@ -50,29 +54,38 @@ public class Day14 : ISolver
             i += 8;
         }
 
+        // Generate the 4 pairs produced from each possible pair
+        foreach (var pair in possiblePairs)
+        {
+            int pairsCreated = lookups[pair];
+            lookups2[pair] = (long)lookups[pairsCreated >> 16] << 32 | (long)lookups[pairsCreated & ushort.MaxValue];
+        }
+
         possiblePairs = possiblePairs.Slice(0, numPossiblePairs);
 
-        for (int step = 0; step < 10; step++)
-            Iterate(pairCounts, lookups, possiblePairs);
+        for (int step = 0; step < 10; step += 2)
+            Iterate(pairCounts, lookups2, possiblePairs);
 
         solution.SubmitPart1(GetAnswer(possiblePairs, pairCounts, startingElement));
 
-        for (int step = 10; step < 40; step++)
-            Iterate(pairCounts, lookups, possiblePairs);
+        for (int step = 10; step < 40; step += 2)
+            Iterate(pairCounts, lookups2, possiblePairs);
 
         solution.SubmitPart2(GetAnswer(possiblePairs, pairCounts, startingElement));
     }
 
-    private static void Iterate(Span<long> pairCounts, Span<int> lookups, Span<int> possiblePairs)
+    private static void Iterate(Span<long> pairCounts, Span<long> lookups2, Span<int> possiblePairs)
     {
         Span<long> newPairCounts = stackalloc long[26 * 26];
 
         foreach (int pair in possiblePairs)
         {
             long count = pairCounts[pair];
-            int newPairs = lookups[pair];
-            newPairCounts[newPairs >> 16] += count;
-            newPairCounts[newPairs & ushort.MaxValue] += count;
+            long newPairs = lookups2[pair];
+            newPairCounts[(int)(newPairs & ushort.MaxValue)] += count;
+            newPairCounts[(int)((newPairs >> 16) & ushort.MaxValue)] += count;
+            newPairCounts[(int)((newPairs >> 32) & ushort.MaxValue)] += count;
+            newPairCounts[(int)((newPairs >> 48) & ushort.MaxValue)] += count;
         }
 
         newPairCounts.CopyTo(pairCounts);
