@@ -72,10 +72,11 @@ public class Day15 : ISolver
                 if (packedPos == bottomRightPos)
                     return minBucketDistance;
 
-                if (seenCells[packedPos] != 0)
+                ref byte seenCell = ref seenCells[packedPos];
+                if (seenCell != 0)
                     continue;
 
-                seenCells[packedPos] = 1;
+                seenCell = 1;
 
                 int x = packedPos % width;
 
