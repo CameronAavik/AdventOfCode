@@ -179,12 +179,10 @@ public class Day19 : ISolver
 
     private static bool TryFindOverlapWithGivenXAxis(List<Coord> fixedCoords, List<Coord> newCoords, Axis axis, [NotNullWhen(returnValue: true)] out Coord relativePosition)
     {
-        // Each ulong represents 8 bytes, the bytes indicate the last 4 indexes of the fixed coord and new coord that have
-        // a difference on the x axis equal to the index into the differences array. The differences are offset by 2048
-        // since we know the minimum difference is -2000 as per the problem statement.
-        Span<ulong> differences = stackalloc ulong[4096];
+        Span<byte> differenceCounts = stackalloc byte[4096];
 
-        for (int newIndex = 0; newIndex < newCoords.Count - 7; newIndex++)
+        int maxDifferenceCount = 1;
+        for (int newIndex = 0; newIndex < newCoords.Count - (12 - maxDifferenceCount); newIndex++)
         {
             int x2 = newCoords[newIndex].GetValueOnAxis(axis);
 
@@ -193,23 +191,15 @@ public class Day19 : ISolver
                 int diff = x2 - fixedCoords[fixedIndex].X;
 
                 int diffIndex = diff + 2048;
-                ulong prevDifference = differences[diffIndex];
-
-                if (prevDifference == 0)
+                byte differenceCount = ++differenceCounts[diffIndex];
+                if (differenceCount == 6)
                 {
-                    differences[diffIndex] = (ulong)((newIndex + 1) << 8 | (fixedIndex + 1));
-                }
-                else if ((prevDifference >> 48) == 0)
-                {
-                    differences[diffIndex] = prevDifference << 16 | (uint)((newIndex + 1) << 8 | (fixedIndex + 1));
-                }
-                else if (prevDifference != ulong.MaxValue)
-                {
-                    if (TryFindOverlapWithGivenXAxisAndOffset(fixedCoords, newCoords, axis, diff, prevDifference, fixedIndex, newIndex, out relativePosition))
+                    if (TryFindOverlapWithGivenXAxisAndOffset(fixedCoords, newCoords, axis, diff, out relativePosition))
                         return true;
-
-                    differences[diffIndex] = ulong.MaxValue;
                 }
+
+                if (differenceCount > maxDifferenceCount)
+                    maxDifferenceCount = differenceCount;
             }
         }
 
@@ -217,34 +207,14 @@ public class Day19 : ISolver
         return false;
     }
 
-    private static bool TryFindOverlapWithGivenXAxisAndOffset(List<Coord> fixedCoords, List<Coord> newCoords, Axis axis, int offset, ulong first4, int f4, int n4, out Coord relativePosition)
+    private static bool TryFindOverlapWithGivenXAxisAndOffset(List<Coord> fixedCoords, List<Coord> newCoords, Axis axis, int offset, out Coord relativePosition)
     {
         // This span will store the pairs of coordinates that have the same offset away on the x axis
         Span<(Coord Fixed, Coord New)> matches = stackalloc (Coord Fixed, Coord New)[20];
-        matches[4] = (fixedCoords[f4], newCoords[n4]);
-        for (int i = 3; i >= 0; i--)
-        {
-            int newIdx = (int)((first4 >> 8) & 0xFF) - 1;
-            int fixedIdx = (int)(first4 & 0xFF) - 1;
-            matches[i] = (fixedCoords[fixedIdx], newCoords[newIdx]);
-            first4 >>= 16;
-        }
-
-        int matchIndex = 5;
-
-        // First, test to see if there are any other fixed coordinates with the same x value as fixedCoords[f4]
-        int f4X = matches[4].Fixed.X;
-        for (int fixedIndex = f4; fixedIndex < fixedCoords.Count; fixedIndex++)
-        {
-            Coord fixedCoord = fixedCoords[fixedIndex];
-            if (fixedCoord.X != f4X)
-                break;
-
-            matches[matchIndex++] = (fixedCoord, matches[4].New);
-        }
+        int matchIndex = 0;
 
         // Then, look through the remainder of the newCoords list to find fixed coords that are at the same offset
-        for (int newIndex = n4 + 1; newIndex < newCoords.Count; newIndex++)
+        for (int newIndex = 0; newIndex < newCoords.Count; newIndex++)
         {
             int possibleMatchesLeft = newCoords.Count - newIndex;
             if (matchIndex + possibleMatchesLeft < 12)
