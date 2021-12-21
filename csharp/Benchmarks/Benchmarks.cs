@@ -5,6 +5,7 @@ using BenchmarkDotNet.Attributes;
 
 namespace AdventOfCode.CSharp.Benchmarks;
 
+//[BenchmarkDotNet.Diagnostics.Windows.Configs.EtwProfiler]
 public class Benchmarks
 {
     private readonly ISolver[,] _solvers = new ISolver[7, 25];
@@ -57,7 +58,7 @@ public class Benchmarks
 
     [Benchmark]
     [Arguments(2015, 25)]
-    [Arguments(2021, 18)]
+    [Arguments(2021, 19)]
     //[ArgumentsSource(nameof(AllDays))]
     public void Solve(int year, int day)
     {
