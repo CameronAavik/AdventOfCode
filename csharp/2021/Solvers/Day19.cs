@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 
 namespace AdventOfCode.CSharp.Y2021.Solvers;
 
@@ -74,7 +75,7 @@ public class Day19 : ISolver
 
         while (foundScanners < numScanners && foundScannersQueue.TryDequeue(out FixedScanner? fixedScanner))
         {
-            List<Coord> fixedCoords = fixedScanner.Data.Coords;
+            Span<Coord> fixedCoords = CollectionsMarshal.AsSpan(fixedScanner.Data.Coords);
             fixedCoords.Sort();
 
             for (int i = 0; i < numScanners; i++)
@@ -83,7 +84,7 @@ public class Day19 : ISolver
                     continue;
 
                 ScannerData scanner = scanners[i];
-                List<Coord> scannerCoords = scanner.Coords;
+                Span<Coord> scannerCoords = CollectionsMarshal.AsSpan(scanner.Coords);
                 if (TryFindOverlap(fixedCoords, scannerCoords, out Coord relativePosition))
                 {
                     Coord center = fixedScanner.Center + relativePosition;
@@ -165,7 +166,7 @@ public class Day19 : ISolver
         return mul * ret;
     }
 
-    private static bool TryFindOverlap(List<Coord> fixedCoords, List<Coord> newCoords, out Coord relativePosition)
+    private static bool TryFindOverlap(ReadOnlySpan<Coord> fixedCoords, Span<Coord> newCoords, out Coord relativePosition)
     {
         for (int axis = 0; axis < 6; axis++)
         {
@@ -177,26 +178,24 @@ public class Day19 : ISolver
         return false;
     }
 
-    private static bool TryFindOverlapWithGivenXAxis(List<Coord> fixedCoords, List<Coord> newCoords, Axis axis, [NotNullWhen(returnValue: true)] out Coord relativePosition)
+    private static bool TryFindOverlapWithGivenXAxis(ReadOnlySpan<Coord> fixedCoords, Span<Coord> newCoords, Axis axis, [NotNullWhen(returnValue: true)] out Coord relativePosition)
     {
         Span<byte> differenceCounts = stackalloc byte[4096];
 
         int maxDifferenceCount = 1;
-        for (int newIndex = 0; newIndex < newCoords.Count - (12 - maxDifferenceCount); newIndex++)
+        for (int newIndex = 0; newIndex < newCoords.Length - (12 - maxDifferenceCount); newIndex++)
         {
             int x2 = newCoords[newIndex].GetValueOnAxis(axis);
 
-            for (int fixedIndex = 0; fixedIndex < fixedCoords.Count; fixedIndex++)
+            foreach (Coord fixedCoord in fixedCoords)
             {
-                int diff = x2 - fixedCoords[fixedIndex].X;
+                int diff = x2 - fixedCoord.X;
 
                 int diffIndex = diff + 2048;
-                byte differenceCount = ++differenceCounts[diffIndex];
-                if (differenceCount == 6)
-                {
-                    if (TryFindOverlapWithGivenXAxisAndOffset(fixedCoords, newCoords, axis, diff, out relativePosition))
-                        return true;
-                }
+                byte differenceCount = differenceCounts[diffIndex]++;
+
+                if (differenceCount == 6 && TryFindOverlapWithGivenXAxisAndOffset(fixedCoords, newCoords, axis, diff, out relativePosition))
+                    return true;
 
                 if (differenceCount > maxDifferenceCount)
                     maxDifferenceCount = differenceCount;
@@ -207,16 +206,16 @@ public class Day19 : ISolver
         return false;
     }
 
-    private static bool TryFindOverlapWithGivenXAxisAndOffset(List<Coord> fixedCoords, List<Coord> newCoords, Axis axis, int offset, out Coord relativePosition)
+    private static bool TryFindOverlapWithGivenXAxisAndOffset(ReadOnlySpan<Coord> fixedCoords, Span<Coord> newCoords, Axis axis, int offset, out Coord relativePosition)
     {
         // This span will store the pairs of coordinates that have the same offset away on the x axis
         Span<(Coord Fixed, Coord New)> matches = stackalloc (Coord Fixed, Coord New)[20];
         int matchIndex = 0;
 
         // Then, look through the remainder of the newCoords list to find fixed coords that are at the same offset
-        for (int newIndex = 0; newIndex < newCoords.Count; newIndex++)
+        for (int newIndex = 0; newIndex < newCoords.Length; newIndex++)
         {
-            int possibleMatchesLeft = newCoords.Count - newIndex;
+            int possibleMatchesLeft = newCoords.Length - newIndex;
             if (matchIndex + possibleMatchesLeft < 12)
                 break;
 
@@ -235,7 +234,7 @@ public class Day19 : ISolver
         return TryFindOverlapFromMatchesOnGivenXAxis(matches, axis, newCoords, out relativePosition);
     }
 
-    private static bool TryFindOverlapFromMatchesOnGivenXAxis(Span<(Coord Fixed, Coord New)> matches, Axis axis, List<Coord> newCoords, out Coord relativePosition)
+    private static bool TryFindOverlapFromMatchesOnGivenXAxis(ReadOnlySpan<(Coord Fixed, Coord New)> matches, Axis axis, Span<Coord> newCoords, out Coord relativePosition)
     {
         switch (axis)
         {
@@ -281,10 +280,10 @@ public class Day19 : ISolver
         }
     }
 
-    private static int FindFixedCoordWithExpectedX(List<Coord> fixedCoords, int expectedX, Coord otherCoord, Span<(Coord Fixed, Coord New)> matches, ref int matchIndex)
+    private static int FindFixedCoordWithExpectedX(ReadOnlySpan<Coord> fixedCoords, int expectedX, Coord otherCoord, Span<(Coord Fixed, Coord New)> matches, ref int matchIndex)
     {
         int lo = 0;
-        int hi = fixedCoords.Count - 1;
+        int hi = fixedCoords.Length - 1;
 
         while (lo <= hi)
         {
@@ -328,7 +327,7 @@ public class Day19 : ISolver
         return matchIndex;
     }
 
-    private static bool TryFindOverlapFromMatchesOnGivenAxesAndFixCoords(Span<(Coord Fixed, Coord New)> matches, Axis xAxis, Axis yAxis, Axis zAxis, List<Coord> allCoords, out Coord center)
+    private static bool TryFindOverlapFromMatchesOnGivenAxesAndFixCoords(ReadOnlySpan<(Coord Fixed, Coord New)> matches, Axis xAxis, Axis yAxis, Axis zAxis, Span<Coord> allCoords, out Coord center)
     {
         center = default;
 
@@ -410,7 +409,7 @@ public class Day19 : ISolver
             }
         }
 
-        for (int i = 0; i < allCoords.Count; i++)
+        for (int i = 0; i < allCoords.Length; i++)
             allCoords[i] = allCoords[i].ApplyAxes(xAxis, yAxis, zAxis);
 
         return true;
