@@ -19,7 +19,7 @@ public class Day25 : ISolver
 
         for (int row = 0; row < height; row++)
         {
-            ReadOnlySpan<char> rowInput = input.Slice(row * width + 1, width);
+            ReadOnlySpan<char> rowInput = input.Slice(row * (width + 1), width);
             Span<ulong> eastData = easts.Slice(row * ulongsPerRow, ulongsPerRow);
             Span<ulong> southData = souths.Slice(row * ulongsPerRow, ulongsPerRow);
             for (int col = 0; col < width; col++)
@@ -73,13 +73,14 @@ public class Day25 : ISolver
             ulong lastRowS1 = lastRowSouthData[0];
             ulong lastRowS2 = lastRowSouthData[1];
             ulong lastRowS3 = lastRowSouthData[2];
+            lastRowSouthData.Clear();
 
             // move all south-facing cucumbers
+            Span<ulong> nextRowSouthData = lastRowSouthData;
             ulong nextRowS1 = lastRowS1;
             ulong nextRowS2 = lastRowS2;
             ulong nextRowS3 = lastRowS3;
-            Span<ulong> nextRowSouthData = lastRowSouthData;
-            for (int row = height - 2; row > 0; row--)
+            for (int row = height - 2; row >= 0; row--)
             {
                 Span<ulong> nextRowEastData = easts.Slice((row + 1) * ulongsPerRow, ulongsPerRow);
                 Span<ulong> southData = souths.Slice(row * ulongsPerRow, ulongsPerRow);
@@ -127,11 +128,10 @@ public class Day25 : ISolver
                 lastRowSouthData[2] |= overlap3;
             }
 
+            steps++;
 
             if (!containsMove)
                 break;
-
-            steps++;
         }
 
         solution.SubmitPart1(steps);
