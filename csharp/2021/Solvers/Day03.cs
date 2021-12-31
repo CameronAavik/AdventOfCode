@@ -1,5 +1,6 @@
 ﻿using AdventOfCode.CSharp.Common;
 using System;
+using System.Numerics;
 
 namespace AdventOfCode.CSharp.Y2021.Solvers;
 
@@ -8,29 +9,36 @@ public class Day03 : ISolver
     public void Solve(ReadOnlySpan<char> input, Solution solution)
     {
         int bitsPerNumber = input.IndexOf('\n');
-        int numbers = input.Length / (bitsPerNumber + 1);
+        int lineLength = bitsPerNumber + 1;
+        int numbers = input.Length / lineLength;
 
-        (int arrLen, int remainder) = Math.DivRem(numbers, 64);
-        if (remainder > 0)
-            arrLen++;
+        // arrLen is the number of 64 bit integers needed to store 'numbers' amount of bits.
+        int arrLen = (numbers + 63) / 64;
+        int bitsInLastElement = numbers % 64;
 
         // Build masks where bits represent which rows are still being included when determining the oxygen and CO2 ratings.
-        Span<ulong> oxygenRatingMask = stackalloc ulong[arrLen];
-        oxygenRatingMask.Fill(~0UL);
-        if (remainder > 0)
-            oxygenRatingMask[arrLen - 1] = (1UL << remainder) - 1UL;
+        Span<ulong> oxygenRatingMask = arrLen <= 16 ? stackalloc ulong[16] : new ulong[arrLen];
+        Span<ulong> co2RatingMask = arrLen <= 16 ? stackalloc ulong[16] : new ulong[arrLen];
 
-        Span<ulong> co2RatingMask = stackalloc ulong[arrLen];
+        // By default, all rows are included, so set everything to 1 which can be done by filling with ~0UL.
+        oxygenRatingMask.Fill(~0UL);
+
+        // If the number of bits in the last element is greater than zero, then ensure that the extra bits are off.
+        if (bitsInLastElement > 0)
+            oxygenRatingMask[arrLen - 1] = (1UL << bitsInLastElement) - 1UL;
+
+        // Copy Oxygen mask to CO2 mask since they should start off the same
         oxygenRatingMask.CopyTo(co2RatingMask);
 
+        // Keep track of how many numbers are still in consideration for oxygen and CO2
         int oxygenRatingMaskSize = numbers;
         int co2RatingMaskSize = numbers;
-
-        Span<ulong> onesMask = stackalloc ulong[arrLen];
 
         int gammaRate = 0;
         int oxygenRating = 0;
         int co2Rating = 0;
+
+        Span<ulong> onesMask = arrLen <= 16 ? stackalloc ulong[16] : new ulong[arrLen];
         for (int bit = 0; bit < bitsPerNumber; bit++)
         {
             int onesCount = 0;
@@ -39,60 +47,24 @@ public class Day03 : ISolver
 
             for (int i = 0; i < arrLen; i++)
             {
-                ulong oxygenRatingMaskSegment = oxygenRatingMask[i];
-                ulong co2RatingMaskSegment = co2RatingMask[i];
-                ulong onesMaskSegment = 0;
-
-                int cursorOffset = i * (bitsPerNumber + 1) * 64 + bit;
-
-                ulong flag = 1;
-                int maxJ = Math.Min(cursorOffset + (bitsPerNumber + 1) * 64, input.Length);
-                for (int j = cursorOffset; j < maxJ; j += bitsPerNumber + 1)
-                {
-                    int oneBit = input[j] & 1;
-
-                    onesCount += oneBit;
-                    onesMaskSegment |= flag * (ulong)oneBit;
-                    oxygenOnesCount += (int)(oxygenRatingMaskSegment & (ulong)oneBit);
-                    co2OnesCount += (int)(co2RatingMaskSegment & (ulong)oneBit);
-
-                    flag <<= 1;
-                    oxygenRatingMaskSegment >>= 1;
-                    co2RatingMaskSegment >>= 1;
-                }
-
-                onesMask[i] = onesMaskSegment;
+                // We process the input in batches of 64
+                ulong onesInBit = GetNext64OnesForBit(input.Slice(i * lineLength * 64), bit, lineLength);
+                onesCount += BitOperations.PopCount(onesInBit);
+                oxygenOnesCount += BitOperations.PopCount(onesInBit & oxygenRatingMask[i]);
+                co2OnesCount += BitOperations.PopCount(onesInBit & co2RatingMask[i]);
+                onesMask[i] = onesInBit;
             }
 
             gammaRate = gammaRate * 2 + (onesCount * 2 >= numbers ? 1 : 0);
 
             int oxygenBit = oxygenOnesCount * 2 >= oxygenRatingMaskSize ? 1 : 0;
-            int co2Bit = co2RatingMaskSize > 1 ? (co2OnesCount * 2 >= co2RatingMaskSize ? 0 : 1) : co2OnesCount;
-
             oxygenRating = oxygenRating * 2 + oxygenBit;
+
+            int co2Bit = co2RatingMaskSize > 1 ? (co2OnesCount * 2 >= co2RatingMaskSize ? 0 : 1) : co2OnesCount;
             co2Rating = co2Rating * 2 + co2Bit;
 
             oxygenRatingMaskSize = oxygenBit == 1 ? oxygenOnesCount : oxygenRatingMaskSize - oxygenOnesCount;
             co2RatingMaskSize = co2Bit == 1 ? co2OnesCount : co2RatingMaskSize - co2OnesCount;
-
-            /** WIP Vectorization, not much benefit because there are only 16 array elements in practice.
-            
-            var lastBlockIndex = arrLen - (arrLen % Vector<ulong>.Count);
-
-            for (int i = 0; i < lastBlockIndex; i += Vector<ulong>.Count)
-            {
-                var vOnesMask = new Vector<ulong>(onesMask.Slice(i));
-                var vOxygenMask = new Vector<ulong>(oxygenRatingMask.Slice(i));
-                var vCO2Mask = new Vector<ulong>(co2RatingMask.Slice(i));
-
-                vOxygenMask &= oxygenBit == 1 ? vOnesMask : ~vOnesMask;
-                vCO2Mask &= co2Bit == 1 ? vOnesMask : ~vOnesMask;
-
-                vOxygenMask.CopyTo(oxygenRatingMask.Slice(i));
-                vCO2Mask.CopyTo(co2RatingMask.Slice(i));
-            }
-
-            **/
 
             for (int i = 0; i < arrLen; i++)
             {
@@ -102,10 +74,23 @@ public class Day03 : ISolver
             }
         }
 
+        // Epsilon rate is just the gamma rate with the bits flipped
         int epsilonRate = gammaRate ^ ((1 << bitsPerNumber) - 1);
+
         int part1 = gammaRate * epsilonRate;
         int part2 = oxygenRating * co2Rating;
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
+    }
+
+    private static ulong GetNext64OnesForBit(ReadOnlySpan<char> inputSegment, int bit, int lineLength)
+    {
+        ulong onesMask = 0;
+
+        int i = 0;
+        for (int j = bit; j < inputSegment.Length && i < 64; j += lineLength)
+            onesMask |= (ulong)(inputSegment[j] & 1) << i++;
+
+        return onesMask;
     }
 }

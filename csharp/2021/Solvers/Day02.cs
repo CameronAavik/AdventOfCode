@@ -17,18 +17,18 @@ public class Day02 : ISolver
             switch (input[i])
             {
                 case 'f': // forward
-                    int amount = input[i + 8] - '0';
+                    int amount = CharToValue(input[i + "forward ".Length]);
                     horizontal += amount;
                     part2Depth += part1DepthPart2Aim * amount;
-                    i += 10;
+                    i += "forward x\n".Length;
                     break;
                 case 'd': // down
-                    part1DepthPart2Aim += input[i + 5] - '0';
-                    i += 7;
+                    part1DepthPart2Aim += CharToValue(input[i + "down ".Length]);
+                    i += "down x\n".Length;
                     break;
                 default: // up
-                    part1DepthPart2Aim -= input[i + 3] - '0';
-                    i += 5;
+                    part1DepthPart2Aim -= CharToValue(input[i + "up ".Length]);
+                    i += "up x\n".Length;
                     break;
             }
         }
@@ -36,4 +36,6 @@ public class Day02 : ISolver
         solution.SubmitPart1(horizontal * part1DepthPart2Aim);
         solution.SubmitPart2(horizontal * part2Depth);
     }
+
+    private static int CharToValue(char c) => c - '0';
 }

@@ -28,7 +28,7 @@ public class Day01 : ISolver
         // The first measurement goes into "a", the second into "b", and the third into "c"
         // For part 1 we always compare each measurement against the previous one
         // For part 2 we compare with the measurement from 3 readings ago
-        // This works because a + b + c > b + c + d can be simplified to a > d 
+        // This works because (a + b + c) > (b + c + d) can be simplified to a > d 
         while (inputCursor < input.Length)
         {
             // Measurement 1
@@ -61,7 +61,7 @@ public class Day01 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadLineAsInteger(ReadOnlySpan<char> span, ref int i)
+    private static int ReadLineAsInteger(ReadOnlySpan<char> span, ref int i)
     {
         // Assume that the first character is always a digit
         int ret = span[i++] - '0';
