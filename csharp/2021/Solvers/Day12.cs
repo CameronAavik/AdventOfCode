@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Numerics;
+using System.Text;
 
 namespace AdventOfCode.CSharp.Y2021.Solvers;
 
@@ -15,7 +16,7 @@ public class Day12 : ISolver
 
     readonly record struct State(int AvailableCaves, bool CanRepeat, int CurrentCave);
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // caveEdges is an 'adjacency matrix' encoded using an array of longs. There is a long for each small cave, and
         // it stores adjacency information to the other small caves. Adjadency information is stored as the total
@@ -88,7 +89,7 @@ public class Day12 : ISolver
         }
     }
 
-    private static ReadOnlySpan<long> GetCaveEdgesFromInput(ReadOnlySpan<char> input)
+    private static ReadOnlySpan<long> GetCaveEdgesFromInput(ReadOnlySpan<byte> input)
     {
         int numSmall = 2; // starts off with 2 for start and end
         int numBig = 0;
@@ -98,7 +99,7 @@ public class Day12 : ISolver
         long[] bigToSmallCaveEdges = new long[16];
 
         int inputCursor = 0;
-        while (TryReadLine(input, ref inputCursor, out ReadOnlySpan<char> from, out ReadOnlySpan<char> to))
+        while (TryReadLine(input, ref inputCursor, out ReadOnlySpan<byte> from, out ReadOnlySpan<byte> to))
         {
             Cave fromCave = ParseCave(from);
             Cave toCave = ParseCave(to);
@@ -131,7 +132,7 @@ public class Day12 : ISolver
 
         return caveEdges.AsSpan().Slice(0, numSmall);
 
-        static bool TryReadLine(ReadOnlySpan<char> input, ref int cursor, out ReadOnlySpan<char> from, out ReadOnlySpan<char> to)
+        static bool TryReadLine(ReadOnlySpan<byte> input, ref int cursor, out ReadOnlySpan<byte> from, out ReadOnlySpan<byte> to)
         {
             if (cursor >= input.Length)
             {
@@ -140,31 +141,31 @@ public class Day12 : ISolver
                 return false;
             }
 
-            int dashIndex = input.Slice(cursor).IndexOf('-');
+            int dashIndex = input.Slice(cursor).IndexOf((byte)'-');
             from = input.Slice(cursor, dashIndex);
 
             cursor += dashIndex + 1;
 
-            int newLineIndex = input.Slice(cursor).IndexOf('\n');
+            int newLineIndex = input.Slice(cursor).IndexOf((byte)'\n');
             to = input.Slice(cursor, newLineIndex);
 
             cursor += newLineIndex + 1;
             return true;
         }
 
-        Cave ParseCave(ReadOnlySpan<char> caveName)
+        Cave ParseCave(ReadOnlySpan<byte> caveName)
         {
-            if (caveName.Equals("start", StringComparison.Ordinal))
+            if (caveName.SequenceEqual(new byte[] { (byte)'s', (byte)'t', (byte)'a', (byte)'r', (byte)'t' }))
                 return Cave.Start;
 
-            if (caveName.Equals("end", StringComparison.Ordinal))
+            if (caveName.SequenceEqual(new byte[] { (byte)'e', (byte)'n', (byte)'d' }))
                 return Cave.End;
 
-            string caveNameString = caveName.ToString();
+            string caveNameString = Encoding.ASCII.GetString(caveName);
             if (caveLookup.TryGetValue(caveNameString, out Cave cave))
                 return cave;
 
-            bool isBig = char.IsUpper(caveName[0]);
+            bool isBig = caveName[0] is >= (byte)'A' and <= (byte)'Z';
             int id = isBig ? numBig++ : numSmall++;
             return caveLookup[caveNameString] = new(isBig, id);
         }

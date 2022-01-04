@@ -5,18 +5,18 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day06 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         const int part1Mask = 1 << 16;
         int[,] grid = new int[1000, 1000];
 
-        foreach (ReadOnlySpan<char> instruction in input.SplitLines())
+        foreach (ReadOnlySpan<byte> instruction in input.SplitLines())
         {
             int x, y;
             int x1, y1, x2, y2;
             switch (instruction[6])
             {
-                case ' ':
+                case (byte)' ':
                     // toggle
                     ParseArea(instruction[7..], out x1, out y1, out x2, out y2);
 
@@ -29,7 +29,7 @@ public class Day06 : ISolver
                     }
 
                     break;
-                case 'f':
+                case (byte)'f':
                     // turn off
                     ParseArea(instruction[9..], out x1, out y1, out x2, out y2);
 
@@ -42,7 +42,7 @@ public class Day06 : ISolver
                     }
 
                     break;
-                case 'n':
+                case (byte)'n':
                     // turn on
                     ParseArea(instruction[8..], out x1, out y1, out x2, out y2);
 
@@ -70,9 +70,9 @@ public class Day06 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static void ParseArea(ReadOnlySpan<char> regionStr, out int x1, out int y1, out int x2, out int y2)
+    private static void ParseArea(ReadOnlySpan<byte> regionStr, out int x1, out int y1, out int x2, out int y2)
     {
-        char c;
+        byte c;
         int i = 0;
 
         x1 = 0;

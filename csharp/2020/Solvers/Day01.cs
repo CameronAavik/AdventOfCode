@@ -5,12 +5,12 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day01 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int length = 0;
         byte[]? numberSet = new byte[2048];
         int[]? numbers = new int[512];
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             int num = line[0] - '0';
             for (int i = 1; i < line.Length; i++)

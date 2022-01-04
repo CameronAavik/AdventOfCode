@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day16 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var reader = new InputReader(input);
         uint part1 = 0;
@@ -122,12 +122,12 @@ public class Day16 : ISolver
 
     private ref struct InputReader
     {
-        private readonly ReadOnlySpan<char> _input;
+        private readonly ReadOnlySpan<byte> _input;
         private int _inputIndex = 0;
         private int _readBitsCount = 0;
         private ulong _readBits = 0;
 
-        public InputReader(ReadOnlySpan<char> input)
+        public InputReader(ReadOnlySpan<byte> input)
         {
             _input = input;
         }
@@ -216,6 +216,6 @@ public class Day16 : ISolver
             _readBits <<= 64 - _readBitsCount;
         }
 
-        private static byte CharToInt(char c) => (byte)(c <= '9' ? c - '0' : c - 'A' + 10);
+        private static byte CharToInt(byte c) => (byte)(c <= '9' ? c - '0' : c - 'A' + 10);
     }
 }

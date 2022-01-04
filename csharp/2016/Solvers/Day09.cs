@@ -5,9 +5,9 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day09 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        input = input.TrimEnd('\n');
+        input = input.TrimEnd((byte)'\n');
         int part1 = SolvePart1(input);
         long part2 = SolvePart2(input);
 
@@ -15,61 +15,45 @@ public class Day09 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static int SolvePart1(ReadOnlySpan<char> input)
+    private static int SolvePart1(ReadOnlySpan<byte> input)
     {
         int length = 0;
-        int i = 0;
-        while (i < input.Length)
+        var reader = new SpanReader(input);
+        while (!reader.Done)
         {
-            if (input[i] == '(')
+            if (reader.Read() == '(')
             {
-                int repLengthLength = input.Slice(i + 1).IndexOf('x');
-                ReadOnlySpan<char> repLengthStr = input.Slice(i + 1, repLengthLength);
-                int repLength = int.Parse(repLengthStr);
-
-                int repCountLength = input.Slice(i + 2 + repLengthLength).IndexOf(')');
-                ReadOnlySpan<char> repCountStr = input.Slice(i + 2 + repLengthLength, repCountLength);
-                int repCount = int.Parse(repCountStr);
+                int repLength = reader.ReadPosIntUntil('x');
+                int repCount = reader.ReadPosIntUntil(')');
 
                 length += repLength * repCount;
-                i += 3 + repLengthLength + repCountLength + repLength;
+                reader.SkipLength(repLength);
             }
             else
             {
                 length += 1;
-                i++;
             }
         }
 
         return length;
     }
 
-    private static long SolvePart2(ReadOnlySpan<char> input)
+    private static long SolvePart2(ReadOnlySpan<byte> input)
     {
         long length = 0;
-        int i = 0;
-        while (i < input.Length)
+        var reader = new SpanReader(input);
+        while (!reader.Done)
         {
-            if (input[i] == '(')
+            if (reader.Read() == '(')
             {
-                int repLengthLength = input.Slice(i + 1).IndexOf('x');
-                ReadOnlySpan<char> repLengthStr = input.Slice(i + 1, repLengthLength);
-                int repLength = int.Parse(repLengthStr);
-
-                int repCountLength = input.Slice(i + 2 + repLengthLength).IndexOf(')');
-                ReadOnlySpan<char> repCountStr = input.Slice(i + 2 + repLengthLength, repCountLength);
-                int repCount = int.Parse(repCountStr);
-
-                ReadOnlySpan<char> rep = input.Slice(i + 3 + repLengthLength + repCountLength, repLength);
-
-                long actualRepLength = SolvePart2(rep);
-                length += actualRepLength * repCount;
-                i += 3 + repLengthLength + repCountLength + repLength;
+                int repLength = reader.ReadPosIntUntil('x');
+                int repCount = reader.ReadPosIntUntil(')');
+                ReadOnlySpan<byte> rep = reader.ReadBytes(repLength);
+                length += SolvePart2(rep) * repCount;
             }
             else
             {
                 length += 1;
-                i++;
             }
         }
 

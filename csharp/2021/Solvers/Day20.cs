@@ -9,7 +9,7 @@ public class Day20 : ISolver
 {
     private const int GridPadding = 51;
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         bool backgroundAlternates = input[0] == '#';
         if (backgroundAlternates && input[511] == '#')
@@ -34,8 +34,8 @@ public class Day20 : ISolver
             }
         }
 
-        ReadOnlySpan<char> gridInput = input.Slice(514);
-        int initialWidth = gridInput.IndexOf('\n');
+        ReadOnlySpan<byte> gridInput = input.Slice(514);
+        int initialWidth = gridInput.IndexOf((byte)'\n');
         int initialHeight = gridInput.Length / (initialWidth + 1);
 
         int finalWidth = initialWidth + GridPadding * 2;
@@ -71,7 +71,7 @@ public class Day20 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static void ParseGridInput(ReadOnlySpan<char> gridInput, Span<ulong> grid, int initialWidth, int initialHeight, int ulongsPerRow)
+    private static void ParseGridInput(ReadOnlySpan<byte> gridInput, Span<ulong> grid, int initialWidth, int initialHeight, int ulongsPerRow)
     {
         for (int row = 0; row < initialHeight; row++)
         {

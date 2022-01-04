@@ -5,12 +5,12 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day05 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             int numVowels = 0;
             bool containsPair = false;
@@ -22,13 +22,13 @@ public class Day05 : ISolver
             bool containsRepeatPair = false;
             bool containsPalindromicTriple = false;
 
-            char prev2 = '\0';
-            char prev = '\0';
+            byte prev2 = (byte)'\0';
+            byte prev = (byte)'\0';
             for (int i = 0; i < line.Length; i++)
             {
                 // Part 1 Rules
-                char cur = line[i];
-                if (cur is 'a' or 'e' or 'i' or 'o' or 'u')
+                byte cur = line[i];
+                if (cur is (byte)'a' or (byte)'e' or (byte)'i' or (byte)'o' or (byte)'u')
                 {
                     numVowels++;
                 }
@@ -38,7 +38,7 @@ public class Day05 : ISolver
                     containsPair = true;
                 }
 
-                if ((prev is 'a' or 'c' or 'p' or 'x') && cur == prev + 1)
+                if ((prev is (byte)'a' or (byte)'c' or (byte)'p' or (byte)'x') && cur == prev + 1)
                 {
                     containsForbiddenPair = true;
                 }

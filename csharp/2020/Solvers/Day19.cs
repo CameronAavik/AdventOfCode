@@ -7,12 +7,12 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day19 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // split input into the two sections
-        int messagesStart = input.IndexOf("\n\n");
-        ReadOnlySpan<char> rulesSpan = input.Slice(0, messagesStart + 1);
-        ReadOnlySpan<char> messagesSpan = input.Slice(messagesStart + 2);
+        int messagesStart = input.IndexOf(new byte[] { (byte)'\n', (byte)'\n' });
+        ReadOnlySpan<byte> rulesSpan = input.Slice(0, messagesStart + 1);
+        ReadOnlySpan<byte> messagesSpan = input.Slice(messagesStart + 2);
 
         // rules[n][i][j] returns the jth element of the ith subrule for rule n
         int[][][] rules = ParseRules(rulesSpan);
@@ -35,7 +35,7 @@ public class Day19 : ISolver
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<char> message in messagesSpan.SplitLines())
+        foreach (ReadOnlySpan<byte> message in messagesSpan.SplitLines())
         {
             if (message.Length == rule0Len && MatchesRule(message, 0))
             {
@@ -96,11 +96,11 @@ public class Day19 : ISolver
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
 
-        bool MatchesRule(ReadOnlySpan<char> str, int ruleNumber)
+        bool MatchesRule(ReadOnlySpan<byte> str, int ruleNumber)
         {
             if (ruleNumber < 0)
             {
-                char c = str[0];
+                byte c = str[0];
                 return (ruleNumber == -1 && c == 'a') || (ruleNumber == -2 && c == 'b');
             }
 
@@ -116,7 +116,7 @@ public class Day19 : ISolver
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool MatchesSubRule(ReadOnlySpan<char> str, int[] subRule)
+        bool MatchesSubRule(ReadOnlySpan<byte> str, int[] subRule)
         {
             int i = 0;
 
@@ -136,9 +136,9 @@ public class Day19 : ISolver
         }
     }
 
-    private static int[][][] ParseRules(ReadOnlySpan<char> rules)
+    private static int[][][] ParseRules(ReadOnlySpan<byte> rules)
     {
-        int numRules = rules.Count('\n');
+        int numRules = rules.Count((byte)'\n');
         int[][][] rulesArr = new int[numRules][][];
 
         var reader = new SpanReader(rules);
@@ -146,33 +146,38 @@ public class Day19 : ISolver
         {
             int ruleId = reader.ReadIntUntil(':');
             reader.SkipLength(1); // skip the space
-            ReadOnlySpan<char> ruleValue = reader.ReadUntil('\n');
 
-            int numSubRules = ruleValue.Count('|') + 1;
-            int[][] ruleList = new int[numSubRules][];
-
-            int i = 0;
-            foreach (ReadOnlySpan<char> subRuleSpan in ruleValue.Split(" | "))
+            if (reader.Peek() == '"')
             {
-                int[] subRule = new int[subRuleSpan.Count(' ') + 1];
-
-                int j = 0;
-                foreach (ReadOnlySpan<char> subRulePart in subRuleSpan.Split(' '))
-                {
-                    if (subRulePart[0] == '"')
-                    {
-                        subRule[j++] = subRulePart[1] == 'a' ? -1 : -2;
-                    }
-                    else
-                    {
-                        subRule[j++] = int.Parse(subRulePart);
-                    }
-                }
-
-                ruleList[i++] = subRule;
+                int rule = reader[1] == 'a' ? -1 : -2;
+                rulesArr[ruleId] = new [] { new[] { rule } };
+                reader.SkipLength("\"a\"\n".Length);
             }
+            else
+            {
+                var ruleValueReader = new SpanReader(reader.ReadUntil('\n'));
 
-            rulesArr[ruleId] = ruleList;
+                int n1 = ruleValueReader.ReadPosIntUntil(' ');
+                int[] group1 = ruleValueReader.Done || ruleValueReader.Peek() == '|'
+                    ? new[] { n1 }
+                    : new[] { n1, ruleValueReader.ReadPosIntUntil(' ') };
+
+                if (ruleValueReader.Done)
+                {
+                    rulesArr[ruleId] = new[] { group1 };
+                }
+                else
+                {
+                    ruleValueReader.SkipLength("| ".Length);
+
+                    int n3 = ruleValueReader.ReadPosIntUntil(' ');
+                    int[] group2 = ruleValueReader.Done
+                        ? new[] { n3 }
+                        : new[] { n3, ruleValueReader.ReadPosIntUntilEnd() };
+
+                    rulesArr[ruleId] = new[] { group1, group2 };
+                }
+            }
         }
 
         return rulesArr;

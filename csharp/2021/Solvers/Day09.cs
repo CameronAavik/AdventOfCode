@@ -6,9 +6,9 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day09 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int width = input.IndexOf('\n');
+        int width = input.IndexOf((byte)'\n');
         int height = input.Length / (width + 1);
 
         Span<int> rowBasins = stackalloc int[width];

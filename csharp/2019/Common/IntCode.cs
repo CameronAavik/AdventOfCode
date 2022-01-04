@@ -4,7 +4,7 @@ namespace AdventOfCode.CSharp.Y2019.Common;
 
 public static class IntCode
 {
-    public static ReadOnlySpan<int> ParseFromInput(ReadOnlySpan<char> program)
+    public static ReadOnlySpan<int> ParseFromInput(ReadOnlySpan<byte> program)
     {
         // initialise an int array which the intcode will be read into.
         int[] code = new int[program.Length / 2 + 1];

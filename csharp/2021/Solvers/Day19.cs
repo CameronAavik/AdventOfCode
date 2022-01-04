@@ -56,7 +56,7 @@ public class Day19 : ISolver
 
     record FixedScanner(Coord Center, ScannerData Data);
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         List<ScannerData> scanners = ParseInput(input);
         int numScanners = scanners.Count;
@@ -110,7 +110,7 @@ public class Day19 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static List<ScannerData> ParseInput(ReadOnlySpan<char> input)
+    private static List<ScannerData> ParseInput(ReadOnlySpan<byte> input)
     {
         int inputIndex = 0;
         var scanners = new List<ScannerData>();
@@ -120,7 +120,7 @@ public class Day19 : ISolver
         return scanners;
     }
 
-    private static ScannerData ReadScannerFromInput(ReadOnlySpan<char> input, ref int inputIndex)
+    private static ScannerData ReadScannerFromInput(ReadOnlySpan<byte> input, ref int inputIndex)
     {
         // Skip first line containing scanner number
         while (input[inputIndex++] != '\n')
@@ -141,10 +141,10 @@ public class Day19 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadIntegerFromInput(ReadOnlySpan<char> span, char until, ref int i)
+    public static int ReadIntegerFromInput(ReadOnlySpan<byte> span, char until, ref int i)
     {
         // Assume that the first character is always a digit
-        char c = span[i++];
+        byte c = span[i++];
 
         int mul;
         int ret;
@@ -159,7 +159,7 @@ public class Day19 : ISolver
             ret = c - '0';
         }
 
-        char cur;
+        byte cur;
         while ((cur = span[i++]) != until)
             ret = ret * 10 + (cur - '0');
 

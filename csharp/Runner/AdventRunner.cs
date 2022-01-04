@@ -29,11 +29,11 @@ public static class AdventRunner
         }
     }
 
-    public static async Task<string> GetInputAsync(int year, int day, bool fetchIfMissing = false)
+    public static async Task<byte[]> GetInputAsync(int year, int day, bool fetchIfMissing = false)
     {
         string filename = $"input/{year}/day{day:D2}.txt";
         if (File.Exists(filename))
-            return await File.ReadAllTextAsync(filename);
+            return await File.ReadAllBytesAsync(filename);
 
         if (!fetchIfMissing || s_cookie == null || s_inputCacheFolder == null)
             throw new Exception("Unable to load input for year and day");
@@ -43,10 +43,9 @@ public static class AdventRunner
         using var handler = new HttpClientHandler() { CookieContainer = cookieContainer };
         using var client = new HttpClient(handler) { BaseAddress = baseAddress };
         cookieContainer.Add(baseAddress, new Cookie("session", s_cookie));
-        string inputData = await client.GetStringAsync($"/{year}/day/{day}/input");
+        byte[] inputData = await client.GetByteArrayAsync($"/{year}/day/{day}/input");
 
-        //await File.WriteAllTextAsync(filename, inputData);
-        await File.WriteAllTextAsync(Path.Combine(s_inputCacheFolder, filename), inputData);
+        await File.WriteAllBytesAsync(Path.Combine(s_inputCacheFolder, filename), inputData);
 
         return inputData;
     }

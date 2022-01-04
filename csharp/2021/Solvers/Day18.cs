@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day18 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         const int MaxSnailfishCount = 128;
         Span<byte> snailFishes = stackalloc byte[16 * MaxSnailfishCount];
@@ -52,7 +52,7 @@ public class Day18 : ISolver
         return GetMagnitude(part2SnailfishSum);
     }
 
-    private static int ParseAllSnailfish(ReadOnlySpan<char> input, Span<byte> snailFishes)
+    private static int ParseAllSnailfish(ReadOnlySpan<byte> input, Span<byte> snailFishes)
     {
         int snailFishCount = 0;
         int inputIndex = 0;
@@ -65,9 +65,9 @@ public class Day18 : ISolver
         return snailFishCount;
     }
 
-    private static void ParseSnailfishLine(ReadOnlySpan<char> input, ref int inputIndex, Span<byte> snailfish)
+    private static void ParseSnailfishLine(ReadOnlySpan<byte> input, ref int inputIndex, Span<byte> snailfish)
     {
-        char c = input[inputIndex++];
+        byte c = input[inputIndex++];
         if (c == '[')
         {
             int halfLen = snailfish.Length / 2;

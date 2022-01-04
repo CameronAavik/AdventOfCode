@@ -8,19 +8,19 @@ public class Day08 : ISolver
 {
     public readonly struct Instruction
     {
-        public readonly char Operation;
+        public readonly byte Operation;
         public readonly int Arg;
 
-        public Instruction(char operation, int arg)
+        public Instruction(byte operation, int arg)
         {
             Operation = operation;
             Arg = arg;
         }
     }
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int lines = input.Count('\n');
+        int lines = input.Count((byte)'\n');
         Instruction[] instructions = new Instruction[lines];
         int[] values = new int[lines];
 
@@ -28,7 +28,7 @@ public class Day08 : ISolver
         var reader = new SpanReader(input);
         while (!reader.Done)
         {
-            char op = reader[0]; // store op by getting the first character. n = nop, a = acc, j = jmp
+            byte op = reader[0]; // store op by getting the first character. n = nop, a = acc, j = jmp
             int mul = reader[4] == '+' ? 1 : -1;
             reader.SkipLength("jmp +".Length);
             int arg = mul * reader.ReadPosIntUntil('\n');
@@ -48,15 +48,15 @@ public class Day08 : ISolver
             Instruction instruction = instructions[ip];
             switch (instruction.Operation)
             {
-                case 'n': // nop
+                case (byte)'n': // nop
                     ipsToFlip[ipsToFlipLen++] = ip;
                     values[ip++] = acc;
                     break;
-                case 'a': // acc
+                case (byte)'a': // acc
                     acc += instruction.Arg;
                     values[ip++] = acc;
                     break;
-                case 'j': // jmp
+                case (byte)'j': // jmp
                     ipsToFlip[ipsToFlipLen++] = ip;
                     values[ip] = acc;
                     ip += instruction.Arg;
@@ -82,14 +82,14 @@ public class Day08 : ISolver
                 instruction = instructions[ip];
                 switch (instruction.Operation)
                 {
-                    case 'n':
+                    case (byte)'n':
                         values[ip++] = acc;
                         break;
-                    case 'a':
+                    case (byte)'a':
                         acc += instruction.Arg;
                         values[ip++] = acc;
                         break;
-                    case 'j':
+                    case (byte)'j':
                         values[ip] = acc;
                         ip += instruction.Arg;
                         break;

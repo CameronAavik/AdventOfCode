@@ -1,23 +1,26 @@
 ﻿using AdventOfCode.CSharp.Common;
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace AdventOfCode.CSharp.Y2018.Solvers;
 
 public class Day02 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int lineLength = input.IndexOf('\n') + 1;
+        int lineLength = input.IndexOf((byte)'\n') + 1;
 
         int part1 = SolvePart1(input, lineLength);
-        string part2 = SolvePart2(input, lineLength);
+
+        Span<char> solutionBuffer = stackalloc char[lineLength - 2];
+        SolvePart2(input, lineLength, solutionBuffer);
 
         solution.SubmitPart1(part1);
-        solution.SubmitPart2(part2);
+        solution.SubmitPart2(solutionBuffer);
     }
 
-    private static int SolvePart1(ReadOnlySpan<char> input, int lineLength)
+    private static int SolvePart1(ReadOnlySpan<byte> input, int lineLength)
     {
         int idsWithPairs = 0;
         int idsWithTriples = 0;
@@ -60,7 +63,7 @@ public class Day02 : ISolver
         return idsWithPairs * idsWithTriples;
     }
 
-    private static string SolvePart2(ReadOnlySpan<char> input, int lineLength)
+    private static void SolvePart2(ReadOnlySpan<byte> input, int lineLength, Span<char> solutionBuffer)
     {
         int idLength = lineLength - 1;
         int halfLength = idLength / 2;
@@ -70,38 +73,30 @@ public class Day02 : ISolver
         for (int i = 0; i < halfHashes.Length; i++)
         {
             int offset = i * lineLength;
-            int hash = string.GetHashCode(input.Slice(offset, halfLength));
+            int hash = HashBytes(input.Slice(offset, halfLength));
             halfHashes[i] = (hash, offset);
         }
 
         // for all pairs with the same hash, see if they differ by one character
-        // this will only happen if the answer to part 2 occurs when the differeing character is in the 2nd half
-        if (TryFindPart2(input, idLength, halfHashes, out string? answer))
-        {
-            return answer;
-        }
+        // this will only happen if the answer to part 2 occurs when the differing character is in the 2nd half
+        if (TryFindPart2(input, idLength, halfHashes, solutionBuffer))
+            return;
 
         // repeat the process but this time use the 2nd half of each ID
         for (int i = 0; i < halfHashes.Length; i++)
         {
             int offset = i * lineLength;
-            int hash = string.GetHashCode(input.Slice(offset + halfLength, halfLength));
+            int hash = HashBytes(input.Slice(offset + halfLength, halfLength));
             halfHashes[i] = (hash, offset);
         }
 
-        if (TryFindPart2(input, idLength, halfHashes, out answer))
-        {
-            return answer;
-        }
+        if (TryFindPart2(input, idLength, halfHashes, solutionBuffer))
+            return;
 
-        return "INVALID";
+        "INVALID\n".AsSpan().CopyTo(solutionBuffer);
     }
 
-    private static bool TryFindPart2(
-        ReadOnlySpan<char> input,
-        int idLength,
-        (int Hash, int Offset)[] halfHashes,
-        [NotNullWhen(returnValue: true)] out string? answer)
+    private static bool TryFindPart2(ReadOnlySpan<byte> input, int idLength, (int Hash, int Offset)[] halfHashes, Span<char> solutionBuffer)
     {
         // sort by the hash
         Array.Sort(halfHashes, (l, r) => l.Hash.CompareTo(r.Hash));
@@ -114,14 +109,15 @@ public class Day02 : ISolver
             (int Hash, int Offset) = halfHashes[i];
             if (Hash == curHash)
             {
-                ReadOnlySpan<char> curSpan = input.Slice(Offset, idLength);
+                ReadOnlySpan<byte> curSpan = input.Slice(Offset, idLength);
                 for (int j = hashStartIndex; j < i; j++)
                 {
-                    ReadOnlySpan<char> otherSpan = input.Slice(halfHashes[j].Offset, idLength);
+                    ReadOnlySpan<byte> otherSpan = input.Slice(halfHashes[j].Offset, idLength);
                     int diffIndex = GetIndexOfDifferentChar(curSpan, otherSpan);
                     if (diffIndex >= 0)
                     {
-                        answer = string.Concat(curSpan.Slice(0, diffIndex), otherSpan.Slice(diffIndex + 1));
+                        Encoding.ASCII.GetChars(curSpan.Slice(0, diffIndex), solutionBuffer);
+                        Encoding.ASCII.GetChars(otherSpan.Slice(diffIndex + 1), solutionBuffer.Slice(diffIndex));
                         return true;
                     }
                 }
@@ -133,7 +129,6 @@ public class Day02 : ISolver
             }
         }
 
-        answer = default;
         return false;
     }
 
@@ -141,7 +136,7 @@ public class Day02 : ISolver
     /// Gets the index of the single character that is different between the two strings.
     /// If strings are the same, or there is more than one difference, then -1 is returned.
     /// </summary>
-    private static int GetIndexOfDifferentChar(ReadOnlySpan<char> s1, ReadOnlySpan<char> s2)
+    private static int GetIndexOfDifferentChar(ReadOnlySpan<byte> s1, ReadOnlySpan<byte> s2)
     {
         for (int k = 0; k < s1.Length; k++)
         {
@@ -157,5 +152,14 @@ public class Day02 : ISolver
         }
 
         return -1;
+    }
+
+    private static int HashBytes(ReadOnlySpan<byte> bytes)
+    {
+        var h = new HashCode();
+        foreach (byte b in bytes)
+            h.Add(b);
+
+        return h.ToHashCode();
     }
 }

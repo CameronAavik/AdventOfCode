@@ -25,7 +25,7 @@ public class Day05 : ISolver
         public int CompareTo(Event other) => Y.CompareTo(other.Y);
     }
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         const ulong onesFlag = 0b0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001UL;
 
@@ -82,7 +82,7 @@ public class Day05 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static void ParseInput(ReadOnlySpan<char> input, List<Horizontal> horizontals, List<Event> verticalEvents, List<Event> posDiagEvents, List<Event> negDiagEvents, out int maxX, out int maxY)
+    private static void ParseInput(ReadOnlySpan<byte> input, List<Horizontal> horizontals, List<Event> verticalEvents, List<Event> posDiagEvents, List<Event> negDiagEvents, out int maxX, out int maxY)
     {
         int inputCursor = 0;
         maxX = 0;
@@ -247,12 +247,12 @@ public class Day05 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadIntegerUntil(ReadOnlySpan<char> span, char c, ref int i)
+    public static int ReadIntegerUntil(ReadOnlySpan<byte> span, char c, ref int i)
     {
         // Assume that the first character is always a digit
         int ret = span[i++] - '0';
 
-        char cur;
+        byte cur;
         while ((cur = span[i++]) != c)
             ret = ret * 10 + (cur - '0');
 

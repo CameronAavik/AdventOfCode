@@ -7,18 +7,18 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day02 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<char> line in input.Split('\n'))
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             int i = 0;
             int left = ParsePosInt(line, until: '-', ref i);
             int right = ParsePosInt(line, until: ' ', ref i);
-            char letter = line[i];
-            ReadOnlySpan<char> password = line.Slice(i + 3);
+            byte letter = line[i];
+            ReadOnlySpan<byte> password = line.Slice(i + 3);
 
             int letterCount = password.Count(letter);
             if (left <= letterCount && letterCount <= right)
@@ -37,9 +37,9 @@ public class Day02 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static int ParsePosInt(ReadOnlySpan<char> str, char until, ref int i)
+    static int ParsePosInt(ReadOnlySpan<byte> str, char until, ref int i)
     {
-        char c = str[i++];
+        byte c = str[i++];
         int num = c - '0';
         while ((c = str[i++]) != until)
         {

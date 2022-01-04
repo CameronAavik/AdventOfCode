@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day21 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var ingredientCount = new Dictionary<string, int>();
         var allgerenCandidates = new Dictionary<string, HashSet<string>>();
@@ -20,17 +21,16 @@ public class Day21 : ISolver
         {
             while (reader.Peek() != '(')
             {
-                string ingredient = reader.ReadUntil(' ').ToString();
+                string ingredient = Encoding.ASCII.GetString(reader.ReadUntil(' '));
                 ingredientCount[ingredient] = ingredientCount.GetValueOrDefault(ingredient) + 1;
                 ingredientSet.Add(ingredient);
                 totalIngredients++;
             }
 
             reader.SkipLength("(contains ".Length);
-            ReadOnlySpan<char> allergensInFood = reader.ReadUntil(")\n");
-            foreach (ReadOnlySpan<char> allergen in allergensInFood.Split(", "))
+            foreach (ReadOnlySpan<byte> allergen in reader.ReadUntil(')').Split(new[] { (byte)',', (byte)' ' }))
             {
-                string allergenStr = allergen.ToString();
+                string allergenStr = Encoding.ASCII.GetString(allergen);
                 if (allgerenCandidates.TryGetValue(allergenStr, out HashSet<string>? curSet))
                 {
                     curSet.IntersectWith(ingredientSet);
@@ -41,6 +41,7 @@ public class Day21 : ISolver
                 }
             }
 
+            reader.SkipLength(1);
             ingredientSet.Clear();
         }
 

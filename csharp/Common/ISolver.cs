@@ -4,5 +4,5 @@ namespace AdventOfCode.CSharp.Common;
 
 public interface ISolver
 {
-    void Solve(ReadOnlySpan<char> input, Solution solution);
+    void Solve(ReadOnlySpan<byte> input, Solution solution);
 }

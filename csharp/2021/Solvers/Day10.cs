@@ -5,9 +5,9 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day10 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        Span<char> stack = stackalloc char[4096];
+        Span<byte> stack = stackalloc byte[4096];
         int sp = 0;
 
         Span<long> scores = stackalloc long[1024];
@@ -16,7 +16,7 @@ public class Day10 : ISolver
         int totalSyntaxError = 0;
         for (int i = 0; i < input.Length; i++)
         {
-            char c = input[i];
+            byte c = input[i];
             switch (c & 0b111)
             {
                 case 0b010: // '\n'
@@ -26,10 +26,10 @@ public class Day10 : ISolver
                         score *= 5;
                         score += stack[--sp] switch
                         {
-                            '(' => 1,
-                            '[' => 2,
-                            '{' => 3,
-                            '<' or _ => 4
+                            (byte)'(' => 1,
+                            (byte)'[' => 2,
+                            (byte)'{' => 3,
+                            (byte)'<' or _ => 4
                         };
                     }
 
@@ -41,15 +41,15 @@ public class Day10 : ISolver
                     stack[sp++] = c;
                     break;
                 default: // will match all the closing characters
-                    char top = stack[--sp];
+                    byte top = stack[--sp];
                     if (c - top is not (1 or 2)) // all closing characters are 1 or 2 away from the opening character
                     {
                         totalSyntaxError += c switch
                         {
-                            ')' => 3,
-                            ']' => 57,
-                            '}' => 1197,
-                            '>' or _ => 25137
+                            (byte)')' => 3,
+                            (byte)']' => 57,
+                            (byte)'}' => 1197,
+                            (byte)'>' or _ => 25137
                         };
 
                         // skip to next line

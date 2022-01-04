@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day17 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         ParseInput(input, out int x1, out int x2, out int y1, out int y2);
 
@@ -94,7 +94,7 @@ public class Day17 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int DivideAndRoundUp(int numerator, int denominator) => (numerator - 1) / denominator + 1;
 
-    private static void ParseInput(ReadOnlySpan<char> input, out int x1, out int x2, out int y1, out int y2)
+    private static void ParseInput(ReadOnlySpan<byte> input, out int x1, out int x2, out int y1, out int y2)
     {
         int i = "target area: x=".Length;
         x1 = ReadInteger(input, '.', ref i);
@@ -107,10 +107,10 @@ public class Day17 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadInteger(ReadOnlySpan<char> span, char until, ref int i)
+    public static int ReadInteger(ReadOnlySpan<byte> span, char until, ref int i)
     {
         // Assume that the first character is always a digit
-        char c = span[i++];
+        byte c = span[i++];
 
         int mul;
         int ret;
@@ -125,7 +125,7 @@ public class Day17 : ISolver
             ret = c - '0';
         }
 
-        char cur;
+        byte cur;
         while ((cur = span[i++]) != until)
             ret = ret * 10 + (cur - '0');
 

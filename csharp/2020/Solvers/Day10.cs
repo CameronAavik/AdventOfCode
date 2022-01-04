@@ -6,9 +6,9 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day10 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int len = input.Count('\n');
+        int len = input.Count((byte)'\n');
         int[] nums = new int[len];
 
         var reader = new SpanReader(input);

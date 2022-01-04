@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day14 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var mem1 = new Dictionary<long, long>();
         var mem2 = new Dictionary<long, long>();
@@ -25,13 +25,13 @@ public class Day14 : ISolver
                 reader.SkipLength("mask = ".Length);
                 for (int i = 0; i < 36; i++)
                 {
-                    char c = reader[i];
+                    byte c = reader[i];
                     switch (c)
                     {
-                        case '1':
+                        case (byte)'1':
                             mask1s |= 1L << (35 - i);
                             break;
-                        case 'X':
+                        case (byte)'X':
                             maskXs |= 1L << (35 - i);
                             break;
                     }

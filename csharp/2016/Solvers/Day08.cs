@@ -5,20 +5,19 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day08 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         bool[,] pixels = new bool[50, 6];
 
         bool[] rowBuffer = new bool[50];
         bool[] colBuffer = new bool[6];
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             if (line[1] == 'e') // rect
             {
-                ReadOnlySpan<char> dimensions = line.Slice(5);
-                int xIndex = dimensions.IndexOf('x');
-                int width = int.Parse(dimensions.Slice(0, xIndex));
-                int height = int.Parse(dimensions.Slice(xIndex + 1));
+                var reader = new SpanReader(line.Slice("rect ".Length));
+                int width = reader.ReadPosIntUntil('x');
+                int height = reader.ReadPosIntUntilEnd();
                 for (int y = 0; y < height; y++)
                 {
                     for (int x = 0; x < width; x++)
@@ -29,10 +28,10 @@ public class Day08 : ISolver
             }
             else if (line[7] == 'c') // rotate column
             {
-                ReadOnlySpan<char> rotateData = line.Slice(16);
-                int colLength = rotateData.IndexOf(' ');
-                int column = int.Parse(rotateData.Slice(0, colLength));
-                int rotateAmount = int.Parse(rotateData.Slice(colLength + 4));
+                var reader = new SpanReader(line.Slice("rotate column x=".Length));
+                int column = reader.ReadPosIntUntil(' ');
+                reader.SkipLength("by ".Length);
+                int rotateAmount = reader.ReadPosIntUntilEnd();
 
                 for (int i = 0; i < 6; i++)
                 {
@@ -49,9 +48,10 @@ public class Day08 : ISolver
             }
             else // rotate row
             {
-                ReadOnlySpan<char> rotateData = line.Slice(13);
-                int row = rotateData[0] - '0';
-                int rotateAmount = int.Parse(rotateData.Slice(5));
+                var reader = new SpanReader(line.Slice("rotate row y=".Length));
+                int row = reader.Peek() - '0';
+                reader.SkipLength("0 by ".Length);
+                int rotateAmount = reader.ReadPosIntUntilEnd();
 
                 for (int i = 0; i < 50; i++)
                 {

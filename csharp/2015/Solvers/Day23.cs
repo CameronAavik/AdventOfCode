@@ -18,21 +18,29 @@ public class Day23 : ISolver
 
     public record Instruction(InstructionType Type, int Arg1, int Arg2 = 0);
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var instructions = new List<Instruction>();
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
-            static int ParseReg(ReadOnlySpan<char> line) => line[4] == 'a' ? 0 : 1;
+            static int ParseReg(ReadOnlySpan<byte> line) => line[4] == 'a' ? 0 : 1;
+            static int ParseNumber(ReadOnlySpan<byte> str)
+            {
+                int mul = str[0] == '+' ? 1 : -1;
+                int c = str[1] - '0';
+                for (int i = 2; i < str.Length; i++)
+                    c = c * 10 + str[i] - '0';
+                return mul * c;
+            }
 
             Instruction instruction = line[2] switch
             {
-                'f' => new Instruction(InstructionType.Half, ParseReg(line)),
-                'l' => new Instruction(InstructionType.Triple, ParseReg(line)),
-                'c' => new Instruction(InstructionType.Increment, ParseReg(line)),
-                'p' => new Instruction(InstructionType.Jump, -1, int.Parse(line[4..])),
-                'e' => new Instruction(InstructionType.JumpIfEven, ParseReg(line), int.Parse(line[7..])),
-                'o' => new Instruction(InstructionType.JumpIfOne, ParseReg(line), int.Parse(line[7..])),
+                (byte)'f' => new Instruction(InstructionType.Half, ParseReg(line)),
+                (byte)'l' => new Instruction(InstructionType.Triple, ParseReg(line)),
+                (byte)'c' => new Instruction(InstructionType.Increment, ParseReg(line)),
+                (byte)'p' => new Instruction(InstructionType.Jump, -1, ParseNumber(line[4..])),
+                (byte)'e' => new Instruction(InstructionType.JumpIfEven, ParseReg(line), ParseNumber(line[7..])),
+                (byte)'o' => new Instruction(InstructionType.JumpIfOne, ParseReg(line), ParseNumber(line[7..])),
                 _ => default!
             };
 

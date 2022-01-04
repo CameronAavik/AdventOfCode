@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day21 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         ParseInput(input, out byte player1Start, out byte player2Start);
 
@@ -105,7 +105,7 @@ public class Day21 : ISolver
         wins2 += ways * w1;
     }
 
-    private static void ParseInput(ReadOnlySpan<char> input, out byte Player1Start, out byte Player2Start)
+    private static void ParseInput(ReadOnlySpan<byte> input, out byte Player1Start, out byte Player2Start)
     {
         int i = "Player 1 starting position: ".Length;
         Player1Start = (byte)(input[i++] - '0');

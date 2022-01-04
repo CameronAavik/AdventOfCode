@@ -115,9 +115,9 @@ public class Day23 : ISolver
             AmphipodA or AmphipodB or AmphipodC or AmphipodD or _ => 0,
         };
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        static byte CharToAmphipodType(char c) => (byte)(1 << (c - 'A'));
+        static byte CharToAmphipodType(byte c) => (byte)(1 << (c - 'A'));
 
         const int InputRowWidth = 14;
         byte slotA1 = CharToAmphipodType(input[InputRowWidth * 2 + 3]);

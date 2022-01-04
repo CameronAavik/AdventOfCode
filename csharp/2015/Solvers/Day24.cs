@@ -7,13 +7,14 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day24 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var weightList = new List<int>();
         int totalWeight = 0;
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        var reader = new SpanReader(input);
+        while (!reader.Done)
         {
-            int weight = int.Parse(line);
+            int weight = reader.ReadPosIntUntil('\n');
             weightList.Add(weight);
             totalWeight += weight;
         }

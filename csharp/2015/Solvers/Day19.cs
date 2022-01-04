@@ -1,18 +1,19 @@
 ﻿using AdventOfCode.CSharp.Common;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day19 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        input = input.TrimEnd('\n');
+        input = input.TrimEnd((byte)'\n');
         var elements = new Dictionary<string, int>();
         var replacements = new List<List<List<int>>>(); // replacements[element][replacement][replacementElement]
 
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             if (line.Length == 0)
             {
@@ -20,8 +21,8 @@ public class Day19 : ISolver
             }
 
             int lhsLen = line[1] == ' ' ? 1 : 2;
-            string lhs = line[0..lhsLen].ToString();
-            ReadOnlySpan<char> rhs = line[(lhsLen + 4)..];
+            string lhs = Encoding.ASCII.GetString(line[0..lhsLen]);
+            ReadOnlySpan<byte> rhs = line[(lhsLen + 4)..];
 
             List<int> replacement = ParseMolecule(elements, replacements, rhs);
             if (!elements.TryGetValue(lhs, out int lhsIndex))
@@ -36,7 +37,7 @@ public class Day19 : ISolver
             }
         }
 
-        ReadOnlySpan<char> moleculeSpan = input[(input.LastIndexOf('\n') + 1)..];
+        ReadOnlySpan<byte> moleculeSpan = input[(input.LastIndexOf((byte)'\n') + 1)..];
         List<int>? molecule = ParseMolecule(elements, replacements, moleculeSpan);
 
         int part1 = SolvePart1(replacements, molecule);
@@ -49,21 +50,21 @@ public class Day19 : ISolver
     private static List<int> ParseMolecule(
         Dictionary<string, int> elements,
         List<List<List<int>>> replacements,
-        ReadOnlySpan<char> moleculeSpan)
+        ReadOnlySpan<byte> moleculeSpan)
     {
         var replacement = new List<int>();
         int i = 0;
         while (i < moleculeSpan.Length)
         {
             string element;
-            if (i == moleculeSpan.Length - 1 || char.IsUpper(moleculeSpan[i + 1]))
+            if (i == moleculeSpan.Length - 1 || moleculeSpan[i + 1] is >= (byte)'A' and <= (byte)'Z')
             {
-                element = moleculeSpan[i].ToString();
+                element = char.ToString((char)moleculeSpan[i]);
                 i++;
             }
             else
             {
-                element = moleculeSpan.Slice(i, 2).ToString();
+                element = Encoding.ASCII.GetString(moleculeSpan.Slice(i, 2));
                 i += 2;
             }
 

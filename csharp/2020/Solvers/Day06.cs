@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day06 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
@@ -14,7 +14,7 @@ public class Day06 : ISolver
         uint personAnswers = 0;
         uint groupAnswers = 0;
         uint groupAllAnswers = uint.MaxValue;
-        foreach (char c in input)
+        foreach (byte c in input)
         {
             if (c == '\n')
             {

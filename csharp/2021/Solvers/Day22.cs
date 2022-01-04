@@ -10,7 +10,7 @@ public class Day22 : ISolver
 {
     readonly record struct RebootStep(bool IsOn, int X1, int X2, int Y1, int Y2, int Z1, int Z2);
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         Span<RebootStep> part1Steps = stackalloc RebootStep[1024];
         Span<RebootStep> part2Steps = stackalloc RebootStep[1024];
@@ -217,7 +217,7 @@ public class Day22 : ISolver
         return totalLength;
     }
 
-    private static RebootStep ParseRebootStep(ReadOnlySpan<char> input, ref int inputIndex)
+    private static RebootStep ParseRebootStep(ReadOnlySpan<byte> input, ref int inputIndex)
     {
         bool isOn = input[inputIndex + 1] == 'n';
         inputIndex += isOn ? "on x=".Length : "off x=".Length;
@@ -240,10 +240,10 @@ public class Day22 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadIntegerFromInput(ReadOnlySpan<char> span, char until, ref int i)
+    public static int ReadIntegerFromInput(ReadOnlySpan<byte> span, char until, ref int i)
     {
         // Assume that the first character is always a digit
-        char c = span[i++];
+        byte c = span[i++];
 
         int mul;
         int ret;
@@ -258,7 +258,7 @@ public class Day22 : ISolver
             ret = c - '0';
         }
 
-        char cur;
+        byte cur;
         while ((cur = span[i++]) != until)
             ret = ret * 10 + (cur - '0');
 

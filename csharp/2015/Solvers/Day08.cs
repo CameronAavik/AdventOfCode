@@ -5,12 +5,12 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day08 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             part1 += GetPart1Length(line);
             part2 += GetPart2Length(line);
@@ -20,7 +20,7 @@ public class Day08 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static int GetPart1Length(ReadOnlySpan<char> line)
+    private static int GetPart1Length(ReadOnlySpan<byte> line)
     {
         int charCount = 0;
 
@@ -32,11 +32,11 @@ public class Day08 : ISolver
             {
                 switch (line[i + 1])
                 {
-                    case '\\':
-                    case '\"':
+                    case (byte)'\\':
+                    case (byte)'\"':
                         i += 2;
                         break;
-                    case 'x':
+                    case (byte)'x':
                         i += 4;
                         break;
                     default:
@@ -53,12 +53,12 @@ public class Day08 : ISolver
         return line.Length - charCount;
     }
 
-    private static int GetPart2Length(ReadOnlySpan<char> line)
+    private static int GetPart2Length(ReadOnlySpan<byte> line)
     {
         int charCount = 2 + line.Length;
-        foreach (char c in line)
+        foreach (byte c in line)
         {
-            if (c is '\\' or '\"')
+            if (c is (byte)'\\' or (byte)'\"')
             {
                 charCount++;
             }

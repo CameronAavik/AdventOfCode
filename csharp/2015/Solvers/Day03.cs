@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day03 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var seen = new HashSet<uint>();
 
@@ -22,7 +22,7 @@ public class Day03 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static void RunSanta(ReadOnlySpan<char> moves, HashSet<uint> seen, int start, int step)
+    private static void RunSanta(ReadOnlySpan<byte> moves, HashSet<uint> seen, int start, int step)
     {
         const int unitX = 1 << 16;
         const int unitY = 1;
@@ -39,16 +39,16 @@ public class Day03 : ISolver
         {
             switch (moves[i])
             {
-                case '^':
+                case (byte)'^':
                     encodedPos += unitY;
                     break;
-                case 'v':
+                case (byte)'v':
                     encodedPos -= unitY;
                     break;
-                case '>':
+                case (byte)'>':
                     encodedPos += unitX;
                     break;
-                case '<':
+                case (byte)'<':
                     encodedPos -= unitX;
                     break;
             }

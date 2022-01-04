@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
+using System.Text;
 using AdventOfCode.CSharp.Common;
 using Microsoft.Toolkit.HighPerformance;
 
@@ -47,7 +48,7 @@ public class Day11 : ISolver
         public static bool operator !=(State left, State right) => !(left == right);
     }
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         byte[] part1Locs = ParseInput(input).ToArray();
         Array.Sort(part1Locs);
@@ -65,7 +66,7 @@ public class Day11 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static List<byte> ParseInput(ReadOnlySpan<char> input)
+    private static List<byte> ParseInput(ReadOnlySpan<byte> input)
     {
         var materialLocations = new List<byte>();
         var materials = new Dictionary<string, int>();
@@ -101,7 +102,7 @@ public class Day11 : ISolver
     {
         isLastItem = reader[1] == 'n'; // "and a <something>"
         reader.SkipLength(isLastItem ? "and a ".Length : "a ".Length);
-        ReadOnlySpan<char> elementSpan = reader.ReadUntil(' ');
+        ReadOnlySpan<byte> elementSpan = reader.ReadUntil(' ');
         isGenerator = reader.Peek() == 'g';
         reader.SkipUntil(isLastItem ? '\n' : ' ');
 
@@ -110,7 +111,7 @@ public class Day11 : ISolver
             elementSpan = elementSpan.Slice(0, elementSpan.Length - "-compatible".Length);
         }
 
-        element = elementSpan.ToString();
+        element = Encoding.ASCII.GetString(elementSpan);
     }
 
     private static int FindStepsToFinish(State initState)

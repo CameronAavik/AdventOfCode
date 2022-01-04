@@ -5,10 +5,10 @@ using AdventOfCode.CSharp.Common;
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 public class Day03 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
 
     {
-        int w = input.IndexOf('\n');
+        int w = input.IndexOf((byte)'\n');
         int h = (input.Length + 1) / (w + 1);
 
         long slope_1_1 = CountTrees(input, w, h, 1, 1);
@@ -25,7 +25,7 @@ public class Day03 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static long CountTrees(ReadOnlySpan<char> input, int w, int h, int dx, int dy)
+    static long CountTrees(ReadOnlySpan<byte> input, int w, int h, int dx, int dy)
     {
         int stride = w + 1;
         int x = 0;

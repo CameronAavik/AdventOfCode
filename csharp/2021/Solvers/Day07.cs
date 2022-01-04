@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day07 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var crabs = new List<int>();
 
@@ -74,13 +74,13 @@ public class Day07 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadCrab(ReadOnlySpan<char> span, ref int i)
+    public static int ReadCrab(ReadOnlySpan<byte> span, ref int i)
     {
         // Assume that the first character is always a digit
         int ret = span[i++] - '0';
 
-        char cur;
-        while ((cur = span[i++]) is not (',' or '\n'))
+        byte cur;
+        while ((cur = span[i++]) is not ((byte)',' or (byte)'\n'))
             ret = ret * 10 + (cur - '0');
 
         return ret;

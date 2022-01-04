@@ -7,9 +7,9 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day13 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        var reader = new SpanReader(input.TrimEnd('\n'));
+        var reader = new SpanReader(input.TrimEnd((byte)'\n'));
         int earliestTime = reader.ReadPosIntUntil('\n');
 
         int part1Id = -1;

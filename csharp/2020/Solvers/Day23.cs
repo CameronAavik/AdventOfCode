@@ -6,14 +6,14 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day23 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        input = input.TrimEnd('\n');
+        input = input.TrimEnd((byte)'\n');
         int[] part1Cups = new int[input.Length];
 
         int startingCup = input[0] - '1';
         int prevCup = startingCup;
-        foreach (char c in input)
+        foreach (byte c in input)
         {
             int digit = c - '1';
             part1Cups[prevCup] = digit;
@@ -39,7 +39,7 @@ public class Day23 : ISolver
             cur = Iterate(part1Cups, cur);
         }
 
-        string part1 = GetPart1Answer(part1Cups);
+        SolvePart1AndSubmit(part1Cups, solution.GetPart1Writer());
 
         cur = startingCup;
         for (int i = 0; i < 10000000; i++)
@@ -49,21 +49,18 @@ public class Day23 : ISolver
 
         long part2 = GetPart2Answer(part2Cups);
 
-        solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
 
-        static string GetPart1Answer(int[] cups)
+        static void SolvePart1AndSubmit(int[] cups, SolutionWriter solutionWriter)
         {
-            char[] chars = new char[cups.Length - 1];
-
             int digit = cups[0];
-            for (int i = 0; i < chars.Length; i++)
+            for (int i = 0; i < cups.Length - 1; i++)
             {
-                chars[i] = (char)(digit + '1');
+                solutionWriter.Write((char)(digit + '1'));
                 digit = cups[digit];
             }
 
-            return new string(chars);
+            solutionWriter.Complete();
         }
 
         static long GetPart2Answer(int[] cups) => (long)(cups[0] + 1) * (cups[cups[0]] + 1);

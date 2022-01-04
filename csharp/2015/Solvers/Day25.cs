@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day25 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var reader = new SpanReader(input);
         reader.SkipLength("To continue, please consult the code grid in the manual.  Enter the code at row ".Length);

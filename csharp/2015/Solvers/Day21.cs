@@ -37,7 +37,7 @@ public class Day21 : ISolver
             new(80, 0, 3)
     };
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         ParseInput(input, out int bossHp, out int bossDamage, out int bossArmor);
 
@@ -77,7 +77,7 @@ public class Day21 : ISolver
         solution.SubmitPart2(mostExpensiveLoss);
     }
 
-    private static void ParseInput(ReadOnlySpan<char> input, out int bossHp, out int bossDamage, out int bossArmor)
+    private static void ParseInput(ReadOnlySpan<byte> input, out int bossHp, out int bossDamage, out int bossArmor)
     {
         var reader = new SpanReader(input);
         reader.SkipLength("Hit Points: ".Length);

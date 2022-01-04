@@ -1,19 +1,20 @@
 ﻿using AdventOfCode.CSharp.Common;
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day07 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var rules = new Dictionary<string, string>();
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
-            int lastSpaceIndex = line.LastIndexOf(' ');
-            string variableName = line[(lastSpaceIndex + 1)..].ToString();
-            rules[variableName] = line[..(lastSpaceIndex - 3)].ToString();
+            int lastSpaceIndex = line.LastIndexOf((byte)' ');
+            string variableName = Encoding.ASCII.GetString(line[(lastSpaceIndex + 1)..]);
+            rules[variableName] = Encoding.ASCII.GetString(line[..(lastSpaceIndex - 3)]);
         }
 
         var knownValues = new Dictionary<string, ushort>();

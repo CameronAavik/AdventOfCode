@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day08 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
@@ -89,12 +89,12 @@ public class Day08 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static byte ReadDigitAsMask(ReadOnlySpan<char> input, char until, ref int cursor, out int bits)
+    private static byte ReadDigitAsMask(ReadOnlySpan<byte> input, char until, ref int cursor, out int bits)
     {
         int digit = 1 << (input[cursor++] - 'a');
         bits = 1;
 
-        char c;
+        byte c;
         while ((c = input[cursor++]) != until)
         {
             digit |= 1 << (c - 'a');

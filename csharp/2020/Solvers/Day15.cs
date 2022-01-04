@@ -5,16 +5,15 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day15 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // really big array since much faster than a dictionary
         int[] buffer = new int[30000000];
 
         int i = 1;
-        foreach (ReadOnlySpan<char> num in input.Split(','))
-        {
-            buffer[int.Parse(num)] = i++;
-        }
+        var reader = new SpanReader(input.TrimEnd((byte)'\n'));
+        while (!reader.Done)
+            buffer[reader.ReadPosIntUntil(',')] = i++;
 
         int cur = 0;
         while (i < 2020)

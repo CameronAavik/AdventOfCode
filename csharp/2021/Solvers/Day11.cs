@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day11 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // Each row of 10 octopi is represented by a 64-bit value. Each octopus is stored using 6 bits, totalling to 60
         // bits and leaving 4 unused bits. The top bit is 1 if the octopus has not flashed in the current step. The

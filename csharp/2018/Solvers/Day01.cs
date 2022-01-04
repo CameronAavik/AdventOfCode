@@ -15,16 +15,21 @@ public class Day01 : ISolver
         public int ModTotal { get; set; }
     }
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int freqIndex = 0;
         int freqTotal = 0;
         var freqs = new List<Frequency>();
-        foreach (ReadOnlySpan<char> freqChange in input.SplitLines())
+        var reader = new SpanReader(input);
+        while (!reader.Done)
         {
             freqs.Add(new Frequency { Value = freqTotal, Index = freqIndex });
             freqIndex++;
-            freqTotal += int.Parse(freqChange);
+
+            int mul = reader.Peek() == '-' ? -1 : 1;
+            reader.SkipLength(1);
+
+            freqTotal += mul * reader.ReadPosIntUntil('\n');
         }
 
         foreach (Frequency freq in freqs)

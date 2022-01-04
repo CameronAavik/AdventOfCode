@@ -5,13 +5,15 @@ namespace AdventOfCode.CSharp.Y2019.Solvers;
 
 public class Day01 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
+        var reader = new SpanReader(input);
+
         int part1 = 0;
         int part2 = 0;
-        foreach (ReadOnlySpan<char> massStr in input.SplitLines())
+        while (!reader.Done)
         {
-            int mass = int.Parse(massStr);
+            int mass = reader.ReadPosIntUntil('\n');
             int fuel = mass / 3 - 2;
             part1 += fuel;
             while (fuel > 0)

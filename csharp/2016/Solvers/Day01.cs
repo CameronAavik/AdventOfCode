@@ -11,7 +11,7 @@ public class Day01 : ISolver
     private const uint Right = 1 << 16;
     private const uint Left = unchecked((uint)-Right);
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // assume the origin is at 1 << 15, 1 << 15
         const ushort xOrigin = 1 << 15;
@@ -23,11 +23,13 @@ public class Day01 : ISolver
 
         var seenLocations = new HashSet<uint> { pos };
         int distanceToFirstRepeatedLocation = -1;
-        foreach (ReadOnlySpan<char> instruction in input.Split(", "))
+        var reader = new SpanReader(input.TrimEnd((byte)'\n'));
+        while (true)
         {
-            dir = MakeTurn(dir, instruction[0] == 'L');
+            dir = MakeTurn(dir, reader.Peek() == 'L');
+            reader.SkipLength(1);
 
-            uint distance = uint.Parse(instruction[1..]);
+            uint distance = (uint)reader.ReadPosIntUntil(',');
             if (distanceToFirstRepeatedLocation == -1)
             {
                 for (uint i = 0; i < distance; i++)
@@ -43,6 +45,11 @@ public class Day01 : ISolver
             {
                 pos = unchecked(pos + dir * distance);
             }
+
+            if (reader.Done)
+                break;
+
+            reader.SkipLength(1);
         }
 
         int distanceToDestination = ManhattanDistance(pos);

@@ -2,17 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day09 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // get list of towns and edges from input
         var townSet = new HashSet<string>();
         var distances = new Dictionary<(string From, string To), int>();
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             ParseLine(line, out int distance, out string fromName, out string toName);
 
@@ -62,13 +63,13 @@ public class Day09 : ISolver
         solution.SubmitPart2(maxDistance);
     }
 
-    private static void ParseLine(ReadOnlySpan<char> line, out int distance, out string fromName, out string toName)
+    private static void ParseLine(ReadOnlySpan<byte> line, out int distance, out string fromName, out string toName)
     {
-        int equalsIndex = line.LastIndexOf('=');
-        distance = int.Parse(line[(equalsIndex + 2)..]);
-
-        int firstSpaceIndex = line.IndexOf(' ');
-        fromName = line[..firstSpaceIndex].ToString();
-        toName = line[(firstSpaceIndex + 4)..(equalsIndex - 1)].ToString();
+        var reader = new SpanReader(line);
+        fromName = Encoding.ASCII.GetString(reader.ReadUntil(' '));
+        reader.SkipLength("to ".Length);
+        toName = Encoding.ASCII.GetString(reader.ReadUntil(' '));
+        reader.SkipLength("= ".Length);
+        distance = reader.ReadPosIntUntilEnd();
     }
 }

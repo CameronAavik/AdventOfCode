@@ -13,7 +13,7 @@ public static class TestHelpers
         string year = typeof(T).Namespace!.Split('.')[2][1..];
         string dayNumber = typeof(T).Name[3..];
         var solver = new T();
-        ReadOnlySpan<char> file = File.ReadAllText($"input/{year}/day{dayNumber}.txt");
+        ReadOnlySpan<byte> file = File.ReadAllBytes($"input/{year}/day{dayNumber}.txt");
 
         Span<char> part1Buffer = new char[64];
         Span<char> part2Buffer = new char[64];

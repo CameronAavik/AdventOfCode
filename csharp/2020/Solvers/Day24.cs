@@ -177,7 +177,7 @@ public class Day24Grid
 
 public class Day24 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var grid = new Day24Grid();
 
@@ -195,7 +195,7 @@ public class Day24 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static void PopulateInitialBlackTiles(ReadOnlySpan<char> input, Day24Grid grid)
+    private static void PopulateInitialBlackTiles(ReadOnlySpan<byte> input, Day24Grid grid)
     {
         int q = 128;
         int r = 128;
@@ -203,26 +203,26 @@ public class Day24 : ISolver
         int i = 0;
         while (i < input.Length)
         {
-            char c = input[i++];
+            byte c = input[i++];
             switch (c)
             {
-                case '\n':
+                case (byte)'\n':
                     grid.FlipTile(q, r);
                     q = 128;
                     r = 128;
                     break;
-                case 'w':
+                case (byte)'w':
                     q--;
                     break;
-                case 'e':
+                case (byte)'e':
                     q++;
                     break;
-                case 'n':
+                case (byte)'n':
                     r--;
                     if (input[i++] == 'e')
                         q++;
                     break;
-                case 's':
+                case (byte)'s':
                     r++;
                     if (input[i++] == 'w')
                         q--;

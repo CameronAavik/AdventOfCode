@@ -5,12 +5,12 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day04 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<char> passport in input.Split("\n\n"))
+        foreach (ReadOnlySpan<byte> passport in input.Split(new[] { (byte)'\n', (byte)'\n' }))
         {
             byte fieldFlags = 0;
             bool hasInvalidField = false;
@@ -18,42 +18,42 @@ public class Day04 : ISolver
             int i = 0;
             while (i < passport.Length)
             {
-                ReadOnlySpan<char> fieldName = passport.Slice(i, 3);
-                int fieldLength = passport.Slice(i + 4).IndexOfAny("\n ");
+                ReadOnlySpan<byte> fieldName = passport.Slice(i, 3);
+                int fieldLength = passport.Slice(i + 4).IndexOfAny(new[] { (byte)'\n', (byte)' ' });
                 if (fieldLength == -1)
                 {
                     fieldLength = passport.Length - i - 4;
                 }
 
-                ReadOnlySpan<char> fieldValue = passport.Slice(i + 4, fieldLength);
+                ReadOnlySpan<byte> fieldValue = passport.Slice(i + 4, fieldLength);
 
                 switch (fieldName[0])
                 {
-                    case 'b': // byr
+                    case (byte)'b': // byr
                         fieldFlags |= 1 << 0;
                         hasInvalidField = hasInvalidField || !IsValidBirthYear(fieldValue);
                         break;
-                    case 'i': // iyr
+                    case (byte)'i': // iyr
                         fieldFlags |= 1 << 1;
                         hasInvalidField = hasInvalidField || !IsValidIssueYear(fieldValue);
                         break;
-                    case 'e' when fieldName[1] == 'y': // eyr
+                    case (byte)'e' when fieldName[1] == 'y': // eyr
                         fieldFlags |= 1 << 2;
                         hasInvalidField = hasInvalidField || !IsValidExpirationYear(fieldValue);
                         break;
-                    case 'h' when fieldName[1] == 'g': // hgt
+                    case (byte)'h' when fieldName[1] == 'g': // hgt
                         fieldFlags |= 1 << 3;
                         hasInvalidField = hasInvalidField || !IsValidHeight(fieldValue);
                         break;
-                    case 'h': // hcl
+                    case (byte)'h': // hcl
                         fieldFlags |= 1 << 4;
                         hasInvalidField = hasInvalidField || !IsValidHairColour(fieldValue);
                         break;
-                    case 'e': // ecl
+                    case (byte)'e': // ecl
                         fieldFlags |= 1 << 5;
                         hasInvalidField = hasInvalidField || !IsValidEyeColour(fieldValue);
                         break;
-                    case 'p': // pid
+                    case (byte)'p': // pid
                         fieldFlags |= 1 << 6;
                         hasInvalidField = hasInvalidField || !IsValidPassportId(fieldValue);
                         break;
@@ -76,7 +76,7 @@ public class Day04 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    public static bool IsValidBirthYear(ReadOnlySpan<char> span)
+    public static bool IsValidBirthYear(ReadOnlySpan<byte> span)
     {
         if (span.Length != 4)
         {
@@ -85,17 +85,17 @@ public class Day04 : ISolver
 
         return span[0] switch
         {
-            '1' => span[1] == '9' &&
-                span[2] is >= '2' and <= '9' &&
-                span[3] is >= '0' and <= '9',
-            '2' => span[1] == '0' &&
+            (byte)'1' => span[1] == '9' &&
+                span[2] is >= (byte)'2' and <= (byte)'9' &&
+                span[3] is >= (byte)'0' and <= (byte)'9',
+            (byte)'2' => span[1] == '0' &&
                 span[2] == '0' &&
-                span[3] is >= '0' and <= '2',
+                span[3] is >= (byte)'0' and <= (byte)'2',
             _ => false,
         };
     }
 
-    public static bool IsValidIssueYear(ReadOnlySpan<char> span)
+    public static bool IsValidIssueYear(ReadOnlySpan<byte> span)
     {
         if (span.Length != 4 || span[0] != '2' || span[1] != '0')
         {
@@ -104,13 +104,13 @@ public class Day04 : ISolver
 
         return span[2] switch
         {
-            '1' => span[3] is >= '0' and <= '9',
-            '2' => span[3] == '0',
+            (byte)'1' => span[3] is >= (byte)'0' and <= (byte)'9',
+            (byte)'2' => span[3] == '0',
             _ => false,
         };
     }
 
-    public static bool IsValidExpirationYear(ReadOnlySpan<char> span)
+    public static bool IsValidExpirationYear(ReadOnlySpan<byte> span)
     {
         if (span.Length != 4 || span[0] != '2' || span[1] != '0')
         {
@@ -119,13 +119,13 @@ public class Day04 : ISolver
 
         return span[2] switch
         {
-            '2' => span[3] is >= '0' and <= '9',
-            '3' => span[3] == '0',
+            (byte)'2' => span[3] is >= (byte)'0' and <= (byte)'9',
+            (byte)'3' => span[3] == '0',
             _ => false,
         };
     }
 
-    public static bool IsValidHeight(ReadOnlySpan<char> span)
+    public static bool IsValidHeight(ReadOnlySpan<byte> span)
     {
         switch (span.Length)
         {
@@ -137,9 +137,9 @@ public class Day04 : ISolver
 
                 return span[0] switch
                 {
-                    '5' => span[1] == '9',
-                    '6' => span[1] is >= '0' and <= '9',
-                    '7' => span[1] is >= '0' and <= '6',
+                    (byte)'5' => span[1] == '9',
+                    (byte)'6' => span[1] is >= (byte)'0' and <= (byte)'9',
+                    (byte)'7' => span[1] is >= (byte)'0' and <= (byte)'6',
                     _ => false
                 };
             case 5: // centimetres
@@ -150,8 +150,8 @@ public class Day04 : ISolver
 
                 return span[1] switch
                 {
-                    >= '5' and <= '8' => span[2] is >= '0' and <= '9',
-                    '9' => span[2] is >= '0' and <= '6',
+                    (byte)'9' => span[2] is >= (byte)'0' and <= (byte)'6',
+                    >= (byte)'5' => span[2] is >= (byte)'0' and <= (byte)'9',
                     _ => false
                 };
             default:
@@ -159,7 +159,7 @@ public class Day04 : ISolver
         }
     }
 
-    public static bool IsValidHairColour(ReadOnlySpan<char> span)
+    public static bool IsValidHairColour(ReadOnlySpan<byte> span)
     {
         if (span.Length != 7 || span[0] != '#')
         {
@@ -168,7 +168,7 @@ public class Day04 : ISolver
 
         for (int i = 0; i < 6; i++)
         {
-            if (span[i + 1] is not ((>= '0' and <= '9') or (>= 'a' and <= 'f')))
+            if (span[i + 1] is not ((>= (byte)'0' and <= (byte)'9') or (>= (byte)'a' and <= (byte)'f')))
             {
                 return false;
             }
@@ -177,7 +177,7 @@ public class Day04 : ISolver
         return true;
     }
 
-    public static bool IsValidEyeColour(ReadOnlySpan<char> span)
+    public static bool IsValidEyeColour(ReadOnlySpan<byte> span)
     {
         if (span.Length != 3)
         {
@@ -186,16 +186,16 @@ public class Day04 : ISolver
 
         return span[0] switch
         {
-            'a' => span[1] == 'm' && span[2] == 'b',
-            'b' => span[1] switch { 'l' => span[2] == 'u', 'r' => span[2] == 'n', _ => false },
-            'g' => span[1] == 'r' && span[2] is 'y' or 'n',
-            'h' => span[1] == 'z' && span[2] == 'l',
-            'o' => span[1] == 't' && span[2] == 'h',
+            (byte)'a' => span[1] == 'm' && span[2] == 'b',
+            (byte)'b' => span[1] switch { (byte)'l' => span[2] == 'u', (byte)'r' => span[2] == 'n', _ => false },
+            (byte)'g' => span[1] == 'r' && span[2] is (byte)'y' or (byte)'n',
+            (byte)'h' => span[1] == 'z' && span[2] == 'l',
+            (byte)'o' => span[1] == 't' && span[2] == 'h',
             _ => false
         };
     }
 
-    public static bool IsValidPassportId(ReadOnlySpan<char> span)
+    public static bool IsValidPassportId(ReadOnlySpan<byte> span)
     {
         if (span.Length != 9)
         {
@@ -204,7 +204,7 @@ public class Day04 : ISolver
 
         for (int i = 0; i < 9; i++)
         {
-            if (span[i] is not (>= '0' and <= '9'))
+            if (span[i] is not (>= (byte)'0' and <= (byte)'9'))
             {
                 return false;
             }

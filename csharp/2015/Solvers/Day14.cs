@@ -30,10 +30,10 @@ public class Day14 : ISolver
         public bool IsFlying { get; set; }
     }
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var reindeers = new List<Reindeer>();
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             reindeers.Add(ParseLine(line));
         }
@@ -89,29 +89,16 @@ public class Day14 : ISolver
         solution.SubmitPart2(maxPoints);
     }
 
-    private static Reindeer ParseLine(ReadOnlySpan<char> line)
+    private static Reindeer ParseLine(ReadOnlySpan<byte> line)
     {
-        int speed = 0;
-        int flyDuration = 0;
-        int restDuration = 0;
-
-        int tokenIndex = 0;
-        foreach (ReadOnlySpan<char> token in line.Split(' '))
-        {
-            switch (tokenIndex++)
-            {
-                case 3:
-                    speed = int.Parse(token);
-                    break;
-                case 6:
-                    flyDuration = int.Parse(token);
-                    break;
-                case 13:
-                    restDuration = int.Parse(token);
-                    break;
-            }
-        }
-
+        var reader = new SpanReader(line);
+        reader.SkipUntil(' ');
+        reader.SkipLength("can fly ".Length);
+        int speed = reader.ReadPosIntUntil(' ');
+        reader.SkipLength("km/s for ".Length);
+        int flyDuration = reader.ReadPosIntUntil(' ');
+        reader.SkipLength("seconds, but then must rest for ".Length);
+        int restDuration = reader.ReadPosIntUntil(' ');
         return new Reindeer(speed, flyDuration, restDuration);
     }
 }

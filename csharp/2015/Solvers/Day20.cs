@@ -8,12 +8,12 @@ public class Day20 : ISolver
     // first 10 primes, add more primes if needed?
     private static readonly int[] s_primes = new int[]
     {
-            2, 3, 5, 7, 11, 13, 17, 19, 23, 29
+        2, 3, 5, 7, 11, 13, 17, 19, 23, 29
     };
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int target = int.Parse(input);
+        int target = new SpanReader(input).ReadPosIntUntil('\n');
         solution.SubmitPart1(SolvePart1(target));
         solution.SubmitPart2(SolvePart2(target));
     }

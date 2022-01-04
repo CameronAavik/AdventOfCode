@@ -7,30 +7,25 @@ public class Day15 : ISolver
 {
     public record Ingredient(int[] Qualities, int Calories);
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var ingredients = new Ingredient[4];
         int ingredientIndex = 0;
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        var reader = new SpanReader(input);
+        while (!reader.Done)
         {
-            int[] qualities = new int[4];
-            int calories = 0;
-            int i = 0;
-            int qualityIndex = 0;
-            foreach (ReadOnlySpan<char> token in line.Split(' '))
-            {
-                switch (i++)
-                {
-                    case 2 or 4 or 6 or 8:
-                        qualities[qualityIndex++] = int.Parse(token[..^1]);
-                        break;
-                    case 10:
-                        calories = int.Parse(token);
-                        break;
-                }
-            }
-
-            ingredients[ingredientIndex++] = new Ingredient(qualities, calories);
+            reader.SkipUntil(':');
+            reader.SkipLength(" capacity ".Length);
+            int capacity = reader.ReadIntUntil(',');
+            reader.SkipLength(" durability ".Length);
+            int durability = reader.ReadIntUntil(',');
+            reader.SkipLength(" flavor ".Length);
+            int flavor = reader.ReadIntUntil(',');
+            reader.SkipLength(" texture ".Length);
+            int texture = reader.ReadIntUntil(',');
+            reader.SkipLength(" calories ".Length);
+            int calories = reader.ReadIntUntil('\n');
+            ingredients[ingredientIndex++] = new Ingredient(new[] { capacity, durability, flavor, texture }, calories);
         }
 
         int part1 = 0;

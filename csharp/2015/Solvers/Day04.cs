@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 {
     public class Day04 : ISolver
     {
-        public void Solve(ReadOnlySpan<char> input, Solution solution)
+        public void Solve(ReadOnlySpan<byte> input, Solution solution)
         {
             const byte zeroByte = (byte)'0';
             const byte oneByte = (byte)'1';
@@ -17,7 +17,8 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             // create a buffer for the MD5 provider to store the result hash in
             Span<byte> resultBuffer = stackalloc byte[provider.HashSize / 8];
 
-            byte[] inputAsBytes = Encoding.ASCII.GetBytes(input.TrimEnd('\n').ToArray());
+            ReadOnlySpan<byte> inputAsBytes = input.TrimEnd((byte)'\n');
+
             int inputLen = inputAsBytes.Length;
 
             int extraBytes = 1;
@@ -33,7 +34,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
                 byte[] inputBuffer = new byte[inputLen + extraBytes];
 
                 // populate the first bytes of the input buffer with the problem input
-                inputAsBytes.CopyTo(inputBuffer, 0);
+                inputAsBytes.CopyTo(inputBuffer);
 
                 // put the ASCII representation of '1' as the first byte and '0' for the remaining bytes
                 // this means that if we were testing 5 digits, then this would start at 10000

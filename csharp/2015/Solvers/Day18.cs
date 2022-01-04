@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day18 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // we allocate two grids, each iteration switches which grid is used.
         // this means we can keep reusing the same grids over and over with no extra allocations.
@@ -19,7 +19,7 @@ public class Day18 : ISolver
 
         int row = 1;
         int col = 1;
-        foreach (char c in input)
+        foreach (byte c in input)
         {
             if (c == '\n')
             {

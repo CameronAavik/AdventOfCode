@@ -20,11 +20,11 @@ public class Day12 : ISolver
 
     readonly struct Instruction
     {
-        public readonly char Operation;
+        public readonly byte Operation;
         public readonly Param Param1;
         public readonly Param Param2;
 
-        public Instruction(char operation, Param param1, Param param2)
+        public Instruction(byte operation, Param param1, Param param2)
         {
             Operation = operation;
             Param1 = param1;
@@ -32,19 +32,19 @@ public class Day12 : ISolver
         }
     }
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int lines = input.Count('\n');
+        int lines = input.Count((byte)'\n');
         var instrs = new Instruction[lines];
 
         int i = 0;
         var reader = new SpanReader(input);
         while (!reader.Done)
         {
-            char op = reader.Peek();
+            byte op = reader.Peek();
             reader.SkipLength("cpy ".Length);
             Param arg1, arg2;
-            if (op is 'c' or 'j')
+            if (op is (byte)'c' or (byte)'j')
             {
                 arg1 = ParseParamUntil(ref reader, ' ');
                 arg2 = ParseParamUntil(ref reader, '\n');
@@ -66,8 +66,8 @@ public class Day12 : ISolver
 
     private static Param ParseParamUntil(ref SpanReader reader, char until)
     {
-        char c = reader.Peek();
-        if (c is >= 'a' and <= 'd')
+        byte c = reader.Peek();
+        if (c is >= (byte)'a' and <= (byte)'d')
         {
             reader.SkipLength(2);
             return new Param(0, c - 'a');
@@ -90,16 +90,16 @@ public class Day12 : ISolver
             Param p1 = op.Param1;
             switch (op.Operation)
             {
-                case 'c': // cpy
+                case (byte)'c': // cpy
                     regs[op.Param2.Value] = p1.Type == 0 ? regs[p1.Value] : p1.Value;
                     break;
-                case 'i': // inc
+                case (byte)'i': // inc
                     regs[p1.Value]++;
                     break;
-                case 'd': // dec
+                case (byte)'d': // dec
                     regs[p1.Value]--;
                     break;
-                case 'j': // jump not zero
+                case (byte)'j': // jump not zero
                     int value = p1.Type == 0 ? regs[p1.Value] : p1.Value;
                     if (value != 0)
                         ip += op.Param2.Value - 1;

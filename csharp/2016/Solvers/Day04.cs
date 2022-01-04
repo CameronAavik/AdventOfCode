@@ -1,28 +1,30 @@
 ﻿using System;
 using System.Linq;
+using System.Text;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day04 : ISolver
 {
-    private static readonly string[] s_rotations =
-        Enumerable.Range(0, 26).Select(i => Rotate("north", -i)).ToArray();
+    private static readonly byte[][] s_rotations =
+        Enumerable.Range(0, 26).Select(i => Encoding.ASCII.GetBytes(Rotate("north", -i))).ToArray();
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = -1;
 
         int[] letterCounts = new int[26];
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
-            int nameLength = line.LastIndexOf('-');
-            ReadOnlySpan<char> name = line.Slice(0, nameLength);
-            int sectorId = int.Parse(line.Slice(nameLength + 1, line.Length - 8 - nameLength));
-            ReadOnlySpan<char> checkSum = line.Slice(line.Length - 6, 5);
+            int nameLength = line.LastIndexOf((byte)'-');
+            ReadOnlySpan<byte> name = line.Slice(0, nameLength);
+            var reader = new SpanReader(line.Slice(nameLength + 1));
+            int sectorId = reader.ReadPosIntUntil('[');
+            ReadOnlySpan<byte> checkSum = reader.ReadUntil(']');
 
-            foreach (char c in name)
+            foreach (byte c in name)
             {
                 if (c != '-')
                 {
@@ -46,11 +48,11 @@ public class Day04 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static bool IsChecksumCorrect(int[] letterCounts, ReadOnlySpan<char> checksum)
+    private static bool IsChecksumCorrect(int[] letterCounts, ReadOnlySpan<byte> checksum)
     {
         int prev = -1;
         int prevCount = int.MaxValue;
-        foreach (char c in checksum)
+        foreach (byte c in checksum)
         {
             int letter = c - 'a';
             int count = letterCounts[letter];

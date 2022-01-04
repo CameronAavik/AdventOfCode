@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day18 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         long part1 = 0;
         long part2 = 0;
@@ -21,7 +21,7 @@ public class Day18 : ISolver
         stack2[0] = -1;
         int sp2 = 0;
 
-        foreach (char c in input)
+        foreach (byte c in input)
         {
             if (c == '\n')
             {
@@ -52,7 +52,7 @@ public class Day18 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ProcessCharPart1(char c, ref long[] stack, ref int sp)
+    public static void ProcessCharPart1(byte c, ref long[] stack, ref int sp)
     {
         long n;
         if (c == ')')
@@ -89,7 +89,7 @@ public class Day18 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ProcessCharPart2(char c, ref long[] stack, ref int sp)
+    public static void ProcessCharPart2(byte c, ref long[] stack, ref int sp)
     {
         long n;
         if (c == ')')

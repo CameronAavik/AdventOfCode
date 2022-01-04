@@ -19,7 +19,7 @@ public class Day20 : ISolver
         public TileEdges Flip(int width) => new(ReverseBits(Top, width), ReverseBits(Bottom, width), Right, Left);
     }
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         (int TileId, int[] Tile)[] tiles = ParseTiles(input);
 
@@ -273,12 +273,12 @@ public class Day20 : ISolver
         }
     }
 
-    private static (int TileId, int[] Tile)[] ParseTiles(ReadOnlySpan<char> input)
+    private static (int TileId, int[] Tile)[] ParseTiles(ReadOnlySpan<byte> input)
     {
         // tile side length is the length between the first and second newline
-        int tileWidth = input.Slice(input.IndexOf('\n') + 1).IndexOf('\n');
+        int tileWidth = input.Slice(input.IndexOf((byte)'\n') + 1).IndexOf((byte)'\n');
 
-        int numTiles = input.Count('T'); // T will appear once per tile
+        int numTiles = input.Count((byte)'T'); // T will appear once per tile
 
         var tiles = new (int, int[])[numTiles];
 

@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 public class Day04 : ISolver
 {
     // This solver assumes that there are no bingo numbers greater than 99, which is true of all the AoC inputs and examples.
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // Create a lookup table where the key is the bingo number and the value is what order it is called out.
         // For example, if the first number called out is 9, then orderIndexLookup[9] == 0.
@@ -50,7 +50,7 @@ public class Day04 : ISolver
                 {
                     // As we assume no bingo numbers are greater than 99, each number is represented using 2 characters
                     // with a space in the first character for single-digit numbers.
-                    int digitOne = input[inputCursor++] switch { ' ' => 0, char c => c - '0' };
+                    int digitOne = input[inputCursor++] switch { (byte)' ' => 0, byte c => c - '0' };
                     int digitTwo = input[inputCursor++] - '0';
 
                     // Skip the space or newline.
@@ -96,20 +96,20 @@ public class Day04 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ParseNumberOrderLine(ReadOnlySpan<char> input, Span<byte> orderIndexLookup, ref int inputCursor)
+    private static void ParseNumberOrderLine(ReadOnlySpan<byte> input, Span<byte> orderIndexLookup, ref int inputCursor)
     {
         byte order = 0;
         while (true)
         {
             int digitOne = input[inputCursor++] - '0';
-            char charTwo = input[inputCursor++];
+            byte charTwo = input[inputCursor++];
 
             switch (charTwo)
             {
-                case ',':
+                case (byte)',':
                     orderIndexLookup[digitOne] = order;
                     break;
-                case '\n':
+                case (byte)'\n':
                     orderIndexLookup[digitOne] = order;
                     return;
                 default:

@@ -5,9 +5,9 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day10 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        input = input.TrimEnd('\n');
+        input = input.TrimEnd((byte)'\n');
         byte[] currentSequence = new byte[input.Length];
         int curLength = input.Length;
         for (int i = 0; i < input.Length; i++)

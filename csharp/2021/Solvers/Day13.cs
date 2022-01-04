@@ -7,11 +7,11 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day13 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int foldsIndex = input.IndexOf('f');
-        ReadOnlySpan<char> foldsInput = input.Slice(foldsIndex);
-        ReadOnlySpan<char> dotsInput = input.Slice(0, foldsIndex - 1);
+        int foldsIndex = input.IndexOf((byte)'f');
+        ReadOnlySpan<byte> foldsInput = input.Slice(foldsIndex);
+        ReadOnlySpan<byte> dotsInput = input.Slice(0, foldsIndex - 1);
 
         Span<int> xFolds = stackalloc int[32];
         Span<int> yFolds = stackalloc int[32];
@@ -86,7 +86,7 @@ public class Day13 : ISolver
         solution.SubmitPart2(letters);
     }
 
-    private static void ParseFolds(ReadOnlySpan<char> foldsInput, Span<int> xfolds, Span<int> yFolds, out int numXFolds, out int numYFolds, out bool firstFoldIsX)
+    private static void ParseFolds(ReadOnlySpan<byte> foldsInput, Span<int> xfolds, Span<int> yFolds, out int numXFolds, out int numYFolds, out bool firstFoldIsX)
     {
         numXFolds = 0;
         numYFolds = 0;
@@ -102,7 +102,7 @@ public class Day13 : ISolver
             foldInputCursor += "x=".Length;
 
             int axis = foldsInput[foldInputCursor++] - '0';
-            char c;
+            byte c;
             while ((c = foldsInput[foldInputCursor++]) != '\n')
                 axis = axis * 10 + (c - '0');
 
@@ -120,11 +120,11 @@ public class Day13 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ParseDot(ReadOnlySpan<char> dotsInput, ref int dotsInputCursor, out int x, out int y)
+    private static void ParseDot(ReadOnlySpan<byte> dotsInput, ref int dotsInputCursor, out int x, out int y)
     {
         x = dotsInput[dotsInputCursor++] - '0';
 
-        char c;
+        byte c;
         while ((c = dotsInput[dotsInputCursor++]) != ',')
             x = x * 10 + (c - '0');
 

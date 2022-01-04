@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day12 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // Part 1
         int x1 = 0, y1 = 0;
@@ -19,43 +19,43 @@ public class Day12 : ISolver
         var reader = new SpanReader(input);
         while (!reader.Done)
         {
-            char dir = reader.Peek();
+            byte dir = reader.Peek();
             reader.SkipLength(1);
             int amount = reader.ReadPosIntUntil('\n');
 
             switch (dir)
             {
-                case 'N':
+                case (byte)'N':
                     y1 += amount;
                     dy2 += amount;
                     break;
-                case 'S':
+                case (byte)'S':
                     y1 -= amount;
                     dy2 -= amount;
                     break;
-                case 'E':
+                case (byte)'E':
                     x1 += amount;
                     dx2 += amount;
                     break;
-                case 'W':
+                case (byte)'W':
                     x1 -= amount;
                     dx2 -= amount;
                     break;
-                case 'L':
+                case (byte)'L':
                     for (int i = amount; i > 0; i -= 90)
                     {
                         RotateLeft(ref dx1, ref dy1);
                         RotateLeft(ref dx2, ref dy2);
                     }
                     break;
-                case 'R':
+                case (byte)'R':
                     for (int i = amount; i > 0; i -= 90)
                     {
                         RotateRight(ref dx1, ref dy1);
                         RotateRight(ref dx2, ref dy2);
                     }
                     break;
-                case 'F':
+                case (byte)'F':
                     x1 += amount * dx1;
                     y1 += amount * dy1;
 

@@ -50,9 +50,9 @@ public class Day11 : ISolver
         }
     }
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int cols = input.IndexOf('\n');
+        int cols = input.IndexOf((byte)'\n');
         int rows = input.Length / (cols + 1);
 
         // padding row and column is added
@@ -66,14 +66,14 @@ public class Day11 : ISolver
 
         // populate input into seats
         int seatsIndex = width + 1; // index in seats where input starts
-        foreach (char c in input)
+        foreach (byte c in input)
         {
             switch (c)
             {
-                case '\n':
+                case (byte)'\n':
                     seatsIndex += 2; // skip a padding column
                     break;
-                case '.':
+                case (byte)'.':
                     seatsPart1[seatsIndex++].Finalise(); // floors start out as finalised
                     break;
                 default:

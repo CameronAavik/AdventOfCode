@@ -12,12 +12,12 @@ public class Day17 : ISolver
     const int Z = 1 << 10; // 3 bits for Z
     const int W = 1 << 13; // 3 bits for W
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         const int originX = 6;
         const int originY = 6;
 
-        int width = input.IndexOf('\n');
+        int width = input.IndexOf((byte)'\n');
         int height = input.Length / (width + 1);
 
         List<int> activeCubes = new();

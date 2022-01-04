@@ -5,14 +5,14 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day07 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
 
         byte[] abas = new byte[26 * 26];
         byte[] babs = new byte[26 * 26];
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             Array.Clear(abas, 0, abas.Length);
             Array.Clear(babs, 0, babs.Length);
@@ -22,11 +22,11 @@ public class Day07 : ISolver
             bool supportsSSL = false;
 
             // c1, c2, c3, c4 defines a sliding window of 4 characters across the line
-            char c1 = line[0], c2 = line[1], c3 = line[2];
+            byte c1 = line[0], c2 = line[1], c3 = line[2];
             bool insideHypernet = false;
             for (int i = 3; i <= line.Length; i++)
             {
-                char c4 = i == line.Length ? '\0' : line[i];
+                byte c4 = i == line.Length ? (byte)'\0' : line[i];
                 if (c1 == '[')
                 {
                     insideHypernet = true;

@@ -5,9 +5,9 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day15 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        var width = input.IndexOf('\n');
+        var width = input.IndexOf((byte)'\n');
         var height = input.Length / (width + 1);
 
         // The risk level for (x, y) is stored at riskLevels[y * width + x].
@@ -118,7 +118,7 @@ public class Day15 : ISolver
         }
     }
 
-    private static void ParseRiskLevels(ReadOnlySpan<char> input, int width, int height, Span<byte> riskLevels)
+    private static void ParseRiskLevels(ReadOnlySpan<byte> input, int width, int height, Span<byte> riskLevels)
     {
         int riskLevelIndex = 0;
         int inputIndex = 0;

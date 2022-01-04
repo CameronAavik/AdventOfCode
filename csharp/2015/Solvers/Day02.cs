@@ -6,12 +6,12 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day02 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<char> present in input.SplitLines())
+        foreach (ReadOnlySpan<byte> present in input.SplitLines())
         {
             ParseDimensionString(present, out int side0, out int side1, out int side2);
 
@@ -29,7 +29,7 @@ public class Day02 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static void ParseDimensionString(ReadOnlySpan<char> present, out int side0, out int side1, out int side2)
+    private static void ParseDimensionString(ReadOnlySpan<byte> present, out int side0, out int side1, out int side2)
     {
         int i = 0;
         side0 = ParseIntUntilX(present, ref i);
@@ -38,9 +38,9 @@ public class Day02 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int ParseIntUntilX(ReadOnlySpan<char> present, ref int i)
+    private static int ParseIntUntilX(ReadOnlySpan<byte> present, ref int i)
     {
-        char c;
+        byte c;
         int val = present[i++] - '0';
         while ((c = present[i++]) != 'x')
         {
@@ -51,7 +51,7 @@ public class Day02 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static int ParseIntUntilEnd(ReadOnlySpan<char> present, ref int i)
+    private static int ParseIntUntilEnd(ReadOnlySpan<byte> present, ref int i)
     {
         int val = present[i++] - '0';
         while (i < present.Length)

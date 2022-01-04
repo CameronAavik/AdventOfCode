@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day24 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         Span<(int CharIndex, int Offset)> offsets = stackalloc (int CharIndex, int Offset)[8];
         int offsetIndex = 1;
@@ -48,7 +48,7 @@ public class Day24 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static void ParseCodeSection(ReadOnlySpan<char> input, ref int i, out bool canPop, out int offsetForPop, out int offsetForPush)
+    private static void ParseCodeSection(ReadOnlySpan<byte> input, ref int i, out bool canPop, out int offsetForPop, out int offsetForPush)
     {
         i += "inp w\nmul x 0\nadd x z\nmod x 26\ndiv z ".Length;
         canPop = input[i] == '2';
@@ -60,10 +60,10 @@ public class Day24 : ISolver
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static int ReadIntegerFromInput(ReadOnlySpan<char> span, ref int i)
+    public static int ReadIntegerFromInput(ReadOnlySpan<byte> span, ref int i)
     {
         // Assume that the first character is always a digit
-        char c = span[i++];
+        byte c = span[i++];
 
         int mul;
         int ret;
@@ -78,7 +78,7 @@ public class Day24 : ISolver
             ret = c - '0';
         }
 
-        char cur;
+        byte cur;
         while ((cur = span[i++]) != '\n')
             ret = ret * 10 + (cur - '0');
 

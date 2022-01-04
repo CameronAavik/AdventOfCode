@@ -6,14 +6,14 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day03 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1Total = 0;
         int part2Total = 0;
 
         int part2SideNum = 0;
         Span<int> prevSides = stackalloc int[6];
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             ParseLine(line, out int side1, out int side2, out int side3);
 
@@ -54,18 +54,15 @@ public class Day03 : ISolver
         solution.SubmitPart2(part2Total);
     }
 
-    private static void ParseLine(ReadOnlySpan<char> line, out int side1, out int side2, out int side3)
+    private static void ParseLine(ReadOnlySpan<byte> line, out int side1, out int side2, out int side3)
     {
-        ReadOnlySpan<char> trimmed = line.TrimStart(' ');
-        int spaceIndex = trimmed.IndexOf(' ');
-        side1 = int.Parse(trimmed.Slice(0, spaceIndex));
-
-        trimmed = trimmed.Slice(spaceIndex).TrimStart(' ');
-        spaceIndex = trimmed.IndexOf(' ');
-        side2 = int.Parse(trimmed.Slice(0, spaceIndex));
-
-        spaceIndex = trimmed.LastIndexOf(' ');
-        side3 = int.Parse(trimmed.Slice(spaceIndex + 1));
+        var reader = new SpanReader(line);
+        reader.SkipWhile(' ');
+        side1 = reader.ReadPosIntUntil(' ');
+        reader.SkipWhile(' ');
+        side2 = reader.ReadPosIntUntil(' ');
+        reader.SkipWhile(' ');
+        side3 = reader.ReadPosIntUntilEnd();
     }
 
     private static bool IsValidTriangle(int side1, int side2, int side3)

@@ -6,22 +6,23 @@ namespace AdventOfCode.CSharp.Y2017.Solvers;
 
 public class Day02 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
 
         var nums = new List<int>();
-        foreach (ReadOnlySpan<char> row in input.SplitLines())
+        foreach (ReadOnlySpan<byte> row in input.SplitLines())
         {
             int minValue = int.MaxValue;
             int maxValue = int.MinValue;
             int quotient = 0;
 
             nums.Clear();
-            foreach (ReadOnlySpan<char> cellStr in row.Split('\t'))
+            var rowReader = new SpanReader(row);
+            while (!rowReader.Done)
             {
-                int cell = int.Parse(cellStr);
+                int cell = rowReader.ReadPosIntUntil('\t');
                 minValue = Math.Min(minValue, cell);
                 maxValue = Math.Max(maxValue, cell);
 

@@ -11,13 +11,12 @@ public class Day17 : ISolver
         public static readonly Element Zero = new(0, 0, 0);
     }
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var sizes = new List<int>();
-        foreach (ReadOnlySpan<char> size in input.SplitLines())
-        {
-            sizes.Add(int.Parse(size));
-        }
+        var reader = new SpanReader(input);
+        while (!reader.Done)
+            sizes.Add(reader.ReadPosIntUntil('\n'));
 
         var M = new Element[151, sizes.Count];
 

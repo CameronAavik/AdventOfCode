@@ -6,9 +6,9 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day03 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int bitsPerNumber = input.IndexOf('\n');
+        int bitsPerNumber = input.IndexOf((byte)'\n');
         int lineLength = bitsPerNumber + 1;
         int numbers = input.Length / lineLength;
 
@@ -83,7 +83,7 @@ public class Day03 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static ulong GetNext64OnesForBit(ReadOnlySpan<char> inputSegment, int bit, int lineLength)
+    private static ulong GetNext64OnesForBit(ReadOnlySpan<byte> inputSegment, int bit, int lineLength)
     {
         ulong onesMask = 0;
 

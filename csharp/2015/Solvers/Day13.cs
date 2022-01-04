@@ -2,17 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day13 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var peopleSet = new HashSet<string>();
         var happinesses = new Dictionary<(string A, string B), int>();
 
-        foreach (ReadOnlySpan<char> line in input.SplitLines())
+        foreach (ReadOnlySpan<byte> line in input.SplitLines())
         {
             ParseLine(line, out string personA, out string personB, out int happiness);
 
@@ -46,18 +47,16 @@ public class Day13 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    private static void ParseLine(ReadOnlySpan<char> line, out string personA, out string personB, out int happiness)
+    private static void ParseLine(ReadOnlySpan<byte> line, out string personA, out string personB, out int happiness)
     {
-        int firstSpaceIndex = line.IndexOf(' ');
-        personA = line[..firstSpaceIndex].ToString();
-
-        int sign = line[firstSpaceIndex + 7] == 'g' ? 1 : -1;
-        int happinessStartIndex = firstSpaceIndex + 12;
-        int happinessLength = line[happinessStartIndex..].IndexOf(' ');
-        happiness = sign * int.Parse(line.Slice(happinessStartIndex, happinessLength));
-
-        int lastSpaceIndex = line.LastIndexOf(' ');
-        personB = line[(lastSpaceIndex + 1)..^1].ToString();
+        var reader = new SpanReader(line);
+        personA = Encoding.ASCII.GetString(reader.ReadUntil(' '));
+        reader.SkipLength("would ".Length);
+        int sign = reader.Peek() == 'g' ? 1 : -1;
+        reader.SkipLength("gain ".Length);
+        happiness = sign * reader.ReadPosIntUntil(' ');
+        reader.SkipLength("happiness units by sitting next to ".Length);
+        personB = Encoding.ASCII.GetString(reader.ReadUntil('.'));
     }
 
     private static int GetOptimalHappiness(int numPeople, int[,] adjMatrix)

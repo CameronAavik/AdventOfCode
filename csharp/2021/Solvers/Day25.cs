@@ -5,9 +5,9 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day25 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int width = input.IndexOf('\n');
+        int width = input.IndexOf((byte)'\n');
         int height = input.Length / (width + 1);
 
         //int ulongsPerRow = (width + 63) / 64;
@@ -19,12 +19,12 @@ public class Day25 : ISolver
 
         for (int row = 0; row < height; row++)
         {
-            ReadOnlySpan<char> rowInput = input.Slice(row * (width + 1), width);
+            ReadOnlySpan<byte> rowInput = input.Slice(row * (width + 1), width);
             Span<ulong> eastData = easts.Slice(row * ulongsPerRow, ulongsPerRow);
             Span<ulong> southData = souths.Slice(row * ulongsPerRow, ulongsPerRow);
             for (int col = 0; col < width; col++)
             {
-                char c = rowInput[col];
+                byte c = rowInput[col];
                 if (c == '>')
                     eastData[col / 64] |= 1UL << (col % 64);
                 else if (c == 'v')

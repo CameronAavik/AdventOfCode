@@ -1,29 +1,34 @@
 ﻿using AdventOfCode.CSharp.Common;
 using System;
+using System.Text;
 
 namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day11 : ISolver
 {
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        ReadOnlySpan<char> part1 = GetNextPassword(input.TrimEnd('\n'));
-        ReadOnlySpan<char> part2 = GetNextPassword(part1);
-        solution.SubmitPart1(part1);
-        solution.SubmitPart2(part2);
+        ReadOnlySpan<byte> trimmed = input.TrimEnd((byte)'\n');
+        Span<char> password = stackalloc char[trimmed.Length];
+        Encoding.ASCII.GetChars(trimmed, password);
+
+        GetNextPassword(password);
+        solution.SubmitPart1(password);
+
+        GetNextPassword(password);
+        solution.SubmitPart2(password);
     }
 
-    private static ReadOnlySpan<char> GetNextPassword(ReadOnlySpan<char> password)
+    private static void GetNextPassword(Span<char> password)
     {
         // increment the password and ensure there are no confusing characters
-        char[] newPassword = password.ToArray();
-        IncrementPassword(newPassword);
+        IncrementPassword(password);
 
-        for (int i = 0; i < newPassword.Length; i++)
+        for (int i = 0; i < password.Length; i++)
         {
-            if (newPassword[i] is 'i' or 'o' or 'l')
+            if (password[i] is 'i' or 'o' or 'l')
             {
-                newPassword[i]++;
+                password[i]++;
             }
         }
 
@@ -36,7 +41,7 @@ public class Day11 : ISolver
 
             char prev2 = '\0';
             char prev = '\0';
-            foreach (char c in newPassword)
+            foreach (char c in password)
             {
                 if (c == prev && !ignoreDouble)
                 {
@@ -59,10 +64,10 @@ public class Day11 : ISolver
 
             if (doubles >= 2 && hasTriple)
             {
-                return newPassword;
+                return;
             }
 
-            IncrementPassword(newPassword, doubles == 0 ? 3 : 1);
+            IncrementPassword(password, doubles == 0 ? 3 : 1);
         }
     }
 

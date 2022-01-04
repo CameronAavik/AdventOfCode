@@ -7,7 +7,7 @@ public class Day22 : ISolver
 {
     public record GameState(int Mana, int PlayerHP, int BossHP, int Shield, int Poison, int Recharge);
 
-    public void Solve(ReadOnlySpan<char> input, Solution solution)
+    public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         ParseInput(input, out int bossHp, out int bossDamage);
         int part1 = Solve(bossHp, bossDamage, false);
@@ -127,11 +127,13 @@ public class Day22 : ISolver
         return default;
     }
 
-    private static void ParseInput(ReadOnlySpan<char> input, out int bossHp, out int bossDamage)
+    private static void ParseInput(ReadOnlySpan<byte> input, out int bossHp, out int bossDamage)
     {
-        int firstNewlineIndex = input.IndexOf('\n');
-        bossHp = int.Parse(input[12..firstNewlineIndex]);
-        bossDamage = int.Parse(input[(firstNewlineIndex + 9)..]);
+        var reader = new SpanReader(input);
+        reader.SkipLength("Hit Points: ".Length);
+        bossHp = reader.ReadPosIntUntil('\n');
+        reader.SkipLength("Damage: ".Length);
+        bossDamage = reader.ReadPosIntUntil('\n');
     }
 
     private static bool SimulateBossTurn(GameState state, int bossDamage, out GameState newState)
