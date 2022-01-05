@@ -14,7 +14,7 @@ var results = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args,
 
 var reports = results.Select(ConvertSummaryToReport).ToList();
 
-using var writer = new StreamWriter(File.OpenWrite("Benchmarks.md"));
+using var writer = new StreamWriter(File.Create("Benchmarks.md"));
 
 foreach (var group in reports.GroupBy(r => r.Year))
 {

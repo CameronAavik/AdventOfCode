@@ -5,115 +5,114 @@ using System.Runtime.CompilerServices;
 
 namespace AdventOfCode.CSharp.Y2021.Solvers;
 
-// This code is a mess, but it is a fast mess
-// I will rewrite it to remove all the copy pasting I promise
 public class Day23 : ISolver
 {
-    const byte AmphipodA = 1 << 0;
-    const byte AmphipodB = 1 << 1;
-    const byte AmphipodC = 1 << 2;
-    const byte AmphipodD = 1 << 3;
+    const byte AmphipodAValue = 1 << 0;
+    const byte AmphipodBValue = 1 << 1;
+    const byte AmphipodCValue = 1 << 2;
+    const byte AmphipodDValue = 1 << 3;
 
-    readonly record struct Slot(ushort Data)
+    interface IAmphipod { static abstract byte Value { get; } }
+    readonly struct AmphipodA : IAmphipod { public static byte Value => AmphipodAValue; }
+    readonly struct AmphipodB : IAmphipod { public static byte Value => AmphipodBValue; }
+    readonly struct AmphipodC : IAmphipod { public static byte Value => AmphipodCValue; }
+    readonly struct AmphipodD : IAmphipod { public static byte Value => AmphipodDValue; }
+
+    readonly record struct Slot<TAmphipod>(ushort Data) where TAmphipod : IAmphipod
     {
-        public Slot(byte a1, byte a2, byte a3, byte a4)
-            : this((ushort)(a1 | (a2 << 4) | (a3 << 8) | (a4 << 12)))
-        {
-        }
+        public Slot(byte a1, byte a2, byte a3, byte a4) : this((ushort)(a1 | (a2 << 4) | (a3 << 8) | (a4 << 12))) { }
 
-        public byte Amphipod1
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public Slot<TAmphipod> Pop(out byte amphipod)
         {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                return (byte)(Data & 0xF);
-            }
-        }
-
-        public byte Amphipod2 => (byte)((Data >> 4) & 0xF);
-        public byte Amphipod3 => (byte)((Data >> 8) & 0xF);
-        public byte Amphipod4 => (byte)((Data >> 12) & 0xF);
-
-        public byte AmphipodsInSlot
-        {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
-            get
-            {
-                byte x = (byte)((Data >> 8) | (Data & 0xFF));
-                return (byte)((x >> 4) | (x & 0xF));
-            }
+            amphipod = (byte)(Data & 0xF);
+            return new((ushort)(Data >> 4));
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Slot Pop(out byte amphipod)
-        {
-            amphipod = Amphipod1;
-            return new Slot((ushort)(Data >> 4));
-        }
+        public Slot<TAmphipod> Push() => new((ushort)(Data << 4 | TAmphipod.Value));
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public Slot Push(byte amphipod)
-        {
-            return new Slot((ushort)(Data << 4 | amphipod));
-        }
-
-        public int MinimumCostToCorrectStack(byte ValidAmphipodType)
+        public int MinimumCostToCorrectStack()
         {
             int totalCost = 0;
-
-            bool needsToMove = Amphipod4 != ValidAmphipodType;
-            if (needsToMove)
+            bool needsToMove = false;
+            for (int i = 3; i >= 0; i--)
             {
-                totalCost += (4 + GetDistanceBetweenSlots(ValidAmphipodType, Amphipod4)) * GetMoveCost(Amphipod4);
-                totalCost += 4 * GetMoveCost(ValidAmphipodType);
-            }
+                byte amphipod = (byte)((Data >> (4 * i)) & 0xF);
+                needsToMove = needsToMove || amphipod != TAmphipod.Value;
+                if (needsToMove)
+                {
+                    int distanceBetweenSlots = (amphipod | TAmphipod.Value) switch
+                    {
+                        AmphipodAValue | AmphipodBValue or AmphipodBValue | AmphipodCValue or AmphipodCValue | AmphipodDValue => 2,
+                        AmphipodAValue | AmphipodCValue or AmphipodBValue | AmphipodDValue => 4,
+                        AmphipodAValue | AmphipodDValue => 6,
+                        AmphipodAValue or AmphipodBValue or AmphipodCValue or AmphipodDValue or _ => 2, // We must move twice even if the slot is the same
+                    };
 
-            needsToMove = needsToMove || Amphipod3 != ValidAmphipodType;
-            if (needsToMove)
-            {
-                totalCost += (3 + GetDistanceBetweenSlots(ValidAmphipodType, Amphipod3)) * GetMoveCost(Amphipod3);
-                totalCost += 3 * GetMoveCost(ValidAmphipodType);
-            }
+                    // Cost to move incorrect amphipod to space above its correct slot
+                    totalCost += (i + 1 + distanceBetweenSlots) * GetMoveCost(amphipod);
 
-            needsToMove = needsToMove || Amphipod2 != ValidAmphipodType;
-            if (needsToMove)
-            {
-                totalCost += (2 + GetDistanceBetweenSlots(ValidAmphipodType, Amphipod2)) * GetMoveCost(Amphipod2);
-                totalCost += 2 * GetMoveCost(ValidAmphipodType);
-            }
-
-            needsToMove = needsToMove || Amphipod1 != ValidAmphipodType;
-            if (needsToMove)
-            {
-                totalCost += (1 + GetDistanceBetweenSlots(ValidAmphipodType, Amphipod1)) * GetMoveCost(Amphipod1);
-                totalCost += GetMoveCost(ValidAmphipodType);
+                    // Cost to move amphipod from above its slot into this position 
+                    totalCost += (i + 1) * GetMoveCost(TAmphipod.Value);
+                }
             }
 
             return totalCost;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public bool ContainsInvalidAmphipods(byte AmphipodType) => (AmphipodsInSlot | AmphipodType) != AmphipodType;
+        public bool ContainsInvalidAmphipods()
+        {
+            ushort fullSlot = (ushort)(TAmphipod.Value | TAmphipod.Value << 4 | TAmphipod.Value << 8 | TAmphipod.Value << 12);
+            return (Data & ~fullSlot) != 0;
+        }
     }
 
-    readonly record struct State(ulong TopRow, Slot SlotA, Slot SlotB, Slot SlotC, Slot SlotD);
+    readonly record struct State(ulong TopRow, Slot<AmphipodA> SlotA, Slot<AmphipodB> SlotB, Slot<AmphipodC> SlotC, Slot<AmphipodD> SlotD)
+    {
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public bool DoesSlotContainInvalid(byte amphipod) => amphipod switch
+        {
+            AmphipodAValue => SlotA.ContainsInvalidAmphipods(),
+            AmphipodBValue => SlotB.ContainsInvalidAmphipods(),
+            AmphipodCValue => SlotC.ContainsInvalidAmphipods(),
+            AmphipodDValue or _ => SlotD.ContainsInvalidAmphipods(),
+        };
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public State PopFromSlot(byte amphipod, out byte newAmphipod) => amphipod switch
+        {
+            AmphipodAValue => this with { SlotA = SlotA.Pop(out newAmphipod) },
+            AmphipodBValue => this with { SlotB = SlotB.Pop(out newAmphipod) },
+            AmphipodCValue => this with { SlotC = SlotC.Pop(out newAmphipod) },
+            AmphipodDValue or _ => this with { SlotD = SlotD.Pop(out newAmphipod) },
+        };
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public State PushIntoSlot(byte amphipod) => amphipod switch
+        {
+            AmphipodAValue => this with { SlotA = SlotA.Push() },
+            AmphipodBValue => this with { SlotB = SlotB.Push() },
+            AmphipodCValue => this with { SlotC = SlotC.Push() },
+            AmphipodDValue or _ => this with { SlotD = SlotD.Push() },
+        };
+    }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static int GetMoveCost(byte AmphipodType) =>
-        AmphipodType switch { AmphipodA => 1, AmphipodB => 10, AmphipodC => 100, AmphipodD => 1000, _ => 0 };
+        AmphipodType switch { AmphipodAValue => 1, AmphipodBValue => 10, AmphipodCValue => 100, AmphipodDValue or _ => 1000 };
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static int GetDestination(byte AmphipodType) =>
-        AmphipodType switch { AmphipodA => 2, AmphipodB => 4, AmphipodC => 6, AmphipodD => 8, _ => 0 };
+        AmphipodType switch { AmphipodAValue => 2, AmphipodBValue => 4, AmphipodCValue => 6, AmphipodDValue or _ => 8 };
 
-    static int GetDistanceBetweenSlots(byte AmphipodType1, byte AmphipodType2) =>
-        (AmphipodType1 | AmphipodType2) switch
-        {
-            AmphipodA | AmphipodB or AmphipodB | AmphipodC or AmphipodC | AmphipodD => 2,
-            AmphipodA | AmphipodC or AmphipodB | AmphipodD => 4,
-            AmphipodA | AmphipodD => 6,
-            AmphipodA or AmphipodB or AmphipodC or AmphipodD or _ => 0,
-        };
+    static bool IsPathClear(ulong topRow, int start, int destination)
+    {
+        static ulong GetPathMask(int from, int to) => ((1UL << ((to - from + 1) * 4)) - 1) << (from * 4);
+        ulong pathMask = start < destination ? GetPathMask(start + 1, destination) : GetPathMask(destination, start - 1);
+        return (pathMask & topRow) == 0;
+    }
 
     public void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
@@ -132,399 +131,101 @@ public class Day23 : ISolver
         // Part 1 is simulated by assuming the bottom two slots are already filled with the correct amphipods
         var part1InitialState = new State(
             TopRow: 0,
-            SlotA: new Slot(slotA1, slotA2, AmphipodA, AmphipodA),
-            SlotB: new Slot(slotB1, slotB2, AmphipodB, AmphipodB),
-            SlotC: new Slot(slotC1, slotC2, AmphipodC, AmphipodC),
-            SlotD: new Slot(slotD1, slotD2, AmphipodD, AmphipodD));
+            SlotA: new(slotA1, slotA2, AmphipodAValue, AmphipodAValue),
+            SlotB: new(slotB1, slotB2, AmphipodBValue, AmphipodBValue),
+            SlotC: new(slotC1, slotC2, AmphipodCValue, AmphipodCValue),
+            SlotD: new(slotD1, slotD2, AmphipodDValue, AmphipodDValue));
 
         var part2InitialState = new State(
             TopRow: 0,
-            SlotA: new Slot(slotA1, AmphipodD, AmphipodD, slotA2),
-            SlotB: new Slot(slotB1, AmphipodC, AmphipodB, slotB2),
-            SlotC: new Slot(slotC1, AmphipodB, AmphipodA, slotC2),
-            SlotD: new Slot(slotD1, AmphipodA, AmphipodC, slotD2));
+            SlotA: new(slotA1, AmphipodDValue, AmphipodDValue, slotA2),
+            SlotB: new(slotB1, AmphipodCValue, AmphipodBValue, slotB2),
+            SlotC: new(slotC1, AmphipodBValue, AmphipodAValue, slotC2),
+            SlotD: new(slotD1, AmphipodAValue, AmphipodCValue, slotD2));
 
-        int part1 = Solve(part1InitialState);
-        int part2 = Solve(part2InitialState);
+        int part1 = Solve(in part1InitialState);
+        int part2 = Solve(in part2InitialState);
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
 
-    private static int Solve(State initialState)
+    private static int Solve(in State initialState)
     {
-        var minimumDistance =
-            initialState.SlotA.MinimumCostToCorrectStack(AmphipodA) +
-            initialState.SlotB.MinimumCostToCorrectStack(AmphipodB) +
-            initialState.SlotC.MinimumCostToCorrectStack(AmphipodC) +
-            initialState.SlotD.MinimumCostToCorrectStack(AmphipodD);
+        int minimumDistance =
+            initialState.SlotA.MinimumCostToCorrectStack() +
+            initialState.SlotB.MinimumCostToCorrectStack() +
+            initialState.SlotC.MinimumCostToCorrectStack() +
+            initialState.SlotD.MinimumCostToCorrectStack();
 
         var seen = new HashSet<State>();
         var pq = new PriorityQueue<State, int>();
         pq.Enqueue(initialState, minimumDistance);
 
-        while (pq.TryDequeue(out State newState, out int distance))
+        while (pq.TryDequeue(out State state, out int distance))
         {
-            if (seen.Contains(newState))
+            if (seen.Contains(state))
                 continue;
 
-            seen.Add(newState);
+            seen.Add(state);
 
-            (ulong topRow, Slot slotA, Slot slotB, Slot slotC, Slot slotD) = newState;
+            // Try see if any amphipods in the top row can go straight to their slot
+            if (TryMoveAmphipodFromTopRowToSlot(in state, out State newState))
+            {
+                // If any amphipods moved into their slot, then there is no point considering further moves as it is an
+                // optimal decision to make
+                pq.Enqueue(newState, distance);
+                continue;
+            }
 
-            bool slotAContainsInvalid = slotA.ContainsInvalidAmphipods(AmphipodA);
-            bool slotBContainsInvalid = slotB.ContainsInvalidAmphipods(AmphipodB);
-            bool slotCContainsInvalid = slotC.ContainsInvalidAmphipods(AmphipodC);
-            bool slotDContainsInvalid = slotD.ContainsInvalidAmphipods(AmphipodD);
-
+            ulong topRow = state.TopRow;
             bool isFinalState = true;
-            if (topRow != 0)
+            for (byte amph = 1; amph <= AmphipodDValue; amph <<= 1)
             {
-                isFinalState = false;
-
-                ulong t = topRow;
-                bool movedAmphipodIntoSlot = false;
-                int rowIndex = 0;
-                while (t != 0)
+                if (state.DoesSlotContainInvalid(amph))
                 {
-                    byte amph = (byte)(t & 0xF);
-                    switch (amph)
+                    isFinalState = false;
+
+                    State stateAfterPopping = state.PopFromSlot(amph, out byte newAmphipod);
+
+                    int start = GetDestination(amph);
+                    int destination = GetDestination(newAmphipod);
+                    if (!stateAfterPopping.DoesSlotContainInvalid(newAmphipod) && IsPathClear(topRow, start, destination))
                     {
-                        case AmphipodA:
-                            if (!slotAContainsInvalid)
-                            {
-                                ulong path = 0xFFF ^ ((0x1UL << (4 * (rowIndex + (rowIndex < 2 ? 1 : 0)))) - 1);
-                                bool isPathClear = (path & topRow) == 0;
-                                if (isPathClear)
-                                {
-                                    Slot newSlot = slotA.Push(AmphipodA);
-                                    ulong newTopRow = topRow ^ ((ulong)AmphipodA << (4 * rowIndex));
-                                    pq.Enqueue(newState with { SlotA = newSlot, TopRow = newTopRow }, distance);
-                                    movedAmphipodIntoSlot = true;
-                                }
-                            }
-                            break;
-                        case AmphipodB:
-                            if (!slotB.ContainsInvalidAmphipods(AmphipodB))
-                            {
-                                ulong path = 0xFFFFF ^ ((0x1UL << (4 * (rowIndex + (rowIndex < 4 ? 1 : 0)))) - 1);
-                                bool isPathClear = (path & topRow) == 0;
-                                if (isPathClear)
-                                {
-                                    Slot newSlot = slotB.Push(AmphipodB);
-                                    ulong newTopRow = topRow ^ ((ulong)AmphipodB << (4 * rowIndex));
-                                    pq.Enqueue(newState with { SlotB = newSlot, TopRow = newTopRow }, distance);
-                                    movedAmphipodIntoSlot = true;
-                                }
-                            }
-                            break;
-                        case AmphipodC:
-                            if (!slotC.ContainsInvalidAmphipods(AmphipodC))
-                            {
-                                ulong path = 0xFFFFFFF ^ ((0x1UL << (4 * (rowIndex + (rowIndex < 6 ? 1 : 0)))) - 1);
-                                bool isPathClear = (path & topRow) == 0;
-                                if (isPathClear)
-                                {
-                                    Slot newSlot = slotC.Push(AmphipodC);
-                                    ulong newTopRow = topRow ^ ((ulong)AmphipodC << (4 * rowIndex));
-                                    pq.Enqueue(newState with { SlotC = newSlot, TopRow = newTopRow }, distance);
-                                    movedAmphipodIntoSlot = true;
-                                }
-                            }
-                            break;
-                        case AmphipodD:
-                            if (!slotD.ContainsInvalidAmphipods(AmphipodD))
-                            {
-                                ulong path = 0xFFFFFFFFF ^ ((0x1UL << (4 * (rowIndex + (rowIndex < 8 ? 1 : 0)))) - 1);
-                                bool isPathClear = (path & topRow) == 0;
-                                if (isPathClear)
-                                {
-                                    Slot newSlot = slotD.Push(AmphipodD);
-                                    ulong newTopRow = topRow ^ ((ulong)AmphipodD << (4 * rowIndex));
-                                    pq.Enqueue(newState with { SlotD = newSlot, TopRow = newTopRow }, distance);
-                                    movedAmphipodIntoSlot = true;
-                                }
-                            }
-                            break;
+                        pq.Enqueue(stateAfterPopping.PushIntoSlot(newAmphipod), distance);
+                        break;
                     }
 
-                    if (movedAmphipodIntoSlot)
-                        break;
+                    int moveCost = GetMoveCost(newAmphipod);
 
-                    t >>= 4;
-                    rowIndex++;
-                }
+                    static bool IsSpotVacant(ulong topRow, int i) => (topRow & (0xFUL << (i * 4))) == 0;
+                    static bool CanStopOnSpot(int i) => ((1U << i) & 0b00101010100U) == 0;
 
-                if (movedAmphipodIntoSlot)
-                    continue;
-            }
+                    // We know that an amphipod can't stop directly outside it's spot, so we have already added moveCost * 2
+                    // when determining the minimum distance, so we subtract it here to counteract that.
+                    int newDistanceStart = distance + (amph == newAmphipod ? -moveCost * 2 : 0);
 
-            if (slotAContainsInvalid)
-            {
-                isFinalState = false;
-
-                Slot newSlot = slotA.Pop(out byte newAmphipod);
-                int moveCost = GetMoveCost(newAmphipod);
-
-                switch (newAmphipod)
-                {
-                    case AmphipodB:
-                        if ((topRow & 0xF000) == 0 && !slotBContainsInvalid)
-                        {
-                            Slot newSlot2 = slotB.Push(AmphipodB);
-                            pq.Enqueue(newState with { SlotA = newSlot, SlotB = newSlot2 }, distance);
-                            continue;
-                        }
-                        break;
-                    case AmphipodC:
-                        if ((topRow & 0xFFF000) == 0 && !slotCContainsInvalid)
-                        {
-                            Slot newSlot2 = slotC.Push(AmphipodC);
-                            pq.Enqueue(newState with { SlotA = newSlot, SlotC = newSlot2 }, distance);
-                            continue;
-                        }
-                        break;
-                    case AmphipodD:
-                        if ((topRow & 0xFFFFF000) == 0 && !slotDContainsInvalid)
-                        {
-                            Slot newSlot2 = slotD.Push(AmphipodD);
-                            pq.Enqueue(newState with { SlotA = newSlot, SlotD = newSlot2 }, distance);
-                            continue;
-                        }
-                        break;
-                }
-
-                int start = 2;
-                int destination = GetDestination(newAmphipod);
-
-                int distanceToAdd = 0;
-                for (int i = start - 1; i >= 0; i --)
-                {
-                    if ((topRow & (0xFUL << (i * 4))) != 0)
-                        break;
-
-                    if (i < destination)
-                        distanceToAdd += 2 * moveCost;
-
-                    ulong newTopRow = topRow | ((ulong)newAmphipod << (i * 4));
-                    pq.Enqueue(newState with { SlotA = newSlot, TopRow = newTopRow }, distance + distanceToAdd);
-                }
-
-                distanceToAdd = 0;
-                for (int i = start + 1; i < 11; i ++)
-                {
-                    if ((topRow & (0xFUL << (i * 4))) != 0)
-                        break;
-
-                    if (i > destination)
-                        distanceToAdd += 2 * moveCost;
-
-                    if (i is not (4 or 6 or 8))
+                    // Try move left
+                    int newDistance = newDistanceStart;
+                    for (int i = start - 1; i >= 0 && IsSpotVacant(topRow, i); i--)
                     {
-                        ulong newTopRow = topRow | ((ulong)newAmphipod << (i * 4));
-                        pq.Enqueue(newState with { SlotA = newSlot, TopRow = newTopRow }, distance + distanceToAdd);
+                        if (i < destination)
+                            newDistance += 2 * moveCost;
+
+                        if (CanStopOnSpot(i))
+                            pq.Enqueue(stateAfterPopping with { TopRow = topRow | ((ulong)newAmphipod << (i * 4)) }, newDistance);
                     }
-                }
-            }
 
-            if (slotBContainsInvalid)
-            {
-                isFinalState = false;
-
-                Slot newSlot = slotB.Pop(out byte newAmphipod);
-                int moveCost = GetMoveCost(newAmphipod);
-
-                switch (newAmphipod)
-                {
-                    case AmphipodA:
-                        if ((topRow & 0xF000) == 0 && !slotAContainsInvalid)
-                        {
-                            Slot newSlot2 = slotA.Push(AmphipodA);
-                            pq.Enqueue(newState with { SlotB = newSlot, SlotA = newSlot2 }, distance);
-                        }
-                        break;
-                    case AmphipodC:
-                        if ((topRow & 0xF00000) == 0 && !slotCContainsInvalid)
-                        {
-                            Slot newSlot2 = slotC.Push(AmphipodC);
-                            pq.Enqueue(newState with { SlotB = newSlot, SlotC = newSlot2 }, distance);
-                        }
-                        break;
-                    case AmphipodD:
-                        if ((topRow & 0xFFF00000) == 0 && !slotDContainsInvalid)
-                        {
-                            Slot newSlot2 = slotD.Push(AmphipodD);
-                            pq.Enqueue(newState with { SlotB = newSlot, SlotD = newSlot2 }, distance);
-                        }
-                        break;
-                }
-
-                int start = 4;
-                int destination = GetDestination(newAmphipod);
-
-                int distanceToAdd = 0;
-                for (int i = start - 1; i >= 0; i--)
-                {
-                    if ((topRow & (0xFUL << (i * 4))) != 0)
-                        break;
-
-                    if (i < destination)
-                        distanceToAdd += 2 * moveCost;
-
-                    if (i is not 2)
+                    // Try move right
+                    newDistance = newDistanceStart;
+                    for (int i = start + 1; i < 11 && IsSpotVacant(topRow, i); i++)
                     {
-                        ulong newTopRow = topRow | ((ulong)newAmphipod << (i * 4));
-                        pq.Enqueue(newState with { SlotB = newSlot, TopRow = newTopRow }, distance + distanceToAdd);
+                        if (i > destination)
+                            newDistance += 2 * moveCost;
+
+                        if (CanStopOnSpot(i))
+                            pq.Enqueue(stateAfterPopping with { TopRow = topRow | ((ulong)newAmphipod << (i * 4)) }, newDistance);
                     }
-                }
-
-                distanceToAdd = 0;
-                for (int i = 5; i < 11; i++)
-                {
-                    if ((topRow & (0xFUL << (i * 4))) != 0)
-                        break;
-
-                    if (i > destination)
-                        distanceToAdd += 2 * moveCost;
-
-                    if (i is not (6 or 8))
-                    {
-                        ulong newTopRow = topRow | ((ulong)newAmphipod << (i * 4));
-                        pq.Enqueue(newState with { SlotB = newSlot, TopRow = newTopRow }, distance + distanceToAdd);
-                    }
-                }
-            }
-
-            if (slotCContainsInvalid)
-            {
-                isFinalState = false;
-
-                Slot newSlot = slotC.Pop(out byte newAmphipod);
-                int moveCost = GetMoveCost(newAmphipod);
-
-                switch (newAmphipod)
-                {
-                    case AmphipodA:
-                        if ((topRow & 0xFFF000) == 0 && !slotAContainsInvalid)
-                        {
-                            Slot newSlot2 = slotA.Push(AmphipodA);
-                            pq.Enqueue(newState with { SlotC = newSlot, SlotA = newSlot2 }, distance);
-                        }
-                        break;
-                    case AmphipodB:
-                        if ((topRow & 0xF00000) == 0 && !slotBContainsInvalid)
-                        {
-                            Slot newSlot2 = slotB.Push(AmphipodB);
-                            pq.Enqueue(newState with { SlotC = newSlot, SlotB = newSlot2 }, distance);
-                        }
-                        break;
-                    case AmphipodD:
-                        if ((topRow & 0xF0000000) == 0 && !slotDContainsInvalid)
-                        {
-                            Slot newSlot2 = slotD.Push(AmphipodD);
-                            pq.Enqueue(newState with { SlotC = newSlot, SlotD = newSlot2 }, distance);
-                        }
-                        break;
-                }
-
-                int start = 6;
-                int destination = GetDestination(newAmphipod);
-
-                int distanceToAdd = 0;
-                for (int i = start - 1; i >= 0; i--)
-                {
-                    if ((topRow & (0xFUL << (i * 4))) != 0)
-                        break;
-
-                    if (i < destination)
-                        distanceToAdd += 2 * moveCost;
-
-                    if (i is not (2 or 4))
-                    {
-                        ulong newTopRow = topRow | ((ulong)newAmphipod << (i * 4));
-                        pq.Enqueue(newState with { SlotC = newSlot, TopRow = newTopRow }, distance + distanceToAdd);
-                    }
-                }
-
-                distanceToAdd = 0;
-                for (int i = 7; i < 11; i++)
-                {
-                    if ((topRow & (0xFUL << (i * 4))) != 0)
-                        break;
-
-                    if (i > destination)
-                        distanceToAdd += 2 * moveCost;
-
-                    if (i is not 8)
-                    {
-                        ulong newTopRow = topRow | ((ulong)newAmphipod << (i * 4));
-                        pq.Enqueue(newState with { SlotC = newSlot, TopRow = newTopRow }, distance + distanceToAdd);
-                    }
-                }
-            }
-
-            if (slotDContainsInvalid)
-            {
-                isFinalState = false;
-
-                Slot newSlot = slotD.Pop(out byte newAmphipod);
-                int moveCost = GetMoveCost(newAmphipod);
-
-                switch (newAmphipod)
-                {
-                    case AmphipodA:
-                        if ((topRow & 0xFFFFF000) == 0 && !slotAContainsInvalid)
-                        {
-                            Slot newSlot2 = slotA.Push(AmphipodA);
-                            pq.Enqueue(newState with { SlotD = newSlot, SlotA = newSlot2 }, distance);
-                        }
-                        break;
-                    case AmphipodB:
-                        if ((topRow & 0xFFF00000) == 0 && !slotBContainsInvalid)
-                        {
-                            Slot newSlot2 = slotB.Push(AmphipodB);
-                            pq.Enqueue(newState with { SlotD = newSlot, SlotB = newSlot2 }, distance);
-                        }
-                        break;
-                    case AmphipodC:
-                        if ((topRow & 0xF0000000) == 0 && !slotCContainsInvalid)
-                        {
-                            Slot newSlot2 = slotC.Push(AmphipodC);
-                            pq.Enqueue(newState with { SlotD = newSlot, SlotC = newSlot2 }, distance);
-                        }
-                        break;
-                }
-
-                int start = 8;
-                int destination = GetDestination(newAmphipod);
-
-                int distanceToAdd = 0;
-                for (int i = start - 1; i >= 0; i--)
-                {
-                    if ((topRow & (0xFUL << (i * 4))) != 0)
-                        break;
-
-                    if (i < destination)
-                        distanceToAdd += 2 * moveCost;
-
-                    if (i is not (2 or 4 or 6))
-                    {
-                        ulong newTopRow = topRow | ((ulong)newAmphipod << (i * 4));
-                        pq.Enqueue(newState with { SlotD = newSlot, TopRow = newTopRow }, distance + distanceToAdd);
-                    }
-                }
-
-                distanceToAdd = 0;
-                for (int i = 9; i < 11; i++)
-                {
-                    if ((topRow & (0xFUL << (i * 4))) != 0)
-                        break;
-
-                    if (i > destination)
-                        distanceToAdd += 2 * moveCost;
-
-                    ulong newTopRow = topRow | ((ulong)newAmphipod << (i * 4));
-                    pq.Enqueue(newState with { SlotD = newSlot, TopRow = newTopRow }, distance + distanceToAdd);
                 }
             }
 
@@ -532,6 +233,29 @@ public class Day23 : ISolver
                 return distance;
         }
 
-        return 0;
+        return -1;
+    }
+
+    private static bool TryMoveAmphipodFromTopRowToSlot(in State state, out State newState)
+    {
+        ulong topRow = state.TopRow;
+        ulong t = topRow;
+        int rowIndex = 0;
+        while (t != 0)
+        {
+            byte amph = (byte)(t & 0xF);
+            if (amph != 0 && !state.DoesSlotContainInvalid(amph) && IsPathClear(topRow, rowIndex, GetDestination(amph)))
+            {
+                ulong newTopRow = topRow ^ ((ulong)amph << (4 * rowIndex));
+                newState = state.PushIntoSlot(amph) with { TopRow = newTopRow };
+                return true;
+            }
+
+            t >>= 4;
+            rowIndex++;
+        }
+
+        newState = default;
+        return false;
     }
 }
