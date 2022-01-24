@@ -7,7 +7,7 @@
     <Tailcalls>true</Tailcalls>
     <SuppressNETCoreSdkPreviewMessage>True</SuppressNETCoreSdkPreviewMessage>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <EnablePreviewFeatures>true</EnablePreviewFeatures>
+    <EnablePreviewFeatures Condition="'$(MSBuildProjectExtension)' == '.csproj'">true</EnablePreviewFeatures>
   </PropertyGroup>
 
   <ItemGroup>

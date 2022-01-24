@@ -22,4 +22,3 @@ public abstract class BenchmarkBase
     [Benchmark]
     public void Solve() => _solver.Solve(_input, new(_part1Buffer, _part2Buffer));
 }
-

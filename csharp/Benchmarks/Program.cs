@@ -11,7 +11,6 @@ var config = DefaultConfig.Instance;
 #endif
 var results = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
 
-
 var reports = results.Select(ConvertSummaryToReport).ToList();
 
 using var writer = new StreamWriter(File.Create("Benchmarks.md"));
