@@ -11,7 +11,7 @@ public static class IntCode
         int size = 0;
         bool isNegative = false;
         int n = 0;
-        foreach (char c in program)
+        foreach (byte c in program)
         {
             if (c == ',')
             {

@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day12 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         solution.SubmitPart1(SolvePart1(input));
         solution.SubmitPart2(SolvePart2(input));
@@ -134,7 +134,7 @@ public class Day12 : ISolver
     {
         i++;
         int stringEnd = input[i..].IndexOf((byte)'\"');
-        isRedString = stringEnd == 3 && input.Slice(i, 3).SequenceEqual(new[] { (byte)'r', (byte)'e', (byte)'d' });
+        isRedString = stringEnd == 3 && input.Slice(i, 3).SequenceEqual("red"u8);
         i += stringEnd + 1;
         return 0;
     }

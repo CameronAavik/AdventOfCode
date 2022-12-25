@@ -9,7 +9,7 @@ public class Day20 : ISolver
 {
     private const int GridPadding = 51;
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         bool backgroundAlternates = input[0] == '#';
         if (backgroundAlternates && input[511] == '#')
@@ -81,7 +81,7 @@ public class Day20 : ISolver
 
             ulong firstCell = 0;
             int col = 0;
-            while (col < Math.Min((64 - GridPadding), initialWidth))
+            while (col < Math.Min(64 - GridPadding, initialWidth))
             {
                 firstCell <<= 1;
                 if (gridInput[inputOffset + col++] == '#')

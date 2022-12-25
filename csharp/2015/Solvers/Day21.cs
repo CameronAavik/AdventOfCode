@@ -37,7 +37,7 @@ public class Day21 : ISolver
             new(80, 0, 3)
     };
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         ParseInput(input, out int bossHp, out int bossDamage, out int bossArmor);
 

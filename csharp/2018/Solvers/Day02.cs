@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2018.Solvers;
 
 public class Day02 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int lineLength = input.IndexOf((byte)'\n') + 1;
 

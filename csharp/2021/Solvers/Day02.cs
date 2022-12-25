@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day02 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int horizontal = 0;
         int part1DepthPart2Aim = 0; // depth for part 1, aim for part 2

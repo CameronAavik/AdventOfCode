@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day14 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // Stores the counts of each pair in the polymer.
         // Pairs are represented by (pair[0] - 'A') * 26 + (pair[1] - 'A');

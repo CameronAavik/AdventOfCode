@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 {
     public class Day04 : ISolver
     {
-        public void Solve(ReadOnlySpan<byte> input, Solution solution)
+        public static void Solve(ReadOnlySpan<byte> input, Solution solution)
         {
             const byte zeroByte = (byte)'0';
             const byte oneByte = (byte)'1';

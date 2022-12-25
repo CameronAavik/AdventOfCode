@@ -12,7 +12,7 @@ public class Day16 : ISolver
 
     public record FieldsData(List<Field> Fields, int[] DepartureFields, int LargestFieldValue);
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var reader = new SpanReader(input);
 
@@ -151,7 +151,7 @@ public class Day16 : ISolver
             int r2 = reader.ReadPosIntUntil('\n');
 
             fieldList.Add(new Field(l1, r1, l2, r2));
-            if (fieldName.StartsWith(new byte[] { (byte)'d', (byte)'e' }))
+            if (fieldName.StartsWith("de"u8))
             {
                 departureFields[departureFieldsIndex++] = fieldList.Count - 1;
             }

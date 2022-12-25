@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day06 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int width = input.IndexOf((byte)'\n');
         int[,] counts = new int[width + 1, 26];

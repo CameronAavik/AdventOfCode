@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day13 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int favouriteNumber = new SpanReader(input).ReadPosIntUntil('\n');
 

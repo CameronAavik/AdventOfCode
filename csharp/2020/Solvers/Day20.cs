@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 
@@ -19,7 +19,7 @@ public class Day20 : ISolver
         public TileEdges Flip(int width) => new(ReverseBits(Top, width), ReverseBits(Bottom, width), Right, Left);
     }
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         (int TileId, int[] Tile)[] tiles = ParseTiles(input);
 

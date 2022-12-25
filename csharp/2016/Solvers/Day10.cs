@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day10 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // negative means output, positive means bot
         var botOutputs = new Dictionary<int, (bool IsLowBot, int Low, bool IsHighBot, int High)>();

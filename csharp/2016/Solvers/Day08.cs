@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day08 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         bool[,] pixels = new bool[50, 6];
 

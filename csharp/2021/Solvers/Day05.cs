@@ -25,7 +25,7 @@ public class Day05 : ISolver
         public int CompareTo(Event other) => Y.CompareTo(other.Y);
     }
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         const ulong onesFlag = 0b0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001_0001UL;
 

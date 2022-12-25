@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day11 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         ReadOnlySpan<byte> trimmed = input.TrimEnd((byte)'\n');
         Span<char> password = stackalloc char[trimmed.Length];

@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day24 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var weightList = new List<int>();
         int totalWeight = 0;

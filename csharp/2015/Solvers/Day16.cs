@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
 {
     public class Day16 : ISolver
     {
-        public void Solve(ReadOnlySpan<byte> input, Solution solution)
+        public static void Solve(ReadOnlySpan<byte> input, Solution solution)
         {
             var items = new Dictionary<string, int>
             {

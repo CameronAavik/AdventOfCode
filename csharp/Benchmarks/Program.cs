@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using AdventOfCode.CSharp.Common;
 using BenchmarkDotNet.Configs;
 using BenchmarkDotNet.Reports;
 using BenchmarkDotNet.Running;
@@ -32,9 +33,8 @@ foreach (var group in reports.GroupBy(r => r.Year))
 BenchmarkReport ConvertSummaryToReport(Summary summary)
 {
     var report = summary.Reports[0];
-    var displayInfo = report.BenchmarkCase.DisplayInfo;
-    var year = int.Parse(displayInfo[1..5]);
-    var day = int.Parse(displayInfo[7..9]);
+    var solverType = report.BenchmarkCase.Descriptor.Type.GenericTypeArguments[0];
+    (int year, int day) = SolverUtils.GetYearAndDay(solverType);
     var percentiles = report.ResultStatistics.Percentiles;
     var allocations = report.Metrics.Single(m => m.Key.Equals("Allocated Memory")).Value.Value;
     return new BenchmarkReport(year, day, percentiles.P0 / 1000, percentiles.P50 / 1000, percentiles.P100 / 1000, allocations);

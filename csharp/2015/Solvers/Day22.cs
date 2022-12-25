@@ -7,7 +7,7 @@ public class Day22 : ISolver
 {
     public record GameState(int Mana, int PlayerHP, int BossHP, int Shield, int Poison, int Recharge);
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         ParseInput(input, out int bossHp, out int bossDamage);
         int part1 = Solve(bossHp, bossDamage, false);

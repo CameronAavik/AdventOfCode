@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day06 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         const int part1Mask = 1 << 16;
         int[,] grid = new int[1000, 1000];

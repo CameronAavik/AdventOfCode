@@ -177,7 +177,7 @@ public class Day24Grid
 
 public class Day24 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var grid = new Day24Grid();
 

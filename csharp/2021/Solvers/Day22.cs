@@ -76,7 +76,7 @@ public class Day22 : ISolver
     readonly record struct RebootStep(bool IsOn, Cube Cube);
 
     [SkipLocalsInit]
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         Span<RebootStep> part1Steps = stackalloc RebootStep[1024];
         Span<RebootStep> part2Steps = stackalloc RebootStep[1024];

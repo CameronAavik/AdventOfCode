@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day19 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // split input into the two sections
-        int messagesStart = input.IndexOf(new byte[] { (byte)'\n', (byte)'\n' });
+        int messagesStart = input.IndexOf("\n\n"u8);
         ReadOnlySpan<byte> rulesSpan = input.Slice(0, messagesStart + 1);
         ReadOnlySpan<byte> messagesSpan = input.Slice(messagesStart + 2);
 

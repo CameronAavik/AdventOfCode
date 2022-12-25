@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day07 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var crabs = new List<int>();
 

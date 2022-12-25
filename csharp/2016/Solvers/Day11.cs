@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Text;
 using AdventOfCode.CSharp.Common;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 
 namespace AdventOfCode.CSharp.Y2016.Solvers;
 
@@ -48,7 +48,7 @@ public class Day11 : ISolver
         public static bool operator !=(State left, State right) => !(left == right);
     }
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         byte[] part1Locs = ParseInput(input).ToArray();
         Array.Sort(part1Locs);

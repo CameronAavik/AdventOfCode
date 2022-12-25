@@ -56,7 +56,7 @@ public class Day19 : ISolver
 
     record FixedScanner(Coord Center, ScannerData Data);
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         List<ScannerData> scanners = ParseInput(input);
         int numScanners = scanners.Count;

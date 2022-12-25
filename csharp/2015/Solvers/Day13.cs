@@ -8,7 +8,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day13 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var peopleSet = new HashSet<string>();
         var happinesses = new Dictionary<(string A, string B), int>();

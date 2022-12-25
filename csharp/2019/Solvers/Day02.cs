@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2019.Solvers;
 
 public class Day02 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         ReadOnlySpan<int> intCode = IntCode.ParseFromInput(input);
         int[] memory = intCode.ToArray();

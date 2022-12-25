@@ -5,12 +5,12 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day04 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<byte> passport in input.Split(new[] { (byte)'\n', (byte)'\n' }))
+        foreach (ReadOnlySpan<byte> passport in input.Split("\n\n"u8))
         {
             byte fieldFlags = 0;
             bool hasInvalidField = false;
@@ -19,7 +19,7 @@ public class Day04 : ISolver
             while (i < passport.Length)
             {
                 ReadOnlySpan<byte> fieldName = passport.Slice(i, 3);
-                int fieldLength = passport.Slice(i + 4).IndexOfAny(new[] { (byte)'\n', (byte)' ' });
+                int fieldLength = passport.Slice(i + 4).IndexOfAny("\n "u8);
                 if (fieldLength == -1)
                 {
                     fieldLength = passport.Length - i - 4;

@@ -30,7 +30,7 @@ public class Day14 : ISolver
         public bool IsFlying { get; set; }
     }
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var reindeers = new List<Reindeer>();
         foreach (ReadOnlySpan<byte> line in input.SplitLines())

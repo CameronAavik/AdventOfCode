@@ -50,7 +50,7 @@ public class Day11 : ISolver
         }
     }
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int cols = input.IndexOf((byte)'\n');
         int rows = input.Length / (cols + 1);

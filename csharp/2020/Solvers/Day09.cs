@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day09 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int lines = input.Count((byte)'\n');
         long[] nums = new long[lines];

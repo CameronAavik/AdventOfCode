@@ -1,6 +1,6 @@
 ﻿using System;
 using AdventOfCode.CSharp.Common;
-using Microsoft.Toolkit.HighPerformance;
+using CommunityToolkit.HighPerformance;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 
@@ -18,7 +18,7 @@ public class Day08 : ISolver
         }
     }
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int lines = input.Count((byte)'\n');
         Instruction[] instructions = new Instruction[lines];

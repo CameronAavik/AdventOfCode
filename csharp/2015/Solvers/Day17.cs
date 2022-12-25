@@ -11,7 +11,7 @@ public class Day17 : ISolver
         public static readonly Element Zero = new(0, 0, 0);
     }
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var sizes = new List<int>();
         var reader = new SpanReader(input);

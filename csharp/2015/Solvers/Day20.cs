@@ -11,7 +11,7 @@ public class Day20 : ISolver
         2, 3, 5, 7, 11, 13, 17, 19, 23, 29
     };
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int target = new SpanReader(input).ReadPosIntUntil('\n');
         solution.SubmitPart1(SolvePart1(target));

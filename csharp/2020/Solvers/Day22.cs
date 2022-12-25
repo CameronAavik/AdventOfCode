@@ -134,9 +134,9 @@ public class Day22 : ISolver
         public override int GetHashCode() => HashCode.Combine(_hash1, _hash2);
     }
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int player2Index = input.IndexOf(new[] { (byte)'\n', (byte)'\n' });
+        int player2Index = input.IndexOf("\n\n"u8);
         ReadOnlySpan<byte> player1Input = input.Slice(0, player2Index + 1);
         ReadOnlySpan<byte> player2Input = input.Slice(player2Index + 2);
 

@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day24 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         Span<(int CharIndex, int Offset)> offsets = stackalloc (int CharIndex, int Offset)[8];
         int offsetIndex = 1;

@@ -9,7 +9,7 @@ public class Day07 : ISolver
 {
     readonly record struct Bag(string Modifier, string Colour);
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var containsShinyGoldCache = new Dictionary<Bag, bool>();
         var totalChildBagsCache = new Dictionary<Bag, int>();

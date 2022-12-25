@@ -15,7 +15,7 @@ public class Day01 : ISolver
         public int ModTotal { get; set; }
     }
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int freqIndex = 0;
         int freqTotal = 0;

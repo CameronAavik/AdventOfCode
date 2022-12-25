@@ -5,7 +5,7 @@ using AdventOfCode.CSharp.Common;
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 public class Day03 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
 
     {
         int w = input.IndexOf((byte)'\n');

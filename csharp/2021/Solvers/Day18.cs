@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day18 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         const int MaxSnailfishCount = 128;
         Span<byte> snailFishes = stackalloc byte[16 * MaxSnailfishCount];

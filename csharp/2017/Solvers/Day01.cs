@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2017.Solvers;
 
 public class Day01 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int len = input.TrimEnd((byte)'\n').Length;
         int mid = len / 2;

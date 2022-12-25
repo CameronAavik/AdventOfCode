@@ -11,7 +11,7 @@ public class Day01 : ISolver
     private const uint Right = 1 << 16;
     private const uint Left = unchecked((uint)-Right);
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // assume the origin is at 1 << 15, 1 << 15
         const ushort xOrigin = 1 << 15;

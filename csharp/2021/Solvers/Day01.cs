@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day01 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // The counters which will store the solutions to both parts
         int part1 = 0;

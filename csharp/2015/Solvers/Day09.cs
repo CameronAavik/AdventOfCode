@@ -8,7 +8,7 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 
 public class Day09 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // get list of towns and edges from input
         var townSet = new HashSet<string>();

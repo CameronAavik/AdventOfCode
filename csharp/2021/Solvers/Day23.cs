@@ -12,7 +12,7 @@ public class Day23 : ISolver
     const byte AmphipodC = 2;
     const byte AmphipodD = 3;
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         static byte CharToAmphipodType(byte c) => (byte)(c - 'A');
 

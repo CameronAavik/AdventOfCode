@@ -12,7 +12,7 @@ public class Day17 : ISolver
     const int Z = 1 << 10; // 3 bits for Z
     const int W = 1 << 13; // 3 bits for W
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         const int originX = 6;
         const int originY = 6;

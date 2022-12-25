@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day17 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         ParseInput(input, out int x1, out int x2, out int y1, out int y2);
 

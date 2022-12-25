@@ -8,7 +8,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day21 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var ingredientCount = new Dictionary<string, int>();
         var allgerenCandidates = new Dictionary<string, HashSet<string>>();
@@ -28,7 +28,7 @@ public class Day21 : ISolver
             }
 
             reader.SkipLength("(contains ".Length);
-            foreach (ReadOnlySpan<byte> allergen in reader.ReadUntil(')').Split(new[] { (byte)',', (byte)' ' }))
+            foreach (ReadOnlySpan<byte> allergen in reader.ReadUntil(')').Split(", "u8))
             {
                 string allergenStr = Encoding.ASCII.GetString(allergen);
                 if (allgerenCandidates.TryGetValue(allergenStr, out HashSet<string>? curSet))

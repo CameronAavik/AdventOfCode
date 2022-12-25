@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day15 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // really big array since much faster than a dictionary
         int[] buffer = new int[30000000];

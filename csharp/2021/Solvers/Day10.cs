@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day10 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         Span<byte> stack = stackalloc byte[4096];
         int sp = 0;

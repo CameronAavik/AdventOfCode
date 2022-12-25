@@ -18,7 +18,7 @@ public class Day23 : ISolver
 
     public record Instruction(InstructionType Type, int Arg1, int Arg2 = 0);
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var instructions = new List<Instruction>();
         foreach (ReadOnlySpan<byte> line in input.SplitLines())

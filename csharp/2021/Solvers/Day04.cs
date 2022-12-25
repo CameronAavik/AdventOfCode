@@ -7,7 +7,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 public class Day04 : ISolver
 {
     // This solver assumes that there are no bingo numbers greater than 99, which is true of all the AoC inputs and examples.
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // Create a lookup table where the key is the bingo number and the value is what order it is called out.
         // For example, if the first number called out is 9, then orderIndexLookup[9] == 0.

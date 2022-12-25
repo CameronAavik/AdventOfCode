@@ -7,7 +7,7 @@ public class Day15 : ISolver
 {
     public record Ingredient(int[] Qualities, int Calories);
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var ingredients = new Ingredient[4];
         int ingredientIndex = 0;

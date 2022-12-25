@@ -10,7 +10,7 @@ public class Day04 : ISolver
     private static readonly byte[][] s_rotations =
         Enumerable.Range(0, 26).Select(i => Encoding.ASCII.GetBytes(Rotate("north", -i))).ToArray();
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = -1;

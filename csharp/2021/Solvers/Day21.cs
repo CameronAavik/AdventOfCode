@@ -6,7 +6,7 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day21 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         ParseInput(input, out byte player1Start, out byte player2Start);
 
@@ -21,7 +21,7 @@ public class Day21 : ISolver
         solution.SubmitPart2(part2);
     }
 
-    int SolvePart1(int player1Start, int player2Start)
+    static int SolvePart1(int player1Start, int player2Start)
     {
         int player1Score = 0;
         int player2Score = 0;
@@ -44,7 +44,7 @@ public class Day21 : ISolver
     }
 
     [SkipLocalsInit]
-    long SolvePart2(byte player1Start, byte player2Start)
+    static long SolvePart2(byte player1Start, byte player2Start)
     {
         Span<(long Wins, long Losses)> m = stackalloc (long Wins, long Losses)[10 * 10 * 20 * 21];
 

@@ -5,7 +5,7 @@ namespace AdventOfCode.CSharp.Y2019.Solvers;
 
 public class Day01 : ISolver
 {
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var reader = new SpanReader(input);
 

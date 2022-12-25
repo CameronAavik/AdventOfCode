@@ -16,7 +16,7 @@ public class Day12 : ISolver
 
     readonly record struct State(int AvailableCaves, bool CanRepeat, int CurrentCave);
 
-    public void Solve(ReadOnlySpan<byte> input, Solution solution)
+    public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // caveEdges is an 'adjacency matrix' encoded using an array of longs. There is a long for each small cave, and
         // it stores adjacency information to the other small caves. Adjadency information is stored as the total
@@ -155,10 +155,10 @@ public class Day12 : ISolver
 
         Cave ParseCave(ReadOnlySpan<byte> caveName)
         {
-            if (caveName.SequenceEqual(new byte[] { (byte)'s', (byte)'t', (byte)'a', (byte)'r', (byte)'t' }))
+            if (caveName.SequenceEqual("start"u8))
                 return Cave.Start;
 
-            if (caveName.SequenceEqual(new byte[] { (byte)'e', (byte)'n', (byte)'d' }))
+            if (caveName.SequenceEqual("end"u8))
                 return Cave.End;
 
             string caveNameString = Encoding.ASCII.GetString(caveName);
