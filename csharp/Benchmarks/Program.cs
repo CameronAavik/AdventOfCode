@@ -35,7 +35,7 @@ BenchmarkReport ConvertSummaryToReport(Summary summary)
     var report = summary.Reports[0];
     var solverType = report.BenchmarkCase.Descriptor.Type.GenericTypeArguments[0];
     (int year, int day) = SolverUtils.GetYearAndDay(solverType);
-    var percentiles = report.ResultStatistics.Percentiles;
+    var percentiles = report.ResultStatistics!.Percentiles;
     var allocations = report.Metrics.Single(m => m.Key.Equals("Allocated Memory")).Value.Value;
     return new BenchmarkReport(year, day, percentiles.P0 / 1000, percentiles.P50 / 1000, percentiles.P100 / 1000, allocations);
 }

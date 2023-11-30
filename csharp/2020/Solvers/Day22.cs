@@ -11,15 +11,15 @@ public class Day22 : ISolver
     const int MaxCardValue = 50;
 
     // 50 randomly generated numbers to use with buzhash
-    private static readonly uint[] s_buzHashTable = new uint[MaxCardValue + 1]
-    {
+    private static readonly uint[] s_buzHashTable =
+    [
             119564030, 1443776239, 730079727, 637016013, 1609741144, 1628178104, 959411748, 277699449, 1095401195, 2141407359,
             1854243163, 1004465043, 470634801, 415392255, 1337243970, 517336758, 346301782, 1862853160, 1038920193, 1537224577,
             397161517, 415214760, 1927010737, 1563126965, 464456291, 1600929911, 432269658, 1937776014, 339596328, 941709070,
             1801487444, 666151923, 1222063719, 698053827, 737686581, 1185001291, 934247867, 327989044, 1178439112, 1417667540,
             514509190, 1930851386, 1488309314, 1865466052, 1522586288, 631476122, 289764488, 1651811359, 480085310, 2142599053,
             1870472761
-    };
+    ];
 
     class Deck
     {
@@ -119,16 +119,10 @@ public class Day22 : ISolver
         }
     }
 
-    readonly struct DeckState
+    readonly struct DeckState(Deck player1, Deck player2)
     {
-        private readonly uint _hash1;
-        private readonly uint _hash2;
-
-        public DeckState(Deck player1, Deck player2)
-        {
-            _hash1 = player1.GetHash();
-            _hash2 = player2.GetHash();
-        }
+        private readonly uint _hash1 = player1.GetHash();
+        private readonly uint _hash2 = player2.GetHash();
 
         public override bool Equals(object? obj) => obj is DeckState state && _hash1 == state._hash1 && _hash2 == state._hash2;
         public override int GetHashCode() => HashCode.Combine(_hash1, _hash2);

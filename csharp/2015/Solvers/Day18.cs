@@ -11,11 +11,11 @@ public class Day18 : ISolver
         // we allocate two grids, each iteration switches which grid is used.
         // this means we can keep reusing the same grids over and over with no extra allocations.
         int curGridIndex = 0;
-        int[][,] grids = new[]
-        {
+        int[][,] grids =
+        [
                 new int[102, 102],
                 new int[102, 102],
-            };
+            ];
 
         int row = 1;
         int col = 1;

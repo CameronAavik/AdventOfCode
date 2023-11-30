@@ -1,35 +1,21 @@
 ﻿using System;
 using AdventOfCode.CSharp.Common;
-using CommunityToolkit.HighPerformance;
 
 namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day12 : ISolver
 {
-    readonly struct Param
+    readonly struct Param(byte type, int value)
     {
-        public readonly byte Type; // 0 = Regstier, 1 = Immediate
-        public readonly int Value;
-
-        public Param(byte type, int value)
-        {
-            Type = type;
-            Value = value;
-        }
+        public readonly byte Type = type; // 0 = Register, 1 = Immediate
+        public readonly int Value = value;
     }
 
-    readonly struct Instruction
+    readonly struct Instruction(byte operation, Param param1, Param param2)
     {
-        public readonly byte Operation;
-        public readonly Param Param1;
-        public readonly Param Param2;
-
-        public Instruction(byte operation, Param param1, Param param2)
-        {
-            Operation = operation;
-            Param1 = param1;
-            Param2 = param2;
-        }
+        public readonly byte Operation = operation;
+        public readonly Param Param1 = param1;
+        public readonly Param Param2 = param2;
     }
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)

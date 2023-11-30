@@ -3,16 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace AdventOfCode.CSharp.Common;
 
-public readonly ref struct Solution
+public readonly ref struct Solution(Span<char> part1Buffer, Span<char> part2Buffer)
 {
-    private readonly Span<char> _part1Buffer;
-    private readonly Span<char> _part2Buffer;
-
-    public Solution(Span<char> part1Buffer, Span<char> part2Buffer)
-    {
-        _part1Buffer = part1Buffer;
-        _part2Buffer = part2Buffer;
-    }
+    private readonly Span<char> _part1Buffer = part1Buffer;
+    private readonly Span<char> _part2Buffer = part2Buffer;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SubmitPart1<T>(T val) where T : ISpanFormattable

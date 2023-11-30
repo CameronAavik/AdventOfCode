@@ -6,10 +6,10 @@ namespace AdventOfCode.CSharp.Y2015.Solvers;
 public class Day20 : ISolver
 {
     // first 10 primes, add more primes if needed?
-    private static readonly int[] s_primes = new int[]
-    {
+    private static readonly int[] s_primes =
+    [
         2, 3, 5, 7, 11, 13, 17, 19, 23, 29
-    };
+    ];
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {

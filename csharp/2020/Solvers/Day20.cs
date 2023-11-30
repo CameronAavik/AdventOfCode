@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
-using CommunityToolkit.HighPerformance;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 
@@ -339,7 +338,7 @@ public class Day20 : ISolver
         }
         else
         {
-            dict[key] = new List<V> { value };
+            dict[key] = [value];
         }
     }
 

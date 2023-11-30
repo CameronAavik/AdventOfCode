@@ -10,16 +10,10 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day11 : ISolver
 {
-    public readonly struct State : IEquatable<State>
+    public readonly struct State(byte[] materials, int curFloor) : IEquatable<State>
     {
-        public readonly byte[] MaterialLocations;
-        public readonly int CurFloor;
-
-        public State(byte[] materials, int curFloor)
-        {
-            MaterialLocations = materials;
-            CurFloor = curFloor;
-        }
+        public readonly byte[] MaterialLocations = materials;
+        public readonly int CurFloor = curFloor;
 
         public bool Equals(State other)
         {
@@ -50,7 +44,7 @@ public class Day11 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        byte[] part1Locs = ParseInput(input).ToArray();
+        byte[] part1Locs = [.. ParseInput(input)];
         Array.Sort(part1Locs);
         var part1State = new State(part1Locs, 1);
         int part1 = FindStepsToFinish(part1State);

@@ -20,7 +20,7 @@ public class Day17 : ISolver
         int width = input.IndexOf((byte)'\n');
         int height = input.Length / (width + 1);
 
-        List<int> activeCubes = new();
+        List<int> activeCubes = [];
         for (int y = 0; y < height; y++)
         {
             for (int x = 0; x < width; x++)
@@ -185,17 +185,11 @@ public class Day17 : ISolver
         return zwPlane + 4 * wAxis + 4 * wzAxis + 8 * other;
     }
 
-    class NeighbourCounter
+    class NeighbourCounter(int maxNeighboursLen, int maxNeighbourValue)
     {
-        private readonly int[] _neighbours;
-        private readonly int[] _neighbourTotals;
+        private readonly int[] _neighbours = new int[maxNeighboursLen];
+        private readonly int[] _neighbourTotals = new int[maxNeighbourValue + 1];
         private int _neighbourLen = 0;
-
-        public NeighbourCounter(int maxNeighboursLen, int maxNeighbourValue)
-        {
-            _neighbours = new int[maxNeighboursLen];
-            _neighbourTotals = new int[maxNeighbourValue + 1];
-        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ResetNeighbours()

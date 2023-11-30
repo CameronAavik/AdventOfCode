@@ -8,26 +8,17 @@ public class Day14 : ISolver
 {
     public record Reindeer(int Speed, int FlyDuration, int RestDuration);
 
-    public class ReindeerState
+    public class ReindeerState(Reindeer data)
     {
-        public ReindeerState(Reindeer data)
-        {
-            Data = data;
-            DistanceTraveled = 0;
-            Points = 0;
-            DurationLeft = data.FlyDuration;
-            IsFlying = true;
-        }
+        public Reindeer Data { get; init; } = data;
 
-        public Reindeer Data { get; init; }
+        public int DistanceTraveled { get; set; } = 0;
 
-        public int DistanceTraveled { get; set; }
+        public int Points { get; set; } = 0;
 
-        public int Points { get; set; }
+        public int DurationLeft { get; set; } = data.FlyDuration;
 
-        public int DurationLeft { get; set; }
-
-        public bool IsFlying { get; set; }
+        public bool IsFlying { get; set; } = true;
     }
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)

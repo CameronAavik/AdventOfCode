@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Security.Cryptography;
-using System.Text;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2015.Solvers

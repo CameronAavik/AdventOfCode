@@ -42,7 +42,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
 
         if (initialCapacity == 0)
         {
-            _heap = Array.Empty<HeapEntry>();
+            _heap = [];
         }
         else
         {
@@ -61,7 +61,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
     {
         Comparer = comparer ?? Comparer<TPriority>.Default;
         _index = new Dictionary<TElement, int>(elementComparer);
-        _heap = Array.Empty<HeapEntry>();
+        _heap = [];
         Count = 0;
 
         AppendRaw(values);
@@ -144,7 +144,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             // Set invariant validation assumes behaviour equivalent to
             // calling Enqueue(); Dequeue() operations sequentially.
             // Might consider changing to a Dequeue(); Enqueue() equivalent
-            // which is more forgiving under certain scenaria.
+            // which is more forgiving under certain scenarios.
             ThrowHelper.ThrowInvalidOperationException("Duplicate element");
         }
 
@@ -383,7 +383,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
 
             if (Comparer.Compare(parent.Priority, priority) <= 0)
             {
-                // parentPriority <= priority, heap property is satisfed
+                // parentPriority <= priority, heap property is satisfied
                 break;
             }
 
@@ -449,7 +449,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
         public TElement Element;
         public TPriority Priority;
 
-        public void Deconstruct(out TElement element, out TPriority priority)
+        public readonly void Deconstruct(out TElement element, out TPriority priority)
         {
             element = Element;
             priority = Priority;

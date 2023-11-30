@@ -3,16 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace AdventOfCode.CSharp.Common;
 
-public ref struct SolutionWriter
+public ref struct SolutionWriter(Span<char> buffer)
 {
-    private readonly Span<char> _buffer;
-    private int _i;
-
-    public SolutionWriter(Span<char> buffer)
-    {
-        _buffer = buffer;
-        _i = 0;
-    }
+    private readonly Span<char> _buffer = buffer;
+    private int _i = 0;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write<T>(T val) where T : ISpanFormattable
@@ -35,7 +29,7 @@ public ref struct SolutionWriter
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Complete()
+    public readonly void Complete()
     {
         _buffer[_i] = '\n';
     }

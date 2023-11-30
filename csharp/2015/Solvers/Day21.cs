@@ -7,27 +7,27 @@ public class Day21 : ISolver
 {
     public record Equipment(int Cost, int Damage, int Armor);
 
-    private static readonly Equipment[] s_weapons = new Equipment[]
-    {
+    private static readonly Equipment[] s_weapons =
+    [
             new(8, 4, 0),
             new(10, 5, 0),
             new(25, 6, 0),
             new(40, 7, 0),
             new(74, 8, 0)
-    };
+    ];
 
-    private static readonly Equipment[] s_armor = new Equipment[]
-    {
+    private static readonly Equipment[] s_armor =
+    [
             new(0, 0, 0),
             new(13, 0, 1),
             new(31, 0, 2),
             new(53, 0, 3),
             new(75, 0, 4),
             new(102, 0, 5)
-    };
+    ];
 
-    private static readonly Equipment[] s_rings = new Equipment[]
-    {
+    private static readonly Equipment[] s_rings =
+    [
             new(0, 0, 0),
             new(25, 1, 0),
             new(50, 2, 0),
@@ -35,7 +35,7 @@ public class Day21 : ISolver
             new(20, 0, 1),
             new(40, 0, 2),
             new(80, 0, 3)
-    };
+    ];
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {

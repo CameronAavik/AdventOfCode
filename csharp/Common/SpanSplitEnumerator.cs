@@ -2,17 +2,10 @@
 
 namespace AdventOfCode.CSharp.Common;
 
-public ref struct SpanSplitEnumerator<T> where T : IEquatable<T>
+public ref struct SpanSplitEnumerator<T>(ReadOnlySpan<T> str, T separator) where T : IEquatable<T>
 {
-    private readonly T _separator;
-    private ReadOnlySpan<T> _str;
-
-    public SpanSplitEnumerator(ReadOnlySpan<T> str, T separator)
-    {
-        _str = str;
-        _separator = separator;
-        Current = default;
-    }
+    private readonly T _separator = separator;
+    private ReadOnlySpan<T> _str = str;
 
     public readonly SpanSplitEnumerator<T> GetEnumerator() => this;
 
@@ -27,7 +20,7 @@ public ref struct SpanSplitEnumerator<T> where T : IEquatable<T>
         int index = span.IndexOf(_separator);
         if (index == -1)
         {
-            _str = ReadOnlySpan<T>.Empty;
+            _str = [];
             Current = span;
         }
         else
@@ -39,5 +32,5 @@ public ref struct SpanSplitEnumerator<T> where T : IEquatable<T>
         return true;
     }
 
-    public ReadOnlySpan<T> Current { get; private set; }
+    public ReadOnlySpan<T> Current { get; private set; } = default;
 }

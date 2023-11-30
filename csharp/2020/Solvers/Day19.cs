@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
-using CommunityToolkit.HighPerformance;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 
@@ -150,7 +149,7 @@ public class Day19 : ISolver
             if (reader.Peek() == '"')
             {
                 int rule = reader[1] == 'a' ? -1 : -2;
-                rulesArr[ruleId] = new [] { new[] { rule } };
+                rulesArr[ruleId] = [[rule]];
                 reader.SkipLength("\"a\"\n".Length);
             }
             else
@@ -159,12 +158,12 @@ public class Day19 : ISolver
 
                 int n1 = ruleValueReader.ReadPosIntUntil(' ');
                 int[] group1 = ruleValueReader.Done || ruleValueReader.Peek() == '|'
-                    ? new[] { n1 }
-                    : new[] { n1, ruleValueReader.ReadPosIntUntil(' ') };
+                    ? [n1]
+                    : [n1, ruleValueReader.ReadPosIntUntil(' ')];
 
                 if (ruleValueReader.Done)
                 {
-                    rulesArr[ruleId] = new[] { group1 };
+                    rulesArr[ruleId] = [group1];
                 }
                 else
                 {
@@ -172,10 +171,10 @@ public class Day19 : ISolver
 
                     int n3 = ruleValueReader.ReadPosIntUntil(' ');
                     int[] group2 = ruleValueReader.Done
-                        ? new[] { n3 }
-                        : new[] { n3, ruleValueReader.ReadPosIntUntilEnd() };
+                        ? [n3]
+                        : [n3, ruleValueReader.ReadPosIntUntilEnd()];
 
-                    rulesArr[ruleId] = new[] { group1, group2 };
+                    rulesArr[ruleId] = [group1, group2];
                 }
             }
         }

@@ -47,7 +47,7 @@ public class Day23 : ISolver
             instructions.Add(instruction);
         }
 
-        Instruction[] instructionArr = instructions.ToArray();
+        Instruction[] instructionArr = [.. instructions];
 
         int part1 = Simulate(instructionArr, 0);
         int part2 = Simulate(instructionArr, 1);

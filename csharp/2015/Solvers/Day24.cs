@@ -19,7 +19,7 @@ public class Day24 : ISolver
             totalWeight += weight;
         }
 
-        int[] weightArr = weightList.ToArray();
+        int[] weightArr = [.. weightList];
         Array.Sort(weightArr);
 
         solution.SubmitPart1(Solve(weightArr, totalWeight / 3));

@@ -120,19 +120,14 @@ public class Day16 : ISolver
         return 0;
     }
 
-    private ref struct InputReader
+    private ref struct InputReader(ReadOnlySpan<byte> input)
     {
-        private readonly ReadOnlySpan<byte> _input;
+        private readonly ReadOnlySpan<byte> _input = input;
         private int _inputIndex = 0;
         private int _readBitsCount = 0;
         private ulong _readBits = 0;
 
-        public InputReader(ReadOnlySpan<byte> input)
-        {
-            _input = input;
-        }
-
-        public int BitIndex
+        public readonly int BitIndex
         {
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get

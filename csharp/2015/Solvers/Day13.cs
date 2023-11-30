@@ -1,7 +1,6 @@
 ﻿using AdventOfCode.CSharp.Common;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace AdventOfCode.CSharp.Y2015.Solvers;
@@ -24,7 +23,7 @@ public class Day13 : ISolver
         }
 
         // convert adjacency list to adjacency matrix
-        string[] people = peopleSet.ToArray();
+        string[] people = [.. peopleSet];
         int numPeople = people.Length;
 
         // let's add one extra person for part 2

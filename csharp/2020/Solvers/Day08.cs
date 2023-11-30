@@ -1,21 +1,14 @@
 ﻿using System;
 using AdventOfCode.CSharp.Common;
-using CommunityToolkit.HighPerformance;
 
 namespace AdventOfCode.CSharp.Y2020.Solvers;
 
 public class Day08 : ISolver
 {
-    public readonly struct Instruction
+    public readonly struct Instruction(byte operation, int arg)
     {
-        public readonly byte Operation;
-        public readonly int Arg;
-
-        public Instruction(byte operation, int arg)
-        {
-            Operation = operation;
-            Arg = arg;
-        }
+        public readonly byte Operation = operation;
+        public readonly int Arg = arg;
     }
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)

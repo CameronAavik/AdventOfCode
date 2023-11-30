@@ -3,15 +3,10 @@ using System.Runtime.CompilerServices;
 
 namespace AdventOfCode.CSharp.Common;
 
-public ref struct SpanReader
+[method: MethodImpl(MethodImplOptions.AggressiveInlining)]
+public ref struct SpanReader(ReadOnlySpan<byte> input)
 {
-    private ReadOnlySpan<byte> _input;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public SpanReader(ReadOnlySpan<byte> input)
-    {
-        _input = input;
-    }
+    private ReadOnlySpan<byte> _input = input;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte Read()
@@ -63,7 +58,7 @@ public ref struct SpanReader
         if (len == -1)
         {
             ReadOnlySpan<byte> ret = _input;
-            _input = ReadOnlySpan<byte>.Empty;
+            _input = [];
             return ret;
         }
         else
@@ -81,7 +76,7 @@ public ref struct SpanReader
         if (len == -1)
         {
             ReadOnlySpan<byte> ret = _input;
-            _input = ReadOnlySpan<byte>.Empty;
+            _input = [];
             return ret;
         }
         else
@@ -122,7 +117,7 @@ public ref struct SpanReader
             ret = ret * 10 + (cur - '0');
         }
 
-        _input = ReadOnlySpan<byte>.Empty;
+        _input = [];
         if (isNeg)
             ret = -ret;
         return ret;
@@ -148,7 +143,7 @@ public ref struct SpanReader
             ret = ret * 10 + (cur - '0');
         }
 
-        _input = ReadOnlySpan<byte>.Empty;
+        _input = [];
         return ret;
     }
 
@@ -160,7 +155,7 @@ public ref struct SpanReader
         for (int i = 1; i < _input.Length; i++)
             ret = ret * 10 + (_input[i] - '0');
 
-        _input = ReadOnlySpan<byte>.Empty;
+        _input = [];
         return ret;
     }
 
@@ -184,12 +179,12 @@ public ref struct SpanReader
             ret = ret * 10 + (cur - '0');
         }
 
-        _input = ReadOnlySpan<byte>.Empty;
+        _input = [];
         return ret;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public byte Peek() => _input[0];
+    public readonly byte Peek() => _input[0];
 
     public readonly byte this[int i]
     {

@@ -6,24 +6,14 @@ namespace AdventOfCode.CSharp.Y2021.Solvers;
 
 public class Day22 : ISolver
 {
-    readonly struct Cube
+    readonly struct Cube(int x1, int x2, int y1, int y2, int z1, int z2)
     {
-        private readonly int _x1;
-        private readonly int _x2;
-        private readonly int _y1;
-        private readonly int _y2;
-        private readonly int _z1;
-        private readonly int _z2;
-
-        public Cube(int x1, int x2, int y1, int y2, int z1, int z2)
-        {
-            _x1 = x1;
-            _x2 = x2;
-            _y1 = y1;
-            _y2 = y2;
-            _z1 = z1;
-            _z2 = z2;
-        }
+        private readonly int _x1 = x1;
+        private readonly int _x2 = x2;
+        private readonly int _y1 = y1;
+        private readonly int _y2 = y2;
+        private readonly int _z1 = z1;
+        private readonly int _z2 = z2;
 
         // Since all coordinate values are doubled, we need to divide by 8 to account for this on all 3 axes.
         public long Volume => (_x2 + 1L - _x1) * (_y2 + 1L - _y1) * (_z2 + 1L - _z1) / 8L;

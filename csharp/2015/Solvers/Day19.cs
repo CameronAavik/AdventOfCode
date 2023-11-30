@@ -29,7 +29,7 @@ public class Day19 : ISolver
             {
                 lhsIndex = elements.Count;
                 elements.Add(lhs, lhsIndex);
-                replacements.Add(new List<List<int>> { replacement });
+                replacements.Add([replacement]);
             }
             else
             {
@@ -72,7 +72,7 @@ public class Day19 : ISolver
             {
                 elementIndex = elements.Count;
                 elements.Add(element, elementIndex);
-                replacements.Add(new List<List<int>>());
+                replacements.Add([]);
             }
 
             replacement.Add(elementIndex);

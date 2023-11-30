@@ -6,9 +6,9 @@ pool:
 
 steps:
 - task: UseDotNet@2
-  displayName: 'Use .NET 6'
+  displayName: 'Use .NET 8'
   inputs:
-    version: 6.0.100
+    version: 8.0.100
     installationPath: $(Agent.ToolsDirectory)/dotnet
 
 - task: DotNetCoreCLI@2

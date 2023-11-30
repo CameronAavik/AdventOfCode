@@ -11,30 +11,17 @@ public class Day11 : ISolver
     const short Finalised = 4;
     const short OccupiedAndFinalised = 8;
 
-    private struct Seat
+    private struct Seat(short seatData, int nw, int n, int ne, int w, int e, int sw, int s, int se)
     {
-        public short SeatData;
-        public readonly int NW;
-        public readonly int N;
-        public readonly int NE;
-        public readonly int W;
-        public readonly int E;
-        public readonly int SW;
-        public readonly int S;
-        public readonly int SE;
-
-        public Seat(short seatData, int nw, int n, int ne, int w, int e, int sw, int s, int se)
-        {
-            SeatData = seatData;
-            NW = nw;
-            N = n;
-            NE = ne;
-            W = w;
-            E = e;
-            SW = sw;
-            S = s;
-            SE = se;
-        }
+        public short SeatData = seatData;
+        public readonly int NW = nw;
+        public readonly int N = n;
+        public readonly int NE = ne;
+        public readonly int W = w;
+        public readonly int E = e;
+        public readonly int SW = sw;
+        public readonly int S = s;
+        public readonly int SE = se;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void FlipOccupiedFlag()
@@ -166,7 +153,7 @@ public class Day11 : ISolver
 
     private static int Solve(Seat[] seats, int neighboursForVacant, List<int> activeSeats)
     {
-        int[] seatsToProcess = activeSeats.ToArray();
+        int[] seatsToProcess = [.. activeSeats];
         int seatsToProcessLen = seatsToProcess.Length;
         int[] seatsToFlip = new int[activeSeats.Count];
         int seatsToFlipLen = 0;

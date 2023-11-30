@@ -25,7 +25,7 @@ public class Day15 : ISolver
             int texture = reader.ReadIntUntil(',');
             reader.SkipLength(" calories ".Length);
             int calories = reader.ReadIntUntil('\n');
-            ingredients[ingredientIndex++] = new Ingredient(new[] { capacity, durability, flavor, texture }, calories);
+            ingredients[ingredientIndex++] = new Ingredient([capacity, durability, flavor, texture], calories);
         }
 
         int part1 = 0;

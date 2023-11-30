@@ -8,14 +8,14 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 
 public class Day05 : ISolver
 {
-    private static readonly Vector256<uint>[] s_asciiNumMasks = new Vector256<uint>[]
-    {
-            Vector256.Create(0x80u),
-            Vector256.Create(0x80u << 8 | '0'),
-            Vector256.Create(0x80u << 16 | '0' << 8 | '0'),
-            Vector256.Create(0x80u << 24 | '0' << 16 | '0' << 8 | '0'),
-            Vector256.Create((uint)'0' << 24 | '0' << 16 | '0' << 8 | '0'),
-    };
+    private static readonly Vector256<uint>[] s_asciiNumMasks =
+    [
+        Vector256.Create(0x80u),
+        Vector256.Create(0x80u << 8 | '0'),
+        Vector256.Create(0x80u << 16 | '0' << 8 | '0'),
+        Vector256.Create(0x80u << 24 | '0' << 16 | '0' << 8 | '0'),
+        Vector256.Create((uint)'0' << 24 | '0' << 16 | '0' << 8 | '0'),
+    ];
 
     private class PasswordBuilder
     {

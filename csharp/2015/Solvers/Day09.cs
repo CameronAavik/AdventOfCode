@@ -1,7 +1,6 @@
 ﻿using AdventOfCode.CSharp.Common;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 
 namespace AdventOfCode.CSharp.Y2015.Solvers;
@@ -25,7 +24,7 @@ public class Day09 : ISolver
         }
 
         // convert adjacency list to adjacency matrix
-        string[] townNames = townSet.ToArray();
+        string[] townNames = [.. townSet];
         int numTowns = townNames.Length;
 
         int[,] adjMatrix = new int[numTowns, numTowns];

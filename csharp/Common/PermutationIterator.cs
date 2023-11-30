@@ -2,23 +2,15 @@
 
 namespace AdventOfCode.CSharp.Common;
 
-public ref struct PermutationIterator<T>
+public ref struct PermutationIterator<T>(Span<T> span)
 {
-    private bool HasMadeFirstMove { get; set; }
+    private bool HasMadeFirstMove { get; set; } = false;
 
-    private int StackPointer { get; set; }
+    private int StackPointer { get; set; } = 0;
 
-    private int[] Stack { get; set; }
+    private int[] Stack { get; set; } = new int[span.Length];
 
-    public PermutationIterator(Span<T> span)
-    {
-        Current = span;
-        HasMadeFirstMove = false;
-        StackPointer = 0;
-        Stack = new int[span.Length];
-    }
-
-    public PermutationIterator<T> GetEnumerator() => this;
+    public readonly PermutationIterator<T> GetEnumerator() => this;
 
     public bool MoveNext()
     {
@@ -54,5 +46,5 @@ public ref struct PermutationIterator<T>
         return true;
     }
 
-    public Span<T> Current { get; }
+    public Span<T> Current { get; } = span;
 }
