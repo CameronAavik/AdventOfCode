@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
@@ -35,57 +34,57 @@ public class Day01 : ISolver
                     lastDigit = lastNumericalDigit;
                     break;
                 case (byte)'o':
-                    if (input.StartsWith([(byte)'n', (byte)'e']))
+                    if (input.StartsWith("ne"u8))
                     {
                         lastDigit = 1;
                         input = input.Slice(1); // e could be start of eight
                     }
                     break;
                 case (byte)'t':
-                    if (input.StartsWith([(byte)'w', (byte)'o']))
+                    if (input.StartsWith("wo"u8))
                     {
                         lastDigit = 2;
                         input = input.Slice(1); // o could be start of one
                     }
-                    else if (input.StartsWith([(byte)'h', (byte)'r', (byte)'e', (byte)'e']))
+                    else if (input.StartsWith("hree"u8))
                     {
                         lastDigit = 3;
                         input = input.Slice(3); // e could be start of eight
                     }
                     break;
                 case (byte)'f':
-                    if (input.StartsWith([(byte)'o', (byte)'u', (byte)'r']))
+                    if (input.StartsWith("our"u8))
                     {
                         lastDigit = 4;
                         input = input.Slice(3);
                     }
-                    else if (input.StartsWith([(byte)'i', (byte)'v', (byte)'e']))
+                    else if (input.StartsWith("ive"u8))
                     {
                         lastDigit = 5;
                         input = input.Slice(2); // e could be start of eight
                     }
                     break;
                 case (byte)'s':
-                    if (input.StartsWith([(byte)'i', (byte)'x']))
+                    if (input.StartsWith("ix"u8))
                     {
                         lastDigit = 6;
                         input = input.Slice(2);
                     }
-                    else if (input.StartsWith([(byte)'e', (byte)'v', (byte)'e', (byte)'n']))
+                    else if (input.StartsWith("even"u8))
                     {
                         lastDigit = 7;
                         input = input.Slice(3); // n could be start of nine
                     }
                     break;
                 case (byte)'e':
-                    if (input.StartsWith([(byte)'i', (byte)'g', (byte)'h', (byte)'t']))
+                    if (input.StartsWith("ight"u8))
                     {
                         lastDigit = 8;
                         input = input.Slice(3); // t could be start of two or three
                     }
                     break;
                 case (byte)'n':
-                    if (input.StartsWith([(byte)'i', (byte)'n', (byte)'e']))
+                    if (input.StartsWith("ine"u8))
                     {
                         lastDigit = 9;
                         input = input.Slice(2); // e could be start of eight
