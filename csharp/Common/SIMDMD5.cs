@@ -28,8 +28,7 @@ public static class SIMDMD5
     private static Vec256 I(Vec256 x, Vec256 y, Vec256 z) => Avx2.Xor(y, Avx2.Or(x, Avx2.AndNot(z, s_mask)));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static Vec256 RotateLeft(Vec256 a, byte s) =>
-        Avx2.Xor(Avx2.ShiftLeftLogical(a, s), Avx2.ShiftRightLogical(a, (byte)(32 - s)));
+    private static Vec256 RotateLeft(Vec256 a, byte s) => (a << s) | (a >> (32 - s));
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void FF(ref Vec256 a, Vec256 b, Vec256 c, Vec256 d, Vec256 x, byte s, uint t)

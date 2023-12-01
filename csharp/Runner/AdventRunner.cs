@@ -42,6 +42,7 @@ public static class AdventRunner
         var cookieContainer = new CookieContainer();
         using var handler = new HttpClientHandler() { CookieContainer = cookieContainer };
         using var client = new HttpClient(handler) { BaseAddress = baseAddress };
+        client.DefaultRequestHeaders.UserAgent.TryParseAdd("github.com/CameronAavik/AdventOfCode");
         cookieContainer.Add(baseAddress, new Cookie("session", s_cookie));
         byte[] inputData = await client.GetByteArrayAsync($"/{year}/day/{day}/input");
 
@@ -72,6 +73,7 @@ public static class AdventRunner
             2020 => typeof(Y2020.Solvers.Day01).Assembly,
             2021 => typeof(Y2021.Solvers.Day01).Assembly,
             2022 => typeof(Y2022.Solvers.Day01).Assembly,
+            2023 => typeof(Y2023.Solvers.Day01).Assembly,
             _ => null
         };
 
