@@ -17,11 +17,11 @@ public class Day01 : ISolver
 
         while (input.Length >= 1) // last character always newline
         {
-            byte c = input[0];
+            var c = input[0];
             input = input.Slice(1);
-            switch (c)
+            switch ((char)c)
             {
-                case (byte)'\n':
+                case '\n':
                     part1 += 10 * firstNumericalDigit + lastNumericalDigit;
                     part2 += 10 * firstDigit + lastDigit;
                     firstNumericalDigit = 0;
@@ -29,66 +29,45 @@ public class Day01 : ISolver
                     firstDigit = 0;
                     lastDigit = 0;
                     break;
-                case >= (byte)'1' and <= (byte)'9':
+                case >= '1' and <= '9':
                     lastNumericalDigit = c - '0';
                     lastDigit = lastNumericalDigit;
                     break;
-                case (byte)'o':
-                    if (input.StartsWith("ne"u8))
-                    {
-                        lastDigit = 1;
-                        input = input.Slice(1); // e could be start of eight
-                    }
+                case 'o' when input.StartsWith("ne"u8):
+                    lastDigit = 1;
+                    input = input.Slice(1); // e could be start of eight
                     break;
-                case (byte)'t':
-                    if (input.StartsWith("wo"u8))
-                    {
-                        lastDigit = 2;
-                        input = input.Slice(1); // o could be start of one
-                    }
-                    else if (input.StartsWith("hree"u8))
-                    {
-                        lastDigit = 3;
-                        input = input.Slice(3); // e could be start of eight
-                    }
+                case 't' when input.StartsWith("wo"u8):
+                    lastDigit = 2;
+                    input = input.Slice(1); // o could be start of one
                     break;
-                case (byte)'f':
-                    if (input.StartsWith("our"u8))
-                    {
-                        lastDigit = 4;
-                        input = input.Slice(3);
-                    }
-                    else if (input.StartsWith("ive"u8))
-                    {
-                        lastDigit = 5;
-                        input = input.Slice(2); // e could be start of eight
-                    }
+                case 't' when input.StartsWith("hree"u8):
+                    lastDigit = 3;
+                    input = input.Slice(3); // e could be start of eight
                     break;
-                case (byte)'s':
-                    if (input.StartsWith("ix"u8))
-                    {
-                        lastDigit = 6;
-                        input = input.Slice(2);
-                    }
-                    else if (input.StartsWith("even"u8))
-                    {
-                        lastDigit = 7;
-                        input = input.Slice(3); // n could be start of nine
-                    }
+                case 'f' when input.StartsWith("our"u8):
+                    lastDigit = 4;
+                    input = input.Slice(3);
                     break;
-                case (byte)'e':
-                    if (input.StartsWith("ight"u8))
-                    {
-                        lastDigit = 8;
-                        input = input.Slice(3); // t could be start of two or three
-                    }
+                case 'f' when input.StartsWith("ive"u8):
+                    lastDigit = 5;
+                    input = input.Slice(2); // e could be start of eight
                     break;
-                case (byte)'n':
-                    if (input.StartsWith("ine"u8))
-                    {
-                        lastDigit = 9;
-                        input = input.Slice(2); // e could be start of eight
-                    }
+                case 's' when input.StartsWith("ix"u8):
+                    lastDigit = 6;
+                    input = input.Slice(2);
+                    break;
+                case 's' when input.StartsWith("even"u8):
+                    lastDigit = 7;
+                    input = input.Slice(3); // n could be start of nine
+                    break;
+                case 'e' when input.StartsWith("ight"u8):
+                    lastDigit = 8;
+                    input = input.Slice(3); // t could be start of two or three
+                    break;
+                case 'n' when input.StartsWith("ine"u8):
+                    lastDigit = 9;
+                    input = input.Slice(2); // e could be start of eight
                     break;
             }
 
