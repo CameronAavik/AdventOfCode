@@ -8,3 +8,4 @@ BenchmarkDotNet.Artifacts
 .fake
 .vscode
 settings.local.json
+input
