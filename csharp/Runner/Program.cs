@@ -7,21 +7,11 @@ using System.Text.RegularExpressions;
 using AdventOfCode.CSharp.Common;
 using AdventOfCode.CSharp.Runner;
 
-int year = 2023;
-int day = 1;
+int year = 2022;
+int day = 6;
 
 byte[] inputBytes = await AdventRunner.GetInputAsync(year, day, fetchIfMissing: true);
 string input = Encoding.ASCII.GetString(inputBytes);
-
-List<int> ExtractInts(string s)
-{
-    var ints = new List<int>();
-    foreach (var match in Regex.Matches(s, @"(?:(?<!\d)-)?\d+").ToList())
-    {
-        ints.Add(int.Parse(match.Value));
-    }
-    return ints;
-}
 
 var parse = (string s) =>
 {
@@ -38,3 +28,13 @@ for (int i = 0; i < lines.Length; i++)
 }
 
 Console.WriteLine(ans);
+
+List<int> ExtractInts(string s)
+{
+    var ints = new List<int>();
+    foreach (var match in Regex.Matches(s, @"(?:(?<!\d)-)?\d+").ToList())
+    {
+        ints.Add(int.Parse(match.Value));
+    }
+    return ints;
+}
