@@ -1,88 +1,96 @@
 ﻿using System;
+using System.Buffers;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
 
 public class Day01 : ISolver
 {
+    private static readonly SearchValues<byte> s_numberStarts = SearchValues.Create("otfsen"u8);
+    private static readonly SearchValues<byte> s_numberEnds = SearchValues.Create("eorxnt"u8);
+
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         int part1 = 0;
         int part2 = 0;
 
-        int firstNumericalDigit = 0;
-        int lastNumericalDigit = 0;
-        int firstDigit = 0;
-        int lastDigit = 0;
-
-        while (input.Length > 0) // last character always newline
+        while (input.Length > 1) // assume file ends with newline
         {
-            switch (input)
-            {
-                case [(byte)'\n', ..]:
-                    part1 += 10 * firstNumericalDigit + lastNumericalDigit;
-                    part2 += 10 * firstDigit + lastDigit;
-                    firstNumericalDigit = 0;
-                    lastNumericalDigit = 0;
-                    firstDigit = 0;
-                    lastDigit = 0;
-                    input = input.Slice(1);
-                    break;
-                case [>= (byte)'1' and <= (byte)'9', ..]:
-                    lastNumericalDigit = input[0] - '0';
-                    lastDigit = lastNumericalDigit;
-                    input = input.Slice(1);
-                    break;
-                case [(byte)'o', (byte)'n', (byte)'e', ..]:
-                    lastDigit = 1;
-                    input = input.Slice(2); // e could be start of eight
-                    break;
-                case [(byte)'t', (byte)'w', (byte)'o', ..]:
-                    lastDigit = 2;
-                    input = input.Slice(2); // o could be start of one
-                    break;
-                case [(byte)'t', (byte)'h', (byte)'r', (byte)'e', (byte)'e', ..]:
-                    lastDigit = 3;
-                    input = input.Slice(4); // e could be start of eight
-                    break;
-                case [(byte)'f', (byte)'o', (byte)'u', (byte)'r', ..]:
-                    lastDigit = 4;
-                    input = input.Slice(4);
-                    break;
-                case [(byte)'f', (byte)'i', (byte)'v', (byte)'e', ..]:
-                    lastDigit = 5;
-                    input = input.Slice(3); // e could be start of eight
-                    break;
-                case [(byte)'s', (byte)'i', (byte)'x', ..]:
-                    lastDigit = 6;
-                    input = input.Slice(3);
-                    break;
-                case [(byte)'s', (byte)'e', (byte)'v', (byte)'e', (byte)'n', ..]:
-                    lastDigit = 7;
-                    input = input.Slice(4); // n could be start of nine
-                    break;
-                case [(byte)'e', (byte)'i', (byte)'g', (byte)'h', (byte)'t', ..]:
-                    lastDigit = 8;
-                    input = input.Slice(4); // t could be start of two or three
-                    break;
-                case [(byte)'n', (byte)'i', (byte)'n', (byte)'e', ..]:
-                    lastDigit = 9;
-                    input = input.Slice(3); // e could be start of eight
-                    break;
-                default:
-                    input = input.Slice(1);
-                    break;
-            }
+            int lineEndIndex = input.IndexOf((byte)'\n');
+            ReadOnlySpan<byte> line = input.Slice(0, lineEndIndex);
+            input = input.Slice(lineEndIndex + 1);
 
-            if (firstDigit == 0)
-                firstDigit = lastDigit;
+            int firstDigitIndex = line.IndexOfAnyInRange((byte)'1', (byte)'9');
+            int firstDigit = 10 * (line[firstDigitIndex] - '0');
 
-            if (firstNumericalDigit == 0)
-                firstNumericalDigit = lastNumericalDigit;
+            int lastDigitIndex = line.LastIndexOfAnyInRange((byte)'1', (byte)'9');
+            int lastDigit = line[lastDigitIndex] - '0';
+
+            part1 += firstDigit + lastDigit;
+
+            FindFirstWrittenDigit(line.Slice(0, firstDigitIndex), ref firstDigit);
+            FindLastWrittenDigit(line.Slice(lastDigitIndex + 1), ref lastDigit);
+
+            part2 += firstDigit + lastDigit;
         }
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
-}
 
+    private static void FindFirstWrittenDigit(ReadOnlySpan<byte> span, ref int digit)
+    {
+        while (span.Length > 2)
+        {
+            int candidateStartIndex = span.IndexOfAny(s_numberStarts);
+            if (candidateStartIndex < 0)
+                break;
+
+            span = span.Slice(candidateStartIndex);
+
+            switch (span)
+            {
+                case [(byte)'o', (byte)'n', (byte)'e', ..]: digit = 10; return;
+                case [(byte)'t', (byte)'w', (byte)'o', ..]: digit = 20; return;
+                case [(byte)'t', (byte)'h', (byte)'r', (byte)'e', (byte)'e', ..]: digit = 30; return;
+                case [(byte)'f', (byte)'o', (byte)'u', (byte)'r', ..]: digit = 40; return;
+                case [(byte)'f', (byte)'i', (byte)'v', (byte)'e', ..]: digit = 50; return;
+                case [(byte)'s', (byte)'i', (byte)'x', ..]: digit = 60; return;
+                case [(byte)'s', (byte)'e', (byte)'v', (byte)'e', (byte)'n', ..]: digit = 70; return;
+                case [(byte)'e', (byte)'i', (byte)'g', (byte)'h', (byte)'t', ..]: digit = 80; return;
+                case [(byte)'n', (byte)'i', (byte)'n', (byte)'e', ..]: digit = 90; return;
+                case { Length: < 4 }: return;
+            };
+
+            span = span.Slice(1);
+        }
+    }
+
+    private static void FindLastWrittenDigit(ReadOnlySpan<byte> span, ref int digit)
+    {
+        while (span.Length > 2)
+        {
+            int candidateEndIndex = span.LastIndexOfAny(s_numberEnds);
+            if (candidateEndIndex < 0)
+                break;
+
+            span = span.Slice(0, candidateEndIndex + 1);
+
+            switch (span)
+            {
+                case [.., (byte)'o', (byte)'n', (byte)'e']: digit = 1; return;
+                case [.., (byte)'t', (byte)'w', (byte)'o']: digit = 2; return;
+                case [.., (byte)'t', (byte)'h', (byte)'r', (byte)'e', (byte)'e']: digit = 3; return;
+                case [.., (byte)'f', (byte)'o', (byte)'u', (byte)'r']: digit = 4; return;
+                case [.., (byte)'f', (byte)'i', (byte)'v', (byte)'e']: digit = 5; return;
+                case [.., (byte)'s', (byte)'i', (byte)'x']: digit = 6; return;
+                case [.., (byte)'s', (byte)'e', (byte)'v', (byte)'e', (byte)'n']: digit = 7; return;
+                case [.., (byte)'e', (byte)'i', (byte)'g', (byte)'h', (byte)'t']: digit = 8; return;
+                case [.., (byte)'n', (byte)'i', (byte)'n', (byte)'e']: digit = 9; return;
+                case { Length: < 4 }: return;
+            };
+
+            span = span.Slice(0, span.Length - 1);
+        }
+    }
+}
