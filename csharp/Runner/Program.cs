@@ -7,8 +7,8 @@ using System.Text.RegularExpressions;
 using AdventOfCode.CSharp.Common;
 using AdventOfCode.CSharp.Runner;
 
-int year = 2022;
-int day = 6;
+int year = 2023;
+int day = 1;
 
 byte[] inputBytes = await AdventRunner.GetInputAsync(year, day, fetchIfMissing: true);
 string input = Encoding.ASCII.GetString(inputBytes);
