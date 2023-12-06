@@ -51,7 +51,7 @@ public class Day06 : ISolver
         // solve for distance = (time - x) * x
         // x = (time +- sqrt(time^2 - 4 * distance)) / 2
         // time^2 overflows the long on part 2, so we can rewrite it as follows:
-        // x = (time +- sqrt(time - 2 * sqrt(distance)) * sqrt(time + 2 * sqrt(distance))
+        // x = (time +- sqrt(time - 2 * sqrt(distance)) * sqrt(time + 2 * sqrt(distance))) / 2
 
         double sqrtDist = Math.Sqrt(distance);
         double sqrt = Math.Sqrt(time - 2 * sqrtDist) * Math.Sqrt(time + 2 * sqrtDist);
