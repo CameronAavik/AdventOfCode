@@ -14,11 +14,11 @@ public class Day06 : ISolver
         long part1 = 1;
         long part2Time = 0;
         long part2Dist = 0;
-        // distance and time are right aligned columns, so just iterate 
+
         while (timesLine.Length > 0)
         {
-            var time = ParseNum(ref timesLine, ref part2Time);
-            var distance = ParseNum(ref distanceLine, ref part2Dist);
+            long time = ParseNum(ref timesLine, ref part2Time);
+            long distance = ParseNum(ref distanceLine, ref part2Dist);
             part1 *= NumWaysToWin(time, distance);
         }
 
@@ -55,8 +55,17 @@ public class Day06 : ISolver
 
         double sqrtDist = Math.Sqrt(distance);
         double sqrt = Math.Sqrt(time - 2 * sqrtDist) * Math.Sqrt(time + 2 * sqrtDist);
-        double low = Math.Ceiling((time - sqrt) / 2);
-        double high = Math.Floor((time + sqrt) / 2);
-        return Convert.ToInt64(high - low) + 1;
+        long low = Convert.ToInt64(Math.Ceiling((time - sqrt) / 2));
+        long high = Convert.ToInt64(Math.Floor((time + sqrt) / 2));
+
+        // handle ties or precision issues
+
+        if ((time - low) * low <= distance)
+            low++;
+
+        if ((time - high) * high <= distance)
+            high--;
+
+        return high - low + 1;
     }
 }

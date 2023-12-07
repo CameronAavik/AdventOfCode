@@ -98,6 +98,16 @@ public class Day05 : ISolver
             {
                 (long xDst, long yDst, long x) = mappings[i];
 
+                if (start < xDst)
+                {
+                    long beforeSol = SolvePart2(start, xDst, mappingIndex + 1, startLocation);
+                    if (beforeSol >= 0)
+                        return beforeSol;
+
+                    startLocation += xDst - start;
+                    start = xDst;
+                }
+
                 long xDstMapped = start - xDst + x;
 
                 if (end <= yDst)
