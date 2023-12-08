@@ -23,7 +23,15 @@ public class Day07: ISolver
             for (int cardIndex = 0; cardIndex < 5; cardIndex++)
             {
                 byte card = input[cardIndex];
-                byte cardValue = CardToValue(card);
+                byte cardValue = card switch
+                {
+                    (byte)'A' => 14,
+                    (byte)'K' => 13,
+                    (byte)'Q' => 12,
+                    (byte)'J' => 11,
+                    (byte)'T' => 10,
+                    _ => (byte)(card & 0xF),
+                };
                 byte newCount = ++cardCounts[cardValue];
 
                 if (newCount == 1)
@@ -33,15 +41,15 @@ public class Day07: ISolver
 
                 if (card == 'J')
                     cardValue = 1;
-                else
-                    maxOfAKind = Math.Max(maxOfAKind, newCount);
+                else if (newCount > maxOfAKind)
+                    maxOfAKind = newCount;
 
                 handValuePart2 |= cardValue << (4 * (4 - cardIndex));
             }
 
             byte jCount = cardCounts[11];
-            int handScorePart1 = GetHandType(Math.Max(jCount, maxOfAKind), numCards);
-            int handScorePart2 = jCount > 0 ? GetHandType(maxOfAKind + jCount, numCards - 1) : handScorePart1;
+            int handScorePart1 = Math.Max(jCount, maxOfAKind) + 4 - numCards;
+            int handScorePart2 = jCount > 0 ? maxOfAKind + jCount + 4 - Math.Max(1, numCards - 1) : handScorePart1;
 
             uint c;
             uint bid = (uint)(input[6] & 0xF);
@@ -69,26 +77,5 @@ public class Day07: ISolver
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
-    }
-
-    private static byte CardToValue(byte card) => card switch
-    {
-        (byte)'A' => 14,
-        (byte)'K' => 13,
-        (byte)'Q' => 12,
-        (byte)'J' => 11,
-        (byte)'T' => 10,
-        _ => (byte)(card & 0xF),
-    };
-
-    private static int GetHandType(int maxOfAKind, int numCards)
-    {
-        if (maxOfAKind == 5) return 6; // 5 of a kind
-        if (maxOfAKind == 4) return 5; // 4 of a kind
-        if (numCards == 2) return 4; // full house
-        if (maxOfAKind == 3) return 3; // 3 of a kind
-        if (numCards == 3) return 2; // 2 pairs
-        if (maxOfAKind == 2) return 1; // 1 pair
-        return 0; // high card
     }
 }
