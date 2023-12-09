@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
@@ -25,12 +28,11 @@ public class Day08: ISolver
         int numMaps = mapsSpan.Count((byte)'\n');
         int lineLength = "AAA = (BBB, CCC)\n".Length;
 
-        ulong[] steps = new ulong[stepsSpan.Length / 64 + 1];
-        int stepsInLastBlock = stepsSpan.Length % 64;
+        byte[] steps = new byte[stepsSpan.Length];
         for (int i = 0; i < stepsSpan.Length; i++)
         {
             if (stepsSpan[i] == 'R')
-                steps[i / 64] |= 1UL << (i % 64);
+                steps[i] = 1;
         }
 
         var startNodes = new List<uint>(8);
@@ -41,7 +43,7 @@ public class Day08: ISolver
             uint nodeId = NodeSpanToId(nodeSpan);
             mappings[nodeId] = (uint)i;
             if (nodeSpan[2] == 'Z')
-                startNodes.Add(nodeId);
+                startNodes.Add((uint)i);
         }
 
         uint[] leftPaths = new uint[numMaps];
@@ -51,59 +53,56 @@ public class Day08: ISolver
         for (int i = 0; i < numMaps; i++)
         {
             ReadOnlySpan<byte> lineSpan = mapsSpan.Slice(i * lineLength, lineLength);
-
             uint leftNodeId = NodeSpanToId(lineSpan.Slice("AAA = (".Length, 3));
-            leftPaths[i] = mappings[leftNodeId];
-
             uint rightNodeId = NodeSpanToId(lineSpan.Slice("AAA = (BBB, ".Length, 3));
+            leftPaths[i] = mappings[leftNodeId];
             rightPaths[i] = mappings[rightNodeId];
         }
 
-        uint part1StartId = NodeSpanToId("ZZZ"u8);
-        ulong part2 = 1;
-        foreach (uint startNode in startNodes)
-        {
-            uint startNodeIndex = mappings[startNode];
-            ulong stepsToLoop = GetStepsToLoop(steps, paths, startNodeIndex, stepsInLastBlock);
-            if (startNode == part1StartId)
-                solution.SubmitPart1(stepsToLoop);
-            part2 = LeastCommonMultiple(part2, stepsToLoop);
-        }
+        Span<uint> curNodes = startNodes.ToArray();
 
-        solution.SubmitPart2(part2);
+        uint zzzNodeId = mappings[NodeSpanToId("ZZZ"u8)];
+        ulong part2 = 1;
+
+        int stepCount = 0;
+        while (true)
+        {
+            foreach (byte step in steps)
+            {
+                ref uint pathPtr = ref MemoryMarshal.GetArrayDataReference(paths[step]);
+                for (int j = 0; j < curNodes.Length; j++)
+                    curNodes[j] = Unsafe.Add(ref pathPtr, (nint)curNodes[j]);
+            }
+
+            stepCount += steps.Length;
+            for (int j = 0; j < curNodes.Length; j++)
+            {
+                if (startNodes[j] == curNodes[j])
+                {
+                    if (startNodes[j] == zzzNodeId)
+                        solution.SubmitPart1(stepCount);
+
+                    part2 = LeastCommonMultiple(part2, (uint)stepCount);
+
+                    // remove the node from the list of curNodes
+                    if (curNodes.Length > 1)
+                    {
+                        curNodes[j] = curNodes[curNodes.Length - 1];
+                        startNodes[j] = startNodes[curNodes.Length - 1];
+                        curNodes = curNodes.Slice(0, curNodes.Length - 1);
+                        j--;
+                    }
+                    else
+                    {
+                        solution.SubmitPart2(part2);
+                        return;
+                    }
+                }
+            }
+        }
     }
 
     private static uint NodeSpanToId(ReadOnlySpan<byte> nodeSpan) => (uint)((nodeSpan[0] << 16) | (nodeSpan[1] << 8) | nodeSpan[2]);
-
-    private static ulong GetStepsToLoop(ulong[] steps, uint[][] paths, uint startNodeIndex, int stepsInLastBlock)
-    {
-        uint endNodeIndex = startNodeIndex;
-        ulong i = 0;
-        while (true)
-        {
-            for (int j = 0; j < steps.Length - 1; j++)
-            {
-                ulong stepsBlock = steps[j];
-                for (int step = 0; step < 64; step++)
-                {
-                    startNodeIndex = paths[stepsBlock & 1][startNodeIndex];
-                    stepsBlock >>= 1;
-                    i++;
-                }
-            }
-
-            ulong lastStepsBlock = steps[steps.Length - 1];
-            for (int step = 0; step < stepsInLastBlock; step++)
-            {
-                startNodeIndex = paths[lastStepsBlock & 1][startNodeIndex];
-                lastStepsBlock >>= 1;
-                i++;
-            }
-
-            if (startNodeIndex == endNodeIndex)
-                return i;
-        }
-    }
 
     private static ulong LeastCommonMultiple(ulong a, ulong b)
     {
