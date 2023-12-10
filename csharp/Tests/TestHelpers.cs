@@ -17,10 +17,18 @@ public static class TestHelpers
         Span<char> part2Buffer = new char[64];
         T.Solve(file, new(part1Buffer, part2Buffer));
 
-        string part1 = part1Buffer.Slice(0, part1Buffer.IndexOf('\n')).ToString();
-        string part2 = part2Buffer.Slice(0, part2Buffer.IndexOf('\n')).ToString();
+        int part1EndIndex = part1Buffer.IndexOf('\n');
+        if (part1EndIndex == -1)
+            Assert.Fail("No solution provided in part 1");
 
+        string part1 = part1Buffer.Slice(0, part1EndIndex).ToString();
         Assert.Equal(expectedPart1, part1);
+
+        int part2ndIndex = part2Buffer.IndexOf('\n');
+        if (part2ndIndex == -1)
+            Assert.Fail("No solution provided in part 2");
+
+        string part2 = part2Buffer.Slice(0, part2ndIndex).ToString();
         Assert.Equal(expectedPart2, part2);
     }
 }
