@@ -13,7 +13,14 @@ public class Day10 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = SolvePart1(input, out ulong[] crossings, out ulong[] paths);
+        // 'paths' stores a bit for every position that is on the path
+        uint[] paths = new uint[(input.Length - 1) / 32 + 1];
+
+        // 'crossings' stores a bit for every position that acts as a boundary between if something is enclosed inside the loop or not
+        // All '|' are crossings, and every vertical S-bend, 'F---J' or 'L---7', counts as one crossing
+        uint[] crossings = new uint[(input.Length - 1) / 32 + 1];
+
+        int part1 = SolvePart1(input, crossings, paths);
         solution.SubmitPart1(part1);
 
         int part2 = SolvePart2(paths, crossings);
@@ -23,15 +30,8 @@ public class Day10 : ISolver
     /// <summary>
     /// Solves part 1, while also outputting a bitset of all the crossing and the path positions.
     /// </summary>
-    private static int SolvePart1(ReadOnlySpan<byte> input, out ulong[] crossings, out ulong[] paths)
+    private static int SolvePart1(ReadOnlySpan<byte> input, uint[] crossings, uint[] paths)
     {
-        // 'paths' stores a bit for every position that is on the path
-        paths = new ulong[input.Length / 64];
-
-        // 'crossings' stores a bit for every position that acts as a boundary between if something is enclosed inside the loop or not
-        // All '|' are crossings, and every vertical S-bend, 'F---J' or 'L---7', counts as one crossing
-        crossings = new ulong[input.Length / 64];
-
         int rowLen = input.IndexOf((byte)'\n') + 1;
         int startPos = input.IndexOf((byte)'S');
 
@@ -50,7 +50,7 @@ public class Day10 : ISolver
             // Starting on '-', so find the last turn
             while (true)
             {
-                paths[startPos / 64] |= 1UL << (startPos % 64);
+                paths[startPos / 32] |= 1U << startPos;
                 byte c = input[++startPos];
                 steps++;
                 if (c != '-')
@@ -65,8 +65,8 @@ public class Day10 : ISolver
             // Starting on '|', so find the last turn
             while (true)
             {
-                paths[startPos / 64] |= 1UL << (startPos % 64);
-                crossings[startPos / 64] |= 1UL << (startPos % 64);
+                paths[startPos / 32] |= 1U << startPos;
+                crossings[startPos / 32] |= 1U << startPos;
                 startPos -= rowLen;
                 byte c = input[startPos];
                 steps++;
@@ -77,7 +77,7 @@ public class Day10 : ISolver
         }
         else
         {
-            paths[startPos / 64] |= 1UL << (startPos % 64);
+            paths[startPos / 32] |= 1U << startPos;
         }
 
         while (true)
@@ -88,23 +88,23 @@ public class Day10 : ISolver
                 case East:
                     while ((c = input[++pos]) == '-')
                     {
-                        paths[pos / 64] |= 1UL << (pos % 64);
+                        paths[pos / 32] |= 1U << pos;
                         steps++;
                     }
 
-                    paths[pos / 64] |= 1UL << (pos % 64);
+                    paths[pos / 32] |= 1U << pos;
                     steps++;
 
                     if (c == 'J')
                     {
                         if (lastHorizontalTurn == 'F')
-                            crossings[pos / 64] |= 1UL << (pos % 64);
+                            crossings[pos / 32] |= 1U << pos;
                         dir = North;
                     }
                     else if (c == '7')
                     {
                         if (lastHorizontalTurn == 'L')
-                            crossings[pos / 64] |= 1UL << (pos % 64);
+                            crossings[pos / 32] |= 1U << pos;
                         dir = South;
                     }
 
@@ -112,23 +112,23 @@ public class Day10 : ISolver
                 case West:
                     while ((c = input[--pos]) == '-')
                     {
-                        paths[pos / 64] |= 1UL << (pos % 64);
+                        paths[pos / 32] |= 1U << pos;
                         steps++;
                     }
 
-                    paths[pos / 64] |= 1UL << (pos % 64);
+                    paths[pos / 32] |= 1U << pos;
                     steps++;
 
                     if (c == 'L')
                     {
                         if (lastHorizontalTurn == '7')
-                            crossings[pos / 64] |= 1UL << (pos % 64);
+                            crossings[pos / 32] |= 1U << pos;
                         dir = North;
                     }
                     else if (c == 'F')
                     {
                         if (lastHorizontalTurn == 'J')
-                            crossings[pos / 64] |= 1UL << (pos % 64);
+                            crossings[pos / 32] |= 1U << pos;
                         dir = South;
                     }
 
@@ -136,12 +136,12 @@ public class Day10 : ISolver
                 case North:
                     while ((c = input[pos -= rowLen]) == '|')
                     {
-                        paths[pos / 64] |= 1UL << (pos % 64);
-                        crossings[pos / 64] |= 1UL << (pos % 64);
+                        paths[pos / 32] |= 1U << pos;
+                        crossings[pos / 32] |= 1U << pos;
                         steps++;
                     }
 
-                    paths[pos / 64] |= 1UL << (pos % 64);
+                    paths[pos / 32] |= 1U << pos;
                     lastHorizontalTurn = c;
                     steps++;
                     dir = c == '7' ? West : East;
@@ -149,12 +149,12 @@ public class Day10 : ISolver
                 case South:
                     while ((c = input[pos += rowLen]) == '|')
                     {
-                        paths[pos / 64] |= 1UL << (pos % 64);
-                        crossings[pos / 64] |= 1UL << (pos % 64);
+                        paths[pos / 32] |= 1U << pos;
+                        crossings[pos / 32] |= 1U << pos;
                         steps++;
                     }
 
-                    paths[pos / 64] |= 1UL << (pos % 64);
+                    paths[pos / 32] |= 1U << pos;
                     lastHorizontalTurn = c;
                     steps++;
                     dir = c == 'L' ? East : West;
@@ -197,18 +197,18 @@ public class Day10 : ISolver
         }
     }
 
-    private static int SolvePart2(ulong[] paths, ulong[] crossings)
+    private static int SolvePart2(uint[] paths, uint[] crossings)
     {
         int part2 = 0;
-        ulong initialMask = 0UL;
+        uint initialMask = 0U;
         for (int i = 0; i < paths.Length; i++)
         {
             // see https://lemire.me/blog/2018/02/21/iterating-over-set-bits-quickly/ for an explanation of how this works
-            ulong crossing = crossings[i];
-            ulong insideMask = initialMask;
+            uint crossing = crossings[i];
+            uint insideMask = initialMask;
             while (crossing != 0)
             {
-                ulong lsb = crossing & (~crossing + 1);
+                uint lsb = crossing & (~crossing + 1);
                 insideMask ^= ~(lsb - 1); // flips all the bits after the lsb
                 crossing ^= lsb;
                 initialMask = ~initialMask;
