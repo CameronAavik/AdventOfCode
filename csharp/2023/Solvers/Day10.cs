@@ -6,10 +6,7 @@ namespace AdventOfCode.CSharp.Y2023.Solvers;
 
 public class Day10 : ISolver
 {
-    private const int East = 0;
-    private const int West = 1;
-    private const int North = 2;
-    private const int South = 3;
+    public enum Dir { East, West, North, South }
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
@@ -35,7 +32,7 @@ public class Day10 : ISolver
         int rowLen = input.IndexOf((byte)'\n') + 1;
         int startPos = input.IndexOf((byte)'S');
 
-        byte startPipe = GetStartPipeTypeAndDirection(input, rowLen, startPos, out int dir);
+        byte startPipe = GetStartPipeTypeAndDirection(input, rowLen, startPos, out Dir dir);
 
         int steps = 0;
         int pos = startPos;
@@ -85,7 +82,7 @@ public class Day10 : ISolver
             byte c;
             switch (dir)
             {
-                case East:
+                case Dir.East:
                     while ((c = input[++pos]) == '-')
                     {
                         paths[pos / 32] |= 1U << pos;
@@ -99,17 +96,17 @@ public class Day10 : ISolver
                     {
                         if (lastHorizontalTurn == 'F')
                             crossings[pos / 32] |= 1U << pos;
-                        dir = North;
+                        dir = Dir.North;
                     }
                     else if (c == '7')
                     {
                         if (lastHorizontalTurn == 'L')
                             crossings[pos / 32] |= 1U << pos;
-                        dir = South;
+                        dir = Dir.South;
                     }
 
                     break;
-                case West:
+                case Dir.West:
                     while ((c = input[--pos]) == '-')
                     {
                         paths[pos / 32] |= 1U << pos;
@@ -123,17 +120,17 @@ public class Day10 : ISolver
                     {
                         if (lastHorizontalTurn == '7')
                             crossings[pos / 32] |= 1U << pos;
-                        dir = North;
+                        dir = Dir.North;
                     }
                     else if (c == 'F')
                     {
                         if (lastHorizontalTurn == 'J')
                             crossings[pos / 32] |= 1U << pos;
-                        dir = South;
+                        dir = Dir.South;
                     }
 
                     break;
-                case North:
+                case Dir.North:
                     while ((c = input[pos -= rowLen]) == '|')
                     {
                         paths[pos / 32] |= 1U << pos;
@@ -144,9 +141,9 @@ public class Day10 : ISolver
                     paths[pos / 32] |= 1U << pos;
                     lastHorizontalTurn = c;
                     steps++;
-                    dir = c == '7' ? West : East;
+                    dir = c == '7' ? Dir.West : Dir.East;
                     break;
-                case South:
+                case Dir.South:
                     while ((c = input[pos += rowLen]) == '|')
                     {
                         paths[pos / 32] |= 1U << pos;
@@ -157,7 +154,7 @@ public class Day10 : ISolver
                     paths[pos / 32] |= 1U << pos;
                     lastHorizontalTurn = c;
                     steps++;
-                    dir = c == 'L' ? East : West;
+                    dir = c == 'L' ? Dir.East : Dir.West;
                     break;
             }
 
@@ -168,7 +165,7 @@ public class Day10 : ISolver
         return steps / 2;
     }
 
-    private static byte GetStartPipeTypeAndDirection(ReadOnlySpan<byte> input, int rowLen, int startPos, out int dir)
+    private static byte GetStartPipeTypeAndDirection(ReadOnlySpan<byte> input, int rowLen, int startPos, out Dir dir)
     {
         bool leftIncoming = input[startPos - 1] is (byte)'L' or (byte)'F' or (byte)'-';
         bool rightIncoming = input[startPos + 1] is (byte)'J' or (byte)'7' or (byte)'-';
@@ -177,7 +174,7 @@ public class Day10 : ISolver
 
         if (leftIncoming)
         {
-            dir = West;
+            dir = Dir.West;
             if (upIncoming)
                 return (byte)'J';
             else if (downIncoming)
@@ -187,12 +184,12 @@ public class Day10 : ISolver
         }
         else if (rightIncoming)
         {
-            dir = East;
+            dir = Dir.East;
             return (byte)(upIncoming ? 'L' : 'F');
         }
         else
         {
-            dir = South;
+            dir = Dir.South;
             return (byte)'|';
         }
     }
