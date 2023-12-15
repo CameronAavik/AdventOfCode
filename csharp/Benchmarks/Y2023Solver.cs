@@ -17,6 +17,7 @@ namespace AdventOfCode.CSharp.Benchmarks;
 [GenericTypeArguments(typeof(Day11))]
 [GenericTypeArguments(typeof(Day12))]
 [GenericTypeArguments(typeof(Day13))]
+[GenericTypeArguments(typeof(Day14))]
 public class Y2023Solver<TSolver> : SolverBenchmarkBase<TSolver> where TSolver : ISolver
 {
 }

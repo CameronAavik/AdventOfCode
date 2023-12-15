@@ -108,18 +108,16 @@ public class Day13 : ISolver
                     if (!hasOneDiff)
                     {
                         part1 += i * multiplier;
+                        hasSolvedPart1 = true;
                         if (hasSolvedPart2)
                             return;
-
-                        hasSolvedPart1 = true;
                     }
                     else
                     {
                         part2 += i * multiplier;
+                        hasSolvedPart2 = true;
                         if (hasSolvedPart1)
                             return;
-
-                        hasSolvedPart2 = true;
                     }
                 }
             }

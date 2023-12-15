@@ -54,8 +54,6 @@ public class Day12 : ISolver
 
             input = input.Slice(index);
 
-            part1 += CountWays(lineSprings, contiguousGroups.Slice(0, numGroups), waysCache, nonZeroCounts);
-
             int newSpringLen = 5 * lineSprings.Length + 4;
             int newNumGroups = 5 * numGroups;
             for (int i = 0; i < newSpringLen; i += lineSprings.Length + 1)
@@ -68,14 +66,14 @@ public class Day12 : ISolver
             for (int i = numGroups; i < newNumGroups; i += numGroups)
                 contiguousGroups.Slice(0, numGroups).CopyTo(contiguousGroups.Slice(i, numGroups));
 
-            part2 += CountWays(springs.Slice(0, newSpringLen), contiguousGroups.Slice(0, newNumGroups), waysCache, nonZeroCounts);
+            CountWays(springs.Slice(0, newSpringLen), contiguousGroups.Slice(0, newNumGroups), waysCache, nonZeroCounts, ref part1, ref part2);
         }
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
 
-    private static long CountWays(ReadOnlySpan<byte> springs, ReadOnlySpan<int> contiguousGroups, long[][] waysCache, ulong[] nonZeroCounts)
+    private static void CountWays(ReadOnlySpan<byte> springs, ReadOnlySpan<int> contiguousGroups, long[][] waysCache, ulong[] nonZeroCounts, ref long part1, ref long part2)
     {
         for (int i = 0; i <= springs.Length; i++)
             waysCache[i].AsSpan().Slice(0, contiguousGroups.Length + 1).Clear();
@@ -122,7 +120,6 @@ public class Day12 : ISolver
         }
 
         int endingSprings = springs.Length - springs.LastIndexOf((byte)'#') - 1;
-        long total = 0;
         for (int i = springs.Length; i >= 0; i--)
         {
             long[] groupCache = waysCache[i];
@@ -159,11 +156,10 @@ public class Day12 : ISolver
 
                 nonZeroCount ^= t;
             }
-
-            if (i <= endingSprings)
-                total += groupCache[0];
         }
 
-        return total;
+        part1 += waysCache[4 * (springs.Length / 5) + 3][4 * (contiguousGroups.Length / 5)];
+        for (int i = endingSprings; i >= 0; i--)
+            part2 += waysCache[i][0];
     }
 }

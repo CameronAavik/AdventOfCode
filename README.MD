@@ -27,7 +27,7 @@ About my solutions:
 | 11 | [C#](/csharp/2015/Solvers/Day11.cs) \| [F#](/fsharp/2015/Solutions/Day11.fs) | [C#](/csharp/2016/Solvers/Day11.cs) \| [F#](/fsharp/2016/Solutions/Day11.fs) | [F#](/fsharp/2017/Solutions/Day11.fs) | [F#](/fsharp/2018/Solutions/Day11.fs) | [F#](/fsharp/2019/Solutions/Day11.fs) | [C#](/csharp/2020/Solvers/Day11.cs) | [C#](/csharp/2021/Solvers/Day11.cs) | | [C#](/csharp/2023/Solvers/Day11.cs) |
 | 12 | [C#](/csharp/2015/Solvers/Day12.cs) \| [F#](/fsharp/2015/Solutions/Day12.fs) | [C#](/csharp/2016/Solvers/Day12.cs) \| [F#](/fsharp/2016/Solutions/Day12.fs) | [F#](/fsharp/2017/Solutions/Day12.fs) | [F#](/fsharp/2018/Solutions/Day12.fs) | [F#](/fsharp/2019/Solutions/Day12.fs) | [C#](/csharp/2020/Solvers/Day12.cs) | [C#](/csharp/2021/Solvers/Day12.cs) | | [C#](/csharp/2023/Solvers/Day12.cs) |
 | 13 | [C#](/csharp/2015/Solvers/Day13.cs) \| [F#](/fsharp/2015/Solutions/Day13.fs) | [C#](/csharp/2016/Solvers/Day13.cs) \| [F#](/fsharp/2016/Solutions/Day13.fs) | [F#](/fsharp/2017/Solutions/Day13.fs) | [F#](/fsharp/2018/Solutions/Day13.fs) | [F#](/fsharp/2019/Solutions/Day13.fs) | [C#](/csharp/2020/Solvers/Day13.cs) | [C#](/csharp/2021/Solvers/Day13.cs) | | [C#](/csharp/2023/Solvers/Day13.cs) |
-| 14 | [C#](/csharp/2015/Solvers/Day14.cs) \| [F#](/fsharp/2015/Solutions/Day14.fs) | [F#](/fsharp/2016/Solutions/Day14.fs) | [F#](/fsharp/2017/Solutions/Day14.fs) | [F#](/fsharp/2018/Solutions/Day14.fs) | [F#](/fsharp/2019/Solutions/Day14.fs) | [C#](/csharp/2020/Solvers/Day14.cs) | [C#](/csharp/2021/Solvers/Day14.cs) | | |
+| 14 | [C#](/csharp/2015/Solvers/Day14.cs) \| [F#](/fsharp/2015/Solutions/Day14.fs) | [F#](/fsharp/2016/Solutions/Day14.fs) | [F#](/fsharp/2017/Solutions/Day14.fs) | [F#](/fsharp/2018/Solutions/Day14.fs) | [F#](/fsharp/2019/Solutions/Day14.fs) | [C#](/csharp/2020/Solvers/Day14.cs) | [C#](/csharp/2021/Solvers/Day14.cs) | | [C#](/csharp/2023/Solvers/Day13.cs) |
 | 15 | [C#](/csharp/2015/Solvers/Day15.cs) \| [F#](/fsharp/2015/Solutions/Day15.fs) | [F#](/fsharp/2016/Solutions/Day15.fs) | [F#](/fsharp/2017/Solutions/Day15.fs) | [F#](/fsharp/2018/Solutions/Day15.fs) | [F#](/fsharp/2019/Solutions/Day15.fs) | [C#](/csharp/2020/Solvers/Day15.cs) | [C#](/csharp/2021/Solvers/Day15.cs) | | |
 | 16 | [C#](/csharp/2015/Solvers/Day16.cs) \| [F#](/fsharp/2015/Solutions/Day16.fs) | [F#](/fsharp/2016/Solutions/Day16.fs) | [F#](/fsharp/2017/Solutions/Day16.fs) | [F#](/fsharp/2018/Solutions/Day16.fs) | [F#](/fsharp/2019/Solutions/Day16.fs) | [C#](/csharp/2020/Solvers/Day16.cs) | [C#](/csharp/2021/Solvers/Day16.cs) | | |
 | 17 | [C#](/csharp/2015/Solvers/Day17.cs) \| [F#](/fsharp/2015/Solutions/Day17.fs) | [F#](/fsharp/2016/Solutions/Day17.fs) | [F#](/fsharp/2017/Solutions/Day17.fs) | [F#](/fsharp/2018/Solutions/Day17.fs) | [F#](/fsharp/2019/Solutions/Day17.fs) | [C#](/csharp/2020/Solvers/Day17.cs) | [C#](/csharp/2021/Solvers/Day17.cs) | | |
@@ -67,8 +67,9 @@ AMD Ryzen 9 5950X, 1 CPU, 32 logical and 16 physical cores
 | **9** | **17.08 μs** | **18.31 μs** | **19.05 μs** | **--** |
 | **10** | **27.75 μs** | **27.93 μs** | **27.99 μs** | **5.0 KB** |
 | **11** | **2.15 μs** | **2.16 μs** | **2.19 μs** | **584 B** |
-| **12** | **1,936.81 μs** | **1,953.69 μs** | **1,983.78 μs** | **205.2 KB** |
-| **13** | **8.99 μs** | **9.00 μs** | **9.03 μs** | **--** |
+| **12** | **1,625.55 μs** | **1,632.69 μs** | **1,644.37 μs** | **161.7 KB** |
+| **13** | **8.66 μs** | **8.73 μs** | **8.76 μs** | **--** |
+| **14** | **3,944.58 μs** | **3,949.86 μs** | **3,955.87 μs** | **797.8 KB** |
 
 ### 2022
 
