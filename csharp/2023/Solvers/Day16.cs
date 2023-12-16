@@ -8,6 +8,12 @@ using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
 
+// Explanation of solution:
+//   When a beam gets split at a '|' or '-' mirror, it will always visit the same tiles afterwards regardless of what
+//   happened before it. For every such mirror I cache a bitset of all the tiles that get visited afterwards. Then
+//   when I am iterating over all the possible entry points into the grid I only need to follow until the beam is first
+//   split into two beams and I can load the bitset that I cached earlier and 'or' it together with a bitset of the
+//   path taken to get there.
 public class Day16 : ISolver
 {
     public enum Dir { North, South, East, West }
