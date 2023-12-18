@@ -18,21 +18,20 @@ public class Day16 : ISolver
 {
     public enum Dir { North, South, East, West }
     public record struct LineSegment(int Start, int End, int Step);
-    public class SplittingMirror(int InputIndex, int Index, int NextMirror1, int NextMirror2, LineSegment[] LineSegments, int NumLineSegments)
+    public class SplittingMirror(int InputIndex, int NextMirror1, int NextMirror2, LineSegment[] LineSegments, int NumLineSegments)
     {
         public int InputIndex { get; } = InputIndex;
-        public int Index { get; } = Index;
         public int NextMirrorIndex1 { get; } = NextMirror1;
         public int NextMirrorIndex2 { get; } = NextMirror2;
         public LineSegment[] LineSegments { get; } = LineSegments;
         public int NumLineSegments { get; } = NumLineSegments;
         public int SccIndex { get; set; } = -1; // used in Tarjan's Algorithm
         public int LowLink { get; set; } = -1; // Used in Tarjan's Algorithm
-        public bool OnStack { get; set; } = false; // Used in Tarjan's Algorithm
         public StronglyConnectedComponent Scc { get; set; } = default!;
         public SplittingMirror? NextMirror1 { get; set; } = null;
         public SplittingMirror? NextMirror2 { get; set; } = null;
         public ulong[]? Bitset { get; set; } = default!;
+        public bool OnStack { get; set; } = false; // Used in Tarjan's Algorithm
     }
 
     public class StronglyConnectedComponent(int id, List<SplittingMirror> mirrors)
@@ -170,7 +169,7 @@ public class Day16 : ISolver
                 mirrorIndex2 = MoveUntilNextMirrorSplit(input, splittingMirrorIndex + rowLength, Dir.South, lineSegments, ref numSegments, rowLength);
             }
 
-            splitMirrorGraph[splittingMirrorIndex] = new(splittingMirrorIndex, splitMirrorGraph.Count, mirrorIndex1, mirrorIndex2, lineSegments, numSegments);
+            splitMirrorGraph[splittingMirrorIndex] = new(splittingMirrorIndex, mirrorIndex1, mirrorIndex2, lineSegments, numSegments);
             splittingMirrorIndex++;
         }
 
