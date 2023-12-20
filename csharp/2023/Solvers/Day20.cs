@@ -116,7 +116,7 @@ public class Day20 : ISolver
             part2 *= number;
 
             int bitsInNumber = 32 - BitOperations.LeadingZeroCount((uint)number);
-            int highPerPulseToCenter = bitsInNumber - BitOperations.PopCount((uint)number) + 3; // each pulse to center, sends a high pulse to each zero, and 2 extra modules
+            int highPerPulseToCenter = bitsInNumber - BitOperations.PopCount((uint)number) + 3; // each pulse to center, sends a high pulse to each zero, and 3 extra modules
 
             int flips = 1000;
             while (flips > 0)
