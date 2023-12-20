@@ -216,7 +216,7 @@ public class Day14 : ISolver
             {
                 int cycleLen = iterations - j;
                 int cycleOffset = (1000000000 - iterations) % cycleLen;
-                solution.SubmitPart2(scores[j + cycleOffset]);
+                solution.SubmitPart2(scores[j + cycleOffset - 1]);
                 break;
             }
             else
