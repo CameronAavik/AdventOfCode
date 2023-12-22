@@ -23,14 +23,11 @@ public class Day22 : ISolver
 
         var bricksArray = new Brick[1500]; // max number of bricks I support
 
-        int maxZ = int.MinValue;
-
         short brickCount = 0;
         int inputIndex = 0;
         while (inputIndex < input.Length)
         {
             ParseLine(input, ref inputIndex, out byte x0, out byte y0, out short z0, out byte x1, out byte y1, out short z1);
-            maxZ = Math.Max(maxZ, z1);
             var minCoord = new Coord(x0, y0, z0);
             var maxCoord = new Coord(x1, y1, z1);
             var brick = new Brick(brickCount, minCoord, maxCoord);
