@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Numerics;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Runtime.Intrinsics;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
 
 public class Day22 : ISolver
 {
-    public readonly record struct Coord(byte X, byte Y, short Z);
-    public readonly record struct Brick(short Id, Coord Min, Coord Max);
+    public readonly record struct Brick(byte X0, byte Y0, short Z0, byte X1, byte Y1, short Z1) : IComparable<Brick>
+    {
+        public readonly int CompareTo(Brick other) => Z0.CompareTo(other.Z0);
+    }
 
     // Assumptions:
-    // - There are 1500 bricks or less
+    // - There are 1280 bricks or less
     // - 0 <= x < 10
     // - 0 <= y < 10
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
@@ -21,149 +20,135 @@ public class Day22 : ISolver
         const int width = 10;
         const int depth = 10;
 
-        var bricksArray = new Brick[1500]; // max number of bricks I support
+        var bricksArray = new Brick[1280]; // max number of bricks I support
+        int brickCount = 1; // leave first brick empty
 
-        short brickCount = 0;
-        int inputIndex = 0;
-        while (inputIndex < input.Length)
-        {
-            ParseLine(input, ref inputIndex, out byte x0, out byte y0, out short z0, out byte x1, out byte y1, out short z1);
-            var minCoord = new Coord(x0, y0, z0);
-            var maxCoord = new Coord(x1, y1, z1);
-            var brick = new Brick(brickCount, minCoord, maxCoord);
-            bricksArray[brickCount++] = brick;
-        }
+        while (!input.IsEmpty)
+            bricksArray[brickCount++] = ParseBrick(ref input);
 
-        Span<Brick> bricks = bricksArray.AsSpan().Slice(0, brickCount);
-        bricks.Sort((x, y) => x.Min.Z.CompareTo(y.Min.Z));
+        Array.Sort(bricksArray, 1, brickCount - 1);
 
         var xyPlane = new (short Height, short BrickId)[width * depth];
         Array.Fill(xyPlane, ((short)0, (short)-1));
 
-        int brickBitsetLength = (bricks.Length - 1) / 64 + 1;
-        Span<ulong> dependenciesPerBrick = new ulong[brickBitsetLength * brickCount];
-        Span<ulong> bricksThatWillCauseFalls = new ulong[brickBitsetLength];
-
+        short[] dominators = new short[brickCount];
+        short[] brickSupportedCounts = new short[brickCount];
+        ulong[] bricksThatWillCauseFalls = new ulong[(brickCount - 1) / 64 + 1];
         short[] bricksOnTopOf = new short[width * depth];
-        int numBricksOnTopOf = 0;
-        for (int i = 0; i < bricks.Length; i++)
+
+        int part2 = 0;
+        for (int i = 1; i < brickCount; i++)
         {
-            Brick brick = bricks[i];
-            int brickHeight = brick.Max.Z - brick.Min.Z + 1;
-            numBricksOnTopOf = 0;
+            Brick brick = bricksArray[i];
+            int numBricksOnTopOf = 0;
             int maxHeight = 1;
-            for (int y = brick.Min.Y; y <= brick.Max.Y; y++)
+            for (int y = brick.Y0; y <= brick.Y1; y++)
             {
                 int offset = y * 10;
-                for (int x = brick.Min.X; x <= brick.Max.X; x++)
+                for (int x = brick.X0; x <= brick.X1; x++)
                 {
-                    (short height, short topBrickId) = xyPlane[offset + x];
+                    (short height, short brickId) = xyPlane[offset + x];
                     if (height > maxHeight)
                     {
-                        bricksOnTopOf[0] = topBrickId;
+                        bricksOnTopOf[0] = brickId;
                         numBricksOnTopOf = 1;
                         maxHeight = height;
                     }
-                    else if (height == maxHeight)
+                    else if (height == maxHeight && Array.IndexOf(bricksOnTopOf, brickId, 0, numBricksOnTopOf) < 0)
                     {
-                        bricksOnTopOf[numBricksOnTopOf++] = topBrickId;
+                        bricksOnTopOf[numBricksOnTopOf++] = brickId;
                     }
                 }
             }
 
-            Span<ulong> brickDependencies = dependenciesPerBrick.Slice(i * brickBitsetLength, brickBitsetLength);
-
             if (numBricksOnTopOf > 0)
             {
-                Array.Sort(bricksOnTopOf, 0, numBricksOnTopOf);
-
-                int prev = bricksOnTopOf[0];
-                Span<ulong> firstDependency = dependenciesPerBrick.Slice(prev * brickBitsetLength, brickBitsetLength);
-                firstDependency.CopyTo(brickDependencies);
-
-                int count = 1;
-                for (int j = 1; j < numBricksOnTopOf; j++)
+                short dominator = bricksOnTopOf[0];
+                if (numBricksOnTopOf == 1)
                 {
-                    int brickOnTopOf = bricksOnTopOf[j];
-                    if (brickOnTopOf == prev)
-                        continue;
+                    bricksThatWillCauseFalls[dominator / 64] |= 1UL << dominator;
+                }
+                else
+                {
+                    while (true)
+                    {
+                        short nextDominator = bricksOnTopOf[0];
+                        while (nextDominator > dominator)
+                            nextDominator = dominators[nextDominator];
 
-                    prev = brickOnTopOf;
-                    Span<ulong> newDependency = dependenciesPerBrick.Slice(prev * brickBitsetLength, brickBitsetLength);
-                    AndBitsets(brickDependencies, newDependency);
-                    count++;
+                        bricksOnTopOf[0] = nextDominator;
+
+                        bool allSame = true;
+                        dominator = nextDominator;
+
+                        for (int j = 1; j < numBricksOnTopOf; j++)
+                        {
+                            nextDominator = bricksOnTopOf[j];
+                            while (nextDominator > dominator)
+                                nextDominator = dominators[nextDominator];
+
+                            bricksOnTopOf[j] = nextDominator;
+
+                            if (nextDominator < dominator)
+                            {
+                                allSame = false;
+                                dominator = nextDominator;
+                                break;
+                            }
+                        }
+
+                        if (allSame)
+                            break;
+                    }
                 }
 
-                if (count == 1)
-                    bricksThatWillCauseFalls[prev / 64] |= 1UL << prev;
+                dominators[i] = dominator;
+                short numSupporting = brickSupportedCounts[dominator];
+                part2 += numSupporting;
+                brickSupportedCounts[i] = (short)(numSupporting + 1);
+            }
+            else
+            {
+                brickSupportedCounts[i] = 1;
             }
 
-            brickDependencies[i / 64] |= 1UL << i;
-
-            short newHeight = (short)(maxHeight + brickHeight);
-            for (int y = brick.Min.Y; y <= brick.Max.Y; y++)
+            var planeValue = ((short)(maxHeight + brick.Z1 - brick.Z0 + 1), (short)i);
+            for (int y = brick.Y0; y <= brick.Y1; y++)
             {
                 int offset = y * 10;
-                for (int x = brick.Min.X; x <= brick.Max.X; x++)
-                    xyPlane[offset + x] = (newHeight, (short)i);
+                for (int x = brick.X0; x <= brick.X1; x++)
+                    xyPlane[offset + x] = planeValue;
             }
         }
 
-        int part1 = bricks.Length - CountBits(bricksThatWillCauseFalls);
+        int part1 = brickCount - 1 - CountBits(bricksThatWillCauseFalls);
         solution.SubmitPart1(part1);
-
-        int part2 = CountBits(dependenciesPerBrick) - bricks.Length;
         solution.SubmitPart2(part2);
     }
 
-    private static void ParseLine(ReadOnlySpan<byte> input, ref int i, out byte x0, out byte y0, out short z0, out byte x1, out byte y1, out short z1)
+    private static Brick ParseBrick(ref ReadOnlySpan<byte> input)
     {
         byte c;
 
-        x0 = (byte)(input[i++] - '0');
-        i++;
-
-        y0 = (byte)(input[i++] - '0');
-        i++;
-
-        z0 = (short)(input[i++] - '0');
+        int x0 = input[0] - '0';
+        int y0 = input[2] - '0';
+        int z0 = input[4] - '0';
+        int i = 5;
         while ((c = input[i++]) != '~')
-            z0 = (short)(10 * z0 + c - '0');
+            z0 = 10 * z0 + c - '0';
 
-        x1 = (byte)(input[i++] - '0');
-        i++;
+        input = input.Slice(i);
 
-        y1 = (byte)(input[i++] - '0');
-        i++;
-
-        z1 = (short)(input[i++] - '0');
+        int x1 = input[0] - '0';
+        int y1 = input[2] - '0';
+        int z1 = input[4] - '0';
+        i = 5;
         while ((c = input[i++]) != '\n')
-            z1 = (short)(10 * z1 + c - '0');
-    }
+            z1 = 10 * z1 + c - '0';
 
-    private static void AndBitsets(Span<ulong> bitset1, Span<ulong> bitset2)
-    {
-        ref ulong bitset1Ref = ref MemoryMarshal.GetReference(bitset1);
-        ref ulong bitset2Ref = ref MemoryMarshal.GetReference(bitset2);
-        ref ulong bitset1End = ref Unsafe.Add(ref bitset1Ref, bitset1.Length);
-        ref ulong oneAwayFromEnd = ref Unsafe.Subtract(ref bitset1End, Vector256<ulong>.Count);
+        input = input.Slice(i);
 
-        while (!Unsafe.IsAddressGreaterThan(ref bitset1Ref, ref oneAwayFromEnd))
-        {
-            var v1 = Vector256.LoadUnsafe(ref bitset1Ref);
-            var v2 = Vector256.LoadUnsafe(ref bitset2Ref);
-            Vector256.StoreUnsafe(v1 & v2, ref bitset1Ref);
-
-            bitset1Ref = ref Unsafe.Add(ref bitset1Ref, Vector256<ulong>.Count);
-            bitset2Ref = ref Unsafe.Add(ref bitset2Ref, Vector256<ulong>.Count);
-        }
-
-        while (Unsafe.IsAddressLessThan(ref bitset1Ref, ref bitset1End))
-        {
-            bitset1Ref &= bitset2Ref;
-            bitset1Ref = ref Unsafe.Add(ref bitset1Ref, 1);
-            bitset2Ref = ref Unsafe.Add(ref bitset2Ref, 1);
-        }
+        return new Brick((byte)x0, (byte)y0, (short)z0, (byte)x1, (byte)y1, (short)z1);
     }
 
     private static int CountBits(Span<ulong> bitset)
