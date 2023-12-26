@@ -13,22 +13,31 @@ public static class TestHelpers
         string dayNumber = typeof(T).Name[3..];
         ReadOnlySpan<byte> file = File.ReadAllBytes($"input/{year}/day{dayNumber}.txt");
 
-        Span<char> part1Buffer = new char[64];
-        Span<char> part2Buffer = new char[64];
+        char[] part1Buffer = new char[64];
+        char[] part2Buffer = new char[64];
         T.Solve(file, new(part1Buffer, part2Buffer));
 
-        int part1EndIndex = part1Buffer.IndexOf('\n');
-        if (part1EndIndex == -1)
-            Assert.Fail("No solution provided in part 1");
+        // Use Assert.Multiple so I can test both part 1 and part 2 separately
+        Assert.Multiple(
+            () =>
+            {
+                int part1EndIndex = Array.IndexOf(part1Buffer, '\n');
+                if (part1EndIndex == -1)
+                    Assert.Fail("No solution provided in part 1");
 
-        string part1 = part1Buffer.Slice(0, part1EndIndex).ToString();
-        Assert.Equal(expectedPart1, part1);
+                string part1 = part1Buffer.AsSpan().Slice(0, part1EndIndex).ToString();
+                if (!part1.Equals(expectedPart1))
+                    Assert.Fail($"Incorrect solution for part 1\nExpected: {expectedPart1}\nActual: {part1}");
+            },
+            () =>
+            {
+                int part2ndIndex = Array.IndexOf(part2Buffer, '\n');
+                if (part2ndIndex == -1)
+                    Assert.Fail("No solution provided in part 2");
 
-        int part2ndIndex = part2Buffer.IndexOf('\n');
-        if (part2ndIndex == -1)
-            Assert.Fail("No solution provided in part 2");
-
-        string part2 = part2Buffer.Slice(0, part2ndIndex).ToString();
-        Assert.Equal(expectedPart2, part2);
+                string part2 = part2Buffer.AsSpan().Slice(0, part2ndIndex).ToString();
+                if (!part2.Equals(expectedPart2))
+                    Assert.Fail($"Incorrect solution for part 2\nExpected: {expectedPart2}\nActual: {part2}");
+            });
     }
 }
