@@ -95,12 +95,12 @@ public class Day24 : ISolver
         Vec3 crossTwo = aCrossed + c.P.Cross(c.V);
 
         // right hand side of linear equations
-        long[] rhs = [crossOne.X, crossOne.Y, crossOne.Z, crossTwo.X, crossTwo.Y, crossTwo.Z];
+        decimal[] rhs = [crossOne.X, crossOne.Y, crossOne.Z, crossTwo.X, crossTwo.Y, crossTwo.Z];
 
-        long[][] matrix = new long[6][];
+        decimal[][] matrix = new decimal[6][];
         for (int i = 0; i < 6; i++)
         {
-            matrix[i] = new long[7];
+            matrix[i] = new decimal[7];
             matrix[i][6] = rhs[i];
         }
 
@@ -109,11 +109,11 @@ public class Day24 : ISolver
         InsertIntoMatrix(a.V - c.V, 3, 0);
         InsertIntoMatrix(a.P - c.P, 3, 3);
 
-        long[] solution = new long[6];
+        decimal[] solution = new decimal[6];
 
         GaussianElimination(matrix, solution);
 
-        return solution[0] + solution[1] + solution[2];
+        return (long)Math.Round(solution[0] + solution[1] + solution[2]);
 
         void InsertIntoMatrix(Vec3 v, int i, int j)
         {
@@ -125,94 +125,44 @@ public class Day24 : ISolver
             matrix[i + 2][j + 1] =  v.X;
         }
 
-        static void GaussianElimination(long[][] m, long[] solution)
+        static void GaussianElimination(decimal[][] m, decimal[] solution)
         {
-            // All operations done modulo a large prime. I found that when using a double I was getting the wrong
-            // answer due to precision issues
-            const long Prime = 1152921504606847009;
-
-            // Ensure all negative numbers are modulo Prime
-            for (int i = 0; i < m.Length; i++)
-                for (int j = 0; j < m[i].Length; j++)
-                    m[i][j] = (m[i][j] + Prime) % Prime;
-
             int n = m.Length;
             for (int i = 0; i < n; i++)
             {
-                long[] row = m[i];
+                decimal[] row = m[i];
 
-                // Ensure diagonal location for row is non-zero, swapping with another row if needed
-                if (row[i] == 0)
+                // find largest row and swap it with the top
+                decimal maxValue = row[i];
+                decimal[] maxRow = row;
+                for (int j = i + 1; j < n; j++)
                 {
-                    for (int j = i + 1; j < n; j++)
+                    decimal[] pivotRow = m[j];
+                    if (pivotRow[i] > maxValue)
                     {
-                        long[] pivotRow = m[j];
-                        if (m[j][i] != 0)
-                        {
-                            for (int k = i; k < n + 1; k++)
-                                (row[k], pivotRow[k]) = (pivotRow[k], row[k]);
-                            break;
-                        }
+                        maxValue = pivotRow[i];
+                        maxRow = pivotRow;
                     }
                 }
 
-                // di
+                for (int k = i; k < n + 1; k++)
+                    (row[k], maxRow[k]) = (maxRow[k], row[k]);
+
+                // scale down rows by the value in the diagonal so that the lower triangle is zeroes
                 for (int k = i + 1; k < n; k++)
                 {
-                    long[] kRow = m[k];
-                    long c = ModularDivision(Prime - kRow[i], row[i]);
+                    decimal[] kRow = m[k];
+                    decimal c = -kRow[i] / row[i];
                     for (int j = i; j < n + 1; j++)
-                    {
-                        kRow[j] = i == j
-                            ? 0
-                            : (kRow[j] + ModularMultiplication(c, row[j])) % Prime;
-                    }
+                        kRow[j] = i == j ? 0 : kRow[j] + c * row[j];
                 }
             }
 
             for (int i = n - 1; i >= 0; i--)
             {
-                solution[i] = ModularDivision(m[i][n], m[i][i]);
+                solution[i] = m[i][n]/ m[i][i];
                 for (int k = i - 1; k >= 0; k--)
-                    m[k][n] = ModularSubtraction(m[k][n], ModularMultiplication(m[k][i], solution[i]));
-            }
-
-            static long ModularSubtraction(long a, long b) => (a - b + Prime) % Prime;
-
-            static long ModularMultiplication(long a, long b)
-            {
-                if (a == 0)
-                    return 0;
-
-                long q = Prime / a;
-                long r = Prime % a;
-
-                if (r < q)
-                    return a * (b % q) - r * (b / q);
-
-                return ModularSubtraction(a * (b % q), ModularMultiplication(r, b / q));
-            }
-
-            static long ModularDivision(long a, long b)
-            {
-                _ = ExtendedEuclidean(b, Prime, out long x, out _);
-                x = (x + Prime) % Prime;
-                return ModularMultiplication(x, a);
-            }
-
-            static long ExtendedEuclidean(long a, long b, out long x, out long y)
-            {
-                if (b == 0)
-                {
-                    x = 1;
-                    y = 0;
-                    return a;
-                }
-
-                long d = ExtendedEuclidean(b, a % b, out long x1, out long y1);
-                x = y1;
-                y = x1 - y1 * (a / b);
-                return d;
+                    m[k][n] = m[k][n] - m[k][i] * solution[i];
             }
         }
     }

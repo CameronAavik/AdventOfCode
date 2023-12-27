@@ -38,7 +38,7 @@ About my solutions:
 | 22 | [C#](/csharp/2015/Solvers/Day22.cs) \| [F#](/fsharp/2015/Solutions/Day22.fs) | [F#](/fsharp/2016/Solutions/Day22.fs) | [F#](/fsharp/2017/Solutions/Day22.fs) | [F#](/fsharp/2018/Solutions/Day22.fs) | [F#](/fsharp/2019/Solutions/Day22.fs) | [C#](/csharp/2020/Solvers/Day22.cs) | [C#](/csharp/2021/Solvers/Day22.cs) | | [C#](/csharp/2023/Solvers/Day22.cs) |
 | 23 | [C#](/csharp/2015/Solvers/Day23.cs) \| [F#](/fsharp/2015/Solutions/Day23.fs) | [F#](/fsharp/2016/Solutions/Day23.fs) | [F#](/fsharp/2017/Solutions/Day23.fs) | [F#](/fsharp/2018/Solutions/Day23.fs) | [F#](/fsharp/2019/Solutions/Day23.fs) | [C#](/csharp/2020/Solvers/Day23.cs) | [C#](/csharp/2021/Solvers/Day23.cs) | | [C#](/csharp/2023/Solvers/Day23.cs) |
 | 24 | [C#](/csharp/2015/Solvers/Day24.cs) \| [F#](/fsharp/2015/Solutions/Day24.fs) | [F#](/fsharp/2016/Solutions/Day24.fs) | [F#](/fsharp/2017/Solutions/Day24.fs) | [F#](/fsharp/2018/Solutions/Day24.fs) | [F#](/fsharp/2019/Solutions/Day24.fs) | [C#](/csharp/2020/Solvers/Day24.cs) | [C#](/csharp/2021/Solvers/Day24.cs) | | [C#](/csharp/2023/Solvers/Day24.cs) |
-| 25 | [C#](/csharp/2015/Solvers/Day25.cs) \| [F#](/fsharp/2015/Solutions/Day25.fs) | [F#](/fsharp/2016/Solutions/Day25.fs) | [F#](/fsharp/2017/Solutions/Day25.fs) | [F#](/fsharp/2018/Solutions/Day25.fs) | [F#](/fsharp/2019/Solutions/Day25.fs) | [C#](/csharp/2020/Solvers/Day25.cs) | [C#](/csharp/2021/Solvers/Day25.cs) | | |
+| 25 | [C#](/csharp/2015/Solvers/Day25.cs) \| [F#](/fsharp/2015/Solutions/Day25.fs) | [F#](/fsharp/2016/Solutions/Day25.fs) | [F#](/fsharp/2017/Solutions/Day25.fs) | [F#](/fsharp/2018/Solutions/Day25.fs) | [F#](/fsharp/2019/Solutions/Day25.fs) | [C#](/csharp/2020/Solvers/Day25.cs) | [C#](/csharp/2021/Solvers/Day25.cs) | | [C#](/csharp/2023/Solvers/Day25.cs) |
 
 ## C# Benchmarks
 
@@ -79,7 +79,9 @@ AMD Ryzen 9 5950X, 1 CPU, 32 logical and 16 physical cores
 | **21** | **11.35 μs** | **11.41 μs** | **11.54 μs** | **--** |
 | **22** | **25.43 μs** | **25.60 μs** | **25.68 μs** | **16.0 KB** |
 | **23** | **791.45 μs** | **799.48 μs** | **805.23 μs** | **2.5 MB** |
-| **24** | **206.48 μs** | **207.53 μs** | **208.41 μs** | **12.9 KB** |
+| **24** | **201.99 μs** | **202.45 μs** | **203.96 μs** | **13.3 KB** |
+| **25** | **2,814.71 μs** | **2,818.07 μs** | **2,840.84 μs** | **125.5 KB** |
+| **All** | **13,710.54 μs** | **13,786.00 μs** | **13,886.69 μs** | **5.3 MB** |
 
 ### 2022
 
