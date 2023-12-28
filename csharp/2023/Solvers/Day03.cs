@@ -23,7 +23,6 @@ public class Day03 : ISolver
 
         for (int vecStartIndex = 0; vecStartIndex + 1 < width; vecStartIndex += Vector256<byte>.Count - 2)
         {
-            ref byte inputRef = ref MemoryMarshal.GetReference(input);
             uint symbolsMask = uint.MaxValue;
             uint digitsMask = uint.MaxValue;
             uint gearsMask = 0x7FFFFFFE; // On each iteration, ignore the first and last gear
@@ -45,6 +44,7 @@ public class Day03 : ISolver
             uint curDigits = 0;
             uint curSymbols = 0;
 
+            ref byte inputRef = ref MemoryMarshal.GetReference(input);
             Vector256<byte> next = Vector256.LoadUnsafe(ref inputRef, (nuint)vecStartIndex);
             ExtractBitSets(next, out uint nextDigits, out uint nextGears, out uint nextSymbols);
             nextGears &= gearsMask;

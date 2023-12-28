@@ -87,8 +87,8 @@ public class Day16 : ISolver
 
     private static Dictionary<int, SplittingMirror> GetSeenBitsForEachSplittingMirror(ReadOnlySpan<byte> input, int rowLength)
     {
-        var splitMirrorGraph = BuildSplitMirrorGraph(input, rowLength);
-        var components = FindAllStronglyConnectedComponents(splitMirrorGraph);
+        Dictionary<int, SplittingMirror> splitMirrorGraph = BuildSplitMirrorGraph(input, rowLength);
+        List<StronglyConnectedComponent> components = FindAllStronglyConnectedComponents(splitMirrorGraph);
 
         int bitSetLength = (input.Length - 1) / 64 + 1;
         foreach (StronglyConnectedComponent scc in components)
@@ -106,7 +106,7 @@ public class Day16 : ISolver
             ulong[] seenBits = new ulong[bitSetLength];
             bool isFirstEmpty = true;
 
-            foreach (var graphNode in scc.Mirrors)
+            foreach (SplittingMirror graphNode in scc.Mirrors)
             {
                 SplittingMirror? nextMirror1 = graphNode.NextMirror1;
                 if (nextMirror1 != null && sccId != nextMirror1.Scc.Id)
@@ -315,8 +315,6 @@ public class Day16 : ISolver
     // before splitting on a mirror, this method returns -1.
     private static int MoveUntilNextMirrorSplit(ReadOnlySpan<byte> input, int i, Dir dir, LineSegment[] segments, ref int numSegments, int rowLen)
     {
-        ref byte inputRef = ref MemoryMarshal.GetReference(input);
-
         byte c = 0;
         while (true)
         {
@@ -325,7 +323,7 @@ public class Day16 : ISolver
             {
                 case Dir.East:
 
-                    while ((c = Unsafe.Add(ref inputRef, (nuint)i)) is (byte)'.' or (byte)'-')
+                    while ((c = input[i]) is (byte)'.' or (byte)'-')
                         i++;
 
                     if (c == '\n')
@@ -350,7 +348,7 @@ public class Day16 : ISolver
                     }
                     break;
                 case Dir.West:
-                    while (i >= 0 && (c = Unsafe.Add(ref inputRef, (nuint)i)) is (byte)'.' or (byte)'-')
+                    while (i >= 0 && (c = input[i]) is (byte)'.' or (byte)'-')
                         i--;
 
                     if (i < 0 || c == '\n')
@@ -376,7 +374,7 @@ public class Day16 : ISolver
                     }
                     break;
                 case Dir.North:
-                    while (i >= 0 && (c = Unsafe.Add(ref inputRef, (nuint)i)) is (byte)'.' or (byte)'|')
+                    while (i >= 0 && (c = input[i]) is (byte)'.' or (byte)'|')
                         i -= rowLen;
 
                     if (i < 0)
@@ -402,7 +400,7 @@ public class Day16 : ISolver
                     }
                     break;
                 case Dir.South:
-                    while (i < input.Length && (c = Unsafe.Add(ref inputRef, (nuint)i)) is (byte)'.' or (byte)'|')
+                    while (i < input.Length && (c = input[i]) is (byte)'.' or (byte)'|')
                         i += rowLen;
 
                     if (i >= input.Length)

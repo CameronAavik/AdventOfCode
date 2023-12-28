@@ -82,31 +82,23 @@ public class Day21 : ISolver
         for (int i = 3; i <= 64; i++)
         {
             ulong prev = visitedIn64Steps[0];
-            ref ulong curPtr = ref Unsafe.Add(ref MemoryMarshal.GetReference(visitedIn64Steps), 1);
-            ulong cur = curPtr;
+            ulong cur = visitedIn64Steps[1];
 
-            ref ulong curPlots = ref MemoryMarshal.GetReference(plots);
-            visitedIn64Steps[0] = centerRow & curPlots;
+            visitedIn64Steps[0] = centerRow & plots[0];
             centerRow = (centerRow << 1) | 1;
             for (int j = 0; j < i - 3; j++)
             {
-                curPlots = ref Unsafe.Add(ref curPlots, 1);
-                ref ulong nextPtr = ref Unsafe.Add(ref curPtr, 1);
-                ulong next = nextPtr;
-                curPtr = (cur | (cur << 1) | (cur >> 1) | prev | next) & curPlots;
+                ulong next = visitedIn64Steps[j + 2];
+                visitedIn64Steps[j + 1] = (cur | (cur << 1) | (cur >> 1) | prev | next) & plots[j + 1];
                 prev = cur;
-                curPtr = ref nextPtr;
                 cur = next;
             }
 
             // set 2nd to last row, can skip getting next row
-            curPlots = ref Unsafe.Add(ref curPlots, 1);
-            curPtr = (cur | (cur << 1) | (cur >> 1) | prev) & curPlots;
+            visitedIn64Steps[i - 2] = (cur | (cur << 1) | (cur >> 1) | prev) & plots[i - 2];
 
             // set last row which will just have the furthest bit to the right set
-            curPlots = ref Unsafe.Add(ref curPlots, 1);
-            curPtr = ref Unsafe.Add(ref curPtr, 1);
-            curPtr = 1 & curPlots;
+            visitedIn64Steps[i - 1] = 1 & plots[i - 1];
         }
 
         for (int i = 0; i < 64; i += 2)
@@ -128,20 +120,14 @@ public class Day21 : ISolver
             changes = 0;
 
             ulong prev = visitedIn64Steps[0];
-            ref ulong curPtr = ref Unsafe.Add(ref MemoryMarshal.GetReference(visitedIn64Steps), 1);
-            ulong cur = curPtr;
-
-            ref ulong curPlots = ref MemoryMarshal.GetReference(plots);
+            ulong cur = visitedIn64Steps[1];
             for (int j = 1; j < 63; j++)
             {
-                curPlots = ref Unsafe.Add(ref curPlots, 1);
-                ref ulong nextPtr = ref Unsafe.Add(ref curPtr, 1);
-                ulong next = nextPtr;
-                ulong newValue = (cur | (cur << 1) | (cur >> 1) | prev | next) & curPlots;
+                ulong next = visitedIn64Steps[j + 1];
+                ulong newValue = (cur | (cur << 1) | (cur >> 1) | prev | next) & plots[j];
                 changes += newValue == cur ? 0 : 1;
-                curPtr = newValue;
+                visitedIn64Steps[j] = newValue;
                 prev = cur;
-                curPtr = ref nextPtr;
                 cur = next;
             }
         }

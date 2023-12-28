@@ -12,14 +12,22 @@ public class Day25 : ISolver
         solution.SubmitPart2(string.Empty);
 
         var idLookup = new Dictionary<int, int>(2000);
-        var edges = new List<(int A, int B)>(4000);
+        var graph = new List<List<(int Destination, int EdgeId)>>(2000);
+        int edgeCount = 0;
         while (!input.IsEmpty)
         {
             int lhsName = NameToId(input.Slice(0, 3));
+            List<(int Destination, int EdgeId)> lhsList;
             if (!idLookup.TryGetValue(lhsName, out int lhsId))
             {
                 lhsId = idLookup.Count;
+                lhsList = new(10);
+                graph.Add(lhsList);
                 idLookup[lhsName] = lhsId;
+            }
+            else
+            {
+                lhsList = graph[lhsId];
             }
 
             input = input.Slice(5);
@@ -27,13 +35,21 @@ public class Day25 : ISolver
             while (true)
             {
                 int name = NameToId(input.Slice(0, 3));
+                List<(int Destination, int EdgeId)> list;
                 if (!idLookup.TryGetValue(name, out int id))
                 {
                     id = idLookup.Count;
+                    list = new(10);
+                    graph.Add(list);
                     idLookup[name] = id;
                 }
+                else
+                {
+                    list = graph[id];
+                }
 
-                edges.Add((lhsId, id));
+                lhsList.Add((id, edgeCount++));
+                list.Add((lhsId, edgeCount++));
 
                 bool hasNext = input[3] == ' ';
                 input = input.Slice(4);
@@ -43,85 +59,122 @@ public class Day25 : ISolver
             }
         }
 
-        var remainingEdges = new (int, int)[edges.Count];
+        // Reusable bitset used in FindFurthestNode, FordFulkersonIteration, and CountReachableNodes
+        ulong[] visited = new ulong[(graph.Count - 1) / 64 + 1];
 
-        int[] initParent = new int[idLookup.Count];
-        for (int i = 0; i < initParent.Length; i++)
-            initParent[i] = i;
+        // We assume that s and t are on different sides of the cut.
+        // It is possible to construct a graph that this is not true, but this is not the case for AoC inputs.
+        int s = FindFurthestNode(0);
+        int t = FindFurthestNode(s);
 
-        int[] parent = new int[idLookup.Count];
-        int[] size = new int[idLookup.Count];
-        int random = 0;
-        while (true)
+        ulong[] edgeFlows = new ulong[(edgeCount - 1) / 64 + 1];
+
+        for (int i = 0; i < 3; i++)
+            FordFulkersonIteration();
+
+        int reachableFromSource = CountReachableNodes();
+        int part1 = reachableFromSource * (graph.Count - reachableFromSource);
+        solution.SubmitPart1(part1);
+
+        int FindFurthestNode(int node)
         {
-            int numRemainingEdges = remainingEdges.Length;
-            edges.CopyTo(remainingEdges);
+            Array.Clear(visited);
+            visited[node / 64] = 1UL << node;
+            int[] queue = new int[graph.Count];
+            queue[0] = node;
+            int queuePtr = 0;
+            int queueLen = 1;
 
-            Array.Copy(initParent, parent, parent.Length);
-            Array.Fill(size, 1);
-
-            int count = 0;
-            while (count < parent.Length - 2)
+            while (queueLen < graph.Count)
             {
-                // "random" edge choice
-                int i = random++ % numRemainingEdges;
-                (int, int) edge = remainingEdges[i];
-                remainingEdges[i] = remainingEdges[--numRemainingEdges];
+                node = queue[queuePtr++];
 
-                // Union
-                int a = FindParent(edge.Item1);
-                int b = FindParent(edge.Item2);
-
-                if (a != b)
+                foreach ((int destination, _) in graph[node])
                 {
-                    if (size[b] > size[a])
+                    ulong flag = 1UL << destination;
+                    if ((visited[destination / 64] & flag) == 0)
                     {
-                        parent[a] = b;
-                        size[b] += size[a];
+                        visited[destination / 64] |= flag;
+                        queue[queueLen++] = destination;
                     }
-                    else
-                    {
-                        parent[b] = a;
-                        size[a] += size[b];
-                    }
-
-                    count++;
                 }
             }
 
-            int cutEdge = 0;
-            int numCutEdges = 0;
-            for (int i = 0; i < numRemainingEdges; i++)
+            return queue[queueLen - 1];
+        }
+
+        void FordFulkersonIteration()
+        {
+            Array.Clear(visited);
+            visited[s / 64] = 1UL << s;
+
+            TryDFS(s);
+
+            bool TryDFS(int node)
             {
-                (int, int) edge = remainingEdges[i];
-                if (FindParent(edge.Item1) != FindParent(edge.Item2))
+                if (node == t)
+                    return true;
+
+                foreach ((int destination, int edgeId) in graph[node])
                 {
-                    cutEdge = i;
-                    numCutEdges++;
+                    ulong flag = 1UL << destination;
+                    if ((visited[destination / 64] & flag) != 0)
+                        continue;
 
-                    // We know we are looking for a cut involving 3 edges, so skip if we have 4
-                    if (numCutEdges == 4)
-                        break;
+                    ulong edgeFlag = 1UL << edgeId;
+                    if ((edgeFlows[edgeId / 64] & edgeFlag) != 0)
+                        continue;
+
+                    visited[destination / 64] |= flag;
+                    if (TryDFS(destination))
+                    {
+                        int inverseEdgeId = edgeId ^ 1;
+                        ulong inverseEdgeFlag = 1UL << inverseEdgeId;
+
+                        // if the inverse is 1, then we need to set the inverse to 0
+                        // if the inverse is 0, then we need to set the edge to 1
+                        if ((edgeFlows[inverseEdgeId / 64] & inverseEdgeFlag) != 0)
+                        {
+                            edgeFlows[inverseEdgeId / 64] ^= inverseEdgeFlag;
+                        }
+                        else
+                        {
+                            edgeFlows[edgeId / 64] |= edgeFlag;
+                        }
+
+                        return true;
+                    }
                 }
-            }
 
-            // If solution is found
-            if (numCutEdges == 3)
-            {
-                (int, int) edge = remainingEdges[cutEdge];
-                int part1 = size[FindParent(edge.Item1)] * size[FindParent(edge.Item2)];
-                solution.SubmitPart1(part1);
-                return;
+                return false;
             }
         }
 
-        int FindParent(int i)
+        int CountReachableNodes()
         {
-            int iParent = parent[i];
-            if (iParent == i)
-                return i;
+            Array.Clear(visited);
+            visited[s / 64] = 1UL << s;
+            int count = 1;
+            DFS(s);
+            return count;
 
-            return parent[i] = FindParent(iParent);
+            void DFS(int node)
+            {
+                foreach ((int destination, int edgeId) in graph[node])
+                {
+                    ulong flag = 1UL << destination;
+                    if ((visited[destination / 64] & flag) != 0)
+                        continue;
+
+                    ulong edgeFlag = 1UL << edgeId;
+                    if ((edgeFlows[edgeId / 64] & edgeFlag) != 0)
+                        continue;
+
+                    visited[destination / 64] |= flag;
+                    count++;
+                    DFS(destination);
+                }
+            }
         }
     }
 

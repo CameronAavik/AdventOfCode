@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
 using AdventOfCode.CSharp.Common;
@@ -61,7 +60,7 @@ public class Day14 : ISolver
                     wallBits = 0;
                     for (int i = x; i < width; i++)
                     {
-                        byte c = Unsafe.Add(ref inputRef, (nint)((y * (width + 1)) + i));
+                        byte c = input[y * (width + 1) + i];
                         if (c == '#')
                             wallBits |= 1U << i;
                         else if (c == 'O')
@@ -236,14 +235,11 @@ public class Day14 : ISolver
 
     private static void TiltWithRocksAtEnd(Region[] regions)
     {
-        ref Region regionRef = ref MemoryMarshal.GetArrayDataReference(regions);
-        for (int i = 0; i < regions.Length; i++)
+        foreach (Region region in regions)
         {
-            Region region = Unsafe.Add(ref regionRef, i);
-            Span<Region> offsets = CollectionsMarshal.AsSpan(region.Offsets);
-            ref Region offsetsRef = ref MemoryMarshal.GetReference(offsets);
-            for (nint j = offsets.Length - 1; j >= offsets.Length - region.Count; j--)
-                Unsafe.Add(ref offsetsRef, j).Count++;
+            List<Region> offsets = region.Offsets;
+            for (int j = offsets.Count - region.Count; j < offsets.Count; j++)
+                offsets[j].Count++;
 
             region.Count = 0;
         }
@@ -251,14 +247,11 @@ public class Day14 : ISolver
 
     private static void TiltWithRocksAtStart(Region[] regions)
     {
-        ref Region regionRef = ref MemoryMarshal.GetArrayDataReference(regions);
-        for (int i = 0; i < regions.Length; i++)
+        foreach (Region region in regions)
         {
-            Region region = Unsafe.Add(ref regionRef, i);
-            Span<Region> offsets = CollectionsMarshal.AsSpan(region.Offsets);
-            ref Region offsetsRef = ref MemoryMarshal.GetReference(offsets);
-            for (nint j = 0; j < region.Count; j++)
-                Unsafe.Add(ref offsetsRef, j).Count++;
+            List<Region> offsets = region.Offsets;
+            for (int j = 0; j < region.Count; j++)
+                offsets[j].Count++;
 
             region.Count = 0;
         }

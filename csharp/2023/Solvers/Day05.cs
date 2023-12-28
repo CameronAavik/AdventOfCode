@@ -8,7 +8,7 @@ public class Day05 : ISolver
 {
     public record struct Mapping(long FromStart, long FromEnd, long ToStart) : IComparable<Mapping>
     {
-        public int CompareTo(Mapping other) => FromStart.CompareTo(other.FromStart);
+        public readonly int CompareTo(Mapping other) => FromStart.CompareTo(other.FromStart);
     }
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)

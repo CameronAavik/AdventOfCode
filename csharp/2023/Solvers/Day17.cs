@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
@@ -25,24 +23,23 @@ public class Day17 : ISolver
         int rowLength = width + 1;
         int height = input.Length / rowLength;
 
-        int part1 = SolvePart1(ref MemoryMarshal.GetReference(input), width, height);
+        int part1 = SolvePart1(input, width, height);
         solution.SubmitPart1(part1);
 
-        int part2 = SolvePart2(ref MemoryMarshal.GetReference(input), width, height);
+        int part2 = SolvePart2(input, width, height);
         solution.SubmitPart2(part2);
     }
 
-    public static int SolvePart1(ref byte input, int width, int height)
+    public static int SolvePart1(ReadOnlySpan<byte> input, int width, int height)
     {
         int rowLength = width + 1;
-        int numStates = width * height * 2;
-        int targetState = (height - 1) * width + (width - 1);
+        int numStates = rowLength * height * 2;
+        int targetState = (height - 1) * rowLength + (width - 1);
 
         const int xMul = 2;
-        int yMul = 2 * height;
+        int yMul = 2 * rowLength;
 
         ulong[] seen = new ulong[(numStates - 1) / 64 + 1];
-        ref ulong seenRef = ref MemoryMarshal.GetArrayDataReference(seen);
 
         List<ushort>[] buckets = new List<ushort>[32]; // Only 32 buckets needed to handle all possible moves from the best current state
         for (int i = 0; i < buckets.Length; i++)
@@ -60,18 +57,17 @@ public class Day17 : ISolver
             for (int i = 0; i < bucket.Count; i++)
             {
                 ushort element = bucket[i];
-                ref ulong seenBitset = ref Unsafe.Add(ref seenRef, (uint)element / 64);
+                ref ulong seenBitset = ref seen[element / 64];
                 ulong elementBit = 1UL << element;
                 if ((seenBitset & elementBit) != 0)
                     continue;
                 seenBitset |= elementBit;
 
-                int packedXY = Math.DivRem(element, 2, out int isHorizontal);
-                if (packedXY == targetState)
+                int rowOffset = Math.DivRem(element, 2, out int isHorizontal);
+                if (rowOffset == targetState)
                     return distanceAtBucketStart;
 
-                int y = Math.DivRem(packedXY, width, out int x);
-                int rowOffset = y * rowLength + x;
+                int y = Math.DivRem(rowOffset, rowLength, out int x);
 
                 if (isHorizontal == 0)
                 {
@@ -79,7 +75,7 @@ public class Day17 : ISolver
                     int maxX = Math.Min(4, width - x);
                     for (int x2 = 1; x2 < maxX; x2++)
                     {
-                        total += Unsafe.Add(ref input, rowOffset + x2) - '0' - 1;
+                        total += input[rowOffset + x2] - '0' - 1;
                         buckets[(bucketPtr + total) % 32].Add((ushort)(element + xMul * x2 + 1));
                     }
 
@@ -87,7 +83,7 @@ public class Day17 : ISolver
                     int minX = Math.Max(-3, -x);
                     for (int x2 = -1; x2 >= minX; x2--)
                     {
-                        total += Unsafe.Add(ref input, rowOffset + x2) - '0' + 1;
+                        total += input[rowOffset + x2] - '0' + 1;
                         buckets[(bucketPtr + total) % 32].Add((ushort)(element + xMul * x2 + 1));
                     }
                 }
@@ -97,7 +93,7 @@ public class Day17 : ISolver
                     int maxY = Math.Min(4, height - y);
                     for (int y2 = 1; y2 < maxY; y2++)
                     {
-                        total += Unsafe.Add(ref input, rowOffset + rowLength * y2) - '0' - 1;
+                        total += input[rowOffset + rowLength * y2] - '0' - 1;
                         buckets[(bucketPtr + total) % 32].Add((ushort)(element + yMul * y2 - 1));
                     }
 
@@ -105,7 +101,7 @@ public class Day17 : ISolver
                     int minY = Math.Max(-3, -y);
                     for (int y2 = -1; y2 >= minY; y2--)
                     {
-                        total += Unsafe.Add(ref input, rowOffset + rowLength * y2) - '0' + 1;
+                        total += input[rowOffset + rowLength * y2] - '0' + 1;
                         buckets[(bucketPtr + total) % 32].Add((ushort)(element + yMul * y2 - 1));
                     }
                 }
@@ -117,21 +113,20 @@ public class Day17 : ISolver
         }
     }
 
-    public static int SolvePart2(ref byte input, int width, int height)
+    public static int SolvePart2(ReadOnlySpan<byte> input, int width, int height)
     {
         int rowLength = width + 1;
-        int numStates = width * height * 2;
-        int targetState = (height - 1) * width + (width - 1);
+        int numStates = rowLength * height * 2;
+        int targetState = (height - 1) * rowLength + (width - 1);
 
         const int xMul = 2;
-        int yMul = 2 * height;
+        int yMul = 2 * rowLength;
 
         ulong[] seen = new ulong[(numStates - 1) / 64 + 1];
-        ref ulong seenRef = ref MemoryMarshal.GetArrayDataReference(seen);
 
         List<ushort>[] buckets = new List<ushort>[128]; // Only 128 buckets needed to handle all possible moves from the best current state
         for (int i = 0; i < buckets.Length; i++)
-            buckets[i] = new List<ushort>(1024);
+            buckets[i] = new List<ushort>(1500);
 
         int distanceAtBucketStart = width + height - 2;
         int bucketPtr = 0;
@@ -145,19 +140,16 @@ public class Day17 : ISolver
             for (int i = 0; i < bucket.Count; i++)
             {
                 ushort element = bucket[i];
-                ref ulong seenBitset = ref Unsafe.Add(ref seenRef, (uint)element / 64);
                 ulong elementBit = 1UL << element;
-                if ((seenBitset & elementBit) != 0)
+                if ((seen[element / 64] & elementBit) != 0)
                     continue;
-                seenBitset |= elementBit;
+                seen[element / 64] |= elementBit;
 
-                int packedXY = Math.DivRem(element, 2, out int isHorizontal);
-                if (packedXY == targetState)
+                int rowOffset = Math.DivRem(element, 2, out int isHorizontal);
+                if (rowOffset == targetState)
                     return distanceAtBucketStart;
 
-                int y = Math.DivRem(packedXY, width, out int x);
-                int rowOffset = y * rowLength + x;
-
+                int y = Math.DivRem(rowOffset, rowLength, out int x);
 
                 if (isHorizontal == 0)
                 {
@@ -165,12 +157,12 @@ public class Day17 : ISolver
                     {
                         int total = 0;
                         for (int x2 = 1; x2 < 4; x2++)
-                            total += Unsafe.Add(ref input, rowOffset + x2) - '0' - 1;
+                            total += input[rowOffset + x2] - '0' - 1;
 
                         int maxX = Math.Min(11, width - x);
                         for (int x2 = 4; x2 < maxX; x2++)
                         {
-                            total += Unsafe.Add(ref input, rowOffset + x2) - '0' - 1;
+                            total += input[rowOffset + x2] - '0' - 1;
                             buckets[(bucketPtr + total) % 128].Add((ushort)(element + xMul * x2 + 1));
                         }
                     }
@@ -179,12 +171,12 @@ public class Day17 : ISolver
                     {
                         int total = 0;
                         for (int x2 = -1; x2 >= -3; x2--)
-                            total += Unsafe.Add(ref input, rowOffset + x2) - '0' + 1;
+                            total += input[rowOffset + x2] - '0' + 1;
 
                         int minX = Math.Max(-10, -x);
                         for (int x2 = -4; x2 >= minX; x2--)
                         {
-                            total += Unsafe.Add(ref input, rowOffset + x2) - '0' + 1;
+                            total += input[rowOffset + x2] - '0' + 1;
                             buckets[(bucketPtr + total) % 128].Add((ushort)(element + xMul * x2 + 1));
                         }
                     }
@@ -195,12 +187,12 @@ public class Day17 : ISolver
                     {
                         int total = 0;
                         for (int y2 = 1; y2 < 4; y2++)
-                            total += Unsafe.Add(ref input, rowOffset + rowLength * y2) - '0' - 1;
+                            total += input[rowOffset + rowLength * y2] - '0' - 1;
 
                         int maxY = Math.Min(11, height - y);
                         for (int y2 = 4; y2 < maxY; y2++)
                         {
-                            total += Unsafe.Add(ref input, rowOffset + rowLength * y2) - '0' - 1;
+                            total += input[rowOffset + rowLength * y2] - '0' - 1;
                             buckets[(bucketPtr + total) % 128].Add((ushort)(element + yMul * y2 - 1));
                         }
                     }
@@ -209,12 +201,12 @@ public class Day17 : ISolver
                     {
                         int total = 0;
                         for (int y2 = -1; y2 >= -3; y2--)
-                            total += Unsafe.Add(ref input, rowOffset + rowLength * y2) - '0' + 1;
+                            total += input[rowOffset + rowLength * y2] - '0' + 1;
 
                         int minY = Math.Max(-10, -y);
                         for (int y2 = -4; y2 >= minY; y2--)
                         {
-                            total += Unsafe.Add(ref input, rowOffset + rowLength * y2) - '0' + 1;
+                            total += input[rowOffset + rowLength * y2] - '0' + 1;
                             buckets[(bucketPtr + total) % 128].Add((ushort)(element + yMul * y2 - 1));
                         }
                     }

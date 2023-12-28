@@ -130,9 +130,6 @@ public class Day23 : ISolver
 
     private static int MoveUntilNextNode(ReadOnlySpan<byte> input, int i, int rowLength, Direction startDirection, out int distance, out Direction direction, out bool hasSlope, out bool hasReverseSlope)
     {
-        ref byte startRef = ref MemoryMarshal.GetReference(input);
-        ref byte curRef = ref Unsafe.Add(ref startRef, i);
-
         hasSlope = false;
         hasReverseSlope = false;
         distance = 0;
@@ -143,114 +140,109 @@ public class Day23 : ISolver
             switch (direction)
             {
                 case Direction.East:
-                    byte nextEast = Unsafe.Add(ref curRef, 1);
+                    byte nextEast = input[i + 1];
                     while (true)
                     {
                         hasSlope = hasSlope || nextEast == '>';
                         hasReverseSlope = hasReverseSlope || nextEast == '<';
 
                         distance++;
-
-                        curRef = ref Unsafe.Add(ref curRef, 1);
-
-                        nextEast = Unsafe.Add(ref curRef, 1);
+                        i++;
+                        nextEast = input[i + 1];
                         if (nextEast == '#')
                         {
-                            if (Unsafe.Subtract(ref curRef, rowLength) == '#')
+                            if (input[i - rowLength] == '#')
                                 direction = Direction.South;
-                            else if (Unsafe.Add(ref curRef, rowLength) == '#')
+                            else if (input[i + rowLength] == '#')
                                 direction = Direction.North;
                             else
-                                return (int)Unsafe.ByteOffset(ref startRef, ref curRef);
+                                return i;
                             break;
                         }
-                        else if (Unsafe.Subtract(ref curRef, rowLength) != '#' || Unsafe.Add(ref curRef, rowLength) != '#')
+                        else if (input[i - rowLength] != '#' || input[i + rowLength] != '#')
                         {
-                            return (int)Unsafe.ByteOffset(ref startRef, ref curRef);
+                            return i;
                         }
                     }
 
                     break;
                 case Direction.West:
-                    byte nextWest = Unsafe.Subtract(ref curRef, 1);
+                    byte nextWest = input[i - 1];
                     while (true)
                     {
                         hasSlope = hasSlope || nextWest == '<';
                         hasReverseSlope = hasReverseSlope || nextWest == '>';
 
                         distance++;
-                        curRef = ref Unsafe.Subtract(ref curRef, 1);
-
-                        nextWest = Unsafe.Subtract(ref curRef, 1);
+                        i--;
+                        nextWest = input[i - 1];
                         if (nextWest == '#')
                         {
-                            if (Unsafe.Subtract(ref curRef, rowLength) == '#')
+                            if (input[i - rowLength] == '#')
                                 direction = Direction.South;
-                            else if (Unsafe.Add(ref curRef, rowLength) == '#')
+                            else if (input[i + rowLength] == '#')
                                 direction = Direction.North;
                             else
-                                return (int)Unsafe.ByteOffset(ref startRef, ref curRef);
+                                return i;
                             break;
                         }
-                        else if (Unsafe.Subtract(ref curRef, rowLength) != '#' || Unsafe.Add(ref curRef, rowLength) != '#')
+                        else if (input[i - rowLength] != '#' || input[i + rowLength] != '#')
                         {
-                            return (int)Unsafe.ByteOffset(ref startRef, ref curRef);
+                            return i;
                         }
                     }
 
                     break;
                 case Direction.South:
-                    byte nextSouth = Unsafe.Add(ref curRef, rowLength);
+                    byte nextSouth = input[i + rowLength];
                     while (true)
                     {
                         hasSlope = hasSlope || nextSouth == 'v';
                         hasReverseSlope = hasReverseSlope || nextSouth == '^';
 
                         distance++;
-                        curRef = ref Unsafe.Add(ref curRef, rowLength);
-
-                        nextSouth = Unsafe.Add(ref curRef, rowLength);
+                        i += rowLength;
+                        nextSouth = input[i + rowLength];
                         if (nextSouth == '#')
                         {
-                            if (Unsafe.Subtract(ref curRef, 1) == '#')
+                            if (input[i - 1] == '#')
                                 direction = Direction.East;
-                            else if (Unsafe.Add(ref curRef, 1) == '#')
+                            else if (input[i + 1] == '#')
                                 direction = Direction.West;
                             else
-                                return (int)Unsafe.ByteOffset(ref startRef, ref curRef);
+                                return i;
                             break;
                         }
-                        else if (Unsafe.Subtract(ref curRef, 1) != '#' || Unsafe.Add(ref curRef, 1) != '#')
+                        else if (input[i - 1] != '#' || input[i + 1] != '#')
                         {
-                            return (int)Unsafe.ByteOffset(ref startRef, ref curRef);
+                            return i;
                         }
                     }
 
                     break;
                 case Direction.North:
-                    byte nextNorth = Unsafe.Subtract(ref curRef, rowLength);
+                    byte nextNorth = input[i - rowLength];
                     while (true)
                     {
                         hasSlope = hasSlope || nextNorth == '^';
                         hasReverseSlope = hasReverseSlope || nextNorth == 'v';
 
                         distance++;
-                        curRef = ref Unsafe.Subtract(ref curRef, rowLength);
-
-                        nextNorth = Unsafe.Subtract(ref curRef, rowLength);
+                        i -= rowLength;
+                        nextNorth = input[i - rowLength];
                         if (nextNorth == '#')
                         {
-                            if (Unsafe.Subtract(ref curRef, 1) == '#')
+                            if (input[i - 1] == '#')
                                 direction = Direction.East;
-                            else if (Unsafe.Add(ref curRef, 1) == '#')
+                            else if (input[i + 1] == '#')
                                 direction = Direction.West;
                             else
-                                return (int)Unsafe.ByteOffset(ref startRef, ref curRef);
+                                return i;
                             break;
                         }
-                        else if (Unsafe.Subtract(ref curRef, 1) != '#' || Unsafe.Add(ref curRef, 1) != '#')
+                        else if (input[i - 1] != '#' || input[i + 1] != '#')
                         {
-                            return (int)Unsafe.ByteOffset(ref startRef, ref curRef);
+                            return i;
                         }
                     }
 
@@ -344,8 +336,10 @@ public class Day23 : ISolver
 
     private static int SolvePart2(Node[] graph)
     {
-        var dp = new Dictionary<DPKey, int>();
-        dp[new DPKey(0, 0, 0)] = 0;
+        var dp = new Dictionary<DPKey, int>(2000)
+        {
+            [new DPKey(0, 0, 0)] = 0
+        };
 
         int queuePtr = 0;
         int queueLength = 1;
@@ -356,6 +350,12 @@ public class Day23 : ISolver
 
         ulong inQueue = 1;
         ulong added = 0;
+
+        // intermediate data structures used inside local functions
+        var newDP = new Dictionary<DPKey, int>(2000);
+        var newEntries = new List<(DPKey, int)>(1000);
+        var entriesWithSelfEdge = new List<(DPKey, int)>(1000);
+        var entriesToRemove = new List<DPKey>(1000);
 
         while (queuePtr < queueLength)
         {
@@ -377,14 +377,15 @@ public class Day23 : ISolver
                 IntroduceEdge(nodeId, east);
         }
 
+
         return dp[new DPKey(0, 1, 1)];
 
         void IntroduceNode(Node node)
         {
             byte id = (byte)node.Id;
-            var newDp = new Dictionary<DPKey, int>(dp.Count);
+            newDP.Clear();
             foreach ((DPKey k, int v) in dp)
-                newDp[k.InsertEdge(id, id)] = v;
+                newDP[k.InsertEdge(id, id)] = v;
 
             int degree = 0;
             if (node.South is not null) degree++;
@@ -393,7 +394,7 @@ public class Day23 : ISolver
             if (node.West is not null) degree++;
             remainingDegree[id] = degree;
 
-            dp = newDp;
+            (newDP, dp) = (dp, newDP);
         }
 
         void IntroduceEdge(int u, Edge edge)
@@ -403,7 +404,7 @@ public class Day23 : ISolver
 
             if ((added & vFlag) != 0)
             {
-                var newEntries = new List<(DPKey, int)>();
+                newEntries.Clear();
 
                 foreach ((DPKey key, int bestDistance) in dp)
                 {
@@ -449,10 +450,10 @@ public class Day23 : ISolver
                     if (uCounterpart == 255 || vCounterpart == 255 || uCounterpart == v)
                         continue;
 
-                    if ((u == 0 || v == 0) && (uCounterpart != 0 && vCounterpart != 0))
+                    if (u <= 1 && uCounterpart != u)
                         continue;
 
-                    if ((u == 1 || v == 1) && (uCounterpart != 1 && vCounterpart != 1))
+                    if (v <= 1 && vCounterpart != v)
                         continue;
 
                     if (vCounterpart < uCounterpart)
@@ -487,8 +488,8 @@ public class Day23 : ISolver
 
         void ForgetNode(int u)
         {
-            var entriesWithSelfEdge = new List<(DPKey, int)>();
-            var entriesToRemove = new List<DPKey>();
+            entriesToRemove.Clear();
+            entriesWithSelfEdge.Clear();
 
             foreach ((DPKey k, int d) in dp)
             {

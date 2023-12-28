@@ -20,7 +20,6 @@ public class Day19 : ISolver
         workflowNameLookup[1] = 1;
         Span<ushort> workflowTable = stackalloc ushort[MaxWorkflowCount * 4 * 2]; // up to 600 workflows, each with 4 rules using 2 ushorts
         workflowTable.Clear();
-        ref ushort workflowTableRef = ref MemoryMarshal.GetReference(workflowTable);
 
         ushort numWorkflows = 2; // first two reserved for A and R
         byte c;
@@ -88,12 +87,12 @@ public class Day19 : ISolver
                 if (workflowId == Rejected)
                     break;
 
-                ref ushort workflowRef = ref Unsafe.Add(ref workflowTableRef, workflowId * 8);
+                int workflowOffset = workflowId * 8;
                 int ruleOffset = workflowId * 8;
                 for (int j = 0; j < 8; j += 2)
                 {
-                    ushort rule = Unsafe.Add(ref workflowRef, j);
-                    ushort destination = Unsafe.Add(ref workflowRef, j + 1);
+                    ushort rule = workflowTable[workflowOffset + j];
+                    ushort destination = workflowTable[workflowOffset + j + 1];
                     if (rule == NoRuleRule)
                     {
                         workflowId = destination;
@@ -128,10 +127,10 @@ public class Day19 : ISolver
 
         solution.SubmitPart1(part1);
 
-        long part2 = CountRatings(startWorkflowId, [1, 4000, 1, 4000, 1, 4000, 1, 4000], ref workflowTableRef);
+        long part2 = CountRatings(startWorkflowId, [1, 4000, 1, 4000, 1, 4000, 1, 4000], workflowTable);
         solution.SubmitPart2(part2);
 
-        static long CountRatings(ushort workflowId, Span<ushort> rangeValues, ref ushort workflowTableRef)
+        static long CountRatings(ushort workflowId, Span<ushort> rangeValues, ReadOnlySpan<ushort> workflowTable)
         {
             if (workflowId == Accepted)
                 return (long)(rangeValues[1] - rangeValues[0] + 1) * (rangeValues[3] - rangeValues[2] + 1) * (rangeValues[5] - rangeValues[4] + 1) * (rangeValues[7] - rangeValues[6] + 1);
@@ -143,14 +142,13 @@ public class Day19 : ISolver
             rangeValues.CopyTo(newRangeValues);
 
             long total = 0;
-            ref ushort workflowRef = ref Unsafe.Add(ref workflowTableRef, workflowId * 8);
-            int ruleOffset = workflowId * 8;
+            int workflowOffset = workflowId * 8;
             for (int i = 0; i < 8; i += 2)
             {
-                ushort rule = Unsafe.Add(ref workflowRef, i);
-                ushort destination = Unsafe.Add(ref workflowRef, i + 1);
+                ushort rule = workflowTable[workflowOffset + i];
+                ushort destination = workflowTable[workflowOffset + i + 1];
                 if (rule == NoRuleRule)
-                    return total + CountRatings(destination, newRangeValues, ref workflowTableRef);
+                    return total + CountRatings(destination, newRangeValues, workflowTable);
 
                 int variable = rule & 0b11;
                 int isLessThan = (rule >> 2) & 1;
@@ -164,10 +162,10 @@ public class Day19 : ISolver
 
                     ushort max = newRangeValues[variable * 2 + 1];
                     if (max < value)
-                        return total + CountRatings(destination, newRangeValues, ref workflowTableRef);
+                        return total + CountRatings(destination, newRangeValues, workflowTable);
 
                     newRangeValues[variable * 2 + 1] = (ushort)(value - 1);
-                    total += CountRatings(destination, newRangeValues, ref workflowTableRef);
+                    total += CountRatings(destination, newRangeValues, workflowTable);
                     newRangeValues[variable * 2 + 1] = max;
                     newRangeValues[variable * 2] = value;
                 }
@@ -179,10 +177,10 @@ public class Day19 : ISolver
 
                     ushort min = newRangeValues[variable * 2];
                     if (min > value)
-                        return total + CountRatings(destination, newRangeValues, ref workflowTableRef);
+                        return total + CountRatings(destination, newRangeValues, workflowTable);
 
                     newRangeValues[variable * 2] = (ushort)(value + 1);
-                    total += CountRatings(destination, newRangeValues, ref workflowTableRef);
+                    total += CountRatings(destination, newRangeValues, workflowTable);
                     newRangeValues[variable * 2] = min;
                     newRangeValues[variable * 2 + 1] = value;
                 }

@@ -69,9 +69,9 @@ public class Day08: ISolver
         {
             foreach (byte step in steps)
             {
-                ref uint pathPtr = ref MemoryMarshal.GetArrayDataReference(paths[step]);
+                var path = paths[step];
                 for (int j = 0; j < curNodes.Length; j++)
-                    curNodes[j] = Unsafe.Add(ref pathPtr, (nint)curNodes[j]);
+                    curNodes[j] = path[curNodes[j]];
             }
 
             stepCount += steps.Length;
