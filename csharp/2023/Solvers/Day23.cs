@@ -2,13 +2,12 @@
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
 
-// I will add some documentation later about how this works. Huge thanks to Hegdahl (https://github.com/Hegdahl) who
-// came up with the idea for this algorithm.
+// I will add some documentation later about how this works. Maybe. This will only work with the AoC inputs which are
+// in the form of a 6x6 grid graph when considering only the intersections in the maze
 public class Day23 : ISolver
 {
     public enum Direction : byte { East, West, South, North }
@@ -25,6 +24,16 @@ public class Day23 : ISolver
                 Direction.North => this with { South = edge },
                 _ => this
             };
+        }
+
+        public int CountEdges() => (East == null ? 0 : 1) + (West == null ? 0 : 1) + (South == null ? 0 : 1) + (North == null ? 0 : 1);
+
+        public IEnumerable<Edge> GetEdges()
+        {
+            if (North is Edge north) yield return north;
+            if (South is Edge south) yield return south;
+            if (West is Edge west) yield return west;
+            if (East is Edge east) yield return east;
         }
     }
 
@@ -287,248 +296,270 @@ public class Day23 : ISolver
         }
     }
 
-    public readonly record struct DPKey(ulong FromEdges, ulong ToEdges, byte NumEdges) : IEquatable<DPKey>
+    public record struct RowDPState(byte Column0, byte Column1, byte Column2, byte Column3, byte Column4, byte Column5) : IEquatable<RowDPState>
     {
-        public DPKey InsertEdge(byte From, byte To)
+        // Just pretend you never saw SetColumn and GetColumn
+        public readonly RowDPState SetColumn(int index, byte value)
         {
-            for (int i = 0; i < NumEdges; i++)
-            {
-                ulong u = (FromEdges >> (8 * i)) & 0xFF;
-                if (u > From)
-                {
-                    ulong belowMask = (1UL << (8 * i)) - 1;
-                    ulong belowFrom = FromEdges & belowMask;
-                    ulong belowTo = ToEdges & belowMask;
-                    ulong newEdgeFrom = (ulong)From << (8 * i);
-                    ulong newEdgeTo = (ulong)To << (8 * i);
-                    ulong aboveFrom = (FromEdges & ~belowMask) << 8;
-                    ulong aboveTo = (ToEdges & ~belowMask) << 8;
-                    return new DPKey(belowFrom | newEdgeFrom | aboveFrom, belowTo | newEdgeTo | aboveTo, (byte)(NumEdges + 1));
-                }
-            }
-
-            {
-                ulong newEdgeFrom = (ulong)From << (8 * NumEdges);
-                ulong newEdgeTo = (ulong)To << (8 * NumEdges);
-                return new DPKey(FromEdges | newEdgeFrom, ToEdges | newEdgeTo, (byte)(NumEdges + 1));
-            }
+            RowDPState copy = this;
+            ref byte copyRef = ref Unsafe.As<RowDPState, byte>(ref copy);
+            Unsafe.WriteUnaligned(ref Unsafe.Add(ref copyRef, index), value);
+            return copy;
         }
 
-        public DPKey RemoveEdge(byte From)
+        public byte GetColumn(int index)
         {
-            for (int i = 0; i < NumEdges; i++)
+            ref byte self = ref Unsafe.As<RowDPState, byte>(ref this);
+            return Unsafe.Add(ref self, index);
+        }
+
+        public RowDPState Canonicalize()
+        {
+            RowDPState newState = this;
+            byte nextExpectedId = 1;
+            for (int i = 0; i < 6; i++)
             {
-                ulong u = (FromEdges >> (8 * i)) & 0xFF;
-                if (u == From)
+                byte colValue = newState.GetColumn(i);
+                if (colValue < nextExpectedId)
+                    continue;
+
+                if (colValue != nextExpectedId)
                 {
-                    ulong belowMask = (1UL << (8 * i)) - 1;
-                    ulong belowFrom = FromEdges & belowMask;
-                    ulong belowTo = ToEdges & belowMask;
-                    ulong aboveFrom = (FromEdges & (~belowMask << 8)) >> 8;
-                    ulong aboveTo = (ToEdges & (~belowMask << 8)) >> 8;
-                    return new DPKey(belowFrom | aboveFrom, belowTo | aboveTo, (byte)(NumEdges - 1));
+                    // swap needs to occur
+                    newState = newState.SetColumn(i, nextExpectedId);
+                    for (int j = i + 1; j < 6; j++)
+                    {
+                        byte colValueB = newState.GetColumn(j);
+                        if (colValueB == nextExpectedId)
+                            newState = newState.SetColumn(j, colValue);
+                        else if (colValueB == colValue)
+                            newState = newState.SetColumn(j, nextExpectedId);
+                    }
                 }
+
+                nextExpectedId++;
             }
 
-            return this;
+            return newState;
         }
     }
 
     private static int SolvePart2(Node[] graph)
     {
-        var dp = new Dictionary<DPKey, int>(2000)
+        ulong seenNodes = 1;
+        Node[] curRowNodes = new Node[6];
+        int[] horizontalDistances = new int[5];
+        int[] verticalDistances = new int[6];
+
+        // populate nodes for top row
+        curRowNodes[0] = graph[0];
+        for (int i = 1; i < 5; i++)
         {
-            [new DPKey(0, 0, 0)] = 0
-        };
-
-        int queuePtr = 0;
-        int queueLength = 1;
-        int[] queue = new int[graph.Length];
-        queue[0] = 0;
-
-        int[] remainingDegree = new int[graph.Length];
-
-        ulong inQueue = 1;
-        ulong added = 0;
-
-        // intermediate data structures used inside local functions
-        var newDP = new Dictionary<DPKey, int>(2000);
-        var newEntries = new List<(DPKey, int)>(1000);
-        var entriesWithSelfEdge = new List<(DPKey, int)>(1000);
-        var entriesToRemove = new List<DPKey>(1000);
-
-        while (queuePtr < queueLength)
-        {
-            int nodeId = queue[queuePtr++];
-            Node nodeData = graph[nodeId];
-            IntroduceNode(nodeData);
-            added |= 1UL << nodeId;
-
-            if (nodeData.South is Edge south)
-                IntroduceEdge(nodeId, south);
-
-            if (nodeData.North is Edge north)
-                IntroduceEdge(nodeId, north);
-
-            if (nodeData.West is Edge west)
-                IntroduceEdge(nodeId, west);
-
-            if (nodeData.East is Edge east)
-                IntroduceEdge(nodeId, east);
-        }
-
-
-        return dp[new DPKey(0, 1, 1)];
-
-        void IntroduceNode(Node node)
-        {
-            byte id = (byte)node.Id;
-            newDP.Clear();
-            foreach ((DPKey k, int v) in dp)
-                newDP[k.InsertEdge(id, id)] = v;
-
-            int degree = 0;
-            if (node.South is not null) degree++;
-            if (node.East is not null) degree++;
-            if (node.North is not null) degree++;
-            if (node.West is not null) degree++;
-            remainingDegree[id] = degree;
-
-            (newDP, dp) = (dp, newDP);
-        }
-
-        void IntroduceEdge(int u, Edge edge)
-        {
-            (int v, int newDistance, _) = edge;
-            ulong vFlag = 1UL << v;
-
-            if ((added & vFlag) != 0)
+            Node lastNode = curRowNodes[i - 1];
+            foreach (Edge edge in lastNode.GetEdges())
             {
-                newEntries.Clear();
-
-                foreach ((DPKey key, int bestDistance) in dp)
+                ulong nodeFlag = 1UL << edge.NodeId;
+                if ((seenNodes & nodeFlag) == 0)
                 {
-                    byte uCounterpart = 255;
-                    byte uFrom = 255;
-                    byte vCounterpart = 255;
-                    byte vFrom = 255;
-
-                    ulong fromK = key.FromEdges;
-                    ulong toK = key.ToEdges;
-
-                    for (int i = 0; i < key.NumEdges; i++)
+                    Node nextNode = graph[edge.NodeId];
+                    if (nextNode.CountEdges() == 3)
                     {
-                        byte ku = (byte)(fromK & 0xFF);
-                        byte kv = (byte)(toK & 0xFF);
-
-                        if (ku == u)
-                        {
-                            uCounterpart = kv;
-                            uFrom = ku;
-                        }
-                        else if (ku == v)
-                        {
-                            vCounterpart = kv;
-                            vFrom = ku;
-                        }
-
-                        if (kv == u)
-                        {
-                            uCounterpart = ku;
-                            uFrom = ku;
-                        }
-                        else if (kv == v)
-                        {
-                            vCounterpart = ku;
-                            vFrom = ku;
-                        }
-
-                        fromK >>= 8;
-                        toK >>= 8;
+                        seenNodes |= nodeFlag;
+                        curRowNodes[i] = nextNode;
+                        break;
                     }
-
-                    if (uCounterpart == 255 || vCounterpart == 255 || uCounterpart == v)
-                        continue;
-
-                    if (u <= 1 && uCounterpart != u)
-                        continue;
-
-                    if (v <= 1 && vCounterpart != v)
-                        continue;
-
-                    if (vCounterpart < uCounterpart)
-                        (uCounterpart, vCounterpart) = (vCounterpart, uCounterpart);
-
-                    DPKey newKey = key
-                        .RemoveEdge(uFrom)
-                        .RemoveEdge(vFrom)
-                        .InsertEdge(uCounterpart, vCounterpart);
-
-                    newEntries.Add((newKey, bestDistance + newDistance));
                 }
-
-                foreach ((DPKey, int) entry in newEntries)
-                {
-                    if (!dp.TryGetValue(entry.Item1, out int bestDist) || bestDist < entry.Item2)
-                        dp[entry.Item1] = entry.Item2;
-                }
-
-                if (--remainingDegree[u] == 0)
-                    ForgetNode(u);
-
-                if (--remainingDegree[v] == 0)
-                    ForgetNode(v);
-            }
-            else if ((inQueue & vFlag) == 0)
-            {
-                inQueue |= vFlag;
-                queue[queueLength++] = v;
             }
         }
 
-        void ForgetNode(int u)
+        curRowNodes[5] = curRowNodes[4];
+
+        var dp = new Dictionary<RowDPState, int>(76);
+        dp[new RowDPState(1, 0, 0, 0, 0, 0)] = 0;
+
+        var dpWorking = new Dictionary<RowDPState, int>(76);
+
+        var nextStates = new (RowDPState key, int value)[32];
+
+        for (int row = 0; row < 6; row++)
         {
-            entriesToRemove.Clear();
-            entriesWithSelfEdge.Clear();
-
-            foreach ((DPKey k, int d) in dp)
+            // Update horizontal distances
+            for (int horizEdge = 0; horizEdge < 5; horizEdge++)
             {
-                ulong fromK = k.FromEdges;
-                ulong toK = k.ToEdges;
-
-                for (int i = 0; i < k.NumEdges; i++)
+                Node leftNode = curRowNodes[horizEdge];
+                Node rightNode = curRowNodes[horizEdge + 1];
+                foreach (Edge edge in leftNode.GetEdges())
                 {
-                    byte ku = (byte)(fromK & 0xFF);
-                    byte kv = (byte)(toK & 0xFF);
-                    if (ku == u && kv == u)
+                    if (edge.NodeId == rightNode.Id)
                     {
-                        if (u <= 1)
-                            entriesToRemove.Add(k);
+                        horizontalDistances[horizEdge] = edge.Distance;
+                        break;
+                    }
+                }
+            }
+
+            // update vertical distances and update curRowNodes to next row
+            if (row < 5)
+            {
+                for (int col = 0; col < 6; col++)
+                {
+                    Node lastNodeInCol = curRowNodes[col];
+                    foreach (Edge edge in lastNodeInCol.GetEdges())
+                    {
+                        ulong nodeFlag = 1UL << edge.NodeId;
+                        if ((seenNodes & nodeFlag) == 0)
+                        {
+                            Node node = graph[edge.NodeId];
+                            if (row == 0 && col == 4 && node.CountEdges() != 4)
+                                continue;
+
+                            verticalDistances[col] = edge.Distance;
+                            curRowNodes[col] = node;
+
+                            // in the second last row, the left two elements connect to the 2nd column
+                            if (row != 4 || col != 0)
+                                seenNodes |= nodeFlag;
+
+                            break;
+                        }
+                    }
+                }
+            }
+            else
+            {
+                horizontalDistances[0] = 0;
+                Array.Clear(verticalDistances);
+            }
+
+            dpWorking.Clear();
+
+            foreach (KeyValuePair<RowDPState, int> entry in dp)
+            {
+                int numStates = GetNextStates(entry.Key, entry.Value, horizontalDistances, verticalDistances, nextStates);
+                for (int i = 0; i < numStates; i++)
+                {
+                    (RowDPState state, int distance) = nextStates[i];
+                    int bestDistance = dpWorking.GetValueOrDefault(state, 0);
+                    if (distance > bestDistance)
+                        dpWorking[state] = distance;
+                }
+            }
+
+            (dp, dpWorking) = (dpWorking, dp);
+        }
+
+        return dp[new RowDPState(0, 0, 0, 0, 0, 1)];
+
+        static int GetNextStates(RowDPState state, int currentDistance, int[] horizontalDistances, int[] verticalDistances, (RowDPState key, int value)[] outputStates)
+        {
+            int statesLength = 0;
+            Array.Clear(outputStates);
+            FindStates(state, currentDistance, 0);
+            return statesLength;
+
+            void FindStates(RowDPState state, int currentDistance, int col)
+            {
+                if (col == 6)
+                {
+                    outputStates[statesLength++] = (state, currentDistance);
+                    return;
+                }
+
+                byte colPathId = state.GetColumn(col);
+                byte newPathId = colPathId;
+                int verticalDistance = verticalDistances[col];
+
+                if (colPathId == 0)
+                {
+                    // handle case that we decide to leave this cell unconnected, which we can only do if the above cell is unconnected
+                    FindStates(state, currentDistance, col + 1);
+                    for (int i = 0; i < col; i++)
+                        newPathId = Math.Max(newPathId, state.GetColumn(i));
+                    newPathId++;
+                }
+                else
+                {
+                    // handle case we decide to just keep this cell going straight down
+                    FindStates(state, currentDistance + verticalDistance, col + 1);
+                }
+
+                for (int i = col + 1; i < 6; i++)
+                {
+                    byte nextColPathId = state.GetColumn(i);
+                    currentDistance += horizontalDistances[i - 1];
+
+                    if (nextColPathId == 0)
+                    {
+                        if (colPathId == 0)
+                        {
+                            // New path is being added
+                            RowDPState updatedState = state
+                                .SetColumn(col, newPathId)
+                                .SetColumn(i, newPathId);
+
+                            for (int j = col + 1; j < i; j++)
+                                updatedState = updatedState.SetColumn(j, 0);
+
+                            for (int j = i + 1; j < 6; j++)
+                            {
+                                int curValue = updatedState.GetColumn(j);
+                                if (curValue >= newPathId)
+                                    updatedState = updatedState.SetColumn(j, (byte)(curValue + 1));
+                            }
+
+                            FindStates(updatedState, currentDistance + verticalDistance + verticalDistances[i], i + 1);
+                        }
                         else
-                            entriesWithSelfEdge.Add((k, d));
-                        break;
-                    }
+                        {
+                            // We are just moving the position of the path id from col to i
+                            RowDPState updatedState = state
+                                .SetColumn(col, 0)
+                                .SetColumn(i, colPathId);
 
-                    if (u > 1 && (ku == u || kv == u))
+                            FindStates(updatedState, currentDistance + verticalDistances[i], i + 1);
+                        }
+                    }
+                    else
                     {
-                        entriesToRemove.Add(k);
+                        if (colPathId == 0)
+                        {
+                            // We are just moving the position of the path id from i to col
+                            RowDPState updatedState = state
+                                .SetColumn(col, nextColPathId)
+                                .SetColumn(i, 0);
+
+                            FindStates(updatedState, currentDistance + verticalDistance, i + 1);
+                        }
+                        else if (colPathId != nextColPathId)
+                        {
+                            // need to merge together two separate paths, will choose the lower one and then decrease everything else
+                            byte minPathId = Math.Min(colPathId, nextColPathId);
+                            byte pathToDecrease = Math.Max(colPathId, nextColPathId);
+
+                            RowDPState updatedState = state
+                                .SetColumn(col, 0)
+                                .SetColumn(i, 0);
+
+                            // find other end of path that needs to change
+                            for (int j = 0; j < 6; j++)
+                            {
+                                if (updatedState.GetColumn(j) == pathToDecrease)
+                                {
+                                    updatedState = updatedState.SetColumn(j, minPathId);
+                                    break;
+                                }
+                            }
+
+                            // Canonicalization must occur in case the path merging causes the ids to go out of order
+                            updatedState = updatedState.Canonicalize();
+
+                            FindStates(updatedState, currentDistance, i + 1);
+                        }
+
                         break;
                     }
-
-                    fromK >>= 8;
-                    toK >>= 8;
                 }
-            }
 
-            foreach (DPKey entry in entriesToRemove)
-                dp.Remove(entry);
-
-            foreach ((DPKey, int) entry in entriesWithSelfEdge)
-            {
-                dp.Remove(entry.Item1);
-                DPKey newKey = entry.Item1.RemoveEdge((byte)u);
-                if (!dp.TryGetValue(newKey, out int currentDist) || currentDist < entry.Item2)
-                    dp[newKey] = entry.Item2;
             }
         }
     }
