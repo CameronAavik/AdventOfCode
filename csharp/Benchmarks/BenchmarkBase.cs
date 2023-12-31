@@ -47,8 +47,8 @@ public abstract class MultiInputSolverBenchmarkBase<TSolver> where TSolver : ISo
         TSolver.Solve(_inputs[0], new Solution(_part1Buffer, _part2Buffer));
         TSolver.Solve(_inputs[1], new Solution(_part1Buffer, _part2Buffer));
         TSolver.Solve(_inputs[2], new Solution(_part1Buffer, _part2Buffer));
-        TSolver.Solve(_inputs[0], new Solution(_part1Buffer, _part2Buffer));
-        TSolver.Solve(_inputs[0], new Solution(_part1Buffer, _part2Buffer));
+        TSolver.Solve(_inputs[3], new Solution(_part1Buffer, _part2Buffer));
+        TSolver.Solve(_inputs[4], new Solution(_part1Buffer, _part2Buffer));
     }
 
     [Benchmark]
