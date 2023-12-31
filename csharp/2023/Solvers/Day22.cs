@@ -12,7 +12,7 @@ public class Day22 : ISolver
     }
 
     // Assumptions:
-    // - There are 1280 bricks or less
+    // - There are 1500 bricks or less
     // - 0 <= x < 10
     // - 0 <= y < 10
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
@@ -20,7 +20,7 @@ public class Day22 : ISolver
         const int width = 10;
         const int depth = 10;
 
-        var bricksArray = new Brick[1280]; // max number of bricks I support
+        var bricksArray = new Brick[1500]; // max number of bricks I support
         int brickCount = 1; // leave first brick empty
 
         while (!input.IsEmpty)

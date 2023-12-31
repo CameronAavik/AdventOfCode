@@ -77,6 +77,6 @@ public class Day10 : ISolver
         }
 
         solution.SubmitPart1(steps / 2);
-        solution.SubmitPart2((area - steps) / 2 + 1);
+        solution.SubmitPart2((Math.Abs(area) - steps) / 2 + 1);
     }
 }

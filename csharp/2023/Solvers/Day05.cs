@@ -98,8 +98,15 @@ public class Day05 : ISolver
             {
                 (long xDst, long yDst, long x) = mappings[i];
 
+                // this means that there is a gap in the mappings, continue to next mapping
+                if (yDst < start)
+                    continue;
+
                 if (start < xDst)
                 {
+                    if (end < xDst)
+                        return SolvePart2(start, end, mappingIndex + 1, startLocation);
+
                     long beforeSol = SolvePart2(start, xDst, mappingIndex + 1, startLocation);
                     if (beforeSol >= 0)
                         return beforeSol;

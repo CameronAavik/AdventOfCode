@@ -32,10 +32,15 @@ public class Day24 : ISolver
         while (!input.IsEmpty)
         {
             Line line = ParseLine(ref input);
+            LineSegment a = GetPart1Segment(line);
+
+            // GetPart1Segment will set values to zero if the line does not enter the region
+            if (a.X0 == 0)
+                continue;
+
             if (numLines < 3)
                 lines[numLines] = line;
 
-            LineSegment a = GetPart1Segment(line);
             for (int j = 0; j < numLines; j++)
             {
                 LineSegment b = part1Segments[j];
@@ -79,6 +84,9 @@ public class Day24 : ISolver
 
         long startT = Math.Max(Math.Max(startTX, startTY), 0);
         long endT = Math.Min(endTX, endTY);
+
+        if (endT < startT)
+            return new(0, 0, 0, 0, 0);
 
         long x0 = aVel.X * startT + aPos.X;
         long y0 = aVel.Y * startT + aPos.Y;
@@ -138,7 +146,7 @@ public class Day24 : ISolver
                 for (int j = i + 1; j < n; j++)
                 {
                     decimal[] pivotRow = m[j];
-                    if (pivotRow[i] > maxValue)
+                    if (Math.Abs(pivotRow[i]) > maxValue)
                     {
                         maxValue = pivotRow[i];
                         maxRow = pivotRow;

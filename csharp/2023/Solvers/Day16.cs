@@ -17,7 +17,7 @@ namespace AdventOfCode.CSharp.Y2023.Solvers;
 public class Day16 : ISolver
 {
     public enum Dir { North, South, East, West }
-    public record struct LineSegment(int Start, int End, int Step);
+    public record struct LineSegment(int Start, int End, int Step) : IEquatable<LineSegment>;
     public class SplittingMirror(int InputIndex, int NextMirror1, int NextMirror2, LineSegment[] LineSegments, int NumLineSegments)
     {
         public int InputIndex { get; } = InputIndex;
@@ -425,6 +425,27 @@ public class Day16 : ISolver
                             return i;
                     }
                     break;
+            }
+
+            // If our line segments array is getting too long, there is probably a cycle
+            // Find the cycle and trim all excess line segments
+            if (numSegments == segments.Length)
+            {
+                for (int j = 0; j < numSegments; j++)
+                {
+                    var segment = segments[j];
+                    for (int k = j + 1;  k < numSegments; k++)
+                    {
+                        var otherSegment = segments[k];
+                        if (segment.Equals(otherSegment))
+                        {
+                            numSegments = k;
+                            return -1;
+                        }
+                    }
+                }
+
+                return -1;
             }
         }
     }
