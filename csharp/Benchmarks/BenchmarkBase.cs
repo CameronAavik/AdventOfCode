@@ -1,8 +1,8 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using AdventOfCode.CSharp.Common;
 using AdventOfCode.CSharp.Runner;
 using BenchmarkDotNet.Attributes;
+using BenchmarkDotNet.Diagnosers;
 
 namespace AdventOfCode.CSharp.Benchmarks;
 
@@ -26,6 +26,7 @@ public abstract class SolverBenchmarkBase<TSolver> where TSolver : ISolver
 
 //[BenchmarkDotNet.Diagnostics.Windows.Configs.EtwProfiler]
 [MemoryDiagnoser(displayGenColumns: false)]
+//[HardwareCounters(HardwareCounter.BranchMispredictions, HardwareCounter.BranchInstructions)]
 public abstract class MultiInputSolverBenchmarkBase<TSolver> where TSolver : ISolver
 {
     private readonly byte[][] _inputs = new byte[5][];
@@ -41,7 +42,7 @@ public abstract class MultiInputSolverBenchmarkBase<TSolver> where TSolver : ISo
             _inputs[i++] = File.ReadAllBytes(file);
     }
 
-    [Benchmark]
+    [Benchmark(OperationsPerInvoke = 5)]
     public void SolveAll()
     {
         TSolver.Solve(_inputs[0], new Solution(_part1Buffer, _part2Buffer));

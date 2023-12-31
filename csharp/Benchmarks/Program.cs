@@ -39,7 +39,7 @@ BenchmarkReport ConvertSummaryToReport(Summary summary)
 
     int year;
     int? day;
-    if ((benchmarkClassType.BaseType?.IsGenericType ?? false) && benchmarkClassType.BaseType.GetGenericTypeDefinition() == typeof(SolverBenchmarkBase<>))
+    if ((benchmarkClassType.BaseType?.IsGenericType ?? false) && (benchmarkClassType.BaseType.GetGenericTypeDefinition() == typeof(SolverBenchmarkBase<>) || benchmarkClassType.BaseType.GetGenericTypeDefinition() == typeof(MultiInputSolverBenchmarkBase<>)))
     {
         Type solverType = benchmarkClassType.GenericTypeArguments[0];
         (year, day) = SolverUtils.GetYearAndDay(solverType);
