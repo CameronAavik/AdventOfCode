@@ -1,215 +1,76 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
 
 public class Day14 : ISolver
 {
-    // I apologise to anyone who tries to read this
-
-    public class Region(byte x, byte y, byte count)
-    {
-        public static readonly Region Null = new(255, 255, 255);
-        public byte X { get; } = x;
-        public byte Y { get; } = y;
-        public byte Count { get; set; } = count;
-        public List<Region> Offsets { get; } = new List<Region>(16);
-        public bool IsNull() => X == byte.MaxValue;
-    }
-
+    // Assumes grid width <= 131
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        ref byte inputRef = ref MemoryMarshal.GetReference(input);
         int width = input.IndexOf((byte)'\n');
-        int height = input.Length / (width + 1);
+        int rowLength = width + 1;
+        int height = input.Length / rowLength;
+        uint[] walls = new uint[(height + 2) * 4];
+        uint[] rocks = new uint[(height + 2) * 4];
 
-        List<Region>[] horizontalRegions = new List<Region>[height];
+        // set first and last row to all walls to make things easier later
+        for (int i = 0; i < 4; i++)
+        {
+            walls[i] = 0xFFFFFFFFU;
+            walls[(height + 1) * 4 + i] = 0xFFFFFFFFU;
+        }
+
+        ref byte inputRef = ref MemoryMarshal.GetReference(input);
+
         for (int i = 0; i < height; i++)
-            horizontalRegions[i] = new List<Region>(width / 2);
-
-        List<Region>[] verticalRegions = new List<Region>[width];
-        for (int i = 0; i < width; i++)
-            verticalRegions[i] = new List<Region>(height / 2);
-
-        Span<Region> currentVerticalRegions = new Region[32];
-
-        for (int x = 0; x < width; x += Vector256<byte>.Count)
         {
-            int numElements = x + Vector256<byte>.Count < width ? 32 : (width % Vector256<byte>.Count);
-            currentVerticalRegions.Fill(Region.Null);
-            for (int y = 0; y < height; y++)
+            int index = 4 * (i + 1);
+            for (int j = 0; j + Vector256<byte>.Count < width; j += Vector256<byte>.Count, index++)
             {
-                List<Region> horizontalRegionsForRow = horizontalRegions[y];
-
-                uint rockBits;
-                uint wallBits;
-                if (x + Vector256<byte>.Count < width)
-                {
-                    var v = Vector256.LoadUnsafe(ref inputRef, (nuint)((y * (width + 1)) + x));
-                    rockBits = Vector256.Equals(v, Vector256.Create((byte)'O')).ExtractMostSignificantBits();
-                    wallBits = Vector256.Equals(v, Vector256.Create((byte)'#')).ExtractMostSignificantBits();
-                }
-                else
-                {
-                    rockBits = 0;
-                    wallBits = 0;
-                    for (int i = x; i < width; i++)
-                    {
-                        byte c = input[y * (width + 1) + i];
-                        if (c == '#')
-                            wallBits |= 1U << i;
-                        else if (c == 'O')
-                            rockBits |= 1U << i;
-                    }
-                }
-
-                bool createAtEnd = true;
-                int bitOffset = 0;
-
-                // handle overlap with previous horizontal region on the same row
-                if (horizontalRegionsForRow.Count > 0)
-                {
-                    int lastRegionIndex = horizontalRegionsForRow.Count - 1;
-                    Region lastRegion = horizontalRegionsForRow[lastRegionIndex];
-                    uint t = wallBits & (~wallBits + 1);
-
-                    int wallOffset = Math.Min(numElements, BitOperations.TrailingZeroCount(wallBits));
-                    if (wallOffset != 0)
-                    {
-                        List<Region> regionOffsets = lastRegion.Offsets;
-                        for (int i = 0; i < wallOffset; i++)
-                        {
-                            Region currentVerticalRegion = currentVerticalRegions[i];
-                            if (currentVerticalRegion.IsNull())
-                                currentVerticalRegion = currentVerticalRegions[i] = new Region((byte)(x + i), (byte)y, 0);
-                            currentVerticalRegion.Offsets.Add(lastRegion);
-                            currentVerticalRegion.Count += (byte)((rockBits >> i) & 1);
-                            regionOffsets.Add(currentVerticalRegion);
-                        }
-                    }
-                    else if (lastRegion.Offsets.Count == 0)
-                    {
-                        horizontalRegionsForRow.RemoveAt(lastRegionIndex);
-                    }
-
-                    if (wallBits != 0)
-                    {
-                        Region wallVerticalRegion = currentVerticalRegions[wallOffset];
-                        if (!wallVerticalRegion.IsNull())
-                        {
-                            verticalRegions[x + wallOffset].Add(wallVerticalRegion);
-                            currentVerticalRegions[wallOffset] = Region.Null;
-                        }
-                    }
-                    else
-                    {
-                        createAtEnd = false;
-                    }
-
-                    bitOffset = wallOffset + 1;
-                    wallBits ^= t;
-                }
-
-                while (wallBits != 0)
-                {
-                    uint t = wallBits & (~wallBits + 1);
-                    int wallOffset = BitOperations.TrailingZeroCount(wallBits);
-                    if (wallOffset != bitOffset)
-                    {
-                        var region = new Region((byte)(x + bitOffset), (byte)y, 0);
-                        for (int i = bitOffset; i < wallOffset; i++)
-                        {
-                            Region currentVerticalRegion = currentVerticalRegions[i];
-                            if (currentVerticalRegion.IsNull())
-                                currentVerticalRegion = currentVerticalRegions[i] = new Region((byte)(x + i), (byte)y, 0);
-                            currentVerticalRegion.Offsets.Add(region);
-                            currentVerticalRegion.Count += (byte)((rockBits >> i) & 1);
-                            region.Offsets.Add(currentVerticalRegion);
-                        }
-                        horizontalRegionsForRow.Add(region);
-                    }
-
-                    Region wallVerticalRegion = currentVerticalRegions[wallOffset];
-                    if (!wallVerticalRegion.IsNull())
-                    {
-                        verticalRegions[x + wallOffset].Add(wallVerticalRegion);
-                        currentVerticalRegions[wallOffset] = Region.Null;
-                    }
-
-                    bitOffset = wallOffset + 1;
-                    wallBits ^= t;
-                }
-
-                // handle last rocks
-                if (createAtEnd)
-                {
-                    var region = new Region((byte)(x + bitOffset), (byte)y, 0);
-                    for (int i = bitOffset; i < numElements; i++)
-                    {
-                        Region currentVerticalRegion = currentVerticalRegions[i];
-                        if (currentVerticalRegion.IsNull())
-                            currentVerticalRegion = currentVerticalRegions[i] = new Region((byte)(x + i), (byte)y, 0);
-                        currentVerticalRegion.Offsets.Add(region);
-                        currentVerticalRegion.Count += (byte)((rockBits >> i) & 1);
-                        region.Offsets.Add(currentVerticalRegion);
-                    }
-
-                    if (region.Offsets.Count > 0 || x + Vector256<byte>.Count < width)
-                        horizontalRegionsForRow.Add(region);
-                }
+                var v = Vector256.LoadUnsafe(ref Unsafe.Add(ref inputRef, j));
+                walls[index] = Vector256.Equals(v, Vector256.Create((byte)'#')).ExtractMostSignificantBits();
+                rocks[index] = Vector256.Equals(v, Vector256.Create((byte)'O')).ExtractMostSignificantBits();
             }
 
-            for (int i = 0; i < numElements; i++)
+            uint lastWallsRow = ~((1U << width) - 1); // add fake walls on the edges
+            uint lastRocksRow = 0;
+            for (int j = (index % 4) * Vector256<byte>.Count; j < width; j++)
             {
-                Region verticalRegion = currentVerticalRegions[i];
-                if (!verticalRegion.IsNull())
-                    verticalRegions[x + i].Add(verticalRegion);
+                byte c = Unsafe.Add(ref inputRef, j);
+                lastWallsRow |= (c == '#' ? 1U : 0U) << j;
+                lastRocksRow |= (c == 'O' ? 1U : 0U) << j;
             }
+
+            walls[index] = lastWallsRow;
+            rocks[index] = lastRocksRow;
+            // if the grid is smaller than 96x95, fill teh rest with walls
+            for (; index < 4; index++)
+                walls[index] = 0xFFFFFFFFU;
+
+            inputRef = ref Unsafe.Add(ref inputRef, rowLength);
         }
 
-        // flatten the regions so that it can be iterated over faster
-        Region[] horizontalRegionsFlattened = horizontalRegions.SelectMany(r => r).ToArray();
-        Region[] verticalRegionsFlattened = verticalRegions.SelectMany(r => r).ToArray();
+        TiltNorthWest();
 
-        int part1 = 0;
-        foreach (Region region in verticalRegionsFlattened)
-        {
-            int upperScore = height - region.Y;
-            int lowerScore = upperScore - region.Count + 1;
-            part1 += (upperScore + lowerScore) * region.Count / 2;
-        }
-
+        int part1 = ScoreGrid();
         solution.SubmitPart1(part1);
 
-        // already tilted north in input
-        TiltWithRocksAtStart(verticalRegionsFlattened);
-        TiltWithRocksAtStart(horizontalRegionsFlattened);
-        TiltWithRocksAtEnd(verticalRegionsFlattened);
+        TiltSouthEast();
 
-        var d = new Dictionary<int, int>();
-        var scores = new List<int>(200);
-
-        Span<byte> hashInputBytes = new byte[horizontalRegionsFlattened.Length];
+        var d = new Dictionary<int, int>(250);
+        var scores = new List<int>(250);
 
         int iterations = 0;
         while (true)
         {
-            int score = 0;
-            for (int i = 0; i < horizontalRegionsFlattened.Length; i++)
-            {
-                Region region = horizontalRegionsFlattened[i];
-                hashInputBytes[i] = region.Count;
-                score += region.Count * (height - region.Y);
-            }
-
-            var hashCode = new HashCode();
-            hashCode.AddBytes(hashInputBytes);
-            int hash = hashCode.ToHashCode();
+            int hash = HashGrid();
 
             if (d.TryGetValue(hash, out int j))
             {
@@ -221,39 +82,143 @@ public class Day14 : ISolver
             else
             {
                 d[hash] = iterations;
-                scores.Add(score);
+                scores.Add(ScoreGrid());
             }
 
-            TiltWithRocksAtEnd(horizontalRegionsFlattened);
-            TiltWithRocksAtStart(verticalRegionsFlattened);
-            TiltWithRocksAtStart(horizontalRegionsFlattened);
-            TiltWithRocksAtEnd(verticalRegionsFlattened);
+            TiltNorthWest();
+            TiltSouthEast();
 
             iterations++;
         }
-    }
 
-    private static void TiltWithRocksAtEnd(Region[] regions)
-    {
-        foreach (Region region in regions)
+        int ScoreGrid()
         {
-            List<Region> offsets = region.Offsets;
-            for (int j = offsets.Count - region.Count; j < offsets.Count; j++)
-                offsets[j].Count++;
-
-            region.Count = 0;
+            int score = 0;
+            for (int i = 4; i < rocks.Length - 4; i++)
+                score += BitOperations.PopCount(rocks[i]) * (height - (i / 4) + 1);
+            return score;
         }
-    }
 
-    private static void TiltWithRocksAtStart(Region[] regions)
-    {
-        foreach (Region region in regions)
+        int HashGrid()
         {
-            List<Region> offsets = region.Offsets;
-            for (int j = 0; j < region.Count; j++)
-                offsets[j].Count++;
-
-            region.Count = 0;
+            var hashCode = new HashCode();
+            hashCode.AddBytes(MemoryMarshal.Cast<uint, byte>(rocks.AsSpan().Slice(4, rocks.Length - 8)));
+            return hashCode.ToHashCode();
         }
+
+        void TiltNorthWest()
+        {
+            ref uint rocksRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(rocks), 4);
+            ref uint wallsRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(walls), 4);
+            Vector128<uint> prevFreeSpace = Vector128<uint>.Zero;
+            for (int row = 0; row < height; row++)
+            {
+                Vector128<uint> rocksVec = Vector128.LoadUnsafe(ref rocksRef);
+                Vector128<uint> wallsVec = Vector128.LoadUnsafe(ref wallsRef);
+                ref uint nextRocksRef = ref Unsafe.Add(ref rocksRef, 4);
+                ref uint nextWallsRef = ref Unsafe.Add(ref wallsRef, 4);
+                Vector128<uint> freeSpace = ~(rocksVec | wallsVec | Vector128.LoadUnsafe(ref nextWallsRef) | prevFreeSpace);
+                while (freeSpace != Vector128<uint>.Zero)
+                {
+                    Vector128<uint> newRocksVec = Vector128.LoadUnsafe(ref nextRocksRef);
+                    Vector128<uint> rocksToAdd = newRocksVec & freeSpace;
+                    rocksVec |= rocksToAdd;
+                    Vector128.StoreUnsafe(newRocksVec ^ rocksToAdd, ref nextRocksRef);
+                    nextRocksRef = ref Unsafe.Add(ref nextRocksRef, 4);
+                    nextWallsRef = ref Unsafe.Add(ref nextWallsRef, 4);
+                    freeSpace &= ~Vector128.LoadUnsafe(ref nextWallsRef) & ~rocksToAdd;
+                }
+
+                Vector128<uint> tiltedWest = TiltRowWest(wallsVec, rocksVec);
+                Vector128.StoreUnsafe(tiltedWest, ref rocksRef);
+                prevFreeSpace = ~(rocksVec | wallsVec);
+                rocksRef = ref Unsafe.Add(ref rocksRef, 4);
+                wallsRef = ref Unsafe.Add(ref wallsRef, 4);
+            }
+
+            static Vector128<uint> TiltRowWest(Vector128<uint> walls, Vector128<uint> rocks)
+            {
+                while (true)
+                {
+                    // mark any rocks that are in their correct place as walls
+                    while (true)
+                    {
+                        Vector128<uint> shifted = ShiftLeftByOne(walls) | Vector128.Create(1U, 0U, 0U, 0U); // add fake wall on left
+                        Vector128<uint> newWalls = walls | (shifted & rocks);
+                        if (walls == newWalls)
+                            break;
+                        walls = newWalls;
+                    }
+
+                    Vector128<uint> movingRocks = ~walls & rocks;
+                    if (movingRocks == Vector128<uint>.Zero)
+                        break;
+
+                    rocks = (rocks & walls) | ShiftRightByOne(movingRocks);
+                }
+
+                return rocks;
+            }
+        }
+
+        void TiltSouthEast()
+        {
+            ref uint rocksRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(rocks), height * 4);
+            ref uint wallsRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(walls), height * 4);
+            Vector128<uint> prevFreeSpace = Vector128<uint>.Zero;
+            for (int row = 0; row < height; row++)
+            {
+                Vector128<uint> rocksVec = Vector128.LoadUnsafe(ref rocksRef);
+                Vector128<uint> wallsVec = Vector128.LoadUnsafe(ref wallsRef);
+                ref uint nextRocksRef = ref Unsafe.Subtract(ref rocksRef, 4);
+                ref uint nextWallsRef = ref Unsafe.Subtract(ref wallsRef, 4);
+                Vector128<uint> freeSpace = ~(rocksVec | wallsVec | Vector128.LoadUnsafe(ref nextWallsRef) | prevFreeSpace);
+                while (freeSpace != Vector128<uint>.Zero)
+                {
+                    Vector128<uint> newRocksVec = Vector128.LoadUnsafe(ref nextRocksRef);
+                    Vector128<uint> rocksToAdd = newRocksVec & freeSpace;
+                    rocksVec |= rocksToAdd;
+                    Vector128.StoreUnsafe(newRocksVec ^ rocksToAdd, ref nextRocksRef);
+                    nextRocksRef = ref Unsafe.Subtract(ref nextRocksRef, 4);
+                    nextWallsRef = ref Unsafe.Subtract(ref nextWallsRef, 4);
+                    freeSpace &= ~Vector128.LoadUnsafe(ref nextWallsRef) & ~rocksToAdd;
+                }
+
+                Vector128<uint> tiltedEast = TiltRowEast(wallsVec, rocksVec);
+                Vector128.StoreUnsafe(tiltedEast, ref rocksRef);
+
+                prevFreeSpace = ~(rocksVec | wallsVec);
+                rocksRef = ref Unsafe.Subtract(ref rocksRef, 4);
+                wallsRef = ref Unsafe.Subtract(ref wallsRef, 4);
+            }
+
+            static Vector128<uint> TiltRowEast(Vector128<uint> walls, Vector128<uint> rocks)
+            {
+                while (true)
+                {
+                    // mark any rocks that are in their correct place as walls
+                    while (true)
+                    {
+                        Vector128<uint> shifted = ShiftRightByOne(walls);
+                        Vector128<uint> newWalls = walls | (shifted & rocks);
+                        if (walls == newWalls)
+                            break;
+                        walls = newWalls;
+                    }
+
+                    Vector128<uint> movingRocks = ~walls & rocks;
+                    if (movingRocks == Vector128<uint>.Zero)
+                        break;
+
+                    rocks = (rocks & walls) | ShiftLeftByOne(movingRocks);
+                }
+
+                return rocks;
+            }
+        }
+
+        static Vector128<uint> ShiftLeftByOne(Vector128<uint> v) => (v << 1) | Sse2.ShiftLeftLogical128BitLane(v >> 31, 4);
+
+        static Vector128<uint> ShiftRightByOne(Vector128<uint> v) => (v >> 1) | Sse2.ShiftRightLogical128BitLane(v << 31, 4);
     }
 }
