@@ -4,7 +4,6 @@ using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
-using System.Runtime.Intrinsics.X86;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
@@ -20,12 +19,7 @@ public class Day14 : ISolver
         uint[] walls = new uint[(height + 2) * 4];
         uint[] rocks = new uint[(height + 2) * 4];
 
-        // set first and last row to all walls to make things easier later
-        for (int i = 0; i < 4; i++)
-        {
-            walls[i] = 0xFFFFFFFFU;
-            walls[(height + 1) * 4 + i] = 0xFFFFFFFFU;
-        }
+        Array.Fill(walls, 0xFFFFFFFFU);
 
         ref byte inputRef = ref MemoryMarshal.GetReference(input);
 
@@ -50,9 +44,20 @@ public class Day14 : ISolver
 
             walls[index] = lastWallsRow;
             rocks[index] = lastRocksRow;
-            // if the grid is smaller than 96x95, fill teh rest with walls
-            for (; index < 4; index++)
-                walls[index] = 0xFFFFFFFFU;
+
+            // add wall on the left side
+            uint wallsCarry = 1;
+            uint rocksCarry = 0;
+            for (int j = 4 * (i + 1); j <= index; j++)
+            {
+                uint prev = walls[j];
+                walls[j] = (prev << 1) | wallsCarry;
+                wallsCarry = prev >> 31;
+
+                prev = rocks[j];
+                rocks[j] = (prev << 1) | rocksCarry;
+                rocksCarry = prev >> 31;
+            }
 
             inputRef = ref Unsafe.Add(ref inputRef, rowLength);
         }
@@ -64,8 +69,8 @@ public class Day14 : ISolver
 
         TiltSouthEast();
 
-        var d = new Dictionary<int, int>(250);
-        var scores = new List<int>(250);
+        var d = new Dictionary<int, int>(300);
+        var scores = new List<int>(300);
 
         int iterations = 0;
         while (true)
@@ -114,24 +119,22 @@ public class Day14 : ISolver
             for (int row = 0; row < height; row++)
             {
                 Vector128<uint> rocksVec = Vector128.LoadUnsafe(ref rocksRef);
-                Vector128<uint> wallsVec = Vector128.LoadUnsafe(ref wallsRef);
                 ref uint nextRocksRef = ref Unsafe.Add(ref rocksRef, 4);
                 ref uint nextWallsRef = ref Unsafe.Add(ref wallsRef, 4);
-                Vector128<uint> freeSpace = ~(rocksVec | wallsVec | Vector128.LoadUnsafe(ref nextWallsRef) | prevFreeSpace);
+                Vector128<uint> freeSpace = ~(rocksVec | Vector128.LoadUnsafe(ref wallsRef) | Vector128.LoadUnsafe(ref nextWallsRef) | prevFreeSpace);
                 while (freeSpace != Vector128<uint>.Zero)
                 {
-                    Vector128<uint> newRocksVec = Vector128.LoadUnsafe(ref nextRocksRef);
-                    Vector128<uint> rocksToAdd = newRocksVec & freeSpace;
+                    Vector128<uint> rocksToAdd = Vector128.LoadUnsafe(ref nextRocksRef) & freeSpace;
                     rocksVec |= rocksToAdd;
-                    Vector128.StoreUnsafe(newRocksVec ^ rocksToAdd, ref nextRocksRef);
+                    Vector128.StoreUnsafe(Vector128.LoadUnsafe(ref nextRocksRef) ^ rocksToAdd, ref nextRocksRef);
                     nextRocksRef = ref Unsafe.Add(ref nextRocksRef, 4);
                     nextWallsRef = ref Unsafe.Add(ref nextWallsRef, 4);
                     freeSpace &= ~Vector128.LoadUnsafe(ref nextWallsRef) & ~rocksToAdd;
                 }
 
-                Vector128<uint> tiltedWest = TiltRowWest(wallsVec, rocksVec);
+                Vector128<uint> tiltedWest = TiltRowWest(Vector128.LoadUnsafe(ref wallsRef), rocksVec);
                 Vector128.StoreUnsafe(tiltedWest, ref rocksRef);
-                prevFreeSpace = ~(rocksVec | wallsVec);
+                prevFreeSpace = ~(rocksVec | Vector128.LoadUnsafe(ref wallsRef));
                 rocksRef = ref Unsafe.Add(ref rocksRef, 4);
                 wallsRef = ref Unsafe.Add(ref wallsRef, 4);
             }
@@ -143,7 +146,7 @@ public class Day14 : ISolver
                     // mark any rocks that are in their correct place as walls
                     while (true)
                     {
-                        Vector128<uint> shifted = ShiftLeftByOne(walls) | Vector128.Create(1U, 0U, 0U, 0U); // add fake wall on left
+                        Vector128<uint> shifted = ShiftLeftByOne(walls);
                         Vector128<uint> newWalls = walls | (shifted & rocks);
                         if (walls == newWalls)
                             break;
@@ -169,10 +172,9 @@ public class Day14 : ISolver
             for (int row = 0; row < height; row++)
             {
                 Vector128<uint> rocksVec = Vector128.LoadUnsafe(ref rocksRef);
-                Vector128<uint> wallsVec = Vector128.LoadUnsafe(ref wallsRef);
                 ref uint nextRocksRef = ref Unsafe.Subtract(ref rocksRef, 4);
                 ref uint nextWallsRef = ref Unsafe.Subtract(ref wallsRef, 4);
-                Vector128<uint> freeSpace = ~(rocksVec | wallsVec | Vector128.LoadUnsafe(ref nextWallsRef) | prevFreeSpace);
+                Vector128<uint> freeSpace = ~(rocksVec | Vector128.LoadUnsafe(ref wallsRef) | Vector128.LoadUnsafe(ref nextWallsRef) | prevFreeSpace);
                 while (freeSpace != Vector128<uint>.Zero)
                 {
                     Vector128<uint> newRocksVec = Vector128.LoadUnsafe(ref nextRocksRef);
@@ -184,10 +186,10 @@ public class Day14 : ISolver
                     freeSpace &= ~Vector128.LoadUnsafe(ref nextWallsRef) & ~rocksToAdd;
                 }
 
-                Vector128<uint> tiltedEast = TiltRowEast(wallsVec, rocksVec);
+                Vector128<uint> tiltedEast = TiltRowEast(Vector128.LoadUnsafe(ref wallsRef), rocksVec);
                 Vector128.StoreUnsafe(tiltedEast, ref rocksRef);
 
-                prevFreeSpace = ~(rocksVec | wallsVec);
+                prevFreeSpace = ~(rocksVec | Vector128.LoadUnsafe(ref wallsRef));
                 rocksRef = ref Unsafe.Subtract(ref rocksRef, 4);
                 wallsRef = ref Unsafe.Subtract(ref wallsRef, 4);
             }
@@ -217,8 +219,8 @@ public class Day14 : ISolver
             }
         }
 
-        static Vector128<uint> ShiftLeftByOne(Vector128<uint> v) => (v << 1) | Sse2.ShiftLeftLogical128BitLane(v >> 31, 4);
+        static Vector128<uint> ShiftLeftByOne(Vector128<uint> v) => (v << 1) | Vector128.Shuffle(v >> 31, Vector128.Create(3U, 0U, 1U, 2U));
 
-        static Vector128<uint> ShiftRightByOne(Vector128<uint> v) => (v >> 1) | Sse2.ShiftRightLogical128BitLane(v << 31, 4);
+        static Vector128<uint> ShiftRightByOne(Vector128<uint> v) => (v >> 1) | Vector128.Shuffle(v << 31, Vector128.Create(1U, 2U, 3U, 0U));
     }
 }
