@@ -11,8 +11,9 @@ public class Day08 : ISolver
 
         bool[] rowBuffer = new bool[50];
         bool[] colBuffer = new bool[6];
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
             if (line[1] == 'e') // rect
             {
                 var reader = new SpanReader(line.Slice("rect ".Length));

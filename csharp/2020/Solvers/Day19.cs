@@ -34,8 +34,9 @@ public class Day19 : ISolver
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<byte> message in messagesSpan.SplitLines())
+        foreach (Range messageRange in messagesSpan.SplitLines())
         {
+            ReadOnlySpan<byte> message = messagesSpan[messageRange];
             if (message.Length == rule0Len && MatchesRule(message, 0))
             {
                 part1++;

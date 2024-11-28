@@ -10,8 +10,9 @@ public class Day04 : ISolver
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<byte> passport in input.Split("\n\n"u8))
+        foreach (Range passportRange in input.Split("\n\n"u8))
         {
+            ReadOnlySpan<byte> passport = input[passportRange];
             byte fieldFlags = 0;
             bool hasInvalidField = false;
 

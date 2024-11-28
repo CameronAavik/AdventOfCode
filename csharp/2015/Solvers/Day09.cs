@@ -12,9 +12,9 @@ public class Day09 : ISolver
         // get list of towns and edges from input
         var townSet = new HashSet<string>();
         var distances = new Dictionary<(string From, string To), int>();
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
-            ParseLine(line, out int distance, out string fromName, out string toName);
+            ParseLine(input[lineRange], out int distance, out string fromName, out string toName);
 
             townSet.Add(fromName);
             townSet.Add(toName);
@@ -43,19 +43,19 @@ public class Day09 : ISolver
 
         int minDistance = int.MaxValue;
         int maxDistance = int.MinValue;
-        foreach (Span<int> perm in towns.AsSpan().GetPermutations())
+        foreach (ReadOnlySpan<int> perm in towns.AsSpan().GetPermutations())
         {
-            int pathDist = 0;
+            int pathDistance = 0;
             int prevTown = perm[0];
             for (int j = 1; j < numTowns; j++)
             {
                 int town = perm[j];
-                pathDist += adjMatrix[prevTown, town];
+                pathDistance += adjMatrix[prevTown, town];
                 prevTown = town;
             }
 
-            minDistance = Math.Min(minDistance, pathDist);
-            maxDistance = Math.Max(maxDistance, pathDist);
+            minDistance = Math.Min(minDistance, pathDistance);
+            maxDistance = Math.Max(maxDistance, pathDistance);
         }
 
         solution.SubmitPart1(minDistance);

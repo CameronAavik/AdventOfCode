@@ -7,8 +7,8 @@ public class Day15 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        var width = input.IndexOf((byte)'\n');
-        var height = input.Length / (width + 1);
+        int width = input.IndexOf((byte)'\n');
+        int height = input.Length / (width + 1);
 
         // The risk level for (x, y) is stored at riskLevels[y * width + x].
         // The risk levels are subtracted by 1 so that they are from the range 0 - 8 instead of 1 - 9

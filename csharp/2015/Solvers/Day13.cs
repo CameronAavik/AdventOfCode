@@ -10,16 +10,16 @@ public class Day13 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var peopleSet = new HashSet<string>();
-        var happinesses = new Dictionary<(string A, string B), int>();
+        var happinessUnits = new Dictionary<(string A, string B), int>();
 
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
-            ParseLine(line, out string personA, out string personB, out int happiness);
+            ParseLine(input[lineRange], out string personA, out string personB, out int happiness);
 
             _ = peopleSet.Add(personA);
             _ = peopleSet.Add(personB);
 
-            happinesses[(personA, personB)] = happiness;
+            happinessUnits[(personA, personB)] = happiness;
         }
 
         // convert adjacency list to adjacency matrix
@@ -32,7 +32,7 @@ public class Day13 : ISolver
         {
             for (int b = 0; b < numPeople; b++)
             {
-                if (happinesses.TryGetValue((people[a], people[b]), out int happiness))
+                if (happinessUnits.TryGetValue((people[a], people[b]), out int happiness))
                 {
                     adjMatrix[a, b] = happiness;
                 }
@@ -67,7 +67,7 @@ public class Day13 : ISolver
         }
 
         int maxHappiness = int.MinValue;
-        foreach (Span<int> permutation in people.AsSpan().GetPermutations())
+        foreach (ReadOnlySpan<int> permutation in people.AsSpan().GetPermutations())
         {
             int totalHappiness = 0;
             int prevPerson = permutation[^1];

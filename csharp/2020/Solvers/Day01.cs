@@ -10,8 +10,9 @@ public class Day01 : ISolver
         int length = 0;
         byte[]? numberSet = new byte[2048];
         int[]? numbers = new int[512];
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
             int num = line[0] - '0';
             for (int i = 1; i < line.Length; i++)
             {

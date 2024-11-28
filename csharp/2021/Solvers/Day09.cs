@@ -92,7 +92,7 @@ public class Day09 : ISolver
                         // if they are different, then merge the basins
                         if (prevRowBasin != prevBasin)
                         {
-                            var prevBasinCount = basins[prevBasin];
+                            int prevBasinCount = basins[prevBasin];
                             int basinCombinedHeights = (prevBasinCount | prevRowBasinCount | (1 << (locationHeight + 16))) & 0x7FFF0000;
                             int basinCombinedCounts = (prevBasinCount + prevRowBasinCount + 1) & 0xFFFF;
                             basins[prevBasin] = basinCombinedHeights | basinCombinedCounts;
@@ -117,7 +117,7 @@ public class Day09 : ISolver
         int max3 = 0;
         for (int i = 0; i < basinCount; i++)
         {
-            var basin = basins[i];
+            int basin = basins[i];
             if (basin > 0)
             {
                 int basinLowestHeight = BitOperations.TrailingZeroCount(basin >> 16);

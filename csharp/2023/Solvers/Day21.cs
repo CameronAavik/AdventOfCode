@@ -13,7 +13,7 @@ public class Day21 : ISolver
     // This solution assumes:
     // - there is a horizontal and vertical line through the center of the grid with no rocks
     // - the 4 borders of the grid have no rocks
-    // - there are no rocks at any position with a manhattan distance of 65 away from the center
+    // - there are no rocks at any position with a Manhattan distance of 65 away from the center
     // - the grid is 131x131 (this means that part 1 does not rely on an infinite grid)
     // - the S tile is in the center
     // These assumptions are all true for actual inputs that can appear

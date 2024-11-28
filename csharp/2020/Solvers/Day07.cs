@@ -58,7 +58,7 @@ public class Day07 : ISolver
         bag = new(BytesToString(reader.ReadUntil(' ')), BytesToString(reader.ReadUntil(' ')));
         reader.SkipLength("bags contain ".Length);
 
-        bagContents = new List<(int Count, Bag Colour)>();
+        bagContents = [];
 
         if (reader.Peek() == 'n') // no other bags
         {

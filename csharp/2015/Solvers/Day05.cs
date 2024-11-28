@@ -10,8 +10,9 @@ public class Day05 : ISolver
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
             int numVowels = 0;
             bool containsPair = false;
             bool containsForbiddenPair = false;

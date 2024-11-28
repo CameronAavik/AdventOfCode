@@ -13,11 +13,12 @@ public class Day02 : ISolver
         int part1x = 1, part1y = 1;
         int part2x = 2, part2y = 2;
 
-        var part1Writer = solution.GetPart1Writer();
-        var part2Writer = solution.GetPart2Writer();
+        SolutionWriter part1Writer = solution.GetPart1Writer();
+        SolutionWriter part2Writer = solution.GetPart2Writer();
 
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
             foreach (byte dir in line)
             {
                 switch (dir)

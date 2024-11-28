@@ -24,9 +24,9 @@ public class Day14 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var reindeers = new List<Reindeer>();
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
-            reindeers.Add(ParseLine(line));
+            reindeers.Add(ParseLine(input[lineRange]));
         }
 
         var reindeerStates = new ReindeerState[reindeers.Count];

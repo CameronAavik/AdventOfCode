@@ -433,10 +433,10 @@ public class Day16 : ISolver
             {
                 for (int j = 0; j < numSegments; j++)
                 {
-                    var segment = segments[j];
+                    LineSegment segment = segments[j];
                     for (int k = j + 1;  k < numSegments; k++)
                     {
-                        var otherSegment = segments[k];
+                        LineSegment otherSegment = segments[k];
                         if (segment.Equals(otherSegment))
                         {
                             numSegments = k;

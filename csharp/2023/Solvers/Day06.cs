@@ -13,18 +13,18 @@ public class Day06 : ISolver
 
         long part1 = 1;
         long part2Time = 0;
-        long part2Dist = 0;
+        long part2Distance = 0;
 
         while (timesLine.Length > 0)
         {
             long time = ParseNum(ref timesLine, ref part2Time);
-            long distance = ParseNum(ref distanceLine, ref part2Dist);
+            long distance = ParseNum(ref distanceLine, ref part2Distance);
             part1 *= NumWaysToWin(time, distance);
         }
 
         solution.SubmitPart1(part1);
 
-        long part2 = NumWaysToWin(part2Time, part2Dist);
+        long part2 = NumWaysToWin(part2Time, part2Distance);
         solution.SubmitPart2(part2);
     }
 
@@ -53,8 +53,8 @@ public class Day06 : ISolver
         // time^2 overflows the long on part 2, so we can rewrite it as follows:
         // x = (time +- sqrt(time - 2 * sqrt(distance)) * sqrt(time + 2 * sqrt(distance))) / 2
 
-        double sqrtDist = Math.Sqrt(distance);
-        double sqrt = Math.Sqrt(time - 2 * sqrtDist) * Math.Sqrt(time + 2 * sqrtDist);
+        double sqrtDistance = Math.Sqrt(distance);
+        double sqrt = Math.Sqrt(time - 2 * sqrtDistance) * Math.Sqrt(time + 2 * sqrtDistance);
         long low = Convert.ToInt64(Math.Ceiling((time - sqrt) / 2));
         long high = Convert.ToInt64(Math.Floor((time + sqrt) / 2));
 

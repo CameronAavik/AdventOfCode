@@ -21,8 +21,9 @@ public class Day23 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var instructions = new List<Instruction>();
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
             static int ParseReg(ReadOnlySpan<byte> line) => line[4] == 'a' ? 0 : 1;
             static int ParseNumber(ReadOnlySpan<byte> str)
             {

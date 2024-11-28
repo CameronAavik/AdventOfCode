@@ -11,9 +11,9 @@ public class Day02 : ISolver
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<byte> present in input.SplitLines())
+        foreach (Range presentRange in input.SplitLines())
         {
-            ParseDimensionString(present, out int side0, out int side1, out int side2);
+            ParseDimensionString(input[presentRange], out int side0, out int side1, out int side2);
 
             // ensure side2 is the largest side, side0 and side1 don't have to be sorted.
             SwapIfGreater(ref side1, ref side2);

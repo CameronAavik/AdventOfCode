@@ -11,8 +11,9 @@ public class Day02 : ISolver
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
             int i = 0;
             int left = ParsePosInt(line, until: '-', ref i);
             int right = ParsePosInt(line, until: ' ', ref i);

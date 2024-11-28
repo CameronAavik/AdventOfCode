@@ -12,8 +12,9 @@ public class Day02 : ISolver
         int part2 = 0;
 
         var nums = new List<int>();
-        foreach (ReadOnlySpan<byte> row in input.SplitLines())
+        foreach (Range rowRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> row = input[rowRange];
             int minValue = int.MaxValue;
             int maxValue = int.MinValue;
             int quotient = 0;

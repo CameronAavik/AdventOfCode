@@ -10,8 +10,9 @@ public class Day06 : ISolver
         const int part1Mask = 1 << 16;
         int[,] grid = new int[1000, 1000];
 
-        foreach (ReadOnlySpan<byte> instruction in input.SplitLines())
+        foreach (Range instructionRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> instruction = input[instructionRange];
             int x, y;
             int x1, y1, x2, y2;
             switch (instruction[6])

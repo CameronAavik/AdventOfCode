@@ -46,9 +46,9 @@ public class AllDays2023
         for (int i = 0; i < 25; i++)
         {
             _inputs[i] = new byte[5][];
-            var inputFolder = $"input/2023/extra/day{i + 1:D2}";
+            string inputFolder = $"input/2023/extra/day{i + 1:D2}";
             int j = 0;
-            foreach (var file in Directory.EnumerateFiles(inputFolder))
+            foreach (string file in Directory.EnumerateFiles(inputFolder))
                 _inputs[i][j++] = File.ReadAllBytes(file);
         }
     }

@@ -55,7 +55,7 @@ public class Day14 : ISolver
         }
 
         // Generate the 4 pairs produced from each possible pair
-        foreach (var pair in possiblePairs)
+        foreach (int pair in possiblePairs)
         {
             int pairsCreated = lookups[pair];
             lookups2[pair] = (long)lookups[pairsCreated >> 16] << 32 | (long)lookups[pairsCreated & ushort.MaxValue];

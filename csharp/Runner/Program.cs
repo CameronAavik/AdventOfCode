@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
 using AdventOfCode.CSharp.Common;
 using AdventOfCode.CSharp.Runner;
 
-int year = 2023;
+int year = 2024;
 int day = 1;
 
 byte[] inputBytes = await AdventRunner.GetInputAsync(year, day, fetchIfMissing: true);
@@ -15,7 +12,7 @@ string input = Encoding.ASCII.GetString(inputBytes);
 
 var parse = (string s) =>
 {
-    var ints = ExtractInts(s);
+    List<int> ints = ExtractInts(s);
     return s;
 };
 
@@ -32,7 +29,7 @@ Console.WriteLine(ans);
 List<int> ExtractInts(string s)
 {
     var ints = new List<int>();
-    foreach (var match in Regex.Matches(s, @"(?:(?<!\d)-)?\d+").ToList())
+    foreach (Match? match in Regex.Matches(s, @"(?:(?<!\d)-)?\d+").ToList())
     {
         ints.Add(int.Parse(match.Value));
     }

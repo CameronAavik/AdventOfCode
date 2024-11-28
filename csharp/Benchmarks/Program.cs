@@ -10,21 +10,21 @@ using BenchmarkDotNet.Running;
 #if DEBUG
 var config = new DebugInProcessConfig();
 #else
-var config = DefaultConfig.Instance;
+IConfig config = DefaultConfig.Instance;
 #endif
-var results = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
+System.Collections.Generic.IEnumerable<Summary> results = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
 
 var reports = results.Select(ConvertSummaryToReport).ToList();
 
 using var writer = new StreamWriter(File.Create("Benchmarks.md"));
 
-foreach (var group in reports.GroupBy(r => r.Year))
+foreach (IGrouping<int, BenchmarkReport> group in reports.GroupBy(r => r.Year))
 {
     writer.WriteLine($"## {group.Key}");
     writer.WriteLine();
     writer.WriteLine("| Day | P0 | P50 | P100 | Allocations |");
     writer.WriteLine("|--- |---:|---:|---:|---:|");
-    foreach (var r in group)
+    foreach (BenchmarkReport? r in group)
     {
         writer.WriteLine($"| **{r.Day?.ToString() ?? "All"}** | **{r.P0:N2} μs** | **{r.P50:N2} μs** | **{r.P100:N2} μs** | **{FormatAllocations(r.Allocations)}** |");
     }
@@ -34,8 +34,8 @@ foreach (var group in reports.GroupBy(r => r.Year))
 
 BenchmarkReport ConvertSummaryToReport(Summary summary)
 {
-    var report = summary.Reports[0];
-    var benchmarkClassType = report.BenchmarkCase.Descriptor.Type;
+    BenchmarkDotNet.Reports.BenchmarkReport report = summary.Reports[0];
+    Type benchmarkClassType = report.BenchmarkCase.Descriptor.Type;
 
     int year;
     int? day;
@@ -51,8 +51,8 @@ BenchmarkReport ConvertSummaryToReport(Summary summary)
         day = null;
     }
 
-    var percentiles = report.ResultStatistics!.Percentiles;
-    var allocations = report.Metrics.Single(m => m.Key.Equals("Allocated Memory")).Value.Value;
+    BenchmarkDotNet.Mathematics.PercentileValues percentiles = report.ResultStatistics!.Percentiles;
+    double allocations = report.Metrics.Single(m => m.Key.Equals("Allocated Memory")).Value.Value;
     return new BenchmarkReport(year, day, percentiles.P0 / 1000, percentiles.P50 / 1000, percentiles.P100 / 1000, allocations);
 }
 

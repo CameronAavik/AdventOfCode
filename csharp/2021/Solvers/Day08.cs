@@ -11,7 +11,7 @@ public class Day08 : ISolver
         int part1 = 0;
         int part2 = 0;
 
-        var cursor = 0;
+        int cursor = 0;
         while (cursor < input.Length)
         {
             byte oneDigitMask = 0;

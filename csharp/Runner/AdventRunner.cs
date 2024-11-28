@@ -42,7 +42,7 @@ public static class AdventRunner
         var cookieContainer = new CookieContainer();
         using var handler = new HttpClientHandler() { CookieContainer = cookieContainer };
         using var client = new HttpClient(handler) { BaseAddress = baseAddress };
-        client.DefaultRequestHeaders.UserAgent.TryParseAdd("github.com/CameronAavik/AdventOfCode");
+        client.DefaultRequestHeaders.UserAgent.TryParseAdd("https://github.com/CameronAavik/AdventOfCode");
         cookieContainer.Add(baseAddress, new Cookie("session", s_cookie));
         byte[] inputData = await client.GetByteArrayAsync($"/{year}/day/{day}/input");
 
@@ -55,31 +55,25 @@ public static class AdventRunner
 
     public static void RunSolver(int year, int day, ReadOnlySpan<byte> input, out string solution1, out string solution2)
     {
-        var solver = GetSolverMethod(year, day);
-        var buffer1 = new char[64];
-        var buffer2 = new char[64];
+        SolverDelegate solver = GetSolverMethod(year, day);
+        char[] buffer1 = new char[64];
+        char[] buffer2 = new char[64];
 
         var solution = new Solution(buffer1, buffer2);
         solver(input, solution);
 
-        var buffer1Newline = Array.IndexOf(buffer1, '\n');
+        int buffer1Newline = Array.IndexOf(buffer1, '\n');
         solution1 = buffer1Newline == -1 ? string.Empty : buffer1.AsSpan().Slice(0, buffer1Newline).ToString();
 
-        var buffer2Newline = Array.IndexOf(buffer2, '\n');
+        int buffer2Newline = Array.IndexOf(buffer2, '\n');
         solution2 = buffer2Newline == -1 ? string.Empty : buffer2.AsSpan().Slice(0, buffer2Newline).ToString();
     }
 
     public static SolverDelegate GetSolverMethod(int year, int day)
     {
-        var solverType = GetSolverType(year, day);
-        if (solverType == null)
-            throw new Exception();
-
-        var method = solverType.GetMethod("Solve", BindingFlags.Static | BindingFlags.Public, [typeof(ReadOnlySpan<byte>), typeof(Solution)]);
-        if (method == null)
-            throw new Exception();
-
-        return method.CreateDelegate<SolverDelegate>();
+        Type solverType = GetSolverType(year, day) ?? throw new Exception();
+        MethodInfo? method = solverType.GetMethod("Solve", BindingFlags.Static | BindingFlags.Public, [typeof(ReadOnlySpan<byte>), typeof(Solution)]);
+        return method?.CreateDelegate<SolverDelegate>() ?? throw new Exception();
     }
 
     public static Type? GetSolverType(int year, int day)

@@ -13,8 +13,9 @@ public class Day19 : ISolver
         var elements = new Dictionary<string, int>();
         var replacements = new List<List<List<int>>>(); // replacements[element][replacement][replacementElement]
 
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
             if (line.Length == 0)
             {
                 break;

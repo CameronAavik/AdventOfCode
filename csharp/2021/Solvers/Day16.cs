@@ -18,7 +18,7 @@ public class Day16 : ISolver
     private static ulong ParsePacket(ref InputReader reader, ref uint versionSum)
     {
         versionSum += reader.ReadBits(3);
-        var typeId = reader.ReadBits(3);
+        uint typeId = reader.ReadBits(3);
         if (typeId == 4)
         {
             ulong number = 0;

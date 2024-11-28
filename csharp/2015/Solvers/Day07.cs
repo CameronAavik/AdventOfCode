@@ -10,8 +10,9 @@ public class Day07 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var rules = new Dictionary<string, string>();
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
             int lastSpaceIndex = line.LastIndexOf((byte)' ');
             string variableName = Encoding.ASCII.GetString(line[(lastSpaceIndex + 1)..]);
             rules[variableName] = Encoding.ASCII.GetString(line[..(lastSpaceIndex - 3)]);

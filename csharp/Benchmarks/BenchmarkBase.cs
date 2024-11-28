@@ -36,9 +36,9 @@ public abstract class MultiInputSolverBenchmarkBase<TSolver> where TSolver : ISo
     public MultiInputSolverBenchmarkBase()
     {
         (int year, int day) = SolverUtils.GetYearAndDay<TSolver>();
-        var inputFolder = $"input/{year}/extra/day{day:D2}";
+        string inputFolder = $"input/{year}/extra/day{day:D2}";
         int i = 0;
-        foreach (var file in Directory.EnumerateFiles(inputFolder))
+        foreach (string file in Directory.EnumerateFiles(inputFolder))
             _inputs[i++] = File.ReadAllBytes(file);
     }
 

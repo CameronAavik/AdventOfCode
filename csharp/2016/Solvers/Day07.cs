@@ -12,8 +12,9 @@ public class Day07 : ISolver
 
         byte[] abas = new byte[26 * 26];
         byte[] babs = new byte[26 * 26];
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
             Array.Clear(abas, 0, abas.Length);
             Array.Clear(babs, 0, babs.Length);
 

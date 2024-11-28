@@ -67,7 +67,7 @@ public class Day08: ISolver
         {
             foreach (byte step in steps)
             {
-                var path = paths[step];
+                uint[] path = paths[step];
                 for (int j = 0; j < curNodes.Length; j++)
                     curNodes[j] = path[curNodes[j]];
             }

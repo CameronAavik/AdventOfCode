@@ -11,7 +11,7 @@ public class Day21 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var ingredientCount = new Dictionary<string, int>();
-        var allgerenCandidates = new Dictionary<string, HashSet<string>>();
+        var allergenCandidates = new Dictionary<string, HashSet<string>>();
 
         var ingredientSet = new HashSet<string>();
         var reader = new SpanReader(input);
@@ -28,16 +28,17 @@ public class Day21 : ISolver
             }
 
             reader.SkipLength("(contains ".Length);
-            foreach (ReadOnlySpan<byte> allergen in reader.ReadUntil(')').Split(", "u8))
+            ReadOnlySpan<byte> allergensSpan = reader.ReadUntil(')');
+            foreach (Range allergenRange in allergensSpan.Split(", "u8))
             {
-                string allergenStr = Encoding.ASCII.GetString(allergen);
-                if (allgerenCandidates.TryGetValue(allergenStr, out HashSet<string>? curSet))
+                string allergenStr = Encoding.ASCII.GetString(allergensSpan[allergenRange]);
+                if (allergenCandidates.TryGetValue(allergenStr, out HashSet<string>? curSet))
                 {
                     curSet.IntersectWith(ingredientSet);
                 }
                 else
                 {
-                    allgerenCandidates[allergenStr] = new HashSet<string>(ingredientSet);
+                    allergenCandidates[allergenStr] = [.. ingredientSet];
                 }
             }
 
@@ -46,8 +47,8 @@ public class Day21 : ISolver
         }
 
         int allergenIndex = 0;
-        string[] allergens = new string[allgerenCandidates.Count];
-        foreach (string allergen in allgerenCandidates.Keys)
+        string[] allergens = new string[allergenCandidates.Count];
+        foreach (string allergen in allergenCandidates.Keys)
         {
             allergens[allergenIndex++] = allergen;
         }
@@ -68,7 +69,7 @@ public class Day21 : ISolver
 
                 string allergen = allergens[i];
 
-                HashSet<string> candidates = allgerenCandidates[allergen];
+                HashSet<string> candidates = allergenCandidates[allergen];
                 if (candidates.Count == 1)
                 {
                     foundIngredient = candidates.Single();
@@ -78,7 +79,7 @@ public class Day21 : ISolver
                 }
             }
 
-            foreach (HashSet<string> candidates in allgerenCandidates.Values)
+            foreach (HashSet<string> candidates in allergenCandidates.Values)
             {
                 candidates.Remove(foundIngredient);
             }

@@ -8,8 +8,6 @@ public class Day05 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         const int MaxCrateHeight = 64;
-        int part1 = 0;
-        int part2 = 0;
 
         int rowLength = input.IndexOf((byte)'\n') + 1;
         int numStacks = rowLength / 4;
@@ -23,7 +21,7 @@ public class Day05 : ISolver
         }
 
         // Find the 1 column label index and use that to calculate the stack height
-        var maxCratesPerStack = (input.IndexOf((byte)'1') - 1) / rowLength;
+        int maxCratesPerStack = (input.IndexOf((byte)'1') - 1) / rowLength;
         for (int i = 0; i < maxCratesPerStack; i++)
         {
             int rowStart = (maxCratesPerStack - i - 1) * rowLength;
@@ -43,14 +41,14 @@ public class Day05 : ISolver
         while (inputPtr < input.Length - 1)
         {
             inputPtr += "move ".Length;
-            var numCrates = ReadIntegerUntil(input, ' ', ref inputPtr);
+            int numCrates = ReadIntegerUntil(input, ' ', ref inputPtr);
             inputPtr += "from ".Length;
-            var fromCrate = ReadIntegerUntil(input, ' ', ref inputPtr) - 1;
+            int fromCrate = ReadIntegerUntil(input, ' ', ref inputPtr) - 1;
             inputPtr += "to ".Length;
-            var toCrate = ReadIntegerUntil(input, '\n', ref inputPtr) - 1;
+            int toCrate = ReadIntegerUntil(input, '\n', ref inputPtr) - 1;
 
-            var fromHeight = heights[fromCrate];
-            var toHeight = heights[toCrate];
+            int fromHeight = heights[fromCrate];
+            int toHeight = heights[toCrate];
 
             for (int i = 0; i < numCrates; i++)
             {
@@ -62,8 +60,8 @@ public class Day05 : ISolver
             heights[toCrate] += numCrates;
         }
 
-        var part1Writer = solution.GetPart1Writer();
-        var part2Writer = solution.GetPart2Writer();
+        SolutionWriter part1Writer = solution.GetPart1Writer();
+        SolutionWriter part2Writer = solution.GetPart2Writer();
 
         for (int i = 0; i < numStacks; i++)
         {

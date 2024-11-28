@@ -16,8 +16,10 @@ public class Day04 : ISolver
         int part2 = -1;
 
         int[] letterCounts = new int[26];
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
+
             int nameLength = line.LastIndexOf((byte)'-');
             ReadOnlySpan<byte> name = line.Slice(0, nameLength);
             var reader = new SpanReader(line.Slice(nameLength + 1));

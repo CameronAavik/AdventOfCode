@@ -17,7 +17,7 @@ public class Day13 : ISolver
         Span<int> yFolds = stackalloc int[32];
         ParseFolds(foldsInput, xFolds, yFolds, out int numXFolds, out int numYFolds, out bool firstFoldIsX);
 
-        var firstFoldAxis = firstFoldIsX ? xFolds[0] : yFolds[0];
+        int firstFoldAxis = firstFoldIsX ? xFolds[0] : yFolds[0];
 
         int maxX = xFolds[0] * 2 + 1;
         int maxY = yFolds[0] * 2 + 1;
@@ -31,7 +31,7 @@ public class Day13 : ISolver
         for (int i = numXFolds - 1; i >= 0; i--)
         {
             int fold = xFolds[i];
-            var dst = finalXPositions.Slice(fold + 1, fold);
+            Span<byte> dst = finalXPositions.Slice(fold + 1, fold);
             finalXPositions.Slice(0, fold).CopyTo(dst);
             dst.Reverse();
         }
@@ -42,7 +42,7 @@ public class Day13 : ISolver
         for (int i = numYFolds - 1; i >= 0; i--)
         {
             int fold = yFolds[i];
-            var dst = finalYPositions.Slice(fold + 1, fold);
+            Span<byte> dst = finalYPositions.Slice(fold + 1, fold);
             finalYPositions.Slice(0, fold).CopyTo(dst);
             dst.Reverse();
         }

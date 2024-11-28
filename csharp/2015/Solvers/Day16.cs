@@ -27,9 +27,9 @@ namespace AdventOfCode.CSharp.Y2015.Solvers
             int sue2 = 0;
 
             int sue = 1;
-            foreach (ReadOnlySpan<byte> line in input.SplitLines())
+            foreach (Range lineRange in input.SplitLines())
             {
-                var reader = new SpanReader(line);
+                var reader = new SpanReader(input[lineRange]);
                 reader.SkipUntil(':');
 
                 bool canBePart1 = true;

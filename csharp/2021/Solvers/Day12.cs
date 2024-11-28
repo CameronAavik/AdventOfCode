@@ -27,7 +27,7 @@ public class Day12 : ISolver
         int[] caveAdjacencies = new int[caveEdges.Length];
         for (int i = 0; i < caveEdges.Length; i++)
         {
-            var edge = caveEdges[i];
+            long edge = caveEdges[i];
             for (int j = 1; j < caveEdges.Length; j++)
             {
                 if (((edge >> (j * 4)) & 0b1111) > 0)
@@ -38,10 +38,10 @@ public class Day12 : ISolver
         var cache = new Dictionary<State, int>();
 
         int startingAvailableCaves = (1 << caveEdges.Length) - 2; // all caves available, except start
-        var part1 = GetPaths(new State(startingAvailableCaves, CanRepeat: false, CurrentCave: 0));
+        int part1 = GetPaths(new State(startingAvailableCaves, CanRepeat: false, CurrentCave: 0));
         solution.SubmitPart1(part1);
 
-        var part2 = GetPaths(new State(startingAvailableCaves, CanRepeat: true, CurrentCave: 0));
+        int part2 = GetPaths(new State(startingAvailableCaves, CanRepeat: true, CurrentCave: 0));
         solution.SubmitPart2(part2);
 
         int GetPaths(State state)
@@ -52,13 +52,13 @@ public class Day12 : ISolver
 
             if (!cache.TryGetValue(state, out int numPaths))
             {
-                var adjacencies = caveAdjacencies[state.CurrentCave];
-                var edgeCounts = caveEdges[state.CurrentCave];
-                var availableCaves = state.AvailableCaves & adjacencies;
+                int adjacencies = caveAdjacencies[state.CurrentCave];
+                long edgeCounts = caveEdges[state.CurrentCave];
+                int availableCaves = state.AvailableCaves & adjacencies;
                 int total = 0;
                 while (availableCaves != 0)
                 {
-                    var t = availableCaves & -availableCaves;
+                    int t = availableCaves & -availableCaves;
                     int caveId = BitOperations.TrailingZeroCount(availableCaves);
                     int edgeCount = (int)((edgeCounts >> (caveId * 4)) & 0b1111);
 
@@ -72,7 +72,7 @@ public class Day12 : ISolver
                     availableCaves = ~state.AvailableCaves & adjacencies;
                     while (availableCaves != 0)
                     {
-                        var t = availableCaves & -availableCaves;
+                        int t = availableCaves & -availableCaves;
                         int caveId = BitOperations.TrailingZeroCount(availableCaves);
                         int edgeCount = (int)((edgeCounts >> (caveId * 4)) & 0b1111);
 

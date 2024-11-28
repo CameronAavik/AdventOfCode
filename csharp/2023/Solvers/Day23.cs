@@ -313,7 +313,7 @@ public class Day23 : ISolver
             return Unsafe.Add(ref self, index);
         }
 
-        public RowDPState Canonicalize()
+        public readonly RowDPState Canonicalize()
         {
             RowDPState newState = this;
             byte nextExpectedId = 1;
@@ -374,8 +374,10 @@ public class Day23 : ISolver
 
         curRowNodes[5] = curRowNodes[4];
 
-        var dp = new Dictionary<RowDPState, int>(76);
-        dp[new RowDPState(1, 0, 0, 0, 0, 0)] = 0;
+        var dp = new Dictionary<RowDPState, int>(76)
+        {
+            [new RowDPState(1, 0, 0, 0, 0, 0)] = 0
+        };
 
         var dpWorking = new Dictionary<RowDPState, int>(76);
 
@@ -384,15 +386,15 @@ public class Day23 : ISolver
         for (int row = 0; row < 6; row++)
         {
             // Update horizontal distances
-            for (int horizEdge = 0; horizEdge < 5; horizEdge++)
+            for (int horizontalEdge = 0; horizontalEdge < 5; horizontalEdge++)
             {
-                Node leftNode = curRowNodes[horizEdge];
-                Node rightNode = curRowNodes[horizEdge + 1];
+                Node leftNode = curRowNodes[horizontalEdge];
+                Node rightNode = curRowNodes[horizontalEdge + 1];
                 foreach (Edge edge in leftNode.GetEdges())
                 {
                     if (edge.NodeId == rightNode.Id)
                     {
-                        horizontalDistances[horizEdge] = edge.Distance;
+                        horizontalDistances[horizontalEdge] = edge.Distance;
                         break;
                     }
                 }

@@ -128,9 +128,9 @@ public class Day20 : ISolver
 
         for (int row = minY; row <= maxY; row++)
         {
-            var nextRow = grid.Slice((row + 1) * ulongsPerRow, ulongsPerRow);
+            Span<ulong> nextRow = grid.Slice((row + 1) * ulongsPerRow, ulongsPerRow);
 
-            var nextGridRow = nextGrid.Slice(row * ulongsPerRow, ulongsPerRow);
+            Span<ulong> nextGridRow = nextGrid.Slice(row * ulongsPerRow, ulongsPerRow);
 
             int lastBitCarry = 0;
             ulong prev = prevRow[0];

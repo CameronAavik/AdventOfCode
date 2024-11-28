@@ -10,8 +10,9 @@ public class Day08 : ISolver
         int part1 = 0;
         int part2 = 0;
 
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
+            ReadOnlySpan<byte> line = input[lineRange];
             part1 += GetPart1Length(line);
             part2 += GetPart2Length(line);
         }

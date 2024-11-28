@@ -3,7 +3,7 @@
 namespace AdventOfCode.CSharp.Common;
 
 /// <summary>
-/// A helper class for throwing exceptions which helps make the callsite more inline-able
+/// A helper class for throwing exceptions which helps make the call site more inline-able
 /// </summary>
 public static class ThrowHelper
 {

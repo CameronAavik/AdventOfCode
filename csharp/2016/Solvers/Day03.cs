@@ -13,9 +13,9 @@ public class Day03 : ISolver
 
         int part2SideNum = 0;
         Span<int> prevSides = stackalloc int[6];
-        foreach (ReadOnlySpan<byte> line in input.SplitLines())
+        foreach (Range lineRange in input.SplitLines())
         {
-            ParseLine(line, out int side1, out int side2, out int side3);
+            ParseLine(input[lineRange], out int side1, out int side2, out int side3);
 
             if (IsValidTriangle(side1, side2, side3))
             {
