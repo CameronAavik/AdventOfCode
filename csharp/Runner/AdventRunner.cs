@@ -89,6 +89,7 @@ public static class AdventRunner
             2021 => typeof(Y2021.Solvers.Day01).Assembly,
             2022 => typeof(Y2022.Solvers.Day01).Assembly,
             2023 => typeof(Y2023.Solvers.Day01).Assembly,
+            2024 => typeof(Y2024.Solvers.Day01).Assembly,
             _ => null
         };
 

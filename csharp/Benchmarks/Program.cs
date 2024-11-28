@@ -47,7 +47,7 @@ BenchmarkReport ConvertSummaryToReport(Summary summary)
     else
     {
         // assume that otherwise it is the 2023 All Days (I will fix this to support other years later)
-        year = 2023;
+        year = int.Parse(benchmarkClassType.Name[^4..]);
         day = null;
     }
 
