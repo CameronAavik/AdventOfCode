@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 using AdventOfCode.CSharp.Common;
 using AdventOfCode.CSharp.Runner;
 
-int year = 2023;
+int year = 2024;
 int day = 1;
 
 byte[] inputBytes = await AdventRunner.GetInputAsync(year, day, fetchIfMissing: true);
@@ -20,6 +20,7 @@ var lines = input
 var ans = 0;
 foreach ((var i, var line) in lines.Enumerate()) 
 {
+
 }
 
 Console.WriteLine(ans);

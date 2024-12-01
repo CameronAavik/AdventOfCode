@@ -33,7 +33,11 @@ public static class AdventRunner
     {
         string filename = $"input/{year}/day{day:D2}.txt";
         if (File.Exists(filename))
-            return await File.ReadAllBytesAsync(filename);
+        {
+            var contents = await File.ReadAllBytesAsync(filename);
+            if (contents.Length > 0)
+                return contents;
+        }
 
         if (!fetchIfMissing || s_cookie == null || s_inputCacheFolder == null)
             throw new Exception("Unable to load input for year and day");
