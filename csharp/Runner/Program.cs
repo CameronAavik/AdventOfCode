@@ -4,34 +4,58 @@ using System.Text.RegularExpressions;
 using AdventOfCode.CSharp.Common;
 using AdventOfCode.CSharp.Runner;
 
-int year = 2024;
+int year = 2023;
 int day = 1;
 
 byte[] inputBytes = await AdventRunner.GetInputAsync(year, day, fetchIfMissing: true);
 string input = Encoding.ASCII.GetString(inputBytes);
 
-var parse = (string s) =>
-{
-    List<int> ints = ExtractInts(s);
-    return s;
-};
+var lines = input
+    .TrimEnd('\n')
+    .Split("\n")
+    //.Select(Extensions.ExtractNumbers<int>)
+    //.Select(LineData.FromString)
+    .ToList();
 
-var lines = input.TrimEnd('\n').Split("\n").Select(parse).ToArray();
-
-int ans = 0;
-for (int i = 0; i < lines.Length; i++)
+var ans = 0;
+foreach ((var i, var line) in lines.Enumerate()) 
 {
-    var line = lines[i];
 }
 
 Console.WriteLine(ans);
 
-List<int> ExtractInts(string s)
+// Record for storing parsed line data
+record LineData()
 {
-    var ints = new List<int>();
-    foreach (Match? match in Regex.Matches(s, @"(?:(?<!\d)-)?\d+").ToList())
+    public static LineData FromString(string line)
     {
-        ints.Add(int.Parse(match.Value));
+        var sParts = line.Split(' ');
+        return new LineData();
     }
-    return ints;
+}
+
+static class Extensions
+{
+    public static List<T> ExtractNumbers<T>(this string s) where T : IBinaryInteger<T>
+    {
+        var numbers = new List<T>();
+        foreach (Match? match in Regex.Matches(s, @"(?:(?<!\d)-)?\d+").ToList())
+        {
+            if (!T.TryParse(match.Value, null, out var number))
+                throw new Exception($"Failed to parse number: {match.Value}");
+            numbers.Add(number);
+        }
+
+        return numbers;
+    }
+
+    public static List<int> ExtractIntegers(this string s) => s.ExtractNumbers<int>();
+    public static List<long> ExtractLongs(this string s) => s.ExtractNumbers<long>();
+
+    public static IEnumerable<(int Index, T Item)> Enumerate<T>(this IEnumerable<T> enumerable)
+    {
+        int i = 0;
+        foreach (var item in enumerable)
+            yield return (i++, item);
+    }
 }

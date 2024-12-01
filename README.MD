@@ -10,6 +10,9 @@ About my solutions:
 - Oftentimes my solutions may not solve the general case as most of the problems are not clear on all the input constraints, however it will solve all actual inputs that could appear.
 - Feel free to copy my solutions if you are stuck, credit is always appreciated but not required since many of my approaches are not unique.
 - All my solutions are single-threaded, but they will often make use of SIMD as a way to emulate parallelism on a single thread.
+- This repo follows the [automation guidelines](https://www.reddit.com/r/adventofcode/wiki/faqs/automation/) on the /r/adventofcode community wiki.
+  You can find input caching and `User-Agent` configuration implemented in [AdventRunner.GetInputAsync()](./csharp/Runner/AdventRunner.cs).
+  There is no polling implemented in this repository for which throttling is required.
 
 ## Solutions
 
