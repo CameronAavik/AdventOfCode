@@ -6,6 +6,7 @@ using BenchmarkDotNet.Attributes;
 namespace AdventOfCode.CSharp.Benchmarks;
 
 [GenericTypeArguments(typeof(Day01))]
+[GenericTypeArguments(typeof(Day02))]
 public class Y2024Solver<TSolver> : MultiInputSolverBenchmarkBase<TSolver> where TSolver : ISolver
 {
 }
@@ -38,6 +39,7 @@ public class AllDays2024
         for (int i = 0; i < 5; i++)
         {
             Day01.Solve(_inputs[0][i], new(_part1Buffer, _part2Buffer));
+            Day02.Solve(_inputs[1][i], new(_part1Buffer, _part2Buffer));
         }
     }
 }
