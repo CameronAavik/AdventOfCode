@@ -70,5 +70,5 @@ public class MultiInputDataAttribute(int year, int day) : Attribute, ITestDataSo
         }
     }
 
-    public string? GetDisplayName(MethodInfo methodInfo, object?[]? data) => $"{year}.{day:N2} (Part1={data![1]}, Part2={data![2]})";
+    public string? GetDisplayName(MethodInfo methodInfo, object?[]? data) => $"{data![1]}_{data![2]}";
 }

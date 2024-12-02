@@ -9,3 +9,4 @@ BenchmarkDotNet.Artifacts
 .vscode
 settings.local.json
 input
+Benchmarks.md

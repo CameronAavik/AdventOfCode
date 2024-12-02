@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\input\**\*.*" CopyToOutputDirectory="PreserveNewest" Link="input\%(RecursiveDir)\%(Filename)%(Extension)" />
+    <Content Include="..\..\input\**\*.*" CopyToOutputDirectory="Always" Link="input\%(RecursiveDir)\%(Filename)%(Extension)" />
   </ItemGroup>
 
   <ItemGroup>
