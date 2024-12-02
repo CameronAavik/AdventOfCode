@@ -13,26 +13,14 @@ string input = Encoding.ASCII.GetString(inputBytes);
 var lines = input
     .TrimEnd('\n')
     .Split("\n")
-    .Select(Extensions.ExtractNumbers<int>)
+    //.Select(Extensions.ExtractNumbers<int>)
     //.Select(LineData.FromString)
     .ToList();
 
-var left = new List<int>();
-var right = new List<int>();
-var counts = new Dictionary<int, int>();
-long ans = 0;
-foreach ((int i, var line) in lines.Enumerate()) 
+var ans = 0;
+foreach ((var i, var line) in lines.Enumerate())
 {
-    left.Add(line[0]);
-    counts[line[1]] = counts.GetValueOrDefault(line[1], 0) + 1;
-}
 
-left.Sort();
-right.Sort();
-
-for (int i = 0; i < left.Count; i++)
-{
-    ans += left[i] * counts.GetValueOrDefault(left[i], 0);
 }
 
 Console.WriteLine(ans);
