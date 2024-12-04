@@ -5,7 +5,7 @@ using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2024.Solvers;
 
-public partial class Day03 : ISolver
+public class Day03 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
