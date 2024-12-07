@@ -10,6 +10,7 @@ namespace AdventOfCode.CSharp.Benchmarks;
 [GenericTypeArguments(typeof(Day03))]
 [GenericTypeArguments(typeof(Day04))]
 [GenericTypeArguments(typeof(Day05))]
+[GenericTypeArguments(typeof(Day07))]
 public class Y2024Solver<TSolver> : MultiInputSolverBenchmarkBase<TSolver> where TSolver : ISolver
 {
 }
@@ -46,6 +47,7 @@ public class AllDays2024
             Day03.Solve(_inputs[2][i], new(_part1Buffer, _part2Buffer));
             Day04.Solve(_inputs[3][i], new(_part1Buffer, _part2Buffer));
             Day05.Solve(_inputs[4][i], new(_part1Buffer, _part2Buffer));
+            Day07.Solve(_inputs[6][i], new(_part1Buffer, _part2Buffer));
         }
     }
 }

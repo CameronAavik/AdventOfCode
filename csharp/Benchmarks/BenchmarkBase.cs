@@ -38,8 +38,12 @@ public abstract class MultiInputSolverBenchmarkBase<TSolver> where TSolver : ISo
         (int year, int day) = SolverUtils.GetYearAndDay<TSolver>();
         string inputFolder = $"input/{year}/extra/day{day:D2}";
         int i = 0;
-        foreach (string file in Directory.EnumerateFiles(inputFolder))
-            _inputs[i++] = File.ReadAllBytes(file);
+        // If less than 5 test inputs, might load same file multiple times
+        // Useful during early benchmarking
+        while (i < 5)
+            foreach (string file in Directory.EnumerateFiles(inputFolder))
+                while (i < 5)
+                    _inputs[i++] = File.ReadAllBytes(file);
     }
 
     [Benchmark(OperationsPerInvoke = 5)]
