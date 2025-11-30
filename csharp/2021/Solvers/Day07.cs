@@ -17,25 +17,25 @@ public class Day07 : ISolver
         long sumSquaredLeft = 0;
         long sumSquaredRight = 0;
 
-        int cursor = 0;
+        var cursor = 0;
         while (cursor < input.Length)
         {
-            int crab = ReadCrab(input, ref cursor);
+            var crab = ReadCrab(input, ref cursor);
             crabs.Add(crab);
             sumRight += crab;
             sumSquaredRight += crab * (crab + 1) / 2;
         }
 
         crabs.Sort();
-        int totalCrabs = crabs.Count;
-        int prevMid = crabs[0];
+        var totalCrabs = crabs.Count;
+        var prevMid = crabs[0];
 
-        bool part1Found = false;
-        bool part2Found = false;
-        for (int i = 1; i < crabs.Count; i++)
+        var part1Found = false;
+        var part2Found = false;
+        for (var i = 1; i < crabs.Count; i++)
         {
-            int value = crabs[i];
-            int diff = value - prevMid;
+            var value = crabs[i];
+            var diff = value - prevMid;
 
             if (diff == 0)
                 continue;
@@ -51,8 +51,8 @@ public class Day07 : ISolver
 
             if (!part2Found)
             {
-                long leftSumSquaredIncrease = sumLeft * diff + i * diff * (diff + 1) / 2;
-                long rightSumSquaredDecrease = sumRight * diff - (totalCrabs - i) * (diff * (diff - 1) / 2);
+                var leftSumSquaredIncrease = sumLeft * diff + i * diff * (diff + 1) / 2;
+                var rightSumSquaredDecrease = sumRight * diff - (totalCrabs - i) * (diff * (diff - 1) / 2);
 
                 if (leftSumSquaredIncrease > rightSumSquaredDecrease)
                 {
@@ -77,7 +77,7 @@ public class Day07 : ISolver
     public static int ReadCrab(ReadOnlySpan<byte> span, ref int i)
     {
         // Assume that the first character is always a digit
-        int ret = span[i++] - '0';
+        var ret = span[i++] - '0';
 
         byte cur;
         while ((cur = span[i++]) is not ((byte)',' or (byte)'\n'))

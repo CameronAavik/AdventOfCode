@@ -8,20 +8,20 @@ public class Day09 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int width = input.IndexOf((byte)'\n');
-        int height = input.Length / (width + 1);
+        var width = input.IndexOf((byte)'\n');
+        var height = input.Length / (width + 1);
 
         Span<int> rowBasins = stackalloc int[width];
         Span<int> basins = stackalloc int[4096]; // assume a max of 4096 basins
-        int basinCount = 0;
+        var basinCount = 0;
 
-        int cursor = 0;
+        var cursor = 0;
 
         // first row
-        int prevBasin = -1;
-        for (int x = 0; x < width; x++)
+        var prevBasin = -1;
+        for (var x = 0; x < width; x++)
         {
-            int locationHeight = input[cursor++] - '0';
+            var locationHeight = input[cursor++] - '0';
             if (locationHeight == 9)
             {
                 rowBasins[x] = -1;
@@ -44,12 +44,12 @@ public class Day09 : ISolver
 
         cursor++; // skip newline
 
-        for (int y = 1; y < height; y++)
+        for (var y = 1; y < height; y++)
         {
             prevBasin = -1;
-            for (int x = 0; x < width; x++)
+            for (var x = 0; x < width; x++)
             {
-                int locationHeight = input[cursor++] - '0';
+                var locationHeight = input[cursor++] - '0';
                 if (locationHeight == 9)
                 {
                     rowBasins[x] = -1;
@@ -57,7 +57,7 @@ public class Day09 : ISolver
                     continue;
                 }
 
-                int prevRowBasin = rowBasins[x];
+                var prevRowBasin = rowBasins[x];
 
                 if (prevBasin == -1)
                 {
@@ -92,9 +92,9 @@ public class Day09 : ISolver
                         // if they are different, then merge the basins
                         if (prevRowBasin != prevBasin)
                         {
-                            int prevBasinCount = basins[prevBasin];
-                            int basinCombinedHeights = (prevBasinCount | prevRowBasinCount | (1 << (locationHeight + 16))) & 0x7FFF0000;
-                            int basinCombinedCounts = (prevBasinCount + prevRowBasinCount + 1) & 0xFFFF;
+                            var prevBasinCount = basins[prevBasin];
+                            var basinCombinedHeights = (prevBasinCount | prevRowBasinCount | (1 << (locationHeight + 16))) & 0x7FFF0000;
+                            var basinCombinedCounts = (prevBasinCount + prevRowBasinCount + 1) & 0xFFFF;
                             basins[prevBasin] = basinCombinedHeights | basinCombinedCounts;
                             basins[prevRowBasin] = -prevBasin;
                         }
@@ -111,19 +111,19 @@ public class Day09 : ISolver
             cursor++;
         }
 
-        int riskLevelSum = 0;
-        int max1 = 0;
-        int max2 = 0;
-        int max3 = 0;
-        for (int i = 0; i < basinCount; i++)
+        var riskLevelSum = 0;
+        var max1 = 0;
+        var max2 = 0;
+        var max3 = 0;
+        for (var i = 0; i < basinCount; i++)
         {
-            int basin = basins[i];
+            var basin = basins[i];
             if (basin > 0)
             {
-                int basinLowestHeight = BitOperations.TrailingZeroCount(basin >> 16);
+                var basinLowestHeight = BitOperations.TrailingZeroCount(basin >> 16);
                 riskLevelSum += basinLowestHeight + 1;
 
-                int basinSize = basin & 0xFFFF;
+                var basinSize = basin & 0xFFFF;
 
                 if (basinSize < max3)
                     continue;

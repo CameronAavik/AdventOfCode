@@ -8,24 +8,24 @@ public class Day17 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        ParseInput(input, out int x1, out int x2, out int y1, out int y2);
+        ParseInput(input, out var x1, out var x2, out var y1, out var y2);
 
         // Maximum y velocity is -y1 since otherwise it will overshoot the target area.
         // The y position at the peak can be expressed as the sum from 1 to the y velocity.
-        int part1MaxVelY = -y1;
+        var part1MaxVelY = -y1;
         solution.SubmitPart1(part1MaxVelY * (part1MaxVelY - 1) / 2);
 
         // Add number of ways to get the target area on the first step
-        int part2 = (x2 - x1 + 1) * (y2 - y1 + 1);
+        var part2 = (x2 - x1 + 1) * (y2 - y1 + 1);
 
-        int triangular = 0;
-        int finalMinVelX = 0;
-        int finalMaxVelX = 0;
-        int prevMinVelX = x1;
-        int prevMaxVelX = x2;
-        int prevMinVelY = y1;
-        int prevMaxVelY = y2;
-        for (int step = 1; step <= part1MaxVelY * 2 + 1; step++)
+        var triangular = 0;
+        var finalMinVelX = 0;
+        var finalMaxVelX = 0;
+        var prevMinVelX = x1;
+        var prevMaxVelX = x2;
+        var prevMinVelY = y1;
+        var prevMaxVelY = y2;
+        for (var step = 1; step <= part1MaxVelY * 2 + 1; step++)
         {
             triangular += step;
 
@@ -37,11 +37,11 @@ public class Day17 : ISolver
 
             // x = triangular + (step + 1) * (vx - step)
             // vx = step + (x - triangular) / (step + 1);
-            int minVelX = finalMinVelX == 0 ? step + DivideAndRoundUp(x1 - triangular, step + 1) : finalMinVelX; // need to round up for x1
-            int maxVelX = finalMaxVelX == 0 ? step + (x2 - triangular) / (step + 1) : finalMaxVelX;
+            var minVelX = finalMinVelX == 0 ? step + DivideAndRoundUp(x1 - triangular, step + 1) : finalMinVelX; // need to round up for x1
+            var maxVelX = finalMaxVelX == 0 ? step + (x2 - triangular) / (step + 1) : finalMaxVelX;
 
-            int xRange = maxVelX - minVelX + 1;
-            int xRangePreviousOverlap = Math.Max(0, Math.Min(maxVelX, prevMaxVelX) - Math.Max(minVelX, prevMinVelX) + 1);
+            var xRange = maxVelX - minVelX + 1;
+            var xRangePreviousOverlap = Math.Max(0, Math.Min(maxVelX, prevMaxVelX) - Math.Max(minVelX, prevMinVelX) + 1);
 
             prevMinVelX = minVelX;
             prevMaxVelX = maxVelX;
@@ -51,14 +51,14 @@ public class Day17 : ISolver
             {
                 // y = (step + 1) * vy - triangular
                 // vy = (y + triangular) / (step + 1)
-                int minVelY = (y1 + triangular) / (step + 1);
-                int maxVelY = y2 >= -triangular ? 0 : -DivideAndRoundUp(-(y2 + triangular), step + 1);
+                var minVelY = (y1 + triangular) / (step + 1);
+                var maxVelY = y2 >= -triangular ? 0 : -DivideAndRoundUp(-(y2 + triangular), step + 1);
 
-                int yRangePreviousOverlap = Math.Max(0, Math.Min(maxVelY, prevMaxVelY) - Math.Max(minVelY, prevMinVelY) + 1);
+                var yRangePreviousOverlap = Math.Max(0, Math.Min(maxVelY, prevMaxVelY) - Math.Max(minVelY, prevMinVelY) + 1);
                 prevMinVelY = minVelY;
                 prevMaxVelY = maxVelY;
 
-                int yRange = maxVelY - minVelY + 1;
+                var yRange = maxVelY - minVelY + 1;
                 part2 += xRange * yRange - xRangePreviousOverlap * yRangePreviousOverlap;
             }
 
@@ -66,15 +66,15 @@ public class Day17 : ISolver
             // Since the target area is below x axis, we know it will cross y=0 at step 2*vy
             // This means that there will always be an odd number of steps once it reaches the axis
             // This forces whether or not the number of steps after y=0 is even or odd.
-            int minStepsAfterAxis = 2 - (step % 2);
-            int triangular2 = 0;
-            for (int stepsAfterAxis = minStepsAfterAxis; stepsAfterAxis < step; stepsAfterAxis += 2)
+            var minStepsAfterAxis = 2 - (step % 2);
+            var triangular2 = 0;
+            for (var stepsAfterAxis = minStepsAfterAxis; stepsAfterAxis < step; stepsAfterAxis += 2)
             {
                 triangular2 += 2 * stepsAfterAxis - 1;
 
-                int stepsAtYintersect = step - stepsAfterAxis;
-                int vy = stepsAtYintersect / 2;
-                int y = -(triangular2 + vy * stepsAfterAxis);
+                var stepsAtYintersect = step - stepsAfterAxis;
+                var vy = stepsAtYintersect / 2;
+                var y = -(triangular2 + vy * stepsAfterAxis);
 
                 if (y < y1)
                 {
@@ -82,7 +82,7 @@ public class Day17 : ISolver
                 }
                 else if (y <= y2)
                 {
-                    int yAtPreviousStep = y + vy + stepsAfterAxis;
+                    var yAtPreviousStep = y + vy + stepsAfterAxis;
                     part2 += yAtPreviousStep <= y2 ? xRange - xRangePreviousOverlap : xRange;
                 }
             }
@@ -96,7 +96,7 @@ public class Day17 : ISolver
 
     private static void ParseInput(ReadOnlySpan<byte> input, out int x1, out int x2, out int y1, out int y2)
     {
-        int i = "target area: x=".Length;
+        var i = "target area: x=".Length;
         x1 = ReadInteger(input, '.', ref i);
         i += ".".Length;
         x2 = ReadInteger(input, ',', ref i);
@@ -110,7 +110,7 @@ public class Day17 : ISolver
     public static int ReadInteger(ReadOnlySpan<byte> span, char until, ref int i)
     {
         // Assume that the first character is always a digit
-        byte c = span[i++];
+        var c = span[i++];
 
         int mul;
         int ret;

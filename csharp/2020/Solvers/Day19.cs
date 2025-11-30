@@ -9,34 +9,34 @@ public class Day19 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // split input into the two sections
-        int messagesStart = input.IndexOf("\n\n"u8);
-        ReadOnlySpan<byte> rulesSpan = input.Slice(0, messagesStart + 1);
-        ReadOnlySpan<byte> messagesSpan = input.Slice(messagesStart + 2);
+        var messagesStart = input.IndexOf("\n\n"u8);
+        var rulesSpan = input[..(messagesStart + 1)];
+        var messagesSpan = input[(messagesStart + 2)..];
 
         // rules[n][i][j] returns the jth element of the ith subrule for rule n
-        int[][][] rules = ParseRules(rulesSpan);
+        var rules = ParseRules(rulesSpan);
 
         // this only works for the AoC input, but all rules will always reduce to the same number of terminals
-        int[] ruleLengths = GetRuleLengths(rules);
+        var ruleLengths = GetRuleLengths(rules);
 
         static int GCD(int a, int b)
         {
             return b == 0 ? a : GCD(b, a % b);
         }
 
-        int rule0Len = ruleLengths[0];
-        int rule42Len = ruleLengths[42];
-        int rule11Len = ruleLengths[11];
-        int rule31Len = ruleLengths[31];
+        var rule0Len = ruleLengths[0];
+        var rule42Len = ruleLengths[42];
+        var rule11Len = ruleLengths[11];
+        var rule31Len = ruleLengths[31];
 
-        int part2Multiple = GCD(rule42Len, rule31Len);
+        var part2Multiple = GCD(rule42Len, rule31Len);
 
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
-        foreach (Range messageRange in messagesSpan.SplitLines())
+        foreach (var messageRange in messagesSpan.SplitLines())
         {
-            ReadOnlySpan<byte> message = messagesSpan[messageRange];
+            var message = messagesSpan[messageRange];
             if (message.Length == rule0Len && MatchesRule(message, 0))
             {
                 part1++;
@@ -51,8 +51,8 @@ public class Day19 : ISolver
                 //
                 // this means that we are looking for 42 * (a + b) + 31 * b where a >= 1 and b >= 1
 
-                int num31s = 0;
-                for (int i = message.Length - rule31Len; i >= 0; i -= rule31Len)
+                var num31s = 0;
+                for (var i = message.Length - rule31Len; i >= 0; i -= rule31Len)
                 {
                     if (!MatchesRule(message.Slice(i, rule31Len), 31))
                     {
@@ -67,14 +67,14 @@ public class Day19 : ISolver
                     continue;
                 }
 
-                int num42s = (message.Length - (num31s * rule31Len)) / rule42Len;
+                var num42s = (message.Length - (num31s * rule31Len)) / rule42Len;
                 if (num42s <= num31s)
                 {
                     continue;
                 }
 
-                bool isValid = true;
-                for (int i = 0; i < num42s * rule42Len; i += rule42Len)
+                var isValid = true;
+                for (var i = 0; i < num42s * rule42Len; i += rule42Len)
                 {
                     if (!MatchesRule(message.Slice(i, rule42Len), 42))
                     {
@@ -100,11 +100,11 @@ public class Day19 : ISolver
         {
             if (ruleNumber < 0)
             {
-                byte c = str[0];
+                var c = str[0];
                 return (ruleNumber == -1 && c == 'a') || (ruleNumber == -2 && c == 'b');
             }
 
-            foreach (int[] subRule in rules[ruleNumber])
+            foreach (var subRule in rules[ruleNumber])
             {
                 if (MatchesSubRule(str, subRule))
                 {
@@ -118,11 +118,11 @@ public class Day19 : ISolver
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool MatchesSubRule(ReadOnlySpan<byte> str, int[] subRule)
         {
-            int i = 0;
+            var i = 0;
 
-            foreach (int subRuleNumber in subRule)
+            foreach (var subRuleNumber in subRule)
             {
-                int ruleLen = subRuleNumber < 0 ? 1 : ruleLengths[subRuleNumber];
+                var ruleLen = subRuleNumber < 0 ? 1 : ruleLengths[subRuleNumber];
 
                 if (!MatchesRule(str.Slice(i, ruleLen), subRuleNumber))
                 {
@@ -138,18 +138,18 @@ public class Day19 : ISolver
 
     private static int[][][] ParseRules(ReadOnlySpan<byte> rules)
     {
-        int numRules = rules.Count((byte)'\n');
-        int[][][] rulesArr = new int[numRules][][];
+        var numRules = rules.Count((byte)'\n');
+        var rulesArr = new int[numRules][][];
 
         var reader = new SpanReader(rules);
         while (!reader.Done)
         {
-            int ruleId = reader.ReadIntUntil(':');
+            var ruleId = reader.ReadIntUntil(':');
             reader.SkipLength(1); // skip the space
 
             if (reader.Peek() == '"')
             {
-                int rule = reader[1] == 'a' ? -1 : -2;
+                var rule = reader[1] == 'a' ? -1 : -2;
                 rulesArr[ruleId] = [[rule]];
                 reader.SkipLength("\"a\"\n".Length);
             }
@@ -157,7 +157,7 @@ public class Day19 : ISolver
             {
                 var ruleValueReader = new SpanReader(reader.ReadUntil('\n'));
 
-                int n1 = ruleValueReader.ReadPosIntUntil(' ');
+                var n1 = ruleValueReader.ReadPosIntUntil(' ');
                 int[] group1 = ruleValueReader.Done || ruleValueReader.Peek() == '|'
                     ? [n1]
                     : [n1, ruleValueReader.ReadPosIntUntil(' ')];
@@ -170,7 +170,7 @@ public class Day19 : ISolver
                 {
                     ruleValueReader.SkipLength("| ".Length);
 
-                    int n3 = ruleValueReader.ReadPosIntUntil(' ');
+                    var n3 = ruleValueReader.ReadPosIntUntil(' ');
                     int[] group2 = ruleValueReader.Done
                         ? [n3]
                         : [n3, ruleValueReader.ReadPosIntUntilEnd()];
@@ -185,10 +185,10 @@ public class Day19 : ISolver
 
     private static int[] GetRuleLengths(int[][][] rules)
     {
-        int[] lengths = new int[rules.Length];
+        var lengths = new int[rules.Length];
 
         // ensure whole array is cached
-        for (int i = 0; i < rules.Length; i++)
+        for (var i = 0; i < rules.Length; i++)
         {
             _ = GetRuleLength(i);
         }
@@ -197,7 +197,7 @@ public class Day19 : ISolver
 
         int GetRuleLength(int ruleNumber)
         {
-            int cachedLen = lengths[ruleNumber];
+            var cachedLen = lengths[ruleNumber];
             if (cachedLen != 0)
             {
                 return cachedLen;
@@ -205,10 +205,10 @@ public class Day19 : ISolver
 
             // rules always have the same length regardless of which alternative is taken
             // so we can just take the first rule
-            int[] rule = rules[ruleNumber][0];
+            var rule = rules[ruleNumber][0];
 
-            int len = 0;
-            foreach (int subRuleNumber in rule)
+            var len = 0;
+            foreach (var subRuleNumber in rule)
             {
                 // negative sub-rule means it is a terminal of length 1
                 len += subRuleNumber < 0 ? 1 : GetRuleLength(subRuleNumber);

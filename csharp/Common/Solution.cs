@@ -11,14 +11,14 @@ public readonly ref struct Solution(Span<char> part1Buffer, Span<char> part2Buff
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SubmitPart1<T>(T val) where T : ISpanFormattable
     {
-        val.TryFormat(_part1Buffer, out int charsWritten, default, default);
+        val.TryFormat(_part1Buffer, out var charsWritten, default, default);
         _part1Buffer[charsWritten] = '\n';
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SubmitPart2<T>(T val) where T : ISpanFormattable
     {
-        val.TryFormat(_part2Buffer, out int charsWritten, default, default);
+        val.TryFormat(_part2Buffer, out var charsWritten, default, default);
         _part2Buffer[charsWritten] = '\n';
     }
 

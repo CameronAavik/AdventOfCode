@@ -7,21 +7,21 @@ public class Day08 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        bool[,] pixels = new bool[50, 6];
+        var pixels = new bool[50, 6];
 
-        bool[] rowBuffer = new bool[50];
-        bool[] colBuffer = new bool[6];
-        foreach (Range lineRange in input.SplitLines())
+        var rowBuffer = new bool[50];
+        var colBuffer = new bool[6];
+        foreach (var lineRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> line = input[lineRange];
+            var line = input[lineRange];
             if (line[1] == 'e') // rect
             {
-                var reader = new SpanReader(line.Slice("rect ".Length));
-                int width = reader.ReadPosIntUntil('x');
-                int height = reader.ReadPosIntUntilEnd();
-                for (int y = 0; y < height; y++)
+                var reader = new SpanReader(line["rect ".Length..]);
+                var width = reader.ReadPosIntUntil('x');
+                var height = reader.ReadPosIntUntilEnd();
+                for (var y = 0; y < height; y++)
                 {
-                    for (int x = 0; x < width; x++)
+                    for (var x = 0; x < width; x++)
                     {
                         pixels[x, y] = true;
                     }
@@ -29,15 +29,15 @@ public class Day08 : ISolver
             }
             else if (line[7] == 'c') // rotate column
             {
-                var reader = new SpanReader(line.Slice("rotate column x=".Length));
-                int column = reader.ReadPosIntUntil(' ');
+                var reader = new SpanReader(line["rotate column x=".Length..]);
+                var column = reader.ReadPosIntUntil(' ');
                 reader.SkipLength("by ".Length);
-                int rotateAmount = reader.ReadPosIntUntilEnd();
+                var rotateAmount = reader.ReadPosIntUntilEnd();
 
-                for (int i = 0; i < 6; i++)
+                for (var i = 0; i < 6; i++)
                 {
                     colBuffer[i] = pixels[column, i];
-                    int target = i - rotateAmount;
+                    var target = i - rotateAmount;
                     if (target < 0)
                     {
                         target += 6;
@@ -49,15 +49,15 @@ public class Day08 : ISolver
             }
             else // rotate row
             {
-                var reader = new SpanReader(line.Slice("rotate row y=".Length));
-                int row = reader.Peek() - '0';
+                var reader = new SpanReader(line["rotate row y=".Length..]);
+                var row = reader.Peek() - '0';
                 reader.SkipLength("0 by ".Length);
-                int rotateAmount = reader.ReadPosIntUntilEnd();
+                var rotateAmount = reader.ReadPosIntUntilEnd();
 
-                for (int i = 0; i < 50; i++)
+                for (var i = 0; i < 50; i++)
                 {
                     rowBuffer[i] = pixels[i, row];
-                    int target = i - rotateAmount;
+                    var target = i - rotateAmount;
                     if (target < 0)
                     {
                         target += 50;
@@ -69,8 +69,8 @@ public class Day08 : ISolver
             }
         }
 
-        int part1 = 0;
-        foreach (bool pixel in pixels)
+        var part1 = 0;
+        foreach (var pixel in pixels)
         {
             if (pixel)
             {
@@ -79,12 +79,12 @@ public class Day08 : ISolver
         }
 
         Span<char> part2 = stackalloc char[10];
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
-            int letterPixels = 0;
-            for (int row = 0; row < 6; row++)
+            var letterPixels = 0;
+            for (var row = 0; row < 6; row++)
             {
-                for (int col = 0; col < 5; col++)
+                for (var col = 0; col < 5; col++)
                 {
                     if (pixels[i * 5 + col, row])
                     {

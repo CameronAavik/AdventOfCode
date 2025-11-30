@@ -17,7 +17,9 @@ module Common =
     let parseFirstLine f (fileName : string) =
         use fs = new FileStream(fileName, FileMode.Open)
         use reader = new StreamReader(fs)
-        f (reader.ReadLine())
+        match reader.ReadLine() with
+        | null -> failwith "File is empty"
+        | line -> f line
 
     let parseEachLine f = File.ReadLines >> Seq.map f
     let parseEachLineIndexed f = File.ReadLines >> Seq.mapi f

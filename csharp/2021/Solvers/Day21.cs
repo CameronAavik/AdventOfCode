@@ -8,24 +8,24 @@ public class Day21 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        ParseInput(input, out byte player1Start, out byte player2Start);
+        ParseInput(input, out var player1Start, out var player2Start);
 
         // make everything 0-based rather than 1-based
         player1Start--;
         player2Start--;
 
-        int part1 = SolvePart1(player1Start, player2Start);
+        var part1 = SolvePart1(player1Start, player2Start);
         solution.SubmitPart1(part1);
 
-        long part2 = SolvePart2(player1Start, player2Start);
+        var part2 = SolvePart2(player1Start, player2Start);
         solution.SubmitPart2(part2);
     }
 
     static int SolvePart1(int player1Start, int player2Start)
     {
-        int player1Score = 0;
-        int player2Score = 0;
-        int rolls = 2;
+        var player1Score = 0;
+        var player2Score = 0;
+        var rolls = 2;
 
         while (true)
         {
@@ -48,20 +48,20 @@ public class Day21 : ISolver
     {
         Span<(long Wins, long Losses)> m = stackalloc (long Wins, long Losses)[10 * 10 * 20 * 21];
 
-        for (int combinedScore = 39; combinedScore >= 0; combinedScore--)
+        for (var combinedScore = 39; combinedScore >= 0; combinedScore--)
         {
-            int minScore1 = Math.Max(combinedScore - 20, 0);
-            int maxScore1 = Math.Min(19, combinedScore);
+            var minScore1 = Math.Max(combinedScore - 20, 0);
+            var maxScore1 = Math.Min(19, combinedScore);
 
-            for (int place1 = 0; place1 < 10; place1++)
+            for (var place1 = 0; place1 < 10; place1++)
             {
-                int dpIndex = place1 * 10;
-                for (int place2 = 0; place2 < 10; place2++)
+                var dpIndex = place1 * 10;
+                for (var place2 = 0; place2 < 10; place2++)
                 {
-                    int dpIndex2 = (dpIndex + place2) * 20;
-                    for (int score1 = minScore1; score1 <= maxScore1; score1++)
+                    var dpIndex2 = (dpIndex + place2) * 20;
+                    for (var score1 = minScore1; score1 <= maxScore1; score1++)
                     {
-                        int score2 = combinedScore - score1;
+                        var score2 = combinedScore - score1;
                         long wins1 = 0;
                         long wins2 = 0;
 
@@ -79,15 +79,15 @@ public class Day21 : ISolver
             }
         }
 
-        (long player1Wins, long player2Wins) = m[(player1Start * 10 + player2Start) * 20 * 21];
+        (var player1Wins, var player2Wins) = m[(player1Start * 10 + player2Start) * 20 * 21];
         return Math.Max(player1Wins, player2Wins);
     }
 
     private static void AddRoll(int rolls, int ways, int place1, int place2, int score1, int score2, ref long wins1, ref long wins2, Span<(long Wins1, long Wins2)> m)
     {
-        int newPlace = (place1 + rolls) % 10;
+        var newPlace = (place1 + rolls) % 10;
 
-        int newScore = score1 + newPlace + 1;
+        var newScore = score1 + newPlace + 1;
         if (newScore >= 21)
         {
             wins1 += ways;
@@ -100,14 +100,14 @@ public class Day21 : ISolver
             return;
         }
 
-        (long w1, long w2) = m[((place2 * 10 + newPlace) * 20 + score2) * 21 + newScore];
+        (var w1, var w2) = m[((place2 * 10 + newPlace) * 20 + score2) * 21 + newScore];
         wins1 += ways * w2;
         wins2 += ways * w1;
     }
 
     private static void ParseInput(ReadOnlySpan<byte> input, out byte Player1Start, out byte Player2Start)
     {
-        int i = "Player 1 starting position: ".Length;
+        var i = "Player 1 starting position: ".Length;
         Player1Start = (byte)(input[i++] - '0');
         if (Player1Start == 1 && input[i] == '0')
         {

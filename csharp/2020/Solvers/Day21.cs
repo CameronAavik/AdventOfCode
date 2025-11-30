@@ -16,23 +16,23 @@ public class Day21 : ISolver
         var ingredientSet = new HashSet<string>();
         var reader = new SpanReader(input);
 
-        int totalIngredients = 0;
+        var totalIngredients = 0;
         while (!reader.Done)
         {
             while (reader.Peek() != '(')
             {
-                string ingredient = Encoding.ASCII.GetString(reader.ReadUntil(' '));
+                var ingredient = Encoding.ASCII.GetString(reader.ReadUntil(' '));
                 ingredientCount[ingredient] = ingredientCount.GetValueOrDefault(ingredient) + 1;
                 ingredientSet.Add(ingredient);
                 totalIngredients++;
             }
 
             reader.SkipLength("(contains ".Length);
-            ReadOnlySpan<byte> allergensSpan = reader.ReadUntil(')');
-            foreach (Range allergenRange in allergensSpan.Split(", "u8))
+            var allergensSpan = reader.ReadUntil(')');
+            foreach (var allergenRange in allergensSpan.Split(", "u8))
             {
-                string allergenStr = Encoding.ASCII.GetString(allergensSpan[allergenRange]);
-                if (allergenCandidates.TryGetValue(allergenStr, out HashSet<string>? curSet))
+                var allergenStr = Encoding.ASCII.GetString(allergensSpan[allergenRange]);
+                if (allergenCandidates.TryGetValue(allergenStr, out var curSet))
                 {
                     curSet.IntersectWith(ingredientSet);
                 }
@@ -46,30 +46,30 @@ public class Day21 : ISolver
             ingredientSet.Clear();
         }
 
-        int allergenIndex = 0;
-        string[] allergens = new string[allergenCandidates.Count];
-        foreach (string allergen in allergenCandidates.Keys)
+        var allergenIndex = 0;
+        var allergens = new string[allergenCandidates.Count];
+        foreach (var allergen in allergenCandidates.Keys)
         {
             allergens[allergenIndex++] = allergen;
         }
         Array.Sort(allergens);
 
-        string?[] ingredients = new string?[allergens.Length];
-        int part1 = totalIngredients;
+        var ingredients = new string?[allergens.Length];
+        var part1 = totalIngredients;
 
-        for (int allergensLeft = 0; allergensLeft < allergens.Length; allergensLeft++)
+        for (var allergensLeft = 0; allergensLeft < allergens.Length; allergensLeft++)
         {
-            string foundIngredient = string.Empty;
-            for (int i = 0; i < allergens.Length; i++)
+            var foundIngredient = string.Empty;
+            for (var i = 0; i < allergens.Length; i++)
             {
                 if (ingredients[i] != null)
                 {
                     continue;
                 }
 
-                string allergen = allergens[i];
+                var allergen = allergens[i];
 
-                HashSet<string> candidates = allergenCandidates[allergen];
+                var candidates = allergenCandidates[allergen];
                 if (candidates.Count == 1)
                 {
                     foundIngredient = candidates.Single();
@@ -79,13 +79,13 @@ public class Day21 : ISolver
                 }
             }
 
-            foreach (HashSet<string> candidates in allergenCandidates.Values)
+            foreach (var candidates in allergenCandidates.Values)
             {
                 candidates.Remove(foundIngredient);
             }
         }
 
-        string part2 = string.Join(',', ingredients);
+        var part2 = string.Join(',', ingredients);
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }

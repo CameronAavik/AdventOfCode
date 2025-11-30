@@ -19,45 +19,45 @@ public class Day16 : ISolver
         // fields is a list of (l1 - r1), (l2 - r2) ranges for each field
         // departureFields is the list of the 6 indexes of the fields labeled as "departure"
         // maxFieldVal is the largest possible value any field can be
-        (List<Field> fields, int[] departureFields, int maxFieldVal) = ParseFields(ref reader);
+        (var fields, var departureFields, var maxFieldVal) = ParseFields(ref reader);
 
-        int numFields = fields.Count;
+        var numFields = fields.Count;
 
         reader.SkipLength("\nyour ticket:\n".Length);
-        int[] myTicket = new int[numFields];
+        var myTicket = new int[numFields];
         ParseTicket(ref reader, myTicket);
         reader.SkipLength("\nnearby tickets:\n".Length);
 
         // for each number up to maxFieldVal, store a bitset capturing which fields allow that value
         // e.g. if potentialFieldsByValue[100] == 0b10001000, this means only fields 3 and 7 allow the value 100
-        int[] potentialFieldsByValue = new int[maxFieldVal + 1];
-        for (int i = 0; i < fields.Count; i++)
+        var potentialFieldsByValue = new int[maxFieldVal + 1];
+        for (var i = 0; i < fields.Count; i++)
         {
-            Field field = fields[i];
-            int flag = 1 << i;
-            for (int j = field.L1; j <= field.R1; j++)
+            var field = fields[i];
+            var flag = 1 << i;
+            for (var j = field.L1; j <= field.R1; j++)
                 potentialFieldsByValue[j] |= flag;
-            for (int j = field.L2; j <= field.R2; j++)
+            for (var j = field.L2; j <= field.R2; j++)
                 potentialFieldsByValue[j] |= flag;
         }
 
         // fieldCandidates stores all the potential fields that each entry in the ticket can be
         // e.g. if fieldCandidates[4] == 0b100100, then the 5th item of the ticket can only be either field 2 or 5
-        int[] fieldCandidates = new int[numFields];
-        for (int i = 0; i < fieldCandidates.Length; i++)
+        var fieldCandidates = new int[numFields];
+        for (var i = 0; i < fieldCandidates.Length; i++)
             fieldCandidates[i] = -1; // -1 has all 1 bits, so all fields are valid initially
 
         // reusable array for storing ticket arrays
-        int[] ticket = new int[numFields];
+        var ticket = new int[numFields];
 
-        int part1 = 0;
+        var part1 = 0;
         while (!reader.Done)
         {
             ParseTicket(ref reader, ticket);
 
             // get sum of invalid values in the ticket
-            bool isValid = true;
-            foreach (int fieldVal in ticket)
+            var isValid = true;
+            foreach (var fieldVal in ticket)
             {
                 // potentialFieldsByValue[fieldVal] will be 0 when no fields are valid for a fieldVal
                 if (fieldVal > maxFieldVal || potentialFieldsByValue[fieldVal] == 0)
@@ -70,7 +70,7 @@ public class Day16 : ISolver
             // only use valid tickets to refine fieldCandidates
             if (isValid)
             {
-                for (int i = 0; i < fieldCandidates.Length; i++)
+                for (var i = 0; i < fieldCandidates.Length; i++)
                 {
                     // using a bitwise and here will set any fields to 0 that aren't valid for this ticket value
                     fieldCandidates[i] &= potentialFieldsByValue[ticket[i]];
@@ -79,10 +79,10 @@ public class Day16 : ISolver
         }
 
         // uses the fieldCandidates array to determine which index in the ticket correlates to which field.
-        int[] fieldIndexes = GetFieldIndexes(fieldCandidates);
+        var fieldIndexes = GetFieldIndexes(fieldCandidates);
 
         long part2 = 1;
-        foreach (int i in departureFields)
+        foreach (var i in departureFields)
         {
             part2 *= myTicket[fieldIndexes[i]];
         }
@@ -94,16 +94,16 @@ public class Day16 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int[] GetFieldIndexes(int[] candidates)
     {
-        int[] fieldIndexes = new int[candidates.Length];
+        var fieldIndexes = new int[candidates.Length];
 
         // This loop will identify a single field index each iteration
         // so this loop runs candidates.Length times 
-        for (int fieldsLeft = candidates.Length; fieldsLeft > 0; fieldsLeft--)
+        for (var fieldsLeft = candidates.Length; fieldsLeft > 0; fieldsLeft--)
         {
-            int fieldToRemove = 0;
-            for (int j = 0; j < candidates.Length; j++)
+            var fieldToRemove = 0;
+            for (var j = 0; j < candidates.Length; j++)
             {
-                int fields = candidates[j];
+                var fields = candidates[j];
 
                 // if we have already identified the field index, then fields will be 0 so we skip it
                 if (fields == 0)
@@ -114,7 +114,7 @@ public class Day16 : ISolver
                 if ((fields & (fields - 1)) == 0)
                 {
                     // TrailingZeroCount is a fast way to identify which bit is set to 1
-                    int field = BitOperations.TrailingZeroCount(fields);
+                    var field = BitOperations.TrailingZeroCount(fields);
                     fieldIndexes[field] = j;
                     fieldToRemove = fields;
                     break;
@@ -122,7 +122,7 @@ public class Day16 : ISolver
             }
 
             // remove the field from each of the candidates now that we have identified it's field index
-            for (int j = 0; j < candidates.Length; j++)
+            for (var j = 0; j < candidates.Length; j++)
             {
                 candidates[j] &= ~fieldToRemove;
             }
@@ -134,21 +134,21 @@ public class Day16 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static FieldsData ParseFields(ref SpanReader reader)
     {
-        int departureFieldsIndex = 0;
-        int[] departureFields = new int[6];
+        var departureFieldsIndex = 0;
+        var departureFields = new int[6];
 
         var fieldList = new List<Field>();
 
-        int maxFieldVal = int.MinValue;
+        var maxFieldVal = int.MinValue;
         while (reader.Peek() != '\n')
         {
-            ReadOnlySpan<byte> fieldName = reader.ReadUntil(':');
+            var fieldName = reader.ReadUntil(':');
             reader.SkipLength(1);
-            int l1 = reader.ReadPosIntUntil('-');
-            int r1 = reader.ReadPosIntUntil(' ');
+            var l1 = reader.ReadPosIntUntil('-');
+            var r1 = reader.ReadPosIntUntil(' ');
             reader.SkipLength("or ".Length);
-            int l2 = reader.ReadPosIntUntil('-');
-            int r2 = reader.ReadPosIntUntil('\n');
+            var l2 = reader.ReadPosIntUntil('-');
+            var r2 = reader.ReadPosIntUntil('\n');
 
             fieldList.Add(new Field(l1, r1, l2, r2));
             if (fieldName.StartsWith("de"u8))
@@ -168,11 +168,11 @@ public class Day16 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ParseTicket(ref SpanReader reader, int[] ticket)
     {
-        for (int i = 0; i < ticket.Length - 1; i++)
+        for (var i = 0; i < ticket.Length - 1; i++)
         {
             ticket[i] = reader.ReadPosIntUntil(',');
         }
 
-        ticket[ticket.Length - 1] = reader.ReadPosIntUntil('\n');
+        ticket[^1] = reader.ReadPosIntUntil('\n');
     }
 }

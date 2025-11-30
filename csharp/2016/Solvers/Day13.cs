@@ -9,11 +9,11 @@ public class Day13 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int favouriteNumber = new SpanReader(input).ReadPosIntUntil('\n');
+        var favouriteNumber = new SpanReader(input).ReadPosIntUntil('\n');
 
         var seen = new HashSet<(int, int)>();
 
-        int steps = 0;
+        var steps = 0;
         var frontier = new HashSet<(int, int)> { (1, 1) };
 
         int? part1 = null;
@@ -21,7 +21,7 @@ public class Day13 : ISolver
         while (part1 == null || part2 == null)
         {
             var newFrontier = new HashSet<(int, int)>();
-            foreach ((int x, int y) in frontier)
+            foreach ((var x, var y) in frontier)
             {
                 if (x == 31 && y == 39)
                     part1 = steps;
@@ -52,7 +52,7 @@ public class Day13 : ISolver
             if (x < 0 || y < 0)
                 return true;
 
-            int sum = x * x + 3 * x + 2 * x * y + y + y * y + favouriteNumber;
+            var sum = x * x + 3 * x + 2 * x * y + y + y * y + favouriteNumber;
             return BitOperations.PopCount((uint)sum) % 2 == 1;
         }
     }

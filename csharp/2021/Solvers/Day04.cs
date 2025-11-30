@@ -14,16 +14,16 @@ public class Day04 : ISolver
         Span<byte> orderIndexLookup = stackalloc byte[100];
 
         // Represents the index into the input which we are currently parsing.
-        int inputCursor = 0;
+        var inputCursor = 0;
 
         // Parses the first line of the input and stores the order in the orderIndexLookup.
         ParseNumberOrderLine(input, orderIndexLookup, ref inputCursor);
 
         // Keep track of the earliest and latest bingos and what their scores were.
-        int earliestBingo = int.MaxValue;
-        int earliestBingoScore = 0;
-        int latestBingo = 0;
-        int latestBingoScore = 0;
+        var earliestBingo = int.MaxValue;
+        var earliestBingoScore = 0;
+        var latestBingo = 0;
+        var latestBingoScore = 0;
 
         // Stores the order of the latest called out number in each column of a given board.
         Span<byte> colMaxs = stackalloc byte[5];
@@ -35,30 +35,30 @@ public class Day04 : ISolver
         while (inputCursor < input.Length)
         {
             // Stores the order of the earliest bingo among the rows of the board only
-            int earliestRowBingo = int.MaxValue;
+            var earliestRowBingo = int.MaxValue;
 
             // Skips a newline
             inputCursor++;
 
             // All boards are 5x5 as per the problem statement
-            for (int row = 0; row < 5; row++)
+            for (var row = 0; row < 5; row++)
             {
                 // Stores the order of the latest called out number in the current row.
-                int latestInRow = 0;
+                var latestInRow = 0;
 
-                for (int col = 0; col < 5; col++)
+                for (var col = 0; col < 5; col++)
                 {
                     // As we assume no bingo numbers are greater than 99, each number is represented using 2 characters
                     // with a space in the first character for single-digit numbers.
-                    int digitOne = input[inputCursor++] switch { (byte)' ' => 0, byte c => c - '0' };
-                    int digitTwo = input[inputCursor++] - '0';
+                    var digitOne = input[inputCursor++] switch { (byte)' ' => 0, byte c => c - '0' };
+                    var digitTwo = input[inputCursor++] - '0';
 
                     // Skip the space or newline.
                     inputCursor++;
 
                     // Calculate the bingo number using the digits and the order it is called out
-                    int value = digitOne * 10 + digitTwo;
-                    byte order = orderIndexLookup[value];
+                    var value = digitOne * 10 + digitTwo;
+                    var order = orderIndexLookup[value];
 
                     // Update latestInRow and colMaxs[col]
                     if (order > latestInRow)
@@ -75,7 +75,7 @@ public class Day04 : ISolver
             }
 
             // Take the min of all the columns and the earliest row.
-            int bingo = Math.Min(Math.Min(Math.Min(colMaxs[0], colMaxs[1]), Math.Min(colMaxs[2], colMaxs[3])), Math.Min(colMaxs[4], earliestRowBingo));
+            var bingo = Math.Min(Math.Min(Math.Min(colMaxs[0], colMaxs[1]), Math.Min(colMaxs[2], colMaxs[3])), Math.Min(colMaxs[4], earliestRowBingo));
 
             // Update the earliest and latest bingo values
             if (bingo < earliestBingo)
@@ -101,8 +101,8 @@ public class Day04 : ISolver
         byte order = 0;
         while (true)
         {
-            int digitOne = input[inputCursor++] - '0';
-            byte charTwo = input[inputCursor++];
+            var digitOne = input[inputCursor++] - '0';
+            var charTwo = input[inputCursor++];
 
             switch (charTwo)
             {
@@ -126,12 +126,12 @@ public class Day04 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int CalculateScore(Span<byte> orderIndexLookup, Span<byte> bingoNumbers, int bingo)
     {
-        int score = 0;
-        int bingoNumber = 0;
+        var score = 0;
+        var bingoNumber = 0;
 
-        foreach (byte number in bingoNumbers)
+        foreach (var number in bingoNumbers)
         {
-            byte order = orderIndexLookup[number];
+            var order = orderIndexLookup[number];
             if (order > bingo)
             {
                 score += number;

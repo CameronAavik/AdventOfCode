@@ -10,16 +10,16 @@ public class Day18 : ISolver
     {
         // we allocate two grids, each iteration switches which grid is used.
         // this means we can keep reusing the same grids over and over with no extra allocations.
-        int curGridIndex = 0;
+        var curGridIndex = 0;
         int[][,] grids =
         [
                 new int[102, 102],
                 new int[102, 102],
             ];
 
-        int row = 1;
-        int col = 1;
-        foreach (byte c in input)
+        var row = 1;
+        var col = 1;
+        foreach (var c in input)
         {
             if (c == '\n')
             {
@@ -33,18 +33,18 @@ public class Day18 : ISolver
             }
         }
 
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
-            int[,] curGrid = grids[curGridIndex];
-            int[,] newGrid = grids[1 - curGridIndex];
+            var curGrid = grids[curGridIndex];
+            var newGrid = grids[1 - curGridIndex];
 
-            for (int y = 1; y <= 100; y++)
+            for (var y = 1; y <= 100; y++)
             {
-                for (int x = 1; x <= 100; x++)
+                for (var x = 1; x <= 100; x++)
                 {
-                    int neighbourTotal = GetNeighbourTotal(curGrid, x, y);
+                    var neighbourTotal = GetNeighbourTotal(curGrid, x, y);
 
-                    int newValue = 0;
+                    var newValue = 0;
                     switch (neighbourTotal & 0xF)
                     {
                         case 2:
@@ -77,8 +77,8 @@ public class Day18 : ISolver
             curGridIndex = 1 - curGridIndex;
         }
 
-        int sum = 0;
-        foreach (int light in grids[curGridIndex])
+        var sum = 0;
+        foreach (var light in grids[curGridIndex])
         {
             sum += light;
         }

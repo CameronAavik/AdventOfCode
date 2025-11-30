@@ -8,6 +8,7 @@ open BenchmarkDotNet.Configs
 open BenchmarkDotNet.Running
 open Perfolizer.Horology
 open System.Globalization
+open Perfolizer.Metrology
 
 module Benchmarking =
 

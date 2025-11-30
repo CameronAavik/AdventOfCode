@@ -1,7 +1,6 @@
 ﻿using System.Numerics;
 using System.Text;
 using System.Text.RegularExpressions;
-using AdventOfCode.CSharp.Common;
 using AdventOfCode.CSharp.Runner;
 
 int year = 2024;

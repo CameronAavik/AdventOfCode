@@ -7,28 +7,28 @@ public class Day05 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
-        foreach (Range lineRange in input.SplitLines())
+        foreach (var lineRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> line = input[lineRange];
-            int numVowels = 0;
-            bool containsPair = false;
-            bool containsForbiddenPair = false;
+            var line = input[lineRange];
+            var numVowels = 0;
+            var containsPair = false;
+            var containsForbiddenPair = false;
 
             // bitset which keeps track of seen characters.
             // this is used to help with finding repeat pairs.
-            int seenChars = 0;
-            bool containsRepeatPair = false;
-            bool containsPalindromicTriple = false;
+            var seenChars = 0;
+            var containsRepeatPair = false;
+            var containsPalindromicTriple = false;
 
-            byte prev2 = (byte)'\0';
-            byte prev = (byte)'\0';
-            for (int i = 0; i < line.Length; i++)
+            var prev2 = (byte)'\0';
+            var prev = (byte)'\0';
+            for (var i = 0; i < line.Length; i++)
             {
                 // Part 1 Rules
-                byte cur = line[i];
+                var cur = line[i];
                 if (cur is (byte)'a' or (byte)'e' or (byte)'i' or (byte)'o' or (byte)'u')
                 {
                     numVowels++;
@@ -48,10 +48,10 @@ public class Day05 : ISolver
 
                 // check if we have seen the current and previous letter before
                 // if we have, scan the line for a repeat pair
-                int prevBitMask = 1 << (prev - 'a');
+                var prevBitMask = 1 << (prev - 'a');
                 if ((seenChars & prevBitMask) > 0 && (seenChars & 1 << (cur - 'a')) > 0)
                 {
-                    for (int j = 0; j < i - 2; j++)
+                    for (var j = 0; j < i - 2; j++)
                     {
                         if (line[j] == prev && line[j + 1] == cur)
                         {

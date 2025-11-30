@@ -8,25 +8,25 @@ namespace AdventOfCode.CSharp.Y2016.Solvers;
 public class Day04 : ISolver
 {
     private static readonly byte[][] s_rotations =
-        Enumerable.Range(0, 26).Select(i => Encoding.ASCII.GetBytes(Rotate("north", -i))).ToArray();
+        [.. Enumerable.Range(0, 26).Select(i => Encoding.ASCII.GetBytes(Rotate("north", -i)))];
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = -1;
+        var part1 = 0;
+        var part2 = -1;
 
-        int[] letterCounts = new int[26];
-        foreach (Range lineRange in input.SplitLines())
+        var letterCounts = new int[26];
+        foreach (var lineRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> line = input[lineRange];
+            var line = input[lineRange];
 
-            int nameLength = line.LastIndexOf((byte)'-');
-            ReadOnlySpan<byte> name = line.Slice(0, nameLength);
-            var reader = new SpanReader(line.Slice(nameLength + 1));
-            int sectorId = reader.ReadPosIntUntil('[');
-            ReadOnlySpan<byte> checkSum = reader.ReadUntil(']');
+            var nameLength = line.LastIndexOf((byte)'-');
+            var name = line[..nameLength];
+            var reader = new SpanReader(line[(nameLength + 1)..]);
+            var sectorId = reader.ReadPosIntUntil('[');
+            var checkSum = reader.ReadUntil(']');
 
-            foreach (byte c in name)
+            foreach (var c in name)
             {
                 if (c != '-')
                 {
@@ -52,12 +52,12 @@ public class Day04 : ISolver
 
     private static bool IsChecksumCorrect(int[] letterCounts, ReadOnlySpan<byte> checksum)
     {
-        int prev = -1;
-        int prevCount = int.MaxValue;
-        foreach (byte c in checksum)
+        var prev = -1;
+        var prevCount = int.MaxValue;
+        foreach (var c in checksum)
         {
-            int letter = c - 'a';
-            int count = letterCounts[letter];
+            var letter = c - 'a';
+            var count = letterCounts[letter];
 
             if (prevCount < count || (prevCount == count && letter < prev))
             {
@@ -69,9 +69,9 @@ public class Day04 : ISolver
             letterCounts[letter] = -1;
         }
 
-        for (int i = 0; i < 26; i++)
+        for (var i = 0; i < 26; i++)
         {
-            int count = letterCounts[i];
+            var count = letterCounts[i];
             if (count > prevCount || (count == prevCount && i < prev))
             {
                 return false;
@@ -85,7 +85,7 @@ public class Day04 : ISolver
     {
         return string.Create(str.Length, str, (chars, str) =>
         {
-            for (int i = 0; i < str.Length; i++)
+            for (var i = 0; i < str.Length; i++)
             {
                 chars[i] = (char)(((str[i] - 'a' + amount + 26) % 26) + 'a');
             }

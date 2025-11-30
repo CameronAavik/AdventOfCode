@@ -7,27 +7,27 @@ public class Day07 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
-        byte[] abas = new byte[26 * 26];
-        byte[] babs = new byte[26 * 26];
-        foreach (Range lineRange in input.SplitLines())
+        var abas = new byte[26 * 26];
+        var babs = new byte[26 * 26];
+        foreach (var lineRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> line = input[lineRange];
+            var line = input[lineRange];
             Array.Clear(abas, 0, abas.Length);
             Array.Clear(babs, 0, babs.Length);
 
-            bool hasAbbaOutsideHypernet = false;
-            bool hasAbbaInsideHypernet = false;
-            bool supportsSSL = false;
+            var hasAbbaOutsideHypernet = false;
+            var hasAbbaInsideHypernet = false;
+            var supportsSSL = false;
 
             // c1, c2, c3, c4 defines a sliding window of 4 characters across the line
             byte c1 = line[0], c2 = line[1], c3 = line[2];
-            bool insideHypernet = false;
-            for (int i = 3; i <= line.Length; i++)
+            var insideHypernet = false;
+            for (var i = 3; i <= line.Length; i++)
             {
-                byte c4 = i == line.Length ? (byte)'\0' : line[i];
+                var c4 = i == line.Length ? (byte)'\0' : line[i];
                 if (c1 == '[')
                 {
                     insideHypernet = true;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Buffers.Binary;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
 
@@ -23,22 +24,22 @@ public class Day01 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
+        var part1 = 0;
         long part2 = 0;
 
-        int lineLength = input.IndexOf((byte)'\n');
-        int numLines = input.Length / (lineLength + 1);
-        int idLength = (lineLength - 3) / 2; // Each line contains: leftId + "   " + rightId
-        int maxId = (int)(Math.Pow(10, idLength) * 2 - 1);
+        var lineLength = input.IndexOf((byte)'\n');
+        var numLines = input.Length / (lineLength + 1);
+        var idLength = (lineLength - 3) / 2; // Each line contains: leftId + "   " + rightId
+        var maxId = (int)(Math.Pow(10, idLength) * 2 - 1);
 
         Span<int> ids = new int[numLines * 2];
 
         // Histogram sort setup - each bin is 256 numbers wide for optimal cache line usage
         const int bucketWidth = 256;
-        int numBuckets = (maxId + bucketWidth - 1) / bucketWidth;
+        var numBuckets = (maxId + bucketWidth - 1) / bucketWidth;
         Span<short> bucketCounts = new short[numBuckets];
 
-        int idIndex = 0;
+        var idIndex = 0;
         if (idLength is >= 3 and <= 8)
         {
             // SWAR (SIMD Within A Register) technique for parsing IDs
@@ -53,21 +54,21 @@ public class Day01 : ISolver
             //                                     -> 30 39 38 37 36 30 30 30 (with '0' padding)
             //
             // Both IDs are now 8-byte aligned ASCII strings ready for SWAR parsing
-            ulong bitsMask = 0xFFFFFFFFFFFFFFFFUL << (64 - idLength * 8);
-            ulong zeroPad = 0x3030303030303030UL & ~bitsMask;
-            int leftBitsShift = 64 - idLength * 8;
+            var bitsMask = 0xFFFFFFFFFFFFFFFFUL << (64 - idLength * 8);
+            var zeroPad = 0x3030303030303030UL & ~bitsMask;
+            var leftBitsShift = 64 - idLength * 8;
 
-            for (int i = 0; i < input.Length; i += lineLength + 1)
+            for (var i = 0; i < input.Length; i += lineLength + 1)
             {
                 // Parse left ID using bit manipulation
-                ulong leftBits = (BinaryPrimitives.ReadUInt64LittleEndian(input.Slice(i)) << leftBitsShift) | zeroPad;
-                int leftValue = 2 * ParseEightDigits(leftBits);
+                var leftBits = (BinaryPrimitives.ReadUInt64LittleEndian(input[i..]) << leftBitsShift) | zeroPad;
+                var leftValue = 2 * ParseEightDigits(leftBits);
                 ids[idIndex] = leftValue;
                 bucketCounts[leftValue / bucketWidth]++;
 
                 // Parse right ID using bit manipulation
-                ulong rightBits = (BinaryPrimitives.ReadUInt64LittleEndian(input.Slice(i + lineLength - 8)) & bitsMask) | zeroPad;
-                int rightValue = 2 * ParseEightDigits(rightBits) + 1;
+                var rightBits = (BinaryPrimitives.ReadUInt64LittleEndian(input[(i + lineLength - 8)..]) & bitsMask) | zeroPad;
+                var rightValue = 2 * ParseEightDigits(rightBits) + 1;
                 ids[idIndex + 1] = rightValue;
                 bucketCounts[rightValue / bucketWidth]++;
                 idIndex += 2;
@@ -76,10 +77,10 @@ public class Day01 : ISolver
         else
         {
             // Slow path for unusual ID lengths
-            for (int i = 0; i < input.Length; i += lineLength + 1)
+            for (var i = 0; i < input.Length; i += lineLength + 1)
             {
-                int leftValue = int.Parse(input.Slice(i, idLength));
-                int rightValue = int.Parse(input.Slice(i + idLength + 3));
+                var leftValue = int.Parse(input.Slice(i, idLength), CultureInfo.InvariantCulture);
+                var rightValue = int.Parse(input[(i + idLength + 3)..], CultureInfo.InvariantCulture);
                 ids[idIndex] = leftValue;
                 ids[idIndex + 1] = rightValue;
                 bucketCounts[leftValue / bucketWidth]++;
@@ -90,20 +91,20 @@ public class Day01 : ISolver
 
         // Convert counts into offsets - each value becomes the starting index for its bucket in the final sorted array
         short prev = 0;
-        for (int i = 0; i < bucketCounts.Length; i++)
+        for (var i = 0; i < bucketCounts.Length; i++)
         {
-            short count = bucketCounts[i];
+            var count = bucketCounts[i];
             bucketCounts[i] = prev;
             prev += count;
         }
 
         // Distribute IDs into buckets
         Span<int> sortedIds = new int[ids.Length];
-        foreach (int id in ids)
+        foreach (var id in ids)
             sortedIds[bucketCounts[id / bucketWidth]++] = id;
 
         // Sort within each bucket
-        int bucketStart = 0;
+        var bucketStart = 0;
         foreach (int bucketEnd in bucketCounts)
         {
             sortedIds[bucketStart..bucketEnd].Sort();
@@ -111,14 +112,14 @@ public class Day01 : ISolver
         }
 
         // Track IDs for detecting left/right imbalances and matching pairs
-        int sideIndexDiff = 0; // Positive when more left IDs seen, negative for right
-        int prevLeftId = 0;
-        int prevLeftCount = 0;
+        var sideIndexDiff = 0; // Positive when more left IDs seen, negative for right
+        var prevLeftId = 0;
+        var prevLeftCount = 0;
 
-        foreach (int id in sortedIds)
+        foreach (var id in sortedIds)
         {
-            int side = id % 2; // 0 = left side, 1 = right side
-            int realId = id / 2;
+            var side = id % 2; // 0 = left side, 1 = right side
+            var realId = id / 2;
             int part1Multiplier;
 
             if (side == 0)
@@ -150,9 +151,9 @@ public class Day01 : ISolver
     public static int ParseEightDigits(ulong val)
     {
         const ulong mask = 0x000000FF000000FF;
-        const ulong mul1 = 0x000F424000000064; 
+        const ulong mul1 = 0x000F424000000064;
         // 100 + (1000000ULL << 32)
-        const ulong mul2 = 0x0000271000000001; 
+        const ulong mul2 = 0x0000271000000001;
         // 1 + (10000ULL << 32)
         val -= 0x3030303030303030;
         val = (val * 10) + (val >> 8); // val = (val * 2561) >> 8;

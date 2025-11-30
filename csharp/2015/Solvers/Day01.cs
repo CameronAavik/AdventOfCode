@@ -7,9 +7,9 @@ public class Day01 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int currentFloor = 0;
-        int firstBasementFloor = 0;
-        for (int i = 0; i < input.Length; i++)
+        var currentFloor = 0;
+        var firstBasementFloor = 0;
+        for (var i = 0; i < input.Length; i++)
         {
             if (input[i] == '(')
             {

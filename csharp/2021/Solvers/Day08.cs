@@ -8,18 +8,18 @@ public class Day08 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
-        int cursor = 0;
+        var cursor = 0;
         while (cursor < input.Length)
         {
             byte oneDigitMask = 0;
             byte fourDigitMask = 0;
 
-            for (int i = 0; i < 10; i++)
+            for (var i = 0; i < 10; i++)
             {
-                byte digit = ReadDigitAsMask(input, ' ', ref cursor, out int bits);
+                var digit = ReadDigitAsMask(input, ' ', ref cursor, out var bits);
                 switch (bits)
                 {
                     case 2:
@@ -34,12 +34,12 @@ public class Day08 : ISolver
             // skip the "| "
             cursor += 2;
 
-            byte bdMask = (byte)(oneDigitMask ^ fourDigitMask);
+            var bdMask = (byte)(oneDigitMask ^ fourDigitMask);
 
-            byte digit1 = ReadDigitAsMask(input, ' ', ref cursor, out int bits1);
-            byte digit2 = ReadDigitAsMask(input, ' ', ref cursor, out int bits2);
-            byte digit3 = ReadDigitAsMask(input, ' ', ref cursor, out int bits3);
-            byte digit4 = ReadDigitAsMask(input, '\n', ref cursor, out int bits4);
+            var digit1 = ReadDigitAsMask(input, ' ', ref cursor, out var bits1);
+            var digit2 = ReadDigitAsMask(input, ' ', ref cursor, out var bits2);
+            var digit3 = ReadDigitAsMask(input, ' ', ref cursor, out var bits3);
+            var digit4 = ReadDigitAsMask(input, '\n', ref cursor, out var bits4);
 
             part2 +=
                 CalculateDigit(digit1, bits1, oneDigitMask, bdMask, ref part1) * 1000 +
@@ -91,7 +91,7 @@ public class Day08 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static byte ReadDigitAsMask(ReadOnlySpan<byte> input, char until, ref int cursor, out int bits)
     {
-        int digit = 1 << (input[cursor++] - 'a');
+        var digit = 1 << (input[cursor++] - 'a');
         bits = 1;
 
         byte c;

@@ -16,7 +16,7 @@ public abstract class SolverBenchmarkBase<TSolver> where TSolver : ISolver
 
     public SolverBenchmarkBase()
     {
-        (int year, int day) = SolverUtils.GetYearAndDay<TSolver>();
+        (var year, var day) = SolverUtils.GetYearAndDay<TSolver>();
         _input = AdventRunner.GetInputAsync(year, day).GetAwaiter().GetResult();
     }
 
@@ -35,13 +35,13 @@ public abstract class MultiInputSolverBenchmarkBase<TSolver> where TSolver : ISo
 
     public MultiInputSolverBenchmarkBase()
     {
-        (int year, int day) = SolverUtils.GetYearAndDay<TSolver>();
-        string inputFolder = $"input/{year}/extra/day{day:D2}";
-        int i = 0;
+        (var year, var day) = SolverUtils.GetYearAndDay<TSolver>();
+        var inputFolder = $"input/{year}/extra/day{day:D2}";
+        var i = 0;
         // If less than 5 test inputs, might load same file multiple times
         // Useful during early benchmarking
         while (i < 5)
-            foreach (string file in Directory.EnumerateFiles(inputFolder))
+            foreach (var file in Directory.EnumerateFiles(inputFolder))
                 while (i < 5)
                     _inputs[i++] = File.ReadAllBytes(file);
     }

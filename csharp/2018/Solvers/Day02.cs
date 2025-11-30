@@ -8,9 +8,9 @@ public class Day02 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int lineLength = input.IndexOf((byte)'\n') + 1;
+        var lineLength = input.IndexOf((byte)'\n') + 1;
 
-        int part1 = SolvePart1(input, lineLength);
+        var part1 = SolvePart1(input, lineLength);
 
         Span<char> solutionBuffer = stackalloc char[lineLength - 2];
         SolvePart2(input, lineLength, solutionBuffer);
@@ -21,10 +21,10 @@ public class Day02 : ISolver
 
     private static int SolvePart1(ReadOnlySpan<byte> input, int lineLength)
     {
-        int idsWithPairs = 0;
-        int idsWithTriples = 0;
+        var idsWithPairs = 0;
+        var idsWithTriples = 0;
 
-        int lineOffset = 0;
+        var lineOffset = 0;
         while (lineOffset < input.Length)
         {
             // maintain 4 bitsets that keep track of how many times we have seen a certain letter.
@@ -35,9 +35,9 @@ public class Day02 : ISolver
             uint seenOnce = 0;
 
             // loop over characters in ID
-            for (int i = lineOffset; i < lineOffset + lineLength - 1; i++)
+            for (var i = lineOffset; i < lineOffset + lineLength - 1; i++)
             {
-                uint flag = 1U << (input[i] - 'a');
+                var flag = 1U << (input[i] - 'a');
                 seenMoreThanThrice |= seenThrice & flag;
                 seenThrice |= seenTwice & flag;
                 seenTwice |= seenOnce & flag;
@@ -64,15 +64,15 @@ public class Day02 : ISolver
 
     private static void SolvePart2(ReadOnlySpan<byte> input, int lineLength, Span<char> solutionBuffer)
     {
-        int idLength = lineLength - 1;
-        int halfLength = idLength / 2;
+        var idLength = lineLength - 1;
+        var halfLength = idLength / 2;
 
         // get the hash of the first half of each ID and the offset where the line starts in the input
         var halfHashes = new (int Hash, int Offset)[input.Length / lineLength];
-        for (int i = 0; i < halfHashes.Length; i++)
+        for (var i = 0; i < halfHashes.Length; i++)
         {
-            int offset = i * lineLength;
-            int hash = HashBytes(input.Slice(offset, halfLength));
+            var offset = i * lineLength;
+            var hash = HashBytes(input.Slice(offset, halfLength));
             halfHashes[i] = (hash, offset);
         }
 
@@ -82,10 +82,10 @@ public class Day02 : ISolver
             return;
 
         // repeat the process but this time use the 2nd half of each ID
-        for (int i = 0; i < halfHashes.Length; i++)
+        for (var i = 0; i < halfHashes.Length; i++)
         {
-            int offset = i * lineLength;
-            int hash = HashBytes(input.Slice(offset + halfLength, halfLength));
+            var offset = i * lineLength;
+            var hash = HashBytes(input.Slice(offset + halfLength, halfLength));
             halfHashes[i] = (hash, offset);
         }
 
@@ -101,22 +101,22 @@ public class Day02 : ISolver
         Array.Sort(halfHashes, (l, r) => l.Hash.CompareTo(r.Hash));
 
         // for each pair of IDs that have the same hash, check if they differ by one character
-        int hashStartIndex = 0;
-        int curHash = halfHashes[0].Hash;
-        for (int i = 1; i < halfHashes.Length; i++)
+        var hashStartIndex = 0;
+        var curHash = halfHashes[0].Hash;
+        for (var i = 1; i < halfHashes.Length; i++)
         {
-            (int Hash, int Offset) = halfHashes[i];
+            (var Hash, var Offset) = halfHashes[i];
             if (Hash == curHash)
             {
-                ReadOnlySpan<byte> curSpan = input.Slice(Offset, idLength);
-                for (int j = hashStartIndex; j < i; j++)
+                var curSpan = input.Slice(Offset, idLength);
+                for (var j = hashStartIndex; j < i; j++)
                 {
-                    ReadOnlySpan<byte> otherSpan = input.Slice(halfHashes[j].Offset, idLength);
-                    int diffIndex = GetIndexOfDifferentChar(curSpan, otherSpan);
+                    var otherSpan = input.Slice(halfHashes[j].Offset, idLength);
+                    var diffIndex = GetIndexOfDifferentChar(curSpan, otherSpan);
                     if (diffIndex >= 0)
                     {
-                        Encoding.ASCII.GetChars(curSpan.Slice(0, diffIndex), solutionBuffer);
-                        Encoding.ASCII.GetChars(otherSpan.Slice(diffIndex + 1), solutionBuffer.Slice(diffIndex));
+                        Encoding.ASCII.GetChars(curSpan[..diffIndex], solutionBuffer);
+                        Encoding.ASCII.GetChars(otherSpan[(diffIndex + 1)..], solutionBuffer[diffIndex..]);
                         return true;
                     }
                 }
@@ -137,7 +137,7 @@ public class Day02 : ISolver
     /// </summary>
     private static int GetIndexOfDifferentChar(ReadOnlySpan<byte> s1, ReadOnlySpan<byte> s2)
     {
-        for (int k = 0; k < s1.Length; k++)
+        for (var k = 0; k < s1.Length; k++)
         {
             if (s1[k] != s2[k])
             {
@@ -156,7 +156,7 @@ public class Day02 : ISolver
     private static int HashBytes(ReadOnlySpan<byte> bytes)
     {
         var h = new HashCode();
-        foreach (byte b in bytes)
+        foreach (var b in bytes)
             h.Add(b);
 
         return h.ToHashCode();

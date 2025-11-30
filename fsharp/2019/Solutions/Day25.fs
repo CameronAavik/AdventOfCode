@@ -29,8 +29,10 @@ let rec playGameInteractive prog =
     match prog with
     | Output (o, s) ->
         printfn "%s\n" (outputToAscii o)
-        let inp = Console.ReadLine()
-        s |> provideInput (asciiToOutput (inp + "\n")) |> playGameInteractive
+        match Console.ReadLine() with
+        | null -> "Program Ended"
+        | inp ->
+            s |> provideInput (asciiToOutput (inp + "\n")) |> playGameInteractive
     | _ -> "Program Ended"
 
 type Direction = North | South | West | East

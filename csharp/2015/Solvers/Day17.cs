@@ -21,20 +21,20 @@ public class Day17 : ISolver
         var M = new Element[151, sizes.Count];
 
         // initialize first row
-        for (int i = 0; i <= 150; i++)
+        for (var i = 0; i <= 150; i++)
         {
             M[i, 0] = Element.Zero;
         }
         M[0, 0] = new Element(MinContainers: 0, AllCount: 1, MinimizedCount: 1);
         M[sizes[0], 0] = new Element(MinContainers: 1, AllCount: 1, MinimizedCount: 1);
 
-        for (int i = 1; i < sizes.Count; i++)
+        for (var i = 1; i < sizes.Count; i++)
         {
-            int size = sizes[i];
-            for (int capacity = 0; capacity <= 150; capacity++)
+            var size = sizes[i];
+            for (var capacity = 0; capacity <= 150; capacity++)
             {
-                Element containerNotUsed = M[capacity, i - 1];
-                Element? containerUsed = capacity >= size ? M[capacity - size, i - 1] : null;
+                var containerNotUsed = M[capacity, i - 1];
+                var containerUsed = capacity >= size ? M[capacity - size, i - 1] : null;
 
                 // if the the size is bigger than the capacity, then assume the container isn't used.
                 if (containerUsed is null || containerUsed.AllCount == 0)
@@ -50,13 +50,13 @@ public class Day17 : ISolver
                     continue;
                 }
 
-                int allCount = containerUsed.AllCount + containerNotUsed.AllCount;
+                var allCount = containerUsed.AllCount + containerNotUsed.AllCount;
 
-                int countIfUsed = containerUsed.MinContainers + 1;
-                int countIfNotUsed = containerNotUsed.MinContainers;
+                var countIfUsed = containerUsed.MinContainers + 1;
+                var countIfNotUsed = containerNotUsed.MinContainers;
 
-                int minContainers = Math.Min(countIfUsed, countIfNotUsed);
-                int minimizedCount = countIfUsed.CompareTo(countIfNotUsed) switch
+                var minContainers = Math.Min(countIfUsed, countIfNotUsed);
+                var minimizedCount = countIfUsed.CompareTo(countIfNotUsed) switch
                 {
                     < 0 => containerUsed.MinimizedCount,
                     > 0 => containerNotUsed.MinimizedCount,
@@ -67,7 +67,7 @@ public class Day17 : ISolver
             }
         }
 
-        Element solutionElement = M[150, sizes.Count - 1];
+        var solutionElement = M[150, sizes.Count - 1];
         solution.SubmitPart1(solutionElement.AllCount);
         solution.SubmitPart2(solutionElement.MinimizedCount);
     }

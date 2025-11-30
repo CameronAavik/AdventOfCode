@@ -13,15 +13,15 @@ public class Day18 : ISolver
 
         // initialise a stack and stack pointer for both parts
         // we put -1 on top of the stack to represent a bad value
-        long[] stack1 = new long[64];
+        var stack1 = new long[64];
         stack1[0] = -1;
-        int sp1 = 0;
+        var sp1 = 0;
 
-        long[] stack2 = new long[128];
+        var stack2 = new long[128];
         stack2[0] = -1;
-        int sp2 = 0;
+        var sp2 = 0;
 
-        foreach (byte c in input)
+        foreach (var c in input)
         {
             if (c == '\n')
             {
@@ -31,7 +31,7 @@ public class Day18 : ISolver
                 // for part 2 the stack will looks like [-1, n1, *, n2, *, n3, * n4]
                 // so multiply every second number
                 long p2 = 1;
-                for (int i = 1; i <= sp2; i += 2)
+                for (var i = 1; i <= sp2; i += 2)
                     p2 *= stack2[i];
 
                 part2 += p2;

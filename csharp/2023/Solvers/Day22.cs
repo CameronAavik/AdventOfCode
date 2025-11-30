@@ -21,7 +21,7 @@ public class Day22 : ISolver
         const int depth = 10;
 
         var bricksArray = new Brick[1500]; // max number of bricks I support
-        int brickCount = 1; // leave first brick empty
+        var brickCount = 1; // leave first brick empty
 
         while (!input.IsEmpty)
             bricksArray[brickCount++] = ParseBrick(ref input);
@@ -31,23 +31,23 @@ public class Day22 : ISolver
         var xyPlane = new (short Height, short BrickId)[width * depth];
         Array.Fill(xyPlane, ((short)0, (short)-1));
 
-        short[] dominators = new short[brickCount];
-        short[] brickSupportedCounts = new short[brickCount];
-        ulong[] bricksThatWillCauseFalls = new ulong[(brickCount - 1) / 64 + 1];
-        short[] bricksOnTopOf = new short[width * depth];
+        var dominators = new short[brickCount];
+        var brickSupportedCounts = new short[brickCount];
+        var bricksThatWillCauseFalls = new ulong[(brickCount - 1) / 64 + 1];
+        var bricksOnTopOf = new short[width * depth];
 
-        int part2 = 0;
-        for (int i = 1; i < brickCount; i++)
+        var part2 = 0;
+        for (var i = 1; i < brickCount; i++)
         {
-            Brick brick = bricksArray[i];
-            int numBricksOnTopOf = 0;
-            int maxHeight = 1;
+            var brick = bricksArray[i];
+            var numBricksOnTopOf = 0;
+            var maxHeight = 1;
             for (int y = brick.Y0; y <= brick.Y1; y++)
             {
-                int offset = y * 10;
+                var offset = y * 10;
                 for (int x = brick.X0; x <= brick.X1; x++)
                 {
-                    (short height, short brickId) = xyPlane[offset + x];
+                    (var height, var brickId) = xyPlane[offset + x];
                     if (height > maxHeight)
                     {
                         bricksOnTopOf[0] = brickId;
@@ -63,7 +63,7 @@ public class Day22 : ISolver
 
             if (numBricksOnTopOf > 0)
             {
-                short dominator = bricksOnTopOf[0];
+                var dominator = bricksOnTopOf[0];
                 if (numBricksOnTopOf == 1)
                 {
                     bricksThatWillCauseFalls[dominator / 64] |= 1UL << dominator;
@@ -72,16 +72,16 @@ public class Day22 : ISolver
                 {
                     while (true)
                     {
-                        short nextDominator = bricksOnTopOf[0];
+                        var nextDominator = bricksOnTopOf[0];
                         while (nextDominator > dominator)
                             nextDominator = dominators[nextDominator];
 
                         bricksOnTopOf[0] = nextDominator;
 
-                        bool allSame = true;
+                        var allSame = true;
                         dominator = nextDominator;
 
-                        for (int j = 1; j < numBricksOnTopOf; j++)
+                        for (var j = 1; j < numBricksOnTopOf; j++)
                         {
                             nextDominator = bricksOnTopOf[j];
                             while (nextDominator > dominator)
@@ -103,7 +103,7 @@ public class Day22 : ISolver
                 }
 
                 dominators[i] = dominator;
-                short numSupporting = brickSupportedCounts[dominator];
+                var numSupporting = brickSupportedCounts[dominator];
                 part2 += numSupporting;
                 brickSupportedCounts[i] = (short)(numSupporting + 1);
             }
@@ -115,13 +115,13 @@ public class Day22 : ISolver
             var planeValue = ((short)(maxHeight + brick.Z1 - brick.Z0 + 1), (short)i);
             for (int y = brick.Y0; y <= brick.Y1; y++)
             {
-                int offset = y * 10;
+                var offset = y * 10;
                 for (int x = brick.X0; x <= brick.X1; x++)
                     xyPlane[offset + x] = planeValue;
             }
         }
 
-        int part1 = brickCount - 1 - CountBits(bricksThatWillCauseFalls);
+        var part1 = brickCount - 1 - CountBits(bricksThatWillCauseFalls);
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
@@ -130,31 +130,31 @@ public class Day22 : ISolver
     {
         byte c;
 
-        int x0 = input[0] - '0';
-        int y0 = input[2] - '0';
-        int z0 = input[4] - '0';
-        int i = 5;
+        var x0 = input[0] - '0';
+        var y0 = input[2] - '0';
+        var z0 = input[4] - '0';
+        var i = 5;
         while ((c = input[i++]) != '~')
             z0 = 10 * z0 + c - '0';
 
-        input = input.Slice(i);
+        input = input[i..];
 
-        int x1 = input[0] - '0';
-        int y1 = input[2] - '0';
-        int z1 = input[4] - '0';
+        var x1 = input[0] - '0';
+        var y1 = input[2] - '0';
+        var z1 = input[4] - '0';
         i = 5;
         while ((c = input[i++]) != '\n')
             z1 = 10 * z1 + c - '0';
 
-        input = input.Slice(i);
+        input = input[i..];
 
         return new Brick((byte)x0, (byte)y0, (short)z0, (byte)x1, (byte)y1, (short)z1);
     }
 
     private static int CountBits(Span<ulong> bitset)
     {
-        int total = 0;
-        for (int i = 0; i < bitset.Length; i++)
+        var total = 0;
+        for (var i = 0; i < bitset.Length; i++)
             total += BitOperations.PopCount(bitset[i]);
         return total;
     }

@@ -11,7 +11,7 @@ public class Day06 : ISolver
         Span<long> counts = stackalloc long[9];
         counts.Clear();
 
-        int cursor = 0;
+        var cursor = 0;
         while (cursor < input.Length)
         {
             counts[input[cursor] - '0']++;
@@ -21,7 +21,7 @@ public class Day06 : ISolver
         Iterate(counts, 80);
 
         long part1 = 0;
-        foreach (long count in counts)
+        foreach (var count in counts)
             part1 += count;
 
         solution.SubmitPart1(part1);
@@ -29,7 +29,7 @@ public class Day06 : ISolver
         Iterate(counts, 256 - 80);
 
         long part2 = 0;
-        foreach (long count in counts)
+        foreach (var count in counts)
             part2 += count;
 
         solution.SubmitPart2(part2);
@@ -38,10 +38,10 @@ public class Day06 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void Iterate(Span<long> counts, int n)
     {
-        int i = 0;
+        var i = 0;
         while (i + 7 < n)
         {
-            long sevens = counts[7];
+            var sevens = counts[7];
             counts[7] = counts[5];
             counts[5] += counts[3];
             counts[3] += counts[1];
@@ -57,8 +57,8 @@ public class Day06 : ISolver
 
         while (i < n)
         {
-            long zeroes = counts[0];
-            for (int j = 0; j < 8; j++)
+            var zeroes = counts[0];
+            for (var j = 0; j < 8; j++)
                 counts[j] = counts[j + 1];
 
             counts[6] += zeroes;

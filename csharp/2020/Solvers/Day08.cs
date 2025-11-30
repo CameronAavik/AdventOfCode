@@ -13,32 +13,32 @@ public class Day08 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int lines = input.Count((byte)'\n');
-        Instruction[] instructions = new Instruction[lines];
-        int[] values = new int[lines];
+        var lines = input.Count((byte)'\n');
+        var instructions = new Instruction[lines];
+        var values = new int[lines];
 
-        int lineNumber = 0;
+        var lineNumber = 0;
         var reader = new SpanReader(input);
         while (!reader.Done)
         {
-            byte op = reader[0]; // store op by getting the first character. n = nop, a = acc, j = jmp
-            int mul = reader[4] == '+' ? 1 : -1;
+            var op = reader[0]; // store op by getting the first character. n = nop, a = acc, j = jmp
+            var mul = reader[4] == '+' ? 1 : -1;
             reader.SkipLength("jmp +".Length);
-            int arg = mul * reader.ReadPosIntUntil('\n');
+            var arg = mul * reader.ReadPosIntUntil('\n');
             instructions[lineNumber] = new(op, arg);
             values[lineNumber] = int.MinValue; // initial value that indicates we have not got a value yet
             lineNumber++;
         }
 
-        int ipsToFlipLen = 0;
-        int[] ipsToFlip = new int[lines];
+        var ipsToFlipLen = 0;
+        var ipsToFlip = new int[lines];
 
         // simulate without flipping any instructions
-        int ip = 0;
-        int acc = 0;
+        var ip = 0;
+        var acc = 0;
         while (values[ip] == int.MinValue)
         {
-            Instruction instruction = instructions[ip];
+            var instruction = instructions[ip];
             switch (instruction.Operation)
             {
                 case (byte)'n': // nop
@@ -57,15 +57,15 @@ public class Day08 : ISolver
             }
         }
 
-        int part1 = acc;
-        int part2 = 0;
+        var part1 = acc;
+        var part2 = 0;
 
-        for (int i = 0; i < ipsToFlipLen; i++)
+        for (var i = 0; i < ipsToFlipLen; i++)
         {
             ip = ipsToFlip[i];
             acc = values[ip];
 
-            Instruction instruction = instructions[ip];
+            var instruction = instructions[ip];
             ip += instruction.Operation == 'n' // nop
                 ? instruction.Arg // nop becomes jmp
                 : 1; // jmp becomes nop

@@ -14,20 +14,23 @@ public class Day23 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        static byte CharToAmphipodType(byte c) => (byte)(c - 'A');
+        static byte CharToAmphipodType(byte c)
+        {
+            return (byte)(c - 'A');
+        }
 
         const int InputRowWidth = 14;
-        byte slotA1 = CharToAmphipodType(input[InputRowWidth * 2 + 3]);
-        byte slotB1 = CharToAmphipodType(input[InputRowWidth * 2 + 5]);
-        byte slotC1 = CharToAmphipodType(input[InputRowWidth * 2 + 7]);
-        byte slotD1 = CharToAmphipodType(input[InputRowWidth * 2 + 9]);
-        byte slotA2 = CharToAmphipodType(input[InputRowWidth * 3 + 3]);
-        byte slotB2 = CharToAmphipodType(input[InputRowWidth * 3 + 5]);
-        byte slotC2 = CharToAmphipodType(input[InputRowWidth * 3 + 7]);
-        byte slotD2 = CharToAmphipodType(input[InputRowWidth * 3 + 9]);
+        var slotA1 = CharToAmphipodType(input[InputRowWidth * 2 + 3]);
+        var slotB1 = CharToAmphipodType(input[InputRowWidth * 2 + 5]);
+        var slotC1 = CharToAmphipodType(input[InputRowWidth * 2 + 7]);
+        var slotD1 = CharToAmphipodType(input[InputRowWidth * 2 + 9]);
+        var slotA2 = CharToAmphipodType(input[InputRowWidth * 3 + 3]);
+        var slotB2 = CharToAmphipodType(input[InputRowWidth * 3 + 5]);
+        var slotC2 = CharToAmphipodType(input[InputRowWidth * 3 + 7]);
+        var slotD2 = CharToAmphipodType(input[InputRowWidth * 3 + 9]);
 
         // Part 1 is simulated by assuming the bottom two slots are already filled with the correct amphipods
-        ulong part1InitialState = 
+        ulong part1InitialState =
             CreateSlot(AmphipodA, slotA1, slotA2, AmphipodA, AmphipodA) |
             ((uint)CreateSlot(AmphipodB, slotB1, slotB2, AmphipodB, AmphipodB) << 8) |
             ((uint)CreateSlot(AmphipodC, slotC1, slotC2, AmphipodC, AmphipodC) << 16) |
@@ -39,8 +42,8 @@ public class Day23 : ISolver
             ((uint)CreateSlot(AmphipodC, slotC1, AmphipodB, AmphipodA, slotC2) << 16) |
             ((uint)CreateSlot(AmphipodD, slotD1, AmphipodA, AmphipodC, slotD2) << 24);
 
-        uint part1 = Solve(part1InitialState);
-        uint part2 = Solve(part2InitialState);
+        var part1 = Solve(part1InitialState);
+        var part2 = Solve(part2InitialState);
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
@@ -48,24 +51,24 @@ public class Day23 : ISolver
 
     private static uint Solve(ulong initialState)
     {
-        uint minimumCost = MinimumCost(initialState);
+        var minimumCost = MinimumCost(initialState);
 
         var seen = new HashSet<ulong>(8192);
         var pq = new PriorityQueue<ulong, uint>(8192);
         pq.Enqueue(initialState, minimumCost * 16 + 16);
 
-        while (pq.TryDequeue(out ulong state, out uint distance))
+        while (pq.TryDequeue(out var state, out var distance))
         {
             if (seen.Contains(state))
                 continue;
 
             seen.Add(state);
 
-            uint slots = (uint)(state & 0xFFFFFFFFU);
-            uint topRow = (uint)(state >> 32);
+            var slots = (uint)(state & 0xFFFFFFFFU);
+            var topRow = (uint)(state >> 32);
 
             // Try see if any amphipods in the top row can go straight to their slot
-            if (TryMoveAmphipodFromTopRowToSlot(slots, topRow, out ulong newState))
+            if (TryMoveAmphipodFromTopRowToSlot(slots, topRow, out var newState))
             {
                 // If any amphipods moved into their slot, then there is no point considering further moves as it is an
                 // optimal decision to make
@@ -73,14 +76,14 @@ public class Day23 : ISolver
                 continue;
             }
 
-            bool isFinalState = true;
-            for (byte amph = AmphipodA; amph <= AmphipodD; amph++)
+            var isFinalState = true;
+            for (var amph = AmphipodA; amph <= AmphipodD; amph++)
             {
                 if (!CanMoveToSlot(amph, slots))
                 {
                     isFinalState = false;
 
-                    uint newSlots = PopFromSlot(amph, slots, out byte newAmphipod);
+                    var newSlots = PopFromSlot(amph, slots, out var newAmphipod);
 
                     if (CanMoveToSlot(newAmphipod, newSlots) && IsPathFromSlotToSlotClear(topRow, amph, newAmphipod))
                     {
@@ -88,31 +91,31 @@ public class Day23 : ISolver
                         break;
                     }
 
-                    uint moveCost = 16 * GetMoveCost(newAmphipod);
+                    var moveCost = 16 * GetMoveCost(newAmphipod);
 
                     // We know that an amphipod can't stop directly outside it's spot, so we have already added moveCost * 2
                     // when determining the minimum distance, so we subtract it here to counteract that.
-                    uint newDistanceStart = (uint)(distance + (amph == newAmphipod ? -moveCost * 2 : 0));
+                    var newDistanceStart = (uint)(distance + (amph == newAmphipod ? -moveCost * 2 : 0));
 
                     // Try move left
-                    uint newDistance = newDistanceStart;
-                    for (int i = amph + 1; i >= 0 && ((topRow & (0xFU << (4 * i))) == 0); i--)
+                    var newDistance = newDistanceStart;
+                    for (var i = amph + 1; i >= 0 && ((topRow & (0xFU << (4 * i))) == 0); i--)
                     {
                         if (i < (newAmphipod + 2))
                             newDistance += (i != amph + 1 && i != newAmphipod + 1 && i > 0 ? 4U : 2U) * moveCost;
 
-                        uint newTopRow = topRow | ((8U + newAmphipod) << (4 * i));
+                        var newTopRow = topRow | ((8U + newAmphipod) << (4 * i));
                         pq.Enqueue((ulong)newTopRow << 32 | newSlots, newDistance);
                     }
 
                     // Try move right
                     newDistance = newDistanceStart;
-                    for (int i = amph + 2; i < 7 && ((topRow & (0xFU << (4 * i))) == 0); i++)
+                    for (var i = amph + 2; i < 7 && ((topRow & (0xFU << (4 * i))) == 0); i++)
                     {
                         if (i > (newAmphipod + 1))
                             newDistance += (i != amph + 2 && i != newAmphipod + 2 && i < 6 ? 4U : 2U) * moveCost;
 
-                        uint newTopRow = topRow | ((8U + newAmphipod) << (4 * i));
+                        var newTopRow = topRow | ((8U + newAmphipod) << (4 * i));
                         pq.Enqueue((ulong)newTopRow << 32 | newSlots, newDistance);
                     }
                 }
@@ -136,19 +139,19 @@ public class Day23 : ISolver
 
     private static uint MinimumCost(ulong state)
     {
-        int totalCost = 0;
-        uint slots = (uint)(state & 0xFFFFFFFFU);
+        var totalCost = 0;
+        var slots = (uint)(state & 0xFFFFFFFFU);
         for (byte expectedAmphipod = 0; expectedAmphipod < 4; expectedAmphipod++)
         {
-            byte slot = (byte)(slots & 0xFFU);
-            for (int j = 0; j < 4; j++)
+            var slot = (byte)(slots & 0xFFU);
+            for (var j = 0; j < 4; j++)
             {
                 if (slot == 0)
                     break;
 
-                byte amphipod = (byte)((slot + expectedAmphipod) & 3);
+                var amphipod = (byte)((slot + expectedAmphipod) & 3);
 
-                int distanceBetweenSlots =
+                var distanceBetweenSlots =
                     amphipod == expectedAmphipod
                         ? 2 // We must move twice even if the slot is the same
                         : Math.Abs(amphipod - expectedAmphipod) * 2;
@@ -173,10 +176,10 @@ public class Day23 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static uint PopFromSlot(byte amphipod, uint slots, out byte newAmphipod)
     {
-        int slotStart = 8 * amphipod;
-        uint slot = (slots >> slotStart) & 0xFFU;
+        var slotStart = 8 * amphipod;
+        var slot = (slots >> slotStart) & 0xFFU;
         newAmphipod = (byte)((slot + amphipod) & 3);
-        uint slotMask = 0xFFU << slotStart;
+        var slotMask = 0xFFU << slotStart;
         return ((slot >> 2) << slotStart) | (slots & ~slotMask);
     }
 
@@ -189,34 +192,34 @@ public class Day23 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static bool IsPathFromTopToSlotClear(uint topRow, int start, byte slot)
     {
-        int leftOfSlot = slot + 1;
-        int diff = start - leftOfSlot;
-        uint pathMask = diff <= 0 ? GetTopRowMask(-diff, start + 1) : GetTopRowMask(diff - 1, leftOfSlot + 1);
+        var leftOfSlot = slot + 1;
+        var diff = start - leftOfSlot;
+        var pathMask = diff <= 0 ? GetTopRowMask(-diff, start + 1) : GetTopRowMask(diff - 1, leftOfSlot + 1);
         return (pathMask & topRow) == 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static bool IsPathFromSlotToSlotClear(uint topRow, byte slot1, byte slot2)
     {
-        int diff = slot1 - slot2;
-        uint pathMask = diff < 0 ? GetTopRowMask(-diff, slot1 + 2) : GetTopRowMask(diff, slot2 + 2);
+        var diff = slot1 - slot2;
+        var pathMask = diff < 0 ? GetTopRowMask(-diff, slot1 + 2) : GetTopRowMask(diff, slot2 + 2);
         return (pathMask & topRow) == 0;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool TryMoveAmphipodFromTopRowToSlot(uint slots, uint topRow, out ulong newState)
     {
-        uint t = topRow;
-        int rowIndex = 0;
+        var t = topRow;
+        var rowIndex = 0;
         while (t != 0)
         {
-            uint cell = t & 0xF;
+            var cell = t & 0xF;
             if (cell != 0)
             {
-                byte amph = (byte)(cell & 3);
+                var amph = (byte)(cell & 3);
                 if (CanMoveToSlot(amph, slots) && IsPathFromTopToSlotClear(topRow, rowIndex, amph))
                 {
-                    uint newTopRow = topRow ^ (cell << (rowIndex * 4));
+                    var newTopRow = topRow ^ (cell << (rowIndex * 4));
                     newState = ((ulong)newTopRow) << 32 | slots;
                     return true;
                 }

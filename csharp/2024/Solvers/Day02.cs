@@ -7,34 +7,34 @@ public class Day02 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
         Span<int> diffSignCounts = stackalloc int[3]; // [0] stores decreasing, [1] stores zero, [2] stores increasing
         Span<int> lastDiffWithSignIndex = stackalloc int[3]; // For each sign type, stores the index of the last difference we saw with it
         Span<int> levelDiffs = stackalloc int[32]; // Stores the pairwise differences of the numbers in the list
         Span<int> largeDiffIndexes = stackalloc int[32]; // Stores the indexes of any differences that are too large
 
-        int i = 0;
+        var i = 0;
         while (i < input.Length)
         {
             diffSignCounts.Clear();
-            int numDiffs = 0;
-            int largeDiffs = 0;
+            var numDiffs = 0;
+            var largeDiffs = 0;
 
-            byte c = input[i++];
-            int prev = c - '0';
+            var c = input[i++];
+            var prev = c - '0';
             while (i < input.Length && (c = input[i++]) >= '0')
                 prev = prev * 10 + c - '0';
 
             while (c != '\n')
             {
-                int number = input[i++] - '0';
+                var number = input[i++] - '0';
                 while (i < input.Length && (c = input[i++]) >= '0')
                     number = number * 10 + c - '0';
 
-                int diff = number - prev;
-                int diffSign = Math.Sign(diff) + 1;
+                var diff = number - prev;
+                var diffSign = Math.Sign(diff) + 1;
                 diffSignCounts[diffSign]++;
                 lastDiffWithSignIndex[diffSign] = numDiffs;
                 if (diff is < -3 or > 3)
@@ -44,8 +44,8 @@ public class Day02 : ISolver
                 prev = number;
             }
 
-            int decreaseCount = diffSignCounts[0];
-            int increaseCount = diffSignCounts[2];
+            var decreaseCount = diffSignCounts[0];
+            var increaseCount = diffSignCounts[2];
 
             // Handle the case where all numbers are increasing or decreasing
             if (decreaseCount == numDiffs || increaseCount == numDiffs)
@@ -58,7 +58,7 @@ public class Day02 : ISolver
                 else if (largeDiffs == 1)
                 {
                     // Only can work if it starts or ends with the large difference
-                    int largeDiffIndex = largeDiffIndexes[0];
+                    var largeDiffIndex = largeDiffIndexes[0];
                     if (largeDiffIndex == 0 || largeDiffIndex == numDiffs - 1)
                         part2++;
                 }
@@ -88,11 +88,11 @@ public class Day02 : ISolver
             // We can easily calculate the new difference are removal by adding together adjacent differences: (a - b) + (b - c) == a - c
 
             // If there are large differences involved, we may be forced to choose either the left or right side
-            int forcedMergeIndex = -1;
+            var forcedMergeIndex = -1;
             if (largeDiffs == 1)
             {
                 // Must be either the same as indexToRemove or immediately next to merge
-                int distance = largeDiffIndexes[0] - indexToRemove;
+                var distance = largeDiffIndexes[0] - indexToRemove;
                 if (distance is -1 or 1)
                     forcedMergeIndex = indexToRemove + distance;
                 else if (distance != 0)
@@ -101,8 +101,8 @@ public class Day02 : ISolver
             else if (largeDiffs == 2)
             {
                 // one must be the indexToRemove, the other must be immediately before or after it
-                int distance1 = largeDiffIndexes[0] - indexToRemove;
-                int distance2 = largeDiffIndexes[1] - indexToRemove;
+                var distance1 = largeDiffIndexes[0] - indexToRemove;
+                var distance2 = largeDiffIndexes[1] - indexToRemove;
                 if (distance1 == 0 && distance2 == 1)
                     forcedMergeIndex = indexToRemove + 1;
                 else if (distance1 == -1 && distance2 == 0)
@@ -116,7 +116,7 @@ public class Day02 : ISolver
             }
 
             // Now test the left and right sides to see if the new sequence is valid
-            int diffToRemove = levelDiffs[indexToRemove];
+            var diffToRemove = levelDiffs[indexToRemove];
             if (forcedMergeIndex != -1) // handle forced case
             {
                 if (expectedSign * (diffToRemove + levelDiffs[forcedMergeIndex]) is > 0 and <= 3)

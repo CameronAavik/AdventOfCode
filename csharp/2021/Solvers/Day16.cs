@@ -10,7 +10,7 @@ public class Day16 : ISolver
     {
         var reader = new InputReader(input);
         uint part1 = 0;
-        ulong part2 = ParsePacket(ref reader, ref part1);
+        var part2 = ParsePacket(ref reader, ref part1);
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
@@ -18,7 +18,7 @@ public class Day16 : ISolver
     private static ulong ParsePacket(ref InputReader reader, ref uint versionSum)
     {
         versionSum += reader.ReadBits(3);
-        uint typeId = reader.ReadBits(3);
+        var typeId = reader.ReadBits(3);
         if (typeId == 4)
         {
             ulong number = 0;
@@ -33,20 +33,20 @@ public class Day16 : ISolver
             return number;
         }
 
-        bool lengthIsNumberOfSubPackets = reader.ReadBit();
-        int length = (int)reader.ReadBits(lengthIsNumberOfSubPackets ? 11 : 15);
+        var lengthIsNumberOfSubPackets = reader.ReadBit();
+        var length = (int)reader.ReadBits(lengthIsNumberOfSubPackets ? 11 : 15);
         switch (typeId)
         {
             case 0:
                 ulong sum = 0;
                 if (lengthIsNumberOfSubPackets)
                 {
-                    for (int i = 0; i < length; i++)
+                    for (var i = 0; i < length; i++)
                         sum += ParsePacket(ref reader, ref versionSum);
                 }
                 else
                 {
-                    int finalIndex = reader.BitIndex + length;
+                    var finalIndex = reader.BitIndex + length;
                     while (reader.BitIndex < finalIndex)
                         sum += ParsePacket(ref reader, ref versionSum);
                 }
@@ -55,55 +55,55 @@ public class Day16 : ISolver
                 ulong product = 1;
                 if (lengthIsNumberOfSubPackets)
                 {
-                    for (int i = 0; i < length; i++)
+                    for (var i = 0; i < length; i++)
                         product *= ParsePacket(ref reader, ref versionSum);
                 }
                 else
                 {
-                    int finalIndex = reader.BitIndex + length;
+                    var finalIndex = reader.BitIndex + length;
                     while (reader.BitIndex < finalIndex)
                         product *= ParsePacket(ref reader, ref versionSum);
                 }
                 return product;
             case 2:
-                ulong min = ulong.MaxValue;
+                var min = ulong.MaxValue;
                 if (lengthIsNumberOfSubPackets)
                 {
-                    for (int i = 0; i < length; i++)
+                    for (var i = 0; i < length; i++)
                     {
-                        ulong val = ParsePacket(ref reader, ref versionSum);
+                        var val = ParsePacket(ref reader, ref versionSum);
                         if (val < min)
                             min = val;
                     }
                 }
                 else
                 {
-                    int finalIndex = reader.BitIndex + length;
+                    var finalIndex = reader.BitIndex + length;
                     while (reader.BitIndex < finalIndex)
                     {
-                        ulong val = ParsePacket(ref reader, ref versionSum);
+                        var val = ParsePacket(ref reader, ref versionSum);
                         if (val < min)
                             min = val;
                     }
                 }
                 return min;
             case 3:
-                ulong max = ulong.MinValue;
+                var max = ulong.MinValue;
                 if (lengthIsNumberOfSubPackets)
                 {
-                    for (int i = 0; i < length; i++)
+                    for (var i = 0; i < length; i++)
                     {
-                        ulong val = ParsePacket(ref reader, ref versionSum);
+                        var val = ParsePacket(ref reader, ref versionSum);
                         if (val > max)
                             max = val;
                     }
                 }
                 else
                 {
-                    int finalIndex = reader.BitIndex + length;
+                    var finalIndex = reader.BitIndex + length;
                     while (reader.BitIndex < finalIndex)
                     {
-                        ulong val = ParsePacket(ref reader, ref versionSum);
+                        var val = ParsePacket(ref reader, ref versionSum);
                         if (val > max)
                             max = val;
                     }
@@ -148,7 +148,7 @@ public class Day16 : ISolver
             }
             else
             {
-                byte next4Bits = CharToInt(_input[_inputIndex++]);
+                var next4Bits = CharToInt(_input[_inputIndex++]);
                 result = (next4Bits >> 3) != 0;
 
                 _readBitsCount = 3;
@@ -184,7 +184,7 @@ public class Day16 : ISolver
                 _readBitsCount = 0;
                 if (numBits > 0)
                 {
-                    byte next4Bits = CharToInt(_input[_inputIndex++]);
+                    var next4Bits = CharToInt(_input[_inputIndex++]);
                     number <<= numBits;
                     number |= (uint)next4Bits >> (4 - numBits);
 
@@ -200,8 +200,8 @@ public class Day16 : ISolver
 
         private void ConsumeMoreInput()
         {
-            int amountToRead = Math.Min((64 - _readBitsCount) / 4, _input.Length - _inputIndex);
-            for (int i = 0; i < amountToRead; i++)
+            var amountToRead = Math.Min((64 - _readBitsCount) / 4, _input.Length - _inputIndex);
+            for (var i = 0; i < amountToRead; i++)
             {
                 _readBits <<= 4;
                 _readBits |= CharToInt(_input[_inputIndex++]);

@@ -8,9 +8,9 @@ public class Day09 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int lines = input.Count((byte)'\n');
-        long[] nums = new long[lines];
-        int line = 0;
+        var lines = input.Count((byte)'\n');
+        var nums = new long[lines];
+        var line = 0;
 
         var reader = new SpanReader(input);
         while (line < 25)
@@ -20,7 +20,7 @@ public class Day09 : ISolver
 
         while (!reader.Done)
         {
-            long num = reader.ReadPosLongUntil('\n');
+            var num = reader.ReadPosLongUntil('\n');
             nums[line] = num;
             if (!IsSumInPrevious25(nums, line, num))
             {
@@ -30,8 +30,8 @@ public class Day09 : ISolver
             line++;
         }
 
-        long part1 = nums[line];
-        long part2 = SolvePart2(nums, part1);
+        var part1 = nums[line];
+        var part2 = SolvePart2(nums, part1);
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
@@ -39,10 +39,10 @@ public class Day09 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsSumInPrevious25(long[] nums, int line, long num)
     {
-        for (int i = line - 25; i <= line - 2; i++)
+        for (var i = line - 25; i <= line - 2; i++)
         {
-            long target = num - nums[i];
-            for (int j = i + 1; j <= line - 1; j++)
+            var target = num - nums[i];
+            for (var j = i + 1; j <= line - 1; j++)
             {
                 if (nums[j] == target)
                 {
@@ -57,9 +57,9 @@ public class Day09 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static long SolvePart2(long[] nums, long part1)
     {
-        int l = 0;
-        int r = 0;
-        long sum = nums[0];
+        var l = 0;
+        var r = 0;
+        var sum = nums[0];
         while (sum != part1)
         {
             if (sum < part1)
@@ -72,11 +72,11 @@ public class Day09 : ISolver
             }
         }
 
-        long min = nums[l];
-        long max = nums[l];
-        for (int i = l + 1; i <= r; i++)
+        var min = nums[l];
+        var max = nums[l];
+        for (var i = l + 1; i <= r; i++)
         {
-            long v = nums[i];
+            var v = nums[i];
             if (v < min)
             {
                 min = v;

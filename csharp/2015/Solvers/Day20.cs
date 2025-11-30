@@ -13,7 +13,7 @@ public class Day20 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int target = new SpanReader(input).ReadPosIntUntil('\n');
+        var target = new SpanReader(input).ReadPosIntUntil('\n');
         solution.SubmitPart1(SolvePart1(target));
         solution.SubmitPart2(SolvePart2(target));
     }
@@ -26,25 +26,25 @@ public class Day20 : ISolver
 
         // essentially we are iterating through different combinations of prime factorisations
         // 
-        int best = int.MaxValue;
-        int[] counts = new int[s_primes.Length];
-        int[] totals = new int[s_primes.Length];
-        int[] muls = new int[s_primes.Length];
+        var best = int.MaxValue;
+        var counts = new int[s_primes.Length];
+        var totals = new int[s_primes.Length];
+        var muls = new int[s_primes.Length];
 
-        for (int i = 0; i < s_primes.Length; i++)
+        for (var i = 0; i < s_primes.Length; i++)
         {
             totals[i] = 1;
             muls[i] = 1;
         }
 
-        int cur = 0;
-        int prod = 1;
-        int mulProd = 1;
+        var cur = 0;
+        var prod = 1;
+        var mulProd = 1;
         while (cur < s_primes.Length)
         {
             if (prod < target && mulProd < best)
             {
-                int prime = s_primes[cur];
+                var prime = s_primes[cur];
                 mulProd *= prime;
                 counts[cur]++;
                 muls[cur] *= prime;
@@ -79,43 +79,43 @@ public class Day20 : ISolver
 
         // the batch size is a highly composite number
         const int batchSize = 15120;
-        int[] initPresents = new int[batchSize];
-        int[] countPresents = new int[batchSize];
-        for (int i = 1; i <= 50; i++)
+        var initPresents = new int[batchSize];
+        var countPresents = new int[batchSize];
+        for (var i = 1; i <= 50; i++)
         {
             if (batchSize % i != 0)
             {
                 continue;
             }
 
-            for (int j = 0; j < batchSize; j += i)
+            for (var j = 0; j < batchSize; j += i)
             {
                 initPresents[j] += j / i;
                 countPresents[j] += batchSize / i;
             }
         }
 
-        int[] presents = new int[batchSize];
-        int start = 0;
-        int batchNumber = 0;
+        var presents = new int[batchSize];
+        var start = 0;
+        var batchNumber = 0;
         while (true)
         {
             Array.Copy(initPresents, presents, batchSize);
-            for (int i = 2; i <= 50; i++)
+            for (var i = 2; i <= 50; i++)
             {
                 if (batchSize % i == 0)
                 {
                     continue;
                 }
 
-                int jStart = ((-start % i) + i) % i;
-                for (int j = jStart; j < batchSize; j += i)
+                var jStart = ((-start % i) + i) % i;
+                for (var j = jStart; j < batchSize; j += i)
                 {
                     presents[j] += (j + start) / i;
                 }
             }
 
-            for (int i = 0; i < batchSize; i++)
+            for (var i = 0; i < batchSize; i++)
             {
                 if (presents[i] + countPresents[i] * batchNumber >= target)
                 {

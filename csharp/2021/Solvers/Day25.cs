@@ -7,24 +7,24 @@ public class Day25 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int width = input.IndexOf((byte)'\n');
-        int height = input.Length / (width + 1);
+        var width = input.IndexOf((byte)'\n');
+        var height = input.Length / (width + 1);
 
         //int ulongsPerRow = (width + 63) / 64;
         const int ulongsPerRow = 3;
-        int countInLastUlong = width % 64;
-        ulong lastUlongMask = (1UL << countInLastUlong) - 1;
+        var countInLastUlong = width % 64;
+        var lastUlongMask = (1UL << countInLastUlong) - 1;
         Span<ulong> easts = stackalloc ulong[ulongsPerRow * height];
         Span<ulong> souths = stackalloc ulong[ulongsPerRow * height];
 
-        for (int row = 0; row < height; row++)
+        for (var row = 0; row < height; row++)
         {
-            ReadOnlySpan<byte> rowInput = input.Slice(row * (width + 1), width);
-            Span<ulong> eastData = easts.Slice(row * ulongsPerRow, ulongsPerRow);
-            Span<ulong> southData = souths.Slice(row * ulongsPerRow, ulongsPerRow);
-            for (int col = 0; col < width; col++)
+            var rowInput = input.Slice(row * (width + 1), width);
+            var eastData = easts.Slice(row * ulongsPerRow, ulongsPerRow);
+            var southData = souths.Slice(row * ulongsPerRow, ulongsPerRow);
+            for (var col = 0; col < width; col++)
             {
-                byte c = rowInput[col];
+                var c = rowInput[col];
                 if (c == '>')
                     eastData[col / 64] |= 1UL << (col % 64);
                 else if (c == 'v')
@@ -32,33 +32,33 @@ public class Day25 : ISolver
             }
         }
 
-        int steps = 0;
+        var steps = 0;
         while (true)
         {
-            bool containsMove = false;
+            var containsMove = false;
 
             // move all east-facing cucumbers
-            for (int row = 0; row < height; row++)
+            for (var row = 0; row < height; row++)
             {
-                Span<ulong> eastData = easts.Slice(row * ulongsPerRow, ulongsPerRow);
-                Span<ulong> southData = souths.Slice(row * ulongsPerRow, ulongsPerRow);
+                var eastData = easts.Slice(row * ulongsPerRow, ulongsPerRow);
+                var southData = souths.Slice(row * ulongsPerRow, ulongsPerRow);
 
-                ulong e1 = eastData[0];
-                ulong e2 = eastData[1];
-                ulong e3 = eastData[2];
+                var e1 = eastData[0];
+                var e2 = eastData[1];
+                var e3 = eastData[2];
 
-                ulong combined1 = e1 | southData[0];
-                ulong combined2 = e2 | southData[1];
-                ulong combined3 = e3 | southData[2];
+                var combined1 = e1 | southData[0];
+                var combined2 = e2 | southData[1];
+                var combined3 = e3 | southData[2];
 
-                ulong lastE3 = e3 >> (countInLastUlong - 1);
+                var lastE3 = e3 >> (countInLastUlong - 1);
                 e3 = (e3 << 1 | e2 >> 63) & lastUlongMask;
                 e2 = e2 << 1 | e1 >> 63;
                 e1 = e1 << 1 | lastE3;
 
-                ulong overlap1 = e1 & combined1;
-                ulong overlap2 = e2 & combined2;
-                ulong overlap3 = e3 & combined3;
+                var overlap1 = e1 & combined1;
+                var overlap2 = e2 & combined2;
+                var overlap3 = e3 & combined3;
 
                 if (overlap1 != e1 || overlap2 != e2 || overlap3 != e3)
                     containsMove = true;
@@ -69,29 +69,29 @@ public class Day25 : ISolver
             }
 
             // Cache the last row data so it can be used again for the end
-            Span<ulong> lastRowSouthData = souths.Slice((height - 1) * ulongsPerRow, ulongsPerRow);
-            ulong lastRowS1 = lastRowSouthData[0];
-            ulong lastRowS2 = lastRowSouthData[1];
-            ulong lastRowS3 = lastRowSouthData[2];
+            var lastRowSouthData = souths.Slice((height - 1) * ulongsPerRow, ulongsPerRow);
+            var lastRowS1 = lastRowSouthData[0];
+            var lastRowS2 = lastRowSouthData[1];
+            var lastRowS3 = lastRowSouthData[2];
             lastRowSouthData.Clear();
 
             // move all south-facing cucumbers
-            Span<ulong> nextRowSouthData = lastRowSouthData;
-            ulong nextRowS1 = lastRowS1;
-            ulong nextRowS2 = lastRowS2;
-            ulong nextRowS3 = lastRowS3;
-            for (int row = height - 2; row >= 0; row--)
+            var nextRowSouthData = lastRowSouthData;
+            var nextRowS1 = lastRowS1;
+            var nextRowS2 = lastRowS2;
+            var nextRowS3 = lastRowS3;
+            for (var row = height - 2; row >= 0; row--)
             {
-                Span<ulong> nextRowEastData = easts.Slice((row + 1) * ulongsPerRow, ulongsPerRow);
-                Span<ulong> southData = souths.Slice(row * ulongsPerRow, ulongsPerRow);
+                var nextRowEastData = easts.Slice((row + 1) * ulongsPerRow, ulongsPerRow);
+                var southData = souths.Slice(row * ulongsPerRow, ulongsPerRow);
 
-                ulong s1 = southData[0];
-                ulong s2 = southData[1];
-                ulong s3 = southData[2];
+                var s1 = southData[0];
+                var s2 = southData[1];
+                var s3 = southData[2];
 
-                ulong overlap1 = s1 & (nextRowEastData[0] | nextRowS1);
-                ulong overlap2 = s2 & (nextRowEastData[1] | nextRowS2);
-                ulong overlap3 = s3 & (nextRowEastData[2] | nextRowS3);
+                var overlap1 = s1 & (nextRowEastData[0] | nextRowS1);
+                var overlap2 = s2 & (nextRowEastData[1] | nextRowS2);
+                var overlap3 = s3 & (nextRowEastData[2] | nextRowS3);
 
                 if (overlap1 != s1 || overlap2 != s2 || overlap3 != s3)
                     containsMove = true;
@@ -112,9 +112,9 @@ public class Day25 : ISolver
 
             // Fix the last row
             {
-                ulong overlap1 = lastRowS1 & (easts[0] | nextRowS1);
-                ulong overlap2 = lastRowS2 & (easts[1] | nextRowS2);
-                ulong overlap3 = lastRowS3 & (easts[2] | nextRowS3);
+                var overlap1 = lastRowS1 & (easts[0] | nextRowS1);
+                var overlap2 = lastRowS2 & (easts[1] | nextRowS2);
+                var overlap3 = lastRowS3 & (easts[2] | nextRowS3);
 
                 if (overlap1 != lastRowS1 || overlap2 != lastRowS2 || overlap3 != lastRowS3)
                     containsMove = true;

@@ -14,15 +14,15 @@ public class Day12 : ISolver
 
     private static int SolvePart1(ReadOnlySpan<byte> input)
     {
-        int part1 = 0;
+        var part1 = 0;
 
-        int curNum = 0;
-        int sign = 1;
-        bool inNumber = false;
-        byte prev = (byte)'\0';
-        foreach (byte c in input)
+        var curNum = 0;
+        var sign = 1;
+        var inNumber = false;
+        var prev = (byte)'\0';
+        foreach (var c in input)
         {
-            int digit = c - '0';
+            var digit = c - '0';
             if (inNumber)
             {
                 if (digit is >= 0 and < 10)
@@ -50,7 +50,7 @@ public class Day12 : ISolver
 
     private static int SolvePart2(ReadOnlySpan<byte> input)
     {
-        int i = 0;
+        var i = 0;
         return ParseValue(input, ref i, out _);
     }
 
@@ -77,8 +77,8 @@ public class Day12 : ISolver
             return 0;
         }
 
-        bool isRedString = false;
-        int total = 0;
+        var isRedString = false;
+        var total = 0;
         while (input[i++] != '}')
         {
             // parse the property name
@@ -88,7 +88,7 @@ public class Day12 : ISolver
             i += 1;
 
             // parse the value
-            total += ParseValue(input, ref i, out bool isValueRedString);
+            total += ParseValue(input, ref i, out var isValueRedString);
             isRedString = isRedString || isValueRedString;
         }
 
@@ -104,7 +104,7 @@ public class Day12 : ISolver
             return 0;
         }
 
-        int total = 0;
+        var total = 0;
         while (input[i++] != ']')
         {
             total += ParseValue(input, ref i, out _);
@@ -119,7 +119,7 @@ public class Day12 : ISolver
             i++;
         }
 
-        int number = 0;
+        var number = 0;
         byte c;
         while ((c = input[i]) is >= (byte)'0' and <= (byte)'9')
         {
@@ -133,7 +133,7 @@ public class Day12 : ISolver
     private static int ParseString(ReadOnlySpan<byte> input, ref int i, out bool isRedString)
     {
         i++;
-        int stringEnd = input[i..].IndexOf((byte)'\"');
+        var stringEnd = input[i..].IndexOf((byte)'\"');
         isRedString = stringEnd == 3 && input.Slice(i, 3).SequenceEqual("red"u8);
         i += stringEnd + 1;
         return 0;

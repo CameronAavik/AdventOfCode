@@ -8,19 +8,19 @@ public class Day02 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
-        foreach (Range lineRange in input.SplitLines())
+        foreach (var lineRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> line = input[lineRange];
-            int i = 0;
-            int left = ParsePosInt(line, until: '-', ref i);
-            int right = ParsePosInt(line, until: ' ', ref i);
-            byte letter = line[i];
-            ReadOnlySpan<byte> password = line.Slice(i + 3);
+            var line = input[lineRange];
+            var i = 0;
+            var left = ParsePosInt(line, until: '-', ref i);
+            var right = ParsePosInt(line, until: ' ', ref i);
+            var letter = line[i];
+            var password = line[(i + 3)..];
 
-            int letterCount = password.Count(letter);
+            var letterCount = password.Count(letter);
             if (left <= letterCount && letterCount <= right)
             {
                 part1++;
@@ -39,8 +39,8 @@ public class Day02 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static int ParsePosInt(ReadOnlySpan<byte> str, char until, ref int i)
     {
-        byte c = str[i++];
-        int num = c - '0';
+        var c = str[i++];
+        var num = c - '0';
         while ((c = str[i++]) != until)
         {
             num = num * 10 + (c - '0');

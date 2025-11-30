@@ -12,7 +12,7 @@ public class Day05 : ISolver
     {
         public int CompareTo(Horizontal other)
         {
-            int c = Y.CompareTo(other.Y);
+            var c = Y.CompareTo(other.Y);
             if (c != 0)
                 return c;
 
@@ -34,7 +34,7 @@ public class Day05 : ISolver
         var posDiagEvents = new List<Event>();
         var negDiagEvents = new List<Event>();
 
-        ParseInput(input, horizontals, verticalEvents, posDiagEvents, negDiagEvents, out int maxX, out int maxY);
+        ParseInput(input, horizontals, verticalEvents, posDiagEvents, negDiagEvents, out var maxX, out var maxY);
 
         horizontals.Sort();
         verticalEvents.Sort();
@@ -47,32 +47,32 @@ public class Day05 : ISolver
         posDiagEvents.Add(new Event(int.MaxValue, 0));
         negDiagEvents.Add(new Event(int.MaxValue, 0));
 
-        int horizIndex = 0;
-        int vertIndex = 0;
-        int posDiagIndex = 0;
-        int negDiagIndex = 0;
+        var horizIndex = 0;
+        var vertIndex = 0;
+        var posDiagIndex = 0;
+        var negDiagIndex = 0;
 
-        int countsLength = (maxX / 16) + 1;
+        var countsLength = (maxX / 16) + 1;
         Span<ulong> rowHorizontalCounts = stackalloc ulong[countsLength];
         Span<ulong> currentVerticalCounts = stackalloc ulong[countsLength];
         Span<ulong> currentPosDiagCounts = stackalloc ulong[countsLength];
         Span<ulong> currentNegDiagCounts = stackalloc ulong[countsLength];
 
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
-        for (int y = 0; y <= (maxY * 2); y += 2)
+        for (var y = 0; y <= (maxY * 2); y += 2)
         {
             ProcessHorizontals(horizontals, ref horizIndex, rowHorizontalCounts, y);
             ProcessVerticals(verticalEvents, ref vertIndex, currentVerticalCounts, y);
             ProcessPositiveDiagonals(posDiagEvents, ref posDiagIndex, currentPosDiagCounts, y);
             ProcessNegativeDiagonals(negDiagEvents, ref negDiagIndex, currentNegDiagCounts, y);
 
-            for (int i = 0; i < countsLength; i++)
+            for (var i = 0; i < countsLength; i++)
             {
                 // Adding 6 to each value so that the high bit is set to 1 when there is an overlap
-                ulong part1Overlaps = rowHorizontalCounts[i] + currentVerticalCounts[i] + onesFlag * 6;
-                ulong part2Overlaps = part1Overlaps + currentPosDiagCounts[i] + currentNegDiagCounts[i];
+                var part1Overlaps = rowHorizontalCounts[i] + currentVerticalCounts[i] + onesFlag * 6;
+                var part2Overlaps = part1Overlaps + currentPosDiagCounts[i] + currentNegDiagCounts[i];
                 part1 += BitOperations.PopCount(part1Overlaps & onesFlag * 8);
                 part2 += BitOperations.PopCount(part2Overlaps & onesFlag * 8);
             }
@@ -84,16 +84,16 @@ public class Day05 : ISolver
 
     private static void ParseInput(ReadOnlySpan<byte> input, List<Horizontal> horizontals, List<Event> verticalEvents, List<Event> posDiagEvents, List<Event> negDiagEvents, out int maxX, out int maxY)
     {
-        int inputCursor = 0;
+        var inputCursor = 0;
         maxX = 0;
         maxY = 0;
         while (inputCursor < input.Length)
         {
-            int x1 = ReadIntegerUntil(input, ',', ref inputCursor);
-            int y1 = ReadIntegerUntil(input, ' ', ref inputCursor);
+            var x1 = ReadIntegerUntil(input, ',', ref inputCursor);
+            var y1 = ReadIntegerUntil(input, ' ', ref inputCursor);
             inputCursor += "-> ".Length;
-            int x2 = ReadIntegerUntil(input, ',', ref inputCursor);
-            int y2 = ReadIntegerUntil(input, '\n', ref inputCursor);
+            var x2 = ReadIntegerUntil(input, ',', ref inputCursor);
+            var y2 = ReadIntegerUntil(input, '\n', ref inputCursor);
 
             if (x1 > maxX)
                 maxX = x1;
@@ -104,8 +104,8 @@ public class Day05 : ISolver
             if (y2 > maxY)
                 maxY = y2;
 
-            int xDiff = x2 - x1;
-            int yDiff = y2 - y1;
+            var xDiff = x2 - x1;
+            var yDiff = y2 - y1;
 
             if (y1 == y2)
             {
@@ -153,8 +153,8 @@ public class Day05 : ISolver
         Horizontal horiz;
         while ((horiz = horizontals[horizIndex]).Y == y)
         {
-            (int x1Cell, int x1Offset) = Math.DivRem(horiz.X1, 16);
-            (int x2Cell, int x2Offset) = Math.DivRem(horiz.X2 + 1, 16);
+            (var x1Cell, var x1Offset) = Math.DivRem(horiz.X1, 16);
+            (var x2Cell, var x2Offset) = Math.DivRem(horiz.X2 + 1, 16);
 
             if (x1Cell == x2Cell)
             {
@@ -164,7 +164,7 @@ public class Day05 : ISolver
             {
                 rowHorizontalCounts[x1Cell] += (ulong.MaxValue ^ ((1UL << (x1Offset * 4)) - 1)) & onesFlag;
 
-                for (int cell = x1Cell + 1; cell < x2Cell; cell++)
+                for (var cell = x1Cell + 1; cell < x2Cell; cell++)
                     rowHorizontalCounts[cell] += onesFlag;
 
                 rowHorizontalCounts[x2Cell] += ((1UL << (x2Offset * 4)) - 1) & onesFlag;
@@ -179,14 +179,14 @@ public class Day05 : ISolver
         Event vert;
         while (vertIndex < verticalEvents.Count && (vert = verticalEvents[vertIndex]).Y == y - 1)
         {
-            (int cell, int offset) = Math.DivRem(vert.X, 16);
+            (var cell, var offset) = Math.DivRem(vert.X, 16);
             currentVerticalCounts[cell] -= 1UL << (4 * offset);
             vertIndex++;
         }
 
         while (vertIndex < verticalEvents.Count && (vert = verticalEvents[vertIndex]).Y == y)
         {
-            (int cell, int offset) = Math.DivRem(vert.X, 16);
+            (var cell, var offset) = Math.DivRem(vert.X, 16);
             currentVerticalCounts[cell] += 1UL << (4 * offset);
             vertIndex++;
         }
@@ -197,23 +197,23 @@ public class Day05 : ISolver
         Event posDiag;
         while ((posDiag = posDiagEvents[posDiagIndex]).Y == y - 1)
         {
-            (int cell, int offset) = Math.DivRem(posDiag.X, 16);
+            (var cell, var offset) = Math.DivRem(posDiag.X, 16);
             currentPosDiagCounts[cell] -= 1UL << (4 * offset);
             posDiagIndex++;
         }
 
         ulong carry = 0;
-        for (int i = 0; i < currentPosDiagCounts.Length; i++)
+        for (var i = 0; i < currentPosDiagCounts.Length; i++)
         {
-            ulong c = currentPosDiagCounts[i];
-            ulong nextCarry = c >> 60;
+            var c = currentPosDiagCounts[i];
+            var nextCarry = c >> 60;
             currentPosDiagCounts[i] = (c << 4) + carry;
             carry = nextCarry;
         }
 
         while ((posDiag = posDiagEvents[posDiagIndex]).Y == y)
         {
-            (int cell, int offset) = Math.DivRem(posDiag.X, 16);
+            (var cell, var offset) = Math.DivRem(posDiag.X, 16);
             currentPosDiagCounts[cell] += 1UL << (4 * offset);
             posDiagIndex++;
         }
@@ -224,23 +224,23 @@ public class Day05 : ISolver
         Event negDiag;
         while ((negDiag = negDiagEvents[negDiagIndex]).Y == y - 1)
         {
-            (int cell, int offset) = Math.DivRem(negDiag.X, 16);
+            (var cell, var offset) = Math.DivRem(negDiag.X, 16);
             currentNegDiagCounts[cell] -= 1UL << (4 * offset);
             negDiagIndex++;
         }
 
         ulong carry = 0;
-        for (int i = currentNegDiagCounts.Length - 1; i >= 0; i--)
+        for (var i = currentNegDiagCounts.Length - 1; i >= 0; i--)
         {
-            ulong c = currentNegDiagCounts[i];
-            ulong nextCarry = c & 0b1111;
+            var c = currentNegDiagCounts[i];
+            var nextCarry = c & 0b1111;
             currentNegDiagCounts[i] = (c >> 4) + (carry << 60);
             carry = nextCarry;
         }
 
         while ((negDiag = negDiagEvents[negDiagIndex]).Y == y)
         {
-            (int cell, int offset) = Math.DivRem(negDiag.X, 16);
+            (var cell, var offset) = Math.DivRem(negDiag.X, 16);
             currentNegDiagCounts[cell] += 1UL << (4 * offset);
             negDiagIndex++;
         }
@@ -250,7 +250,7 @@ public class Day05 : ISolver
     public static int ReadIntegerUntil(ReadOnlySpan<byte> span, char c, ref int i)
     {
         // Assume that the first character is always a digit
-        int ret = span[i++] - '0';
+        var ret = span[i++] - '0';
 
         byte cur;
         while ((cur = span[i++]) != c)

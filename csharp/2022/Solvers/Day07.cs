@@ -12,63 +12,63 @@ public class Day07 : ISolver
         List<int> allDirSizes = new(256);
 
         // Assume that the first line of input is always "$ cd /"
-        input = input.Slice("$ cd /\n".Length);
-        int part1 = 0;
-        int depth = 0;
+        input = input["$ cd /\n".Length..];
+        var part1 = 0;
+        var depth = 0;
         while (input.Length > 1)
         {
             if (input[0] == '$')
             {
                 if (input[2] == 'c')
                 {
-                    input = input.Slice("$ cd ".Length);
+                    input = input["$ cd ".Length..];
                     if (input.StartsWith(".."u8))
                     {
-                        int dirSize = dirSizes[depth];
+                        var dirSize = dirSizes[depth];
                         dirSizes[depth - 1] += dirSize;
                         if (dirSize <= 100000)
                             part1 += dirSize;
                         allDirSizes.Add(dirSize);
                         depth--;
-                        input = input.Slice("..\n".Length);
+                        input = input["..\n".Length..];
                     }
                     else
                     {
                         dirSizes[++depth] = 0;
-                        input = input.Slice(input.IndexOf((byte)'\n') + 1);
+                        input = input[(input.IndexOf((byte)'\n') + 1)..];
                     }
                 }
                 else
                 {
-                    input = input.Slice("$ ls\n".Length);
+                    input = input["$ ls\n".Length..];
                 }
             }
             else if (input[0] == 'd')
             {
                 // no point processing dir names, skip line
-                input = input.Slice(input.IndexOf((byte)'\n') + 1);
+                input = input[(input.IndexOf((byte)'\n') + 1)..];
             }
             else
             {
-                int sizeEndIndex = input.IndexOf((byte)' ');
-                int size = input[0] - '0';
-                for (int i = 1; i < sizeEndIndex; i++)
+                var sizeEndIndex = input.IndexOf((byte)' ');
+                var size = input[0] - '0';
+                for (var i = 1; i < sizeEndIndex; i++)
                     size = size * 10 + input[i] - '0';
                 dirSizes[depth] += size;
-                input = input.Slice(input.IndexOf((byte)'\n') + 1);
+                input = input[(input.IndexOf((byte)'\n') + 1)..];
             }
         }
 
-        int totalDirSize = 0;
-        for (int i = depth; i >= 0; i--)
+        var totalDirSize = 0;
+        for (var i = depth; i >= 0; i--)
         {
             totalDirSize += dirSizes[i];
             allDirSizes.Add(totalDirSize);
         }
 
-        int amountToFree = totalDirSize - 40000000;
-        int part2 = int.MaxValue;
-        foreach (int dirSize in allDirSizes)
+        var amountToFree = totalDirSize - 40000000;
+        var part2 = int.MaxValue;
+        foreach (var dirSize in allDirSizes)
         {
             if (dirSize > amountToFree && dirSize < part2)
                 part2 = dirSize;

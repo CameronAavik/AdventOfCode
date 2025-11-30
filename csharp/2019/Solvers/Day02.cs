@@ -8,22 +8,22 @@ public class Day02 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        ReadOnlySpan<int> intCode = IntCode.ParseFromInput(input);
-        int[] memory = intCode.ToArray();
+        var intCode = IntCode.ParseFromInput(input);
+        var memory = intCode.ToArray();
 
-        int part1 = Run(memory, 12, 2);
+        var part1 = Run(memory, 12, 2);
         solution.SubmitPart1(part1);
 
-        for (int noun = 0; noun < 100; noun++)
+        for (var noun = 0; noun < 100; noun++)
         {
-            for (int verb = 0; verb < 100; verb++)
+            for (var verb = 0; verb < 100; verb++)
             {
                 // reinitialise memory to intcode
                 intCode.CopyTo(memory);
 
                 if (Run(memory, noun, verb) == 19690720)
                 {
-                    int part2 = 100 * noun + verb;
+                    var part2 = 100 * noun + verb;
                     solution.SubmitPart2(part2);
                     return;
                 }
@@ -38,12 +38,12 @@ public class Day02 : ISolver
         memory[1] = noun;
         memory[2] = verb;
 
-        int ip = 0;
+        var ip = 0;
         while (memory[ip] != 99)
         {
-            int a = memory[ip + 1];
-            int b = memory[ip + 2];
-            int c = memory[ip + 3];
+            var a = memory[ip + 1];
+            var b = memory[ip + 2];
+            var c = memory[ip + 3];
             switch (memory[ip])
             {
                 case 1:

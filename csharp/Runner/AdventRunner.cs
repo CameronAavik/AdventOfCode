@@ -1,37 +1,29 @@
-﻿using System;
-using System.IO;
-using System.Net;
-using System.Net.Http;
+﻿using System.Net;
 using System.Reflection;
 using System.Text.Json;
-using System.Threading.Tasks;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Runner;
 
 public static class AdventRunner
 {
-    private static readonly string? s_cookie;
-    private static readonly string? s_inputCacheFolder;
+    private static readonly string? s_cookie = GetSetting("SessionCookie");
+    private static readonly string? s_inputCacheFolder = GetSetting("InputCacheFolder");
 
-    static AdventRunner()
+    private static string? GetSetting(string propertyName)
     {
         if (File.Exists("settings.local.json"))
         {
-            string settingsJsonString = File.ReadAllText("settings.local.json");
-            JsonElement settings = JsonSerializer.Deserialize<JsonElement>(settingsJsonString);
-            s_cookie = settings.GetProperty("SessionCookie").GetString();
-            s_inputCacheFolder = settings.GetProperty("InputCacheFolder").GetString();
+            var settingsJsonString = File.ReadAllText("settings.local.json");
+            var settings = JsonSerializer.Deserialize<JsonElement>(settingsJsonString);
+            return settings.GetProperty(propertyName).GetString();
         }
-        else
-        {
-            s_cookie = null;
-        }
+        return null;
     }
 
     public static async Task<byte[]> GetInputAsync(int year, int day, bool fetchIfMissing = false)
     {
-        string filename = $"input/{year}/day{day:D2}.txt";
+        var filename = $"input/{year}/day{day:D2}.txt";
         if (File.Exists(filename))
         {
             var contents = await File.ReadAllBytesAsync(filename);
@@ -48,7 +40,7 @@ public static class AdventRunner
         using var client = new HttpClient(handler) { BaseAddress = baseAddress };
         client.DefaultRequestHeaders.UserAgent.TryParseAdd("https://github.com/CameronAavik/AdventOfCode");
         cookieContainer.Add(baseAddress, new Cookie("session", s_cookie));
-        byte[] inputData = await client.GetByteArrayAsync($"/{year}/day/{day}/input");
+        var inputData = await client.GetByteArrayAsync($"/{year}/day/{day}/input");
 
         await File.WriteAllBytesAsync(Path.Combine(s_inputCacheFolder, filename), inputData);
 
@@ -59,30 +51,30 @@ public static class AdventRunner
 
     public static void RunSolver(int year, int day, ReadOnlySpan<byte> input, out string solution1, out string solution2)
     {
-        SolverDelegate solver = GetSolverMethod(year, day);
-        char[] buffer1 = new char[64];
-        char[] buffer2 = new char[64];
+        var solver = GetSolverMethod(year, day);
+        var buffer1 = new char[64];
+        var buffer2 = new char[64];
 
         var solution = new Solution(buffer1, buffer2);
         solver(input, solution);
 
-        int buffer1Newline = Array.IndexOf(buffer1, '\n');
-        solution1 = buffer1Newline == -1 ? string.Empty : buffer1.AsSpan().Slice(0, buffer1Newline).ToString();
+        var buffer1Newline = Array.IndexOf(buffer1, '\n');
+        solution1 = buffer1Newline == -1 ? string.Empty : buffer1.AsSpan()[..buffer1Newline].ToString();
 
-        int buffer2Newline = Array.IndexOf(buffer2, '\n');
-        solution2 = buffer2Newline == -1 ? string.Empty : buffer2.AsSpan().Slice(0, buffer2Newline).ToString();
+        var buffer2Newline = Array.IndexOf(buffer2, '\n');
+        solution2 = buffer2Newline == -1 ? string.Empty : buffer2.AsSpan()[..buffer2Newline].ToString();
     }
 
     public static SolverDelegate GetSolverMethod(int year, int day)
     {
-        Type solverType = GetSolverType(year, day) ?? throw new Exception();
-        MethodInfo? method = solverType.GetMethod("Solve", BindingFlags.Static | BindingFlags.Public, [typeof(ReadOnlySpan<byte>), typeof(Solution)]);
+        var solverType = GetSolverType(year, day) ?? throw new Exception();
+        var method = solverType.GetMethod("Solve", BindingFlags.Static | BindingFlags.Public, [typeof(ReadOnlySpan<byte>), typeof(Solution)]);
         return method?.CreateDelegate<SolverDelegate>() ?? throw new Exception();
     }
 
     public static Type? GetSolverType(int year, int day)
     {
-        Assembly? assembly = year switch
+        var assembly = year switch
         {
             2015 => typeof(Y2015.Solvers.Day01).Assembly,
             2016 => typeof(Y2016.Solvers.Day01).Assembly,
@@ -99,7 +91,7 @@ public static class AdventRunner
 
         if (assembly != null)
         {
-            foreach (Type t in assembly.GetTypes())
+            foreach (var t in assembly.GetTypes())
             {
                 if (t.Name == $"Day{day:D2}")
                 {

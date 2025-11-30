@@ -23,9 +23,9 @@ public class Day14 : ISolver
                 mask1s = 0;
 
                 reader.SkipLength("mask = ".Length);
-                for (int i = 0; i < 36; i++)
+                for (var i = 0; i < 36; i++)
                 {
-                    byte c = reader[i];
+                    var c = reader[i];
                     switch (c)
                     {
                         case (byte)'1':
@@ -42,9 +42,9 @@ public class Day14 : ISolver
             else // mem
             {
                 reader.SkipLength("mem[".Length);
-                long addr = reader.ReadPosLongUntil(']');
+                var addr = reader.ReadPosLongUntil(']');
                 reader.SkipLength(" = ".Length);
-                long val = reader.ReadPosLongUntil('\n');
+                var val = reader.ReadPosLongUntil('\n');
 
                 // Part 1
                 mem1[addr] = (val & maskXs) | mask1s;
@@ -54,7 +54,7 @@ public class Day14 : ISolver
                 addr &= ~maskXs; // any x's need to be set to 0 (since we will be iterating through permutations of bits in X)
 
                 // iterate through submasks: https://cp-algorithms.com/algebra/all-submasks.html
-                long mask = maskXs;
+                var mask = maskXs;
                 mem2[addr] = val; // handle mask = 0 case
                 while (mask != 0)
                 {
@@ -65,13 +65,13 @@ public class Day14 : ISolver
         }
 
         long part1 = 0;
-        foreach ((_, long v) in mem1)
+        foreach ((_, var v) in mem1)
         {
             part1 += v;
         }
 
         long part2 = 0;
-        foreach ((_, long v) in mem2)
+        foreach ((_, var v) in mem2)
         {
             part2 += v;
         }

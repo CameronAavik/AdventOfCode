@@ -7,14 +7,14 @@ public class Day01 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int inputCursor = 0;
+        var inputCursor = 0;
 
-        int elf1 = 0;
-        int elf2 = 0;
-        int elf3 = 0;
+        var elf1 = 0;
+        var elf2 = 0;
+        var elf3 = 0;
         while (inputCursor < input.Length)
         {
-            int elfTotal = 0;
+            var elfTotal = 0;
             while (inputCursor < input.Length && input[inputCursor] != '\n')
             {
                 elfTotal += ReadLineAsInteger(input, ref inputCursor);
@@ -51,7 +51,7 @@ public class Day01 : ISolver
     private static int ReadLineAsInteger(ReadOnlySpan<byte> input, ref int i)
     {
         // Assume that the first character is always a digit
-        int ret = input[i++] - '0';
+        var ret = input[i++] - '0';
 
         byte cur;
         while ((cur = input[i++]) != '\n')

@@ -17,8 +17,8 @@ public class Day01 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int freqIndex = 0;
-        int freqTotal = 0;
+        var freqIndex = 0;
+        var freqTotal = 0;
         var freqs = new List<Frequency>();
         var reader = new SpanReader(input);
         while (!reader.Done)
@@ -26,15 +26,15 @@ public class Day01 : ISolver
             freqs.Add(new Frequency { Value = freqTotal, Index = freqIndex });
             freqIndex++;
 
-            int mul = reader.Peek() == '-' ? -1 : 1;
+            var mul = reader.Peek() == '-' ? -1 : 1;
             reader.SkipLength(1);
 
             freqTotal += mul * reader.ReadPosIntUntil('\n');
         }
 
-        foreach (Frequency freq in freqs)
+        foreach (var freq in freqs)
         {
-            int mod = freq.Value % freqTotal;
+            var mod = freq.Value % freqTotal;
             freq.ModTotal = mod < 0 ? mod + freqTotal : mod;
         }
 
@@ -44,14 +44,14 @@ public class Day01 : ISolver
             : a.Value.CompareTo(b.Value));
 
         var prev = new Frequency { ModTotal = -1 };
-        int minDiff = int.MaxValue;
-        int minIndex = int.MaxValue;
-        int minFreq = 0;
-        foreach (Frequency freq in freqs)
+        var minDiff = int.MaxValue;
+        var minIndex = int.MaxValue;
+        var minFreq = 0;
+        foreach (var freq in freqs)
         {
             if (freq.ModTotal == prev.ModTotal)
             {
-                int diff = freq.Value - prev.Value;
+                var diff = freq.Value - prev.Value;
                 if (diff < minDiff || (diff == minDiff && prev.Index < minIndex))
                 {
                     minDiff = diff;

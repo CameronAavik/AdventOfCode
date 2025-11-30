@@ -50,10 +50,10 @@ public class Day22 : ISolver
 
             byte maxCard = 0;
             uint hash = 0;
-            int j = _start;
-            for (int i = 0; i < length; i++)
+            var j = _start;
+            for (var i = 0; i < length; i++)
             {
-                byte card = _data[j++];
+                var card = _data[j++];
 
                 maxCard = Math.Max(card, maxCard);
                 hash ^= BitOperations.RotateLeft(s_buzHashTable[card], i);
@@ -69,7 +69,7 @@ public class Day22 : ISolver
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public byte DrawCard()
         {
-            byte card = _data[_start++];
+            var card = _data[_start++];
             if (_start == _data.Length)
                 _start = 0;
             _length--;
@@ -98,11 +98,11 @@ public class Day22 : ISolver
 
         public int GetScore()
         {
-            int score = 0;
-            int multiplier = 1;
+            var score = 0;
+            var multiplier = 1;
             if (_end < _start)
             {
-                for (int i = _end - 1; i >= 0; i--)
+                for (var i = _end - 1; i >= 0; i--)
                 {
                     score += multiplier++ * _data[i];
                 }
@@ -110,7 +110,7 @@ public class Day22 : ISolver
                 _end = _data.Length;
             }
 
-            for (int i = _end - 1; i >= _start; i--)
+            for (var i = _end - 1; i >= _start; i--)
             {
                 score += multiplier++ * _data[i];
             }
@@ -130,9 +130,9 @@ public class Day22 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int player2Index = input.IndexOf("\n\n"u8);
-        ReadOnlySpan<byte> player1Input = input.Slice(0, player2Index + 1);
-        ReadOnlySpan<byte> player2Input = input.Slice(player2Index + 2);
+        var player2Index = input.IndexOf("\n\n"u8);
+        var player1Input = input[..(player2Index + 1)];
+        var player2Input = input[(player2Index + 2)..];
 
         var part1Deck1 = new Deck();
         var part1Deck2 = new Deck();
@@ -144,8 +144,8 @@ public class Day22 : ISolver
         var part2Deck1 = new Deck(part1Deck1, part1Deck1.GetLength());
         var part2Deck2 = new Deck(part1Deck2, part1Deck2.GetLength());
 
-        int part1 = Solve(part1Deck1, part1Deck2, isPart2: false);
-        int part2 = Solve(part2Deck1, part2Deck2, isPart2: true);
+        var part1 = Solve(part1Deck1, part1Deck2, isPart2: false);
+        var part2 = Solve(part2Deck1, part2Deck2, isPart2: true);
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
@@ -157,7 +157,7 @@ public class Day22 : ISolver
         reader.SkipLength("Player 1:\n".Length);
         while (!reader.Done)
         {
-            byte card = (byte)reader.ReadPosIntUntil('\n');
+            var card = (byte)reader.ReadPosIntUntil('\n');
             deck.PlaceCard(card);
         }
     }
@@ -166,8 +166,8 @@ public class Day22 : ISolver
     {
         while (deck1.GetLength() > 0 && deck2.GetLength() > 0)
         {
-            byte card1 = deck1.DrawCard();
-            byte card2 = deck2.DrawCard();
+            var card1 = deck1.DrawCard();
+            var card2 = deck2.DrawCard();
 
             int winner;
             if (isPart2 && card1 <= deck1.GetLength() && card2 <= deck2.GetLength())
@@ -195,7 +195,7 @@ public class Day22 : ISolver
             }
         }
 
-        Deck winningDeck = deck1.GetLength() == 0 ? deck2 : deck1;
+        var winningDeck = deck1.GetLength() == 0 ? deck2 : deck1;
         return winningDeck.GetScore();
     }
 
@@ -207,8 +207,8 @@ public class Day22 : ISolver
         var seenStates = new HashSet<DeckState>();
         while (deck1.GetLength() > 0 && deck2.GetLength() > 0)
         {
-            byte card1 = deck1.DrawCard();
-            byte card2 = deck2.DrawCard();
+            var card1 = deck1.DrawCard();
+            var card2 = deck2.DrawCard();
 
             // check to see if we have seen this deck state before
             if (card2 == deck2.GetMaxCard() && !seenStates.Add(new DeckState(deck1, deck2)))

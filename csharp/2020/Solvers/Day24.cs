@@ -43,25 +43,25 @@ public class Day24Grid
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Step()
     {
-        int tilesToMakeAliveCount = 0;
-        int[] tilesToMakeAlive = ArrayPool<int>.Shared.Rent(AliveCount * 8);
+        var tilesToMakeAliveCount = 0;
+        var tilesToMakeAlive = ArrayPool<int>.Shared.Rent(AliveCount * 8);
 
-        int tilesToMakeDeadCount = 0;
-        int[] tilesToMakeDead = ArrayPool<int>.Shared.Rent(AliveCount);
+        var tilesToMakeDeadCount = 0;
+        var tilesToMakeDead = ArrayPool<int>.Shared.Rent(AliveCount);
 
         // check all the tiles that are within the current bounds where flipped tiles exist
-        for (int r = _minR; r <= _maxR; r += R)
+        for (var r = _minR; r <= _maxR; r += R)
         {
-            for (int q = _minQ; q <= _maxQ; q += Q)
+            for (var q = _minQ; q <= _maxQ; q += Q)
             {
                 CheckTile(r | q);
             }
         }
 
         // check all the tiles just one step outside the bounds, and extend the bounds if necessary
-        int newMinR = _minR - R;
-        int newMaxR = _maxR + R;
-        for (int q = _minQ; q <= _maxQ; q += Q)
+        var newMinR = _minR - R;
+        var newMaxR = _maxR + R;
+        for (var q = _minQ; q <= _maxQ; q += Q)
         {
             if (CheckTileOutOfCurrentBounds(q | newMinR))
                 _minR = newMinR;
@@ -70,9 +70,9 @@ public class Day24Grid
                 _maxR = newMaxR;
         }
 
-        int newMinQ = _minQ - Q;
-        int newMaxQ = _maxQ + Q;
-        for (int r = _minR; r <= _maxR; r += R)
+        var newMinQ = _minQ - Q;
+        var newMaxQ = _maxQ + Q;
+        for (var r = _minR; r <= _maxR; r += R)
         {
             if (CheckTileOutOfCurrentBounds(r | newMinQ))
                 _minQ = newMinQ;
@@ -81,10 +81,10 @@ public class Day24Grid
                 _maxQ = newMaxQ;
         }
 
-        for (int i = 0; i < tilesToMakeAliveCount; i++)
+        for (var i = 0; i < tilesToMakeAliveCount; i++)
             BecomeAlive(tilesToMakeAlive[i]);
 
-        for (int i = 0; i < tilesToMakeDeadCount; i++)
+        for (var i = 0; i < tilesToMakeDeadCount; i++)
             BecomeDead(tilesToMakeDead[i]);
 
         ArrayPool<int>.Shared.Return(tilesToMakeAlive);
@@ -95,9 +95,9 @@ public class Day24Grid
         {
             int cell = _cells[pos];
 
-            int count = cell & CountMask;
-            bool state = (cell & StateMask) != 0;
-            bool newState = count == 2 | count == 1 & state;
+            var count = cell & CountMask;
+            var state = (cell & StateMask) != 0;
+            var newState = count == 2 | count == 1 & state;
             if (state & !newState)
             {
                 tilesToMakeDead[tilesToMakeDeadCount++] = pos;
@@ -167,7 +167,7 @@ public class Day24Grid
         _minR = Math.Min(r, _minR);
         _maxR = Math.Max(r, _maxR);
 
-        int pos = r | q;
+        var pos = r | q;
         if ((_cells[pos] & StateMask) == 0)
             BecomeAlive(pos);
         else
@@ -183,27 +183,27 @@ public class Day24 : ISolver
 
         PopulateInitialBlackTiles(input, grid);
 
-        int part1 = grid.AliveCount;
+        var part1 = grid.AliveCount;
 
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             grid.Step();
         }
 
-        int part2 = grid.AliveCount;
+        var part2 = grid.AliveCount;
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
 
     private static void PopulateInitialBlackTiles(ReadOnlySpan<byte> input, Day24Grid grid)
     {
-        int q = 128;
-        int r = 128;
+        var q = 128;
+        var r = 128;
 
-        int i = 0;
+        var i = 0;
         while (i < input.Length)
         {
-            byte c = input[i++];
+            var c = input[i++];
             switch (c)
             {
                 case (byte)'\n':

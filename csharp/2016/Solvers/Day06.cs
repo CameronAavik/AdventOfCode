@@ -7,34 +7,34 @@ public class Day06 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int width = input.IndexOf((byte)'\n');
-        int[,] counts = new int[width + 1, 26];
+        var width = input.IndexOf((byte)'\n');
+        var counts = new int[width + 1, 26];
 
-        int i = 0;
+        var i = 0;
         while (i < input.Length)
         {
-            for (int c = 0; c < width; c++)
+            for (var c = 0; c < width; c++)
             {
-                int letter = input[i++] - 'a';
+                var letter = input[i++] - 'a';
                 counts[c, letter]++;
             }
 
             i++; // skip newline character
         }
 
-        char[] part1 = new char[width];
-        char[] part2 = new char[width];
+        var part1 = new char[width];
+        var part2 = new char[width];
 
-        for (int c = 0; c < width; c++)
+        for (var c = 0; c < width; c++)
         {
-            int minLetter = -1;
-            int minCount = int.MaxValue;
-            int maxLetter = -1;
-            int maxCount = 0;
+            var minLetter = -1;
+            var minCount = int.MaxValue;
+            var maxLetter = -1;
+            var maxCount = 0;
 
-            for (int letter = 0; letter < 26; letter++)
+            for (var letter = 0; letter < 26; letter++)
             {
-                int count = counts[c, letter];
+                var count = counts[c, letter];
                 if (count > 0)
                 {
                     if (count < minCount)

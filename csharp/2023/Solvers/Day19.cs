@@ -24,48 +24,48 @@ public class Day19 : ISolver
         byte c;
         while ((c = input[0]) != '\n')
         {
-            int id = c - 'a' + 1; // add one to distinguish it from empty
-            int i = 1;
+            var id = c - 'a' + 1; // add one to distinguish it from empty
+            var i = 1;
             while ((c = input[i++]) != '{')
                 id = (id << 5) + c - 'a' + 1;
 
             ParseRuleList(input, workflowTable.Slice(numWorkflows * 8, 8), ref i);
             workflowNameLookup[id] = numWorkflows++;
-            input = input.Slice(i + 1);
+            input = input[(i + 1)..];
         }
 
-        for (int i = 17; i < numWorkflows * 8; i += 2)
+        for (var i = 17; i < numWorkflows * 8; i += 2)
             workflowTable[i] = workflowNameLookup[workflowTable[i]];
 
-        ushort startWorkflowId = workflowNameLookup[(('i' - 'a' + 1) << 5) + 'n' - 'a' + 1];
+        var startWorkflowId = workflowNameLookup[(('i' - 'a' + 1) << 5) + 'n' - 'a' + 1];
 
-        input = input.Slice(1);
+        input = input[1..];
 
         Span<ushort> xmas = stackalloc ushort[4];
         long part1 = 0;
         while (input.Length > 0)
         {
-            int i = "{x=".Length;
+            var i = "{x=".Length;
 
-            int x = input[i++] - '0';
+            var x = input[i++] - '0';
             while ((c = input[i++]) != ',')
                 x = x * 10 + c - '0';
 
             i += "m=".Length;
 
-            int m = input[i++] - '0';
+            var m = input[i++] - '0';
             while ((c = input[i++]) != ',')
                 m = m * 10 + c - '0';
 
             i += "a=".Length;
 
-            int a = input[i++] - '0';
+            var a = input[i++] - '0';
             while ((c = input[i++]) != ',')
                 a = a * 10 + c - '0';
 
             i += "s=".Length;
 
-            int s = input[i++] - '0';
+            var s = input[i++] - '0';
             while ((c = input[i++]) != '}')
                 s = s * 10 + c - '0';
 
@@ -74,7 +74,7 @@ public class Day19 : ISolver
             xmas[2] = (ushort)a;
             xmas[3] = (ushort)s;
 
-            ushort workflowId = startWorkflowId;
+            var workflowId = startWorkflowId;
             while (true)
             {
                 if (workflowId == Accepted)
@@ -86,21 +86,21 @@ public class Day19 : ISolver
                 if (workflowId == Rejected)
                     break;
 
-                int workflowOffset = workflowId * 8;
-                int ruleOffset = workflowId * 8;
-                for (int j = 0; j < 8; j += 2)
+                var workflowOffset = workflowId * 8;
+                var ruleOffset = workflowId * 8;
+                for (var j = 0; j < 8; j += 2)
                 {
-                    ushort rule = workflowTable[workflowOffset + j];
-                    ushort destination = workflowTable[workflowOffset + j + 1];
+                    var rule = workflowTable[workflowOffset + j];
+                    var destination = workflowTable[workflowOffset + j + 1];
                     if (rule == NoRuleRule)
                     {
                         workflowId = destination;
                         break;
                     }
 
-                    int variable = rule & 0b11;
-                    int isLessThan = (rule >> 2) & 1;
-                    ushort value = (ushort)(rule >> 3);
+                    var variable = rule & 0b11;
+                    var isLessThan = (rule >> 2) & 1;
+                    var value = (ushort)(rule >> 3);
 
                     if (isLessThan != 0)
                     {
@@ -121,12 +121,12 @@ public class Day19 : ISolver
                 }
             }
 
-            input = input.Slice(i + 1);
+            input = input[(i + 1)..];
         }
 
         solution.SubmitPart1(part1);
 
-        long part2 = CountRatings(startWorkflowId, [1, 4000, 1, 4000, 1, 4000, 1, 4000], workflowTable);
+        var part2 = CountRatings(startWorkflowId, [1, 4000, 1, 4000, 1, 4000, 1, 4000], workflowTable);
         solution.SubmitPart2(part2);
 
         static long CountRatings(ushort workflowId, Span<ushort> rangeValues, ReadOnlySpan<ushort> workflowTable)
@@ -141,25 +141,25 @@ public class Day19 : ISolver
             rangeValues.CopyTo(newRangeValues);
 
             long total = 0;
-            int workflowOffset = workflowId * 8;
-            for (int i = 0; i < 8; i += 2)
+            var workflowOffset = workflowId * 8;
+            for (var i = 0; i < 8; i += 2)
             {
-                ushort rule = workflowTable[workflowOffset + i];
-                ushort destination = workflowTable[workflowOffset + i + 1];
+                var rule = workflowTable[workflowOffset + i];
+                var destination = workflowTable[workflowOffset + i + 1];
                 if (rule == NoRuleRule)
                     return total + CountRatings(destination, newRangeValues, workflowTable);
 
-                int variable = rule & 0b11;
-                int isLessThan = (rule >> 2) & 1;
-                ushort value = (ushort)(rule >> 3);
+                var variable = rule & 0b11;
+                var isLessThan = (rule >> 2) & 1;
+                var value = (ushort)(rule >> 3);
 
                 if (isLessThan != 0)
                 {
-                    ushort min = newRangeValues[variable * 2];
+                    var min = newRangeValues[variable * 2];
                     if (value < min)
                         continue;
 
-                    ushort max = newRangeValues[variable * 2 + 1];
+                    var max = newRangeValues[variable * 2 + 1];
                     if (max < value)
                         return total + CountRatings(destination, newRangeValues, workflowTable);
 
@@ -170,11 +170,11 @@ public class Day19 : ISolver
                 }
                 else
                 {
-                    ushort max = newRangeValues[variable * 2 + 1];
+                    var max = newRangeValues[variable * 2 + 1];
                     if (value > max)
                         continue;
 
-                    ushort min = newRangeValues[variable * 2];
+                    var min = newRangeValues[variable * 2];
                     if (min > value)
                         return total + CountRatings(destination, newRangeValues, workflowTable);
 
@@ -191,11 +191,11 @@ public class Day19 : ISolver
 
     private static void ParseRuleList(ReadOnlySpan<byte> input, Span<ushort> workflowData, ref int i)
     {
-        int ruleIndex = 0;
+        var ruleIndex = 0;
         while (true)
         {
-            byte c = input[i++];
-            byte c2 = input[i++];
+            var c = input[i++];
+            var c2 = input[i++];
             uint isLessThan;
             uint destinationId;
             if (c2 == '<')
@@ -225,7 +225,7 @@ public class Day19 : ISolver
             }
 
             uint variable = c switch { (byte)'x' => 0, (byte)'m' => 1, (byte)'a' => 2, _ => 3 };
-            uint value = (uint)input[i++] - '0';
+            var value = (uint)input[i++] - '0';
             while ((c = input[i++]) != ':')
                 value = 10 * value + c - '0';
 

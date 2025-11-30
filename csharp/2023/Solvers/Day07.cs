@@ -3,26 +3,26 @@ using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
 
-public class Day07: ISolver
+public class Day07 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         Span<byte> cardCounts = stackalloc byte[16];
-        int numHands = input.Count((byte)'\n');
+        var numHands = input.Count((byte)'\n');
 
-        ulong[] handScoresPart1 = new ulong[numHands];
-        ulong[] handScoresPart2 = new ulong[numHands];
+        var handScoresPart1 = new ulong[numHands];
+        var handScoresPart2 = new ulong[numHands];
 
-        for (int handIndex = 0; handIndex < numHands; handIndex++)
+        for (var handIndex = 0; handIndex < numHands; handIndex++)
         {
             cardCounts.Clear();
-            int handValuePart1 = 0;
-            int handValuePart2 = 0;
-            int maxOfAKind = 0;
-            int numCards = 0;
-            for (int cardIndex = 0; cardIndex < 5; cardIndex++)
+            var handValuePart1 = 0;
+            var handValuePart2 = 0;
+            var maxOfAKind = 0;
+            var numCards = 0;
+            for (var cardIndex = 0; cardIndex < 5; cardIndex++)
             {
-                byte card = input[cardIndex];
+                var card = input[cardIndex];
                 byte cardValue = card switch
                 {
                     (byte)'A' => 14,
@@ -32,7 +32,7 @@ public class Day07: ISolver
                     (byte)'T' => 10,
                     _ => (byte)(card & 0xF),
                 };
-                byte newCount = ++cardCounts[cardValue];
+                var newCount = ++cardCounts[cardValue];
 
                 if (newCount == 1)
                     numCards++;
@@ -47,17 +47,17 @@ public class Day07: ISolver
                 handValuePart2 |= cardValue << (4 * (4 - cardIndex));
             }
 
-            byte jCount = cardCounts[11];
-            int handScorePart1 = Math.Max(jCount, maxOfAKind) + 4 - numCards;
-            int handScorePart2 = jCount > 0 ? maxOfAKind + jCount + 4 - Math.Max(1, numCards - 1) : handScorePart1;
+            var jCount = cardCounts[11];
+            var handScorePart1 = Math.Max(jCount, maxOfAKind) + 4 - numCards;
+            var handScorePart2 = jCount > 0 ? maxOfAKind + jCount + 4 - Math.Max(1, numCards - 1) : handScorePart1;
 
             uint c;
-            uint bid = (uint)(input[6] & 0xF);
-            int i = 7;
+            var bid = (uint)(input[6] & 0xF);
+            var i = 7;
             while ((c = input[i++]) != '\n')
                 bid = bid * 10 + (c & 0xF);
 
-            input = input.Slice(i);
+            input = input[i..];
 
             handScoresPart1[handIndex] = ((ulong)handScorePart1 << 52) | ((ulong)handValuePart1 << 32) | bid;
             handScoresPart2[handIndex] = ((ulong)handScorePart2 << 52) | ((ulong)handValuePart2 << 32) | bid;
@@ -65,14 +65,14 @@ public class Day07: ISolver
 
         Array.Sort(handScoresPart1);
 
-        int part1 = 0;
-        for (int i = 0; i < handScoresPart1.Length; i++)
+        var part1 = 0;
+        for (var i = 0; i < handScoresPart1.Length; i++)
             part1 += (int)(handScoresPart1[i] & int.MaxValue) * (i + 1);
 
         Array.Sort(handScoresPart2);
 
-        int part2 = 0;
-        for (int i = 0; i < handScoresPart2.Length; i++)
+        var part2 = 0;
+        for (var i = 0; i < handScoresPart2.Length; i++)
             part2 += (int)(handScoresPart2[i] & int.MaxValue) * (i + 1);
 
         solution.SubmitPart1(part1);

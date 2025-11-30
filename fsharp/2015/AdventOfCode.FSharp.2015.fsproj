@@ -37,8 +37,7 @@
   <ItemGroup />
 
   <ItemGroup>
-    <PackageReference Include="GraphFS" Version="0.0.30" />
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -46,7 +45,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Update="FSharp.Core" Version="7.0.0" />
+    <PackageReference Update="FSharp.Core" Version="10.0.100" />
   </ItemGroup>
 
 </Project>

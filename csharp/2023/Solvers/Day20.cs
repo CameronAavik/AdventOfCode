@@ -13,7 +13,6 @@ public class Day20 : ISolver
      * nodes appear to be cyclic in nature and then perform an LCM (or CRT?) on those cycles to determine what the 
      * value of rx is, but even then that's still assuming a lot of things so I'm just going to stick with this.
      */
-
     public enum ModuleType : byte { FlipFlop, Conjunction, Broadcast, Final }
     record Module(ModuleType Type, List<int> Destinations, List<int> Senders);
 
@@ -25,26 +24,26 @@ public class Day20 : ISolver
 
         while (!input.IsEmpty)
         {
-            ModuleType type = input[0] switch { (byte)'%' => ModuleType.FlipFlop, (byte)'&' => ModuleType.Conjunction, _ => ModuleType.Broadcast };
+            var type = input[0] switch { (byte)'%' => ModuleType.FlipFlop, (byte)'&' => ModuleType.Conjunction, _ => ModuleType.Broadcast };
             int name;
             if (type == ModuleType.Broadcast)
             {
                 name = -1;
-                input = input.Slice("broadcaster -> ".Length);
+                input = input["broadcaster -> ".Length..];
             }
             else
             {
                 name = input[1] << 8 | input[2];
-                input = input.Slice("%jp -> ".Length);
+                input = input["%jp -> ".Length..];
             }
 
             var destinations = new List<int>(10);
 
-            int i = 0;
+            var i = 0;
             while (true)
             {
-                byte c1 = input[i++];
-                byte c2 = input[i++];
+                var c1 = input[i++];
+                var c2 = input[i++];
                 destinations.Add(c1 << 8 | c2);
                 if (input[i++] == '\n')
                     break;
@@ -52,33 +51,33 @@ public class Day20 : ISolver
             }
 
             modules[name] = new Module(type, destinations, new(10));
-            input = input.Slice(i);
+            input = input[i..];
         }
 
-        foreach ((int name, Module module) in modules)
-            foreach (int destination in module.Destinations)
+        foreach ((var name, var module) in modules)
+            foreach (var destination in module.Destinations)
                 modules[destination].Senders.Add(name);
 
         long lowPulses = 1000; // 1000 because of 1000 button presses
         long highPulses = 0;
         long part2 = 1;
-        int nodeBeforeLast = rxModule.Senders[0];
+        var nodeBeforeLast = rxModule.Senders[0];
 
-        foreach (int inputNode in modules[nodeBeforeLast].Senders)
+        foreach (var inputNode in modules[nodeBeforeLast].Senders)
         {
             lowPulses += 1000; // For each pulse from the broadcast node
 
-            int inputCenter = modules[inputNode].Senders[0];
-            Module centerModule = modules[inputCenter];
-            Module start = modules[centerModule.Senders[0]]; // could be in the middle, we don't know
+            var inputCenter = modules[inputNode].Senders[0];
+            var centerModule = modules[inputCenter];
+            var start = modules[centerModule.Senders[0]]; // could be in the middle, we don't know
 
-            int number = 1;
-            Module cur = start;
-            int bit = 2;
+            var number = 1;
+            var cur = start;
+            var bit = 2;
             while (true)
             {
-                List<int> destinations = cur.Destinations;
-                int nextId = destinations[0];
+                var destinations = cur.Destinations;
+                var nextId = destinations[0];
                 if (nextId == inputCenter)
                 {
                     if (destinations.Count == 1)
@@ -100,8 +99,8 @@ public class Day20 : ISolver
             cur = start;
             while (true)
             {
-                List<int> senders = cur.Senders;
-                int prevId = senders[0];
+                var senders = cur.Senders;
+                var prevId = senders[0];
                 if (prevId == inputCenter)
                     prevId = senders[1];
 
@@ -115,23 +114,23 @@ public class Day20 : ISolver
 
             part2 *= number;
 
-            int bitsInNumber = 32 - BitOperations.LeadingZeroCount((uint)number);
-            int highPerPulseToCenter = bitsInNumber - BitOperations.PopCount((uint)number) + 3; // each pulse to center, sends a high pulse to each zero, and 3 extra modules
+            var bitsInNumber = 32 - BitOperations.LeadingZeroCount((uint)number);
+            var highPerPulseToCenter = bitsInNumber - BitOperations.PopCount((uint)number) + 3; // each pulse to center, sends a high pulse to each zero, and 3 extra modules
 
-            int flips = 1000;
+            var flips = 1000;
             while (flips > 0)
             {
-                int isOneBit = number & 1;
-                int numDestinations = isOneBit + 1;
-                int numLowPulses = flips / 2;
+                var isOneBit = number & 1;
+                var numDestinations = isOneBit + 1;
+                var numLowPulses = flips / 2;
 
                 // half of the flips are low pulse, the other high pulse
-                lowPulses += numDestinations * numLowPulses; 
+                lowPulses += numDestinations * numLowPulses;
                 highPulses += numDestinations * ((flips + 1) / 2);
 
                 // if this is a 1 bit, then each pulse to the center will cause additional pulses
                 lowPulses += isOneBit * flips; // 1 low pulse between the modules that connect the center to rx
-                highPulses += isOneBit * flips * highPerPulseToCenter; 
+                highPulses += isOneBit * flips * highPerPulseToCenter;
 
                 number >>= 1;
                 flips >>= 1;

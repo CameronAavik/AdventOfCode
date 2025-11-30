@@ -12,9 +12,9 @@ public class Day09 : ISolver
         // get list of towns and edges from input
         var townSet = new HashSet<string>();
         var distances = new Dictionary<(string From, string To), int>();
-        foreach (Range lineRange in input.SplitLines())
+        foreach (var lineRange in input.SplitLines())
         {
-            ParseLine(input[lineRange], out int distance, out string fromName, out string toName);
+            ParseLine(input[lineRange], out var distance, out var fromName, out var toName);
 
             townSet.Add(fromName);
             townSet.Add(toName);
@@ -25,14 +25,14 @@ public class Day09 : ISolver
 
         // convert adjacency list to adjacency matrix
         string[] townNames = [.. townSet];
-        int numTowns = townNames.Length;
+        var numTowns = townNames.Length;
 
-        int[,] adjMatrix = new int[numTowns, numTowns];
-        int[] towns = new int[numTowns];
-        for (int a = 0; a < numTowns; a++)
+        var adjMatrix = new int[numTowns, numTowns];
+        var towns = new int[numTowns];
+        for (var a = 0; a < numTowns; a++)
         {
             towns[a] = a;
-            for (int b = 0; b < numTowns; b++)
+            for (var b = 0; b < numTowns; b++)
             {
                 if (a != b)
                 {
@@ -41,15 +41,15 @@ public class Day09 : ISolver
             }
         }
 
-        int minDistance = int.MaxValue;
-        int maxDistance = int.MinValue;
-        foreach (ReadOnlySpan<int> perm in towns.AsSpan().GetPermutations())
+        var minDistance = int.MaxValue;
+        var maxDistance = int.MinValue;
+        foreach (var perm in towns.AsSpan().GetPermutations())
         {
-            int pathDistance = 0;
-            int prevTown = perm[0];
-            for (int j = 1; j < numTowns; j++)
+            var pathDistance = 0;
+            var prevTown = perm[0];
+            for (var j = 1; j < numTowns; j++)
             {
-                int town = perm[j];
+                var town = perm[j];
                 pathDistance += adjMatrix[prevTown, town];
                 prevTown = town;
             }

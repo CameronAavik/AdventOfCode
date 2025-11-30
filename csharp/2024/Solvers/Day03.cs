@@ -9,48 +9,48 @@ public class Day03 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
         const uint mulBytes = 0x286C756DU; // "mul(" as a little endian uint
         const uint doBytes = 0x29286F64U; // "do()" as a little endian uint
         const ulong dontBytes = 0x292874276E6F64UL; // "don't()" as a little endian ulong
-        const ulong dontMask  = 0xFFFFFFFFFFFFFFUL; // mask to check for "don't()" in a ulong
+        const ulong dontMask = 0xFFFFFFFFFFFFFFUL; // mask to check for "don't()" in a ulong
 
-        bool isEnabled = true;
+        var isEnabled = true;
         while (input.Length != 0)
         {
-            int candidateIndex = input.IndexOfAny((byte)'d', (byte)'m');
+            var candidateIndex = input.IndexOfAny((byte)'d', (byte)'m');
             if (candidateIndex < 0)
                 break;
-                
-            input = input.Slice(candidateIndex);
-            
+
+            input = input[candidateIndex..];
+
             if (input[0] == 'm') // check for mul(a,b)
             {
                 if (input.Length >= 8) // "mul(a,b)" is 8 characters long
                 {
-                    uint mulCandidate = BinaryPrimitives.ReadUInt32LittleEndian(input);
+                    var mulCandidate = BinaryPrimitives.ReadUInt32LittleEndian(input);
                     if (mulCandidate == mulBytes)
                     {
-                        int i = 4;
-                        int a = ParseNumber(input, ref i, out byte separator);
+                        var i = 4;
+                        var a = ParseNumber(input, ref i, out var separator);
                         if (separator == (byte)',')
                         {
-                            int b = ParseNumber(input, ref i, out separator);
+                            var b = ParseNumber(input, ref i, out separator);
                             if (separator == (byte)')')
                             {
-                                int mul = a * b;
+                                var mul = a * b;
                                 part1 += mul;
                                 if (isEnabled)
                                     part2 += mul;
 
-                                input = input.Slice(i);
+                                input = input[i..];
                                 continue;
                             }
                         }
 
-                        input = input.Slice(i - 1); // subtract 1 because the separator might be the start of another instruction
+                        input = input[(i - 1)..]; // subtract 1 because the separator might be the start of another instruction
                         continue;
                     }
                 }
@@ -59,11 +59,11 @@ public class Day03 : ISolver
             {
                 if (input.Length >= 8) // even though "don't()" is 7 digits long, file always ends in newline so can safely load 8 bytes
                 {
-                    ulong dontCandidate = BinaryPrimitives.ReadUInt64LittleEndian(input);
+                    var dontCandidate = BinaryPrimitives.ReadUInt64LittleEndian(input);
                     if ((dontCandidate & dontMask) == dontBytes)
                     {
                         isEnabled = false;
-                        input = input.Slice(7);
+                        input = input[7..];
                         continue;
                     }
                 }
@@ -72,17 +72,17 @@ public class Day03 : ISolver
             {
                 if (input.Length >= 4) // "do()" is 4 digits long
                 {
-                    uint doCandidate = BinaryPrimitives.ReadUInt32LittleEndian(input);
+                    var doCandidate = BinaryPrimitives.ReadUInt32LittleEndian(input);
                     if (doCandidate == doBytes)
                     {
                         isEnabled = true;
-                        input = input.Slice(4);
+                        input = input[4..];
                         continue;
                     }
                 }
             }
 
-            input = input.Slice(1);
+            input = input[1..];
         }
 
         solution.SubmitPart1(part1);
@@ -93,7 +93,7 @@ public class Day03 : ISolver
     private static int ParseNumber(ReadOnlySpan<byte> input, ref int i, out byte c)
     {
         c = 0;
-        int a = 0;
+        var a = 0;
         while (i < input.Length && (c = input[i++]) is >= (byte)'0' and <= (byte)'9')
             a = a * 10 + c - '0';
         return a;

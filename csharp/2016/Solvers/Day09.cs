@@ -8,8 +8,8 @@ public class Day09 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         input = input.TrimEnd((byte)'\n');
-        int part1 = SolvePart1(input);
-        long part2 = SolvePart2(input);
+        var part1 = SolvePart1(input);
+        var part2 = SolvePart2(input);
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
@@ -17,14 +17,14 @@ public class Day09 : ISolver
 
     private static int SolvePart1(ReadOnlySpan<byte> input)
     {
-        int length = 0;
+        var length = 0;
         var reader = new SpanReader(input);
         while (!reader.Done)
         {
             if (reader.Read() == '(')
             {
-                int repLength = reader.ReadPosIntUntil('x');
-                int repCount = reader.ReadPosIntUntil(')');
+                var repLength = reader.ReadPosIntUntil('x');
+                var repCount = reader.ReadPosIntUntil(')');
 
                 length += repLength * repCount;
                 reader.SkipLength(repLength);
@@ -46,9 +46,9 @@ public class Day09 : ISolver
         {
             if (reader.Read() == '(')
             {
-                int repLength = reader.ReadPosIntUntil('x');
-                int repCount = reader.ReadPosIntUntil(')');
-                ReadOnlySpan<byte> rep = reader.ReadBytes(repLength);
+                var repLength = reader.ReadPosIntUntil('x');
+                var repCount = reader.ReadPosIntUntil(')');
+                var rep = reader.ReadBytes(repLength);
                 length += SolvePart2(rep) * repCount;
             }
             else

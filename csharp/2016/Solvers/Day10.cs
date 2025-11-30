@@ -12,8 +12,8 @@ public class Day10 : ISolver
         var botOutputs = new Dictionary<int, (bool IsLowBot, int Low, bool IsHighBot, int High)>();
         var valueQueue = new Queue<(bool IsBot, int Destination, int Value)>();
 
-        int maxBotId = 0;
-        int maxOutputId = 0;
+        var maxBotId = 0;
+        var maxOutputId = 0;
 
         // first pass we just keep track of where the bot sends its chips
         var parser = new SpanReader(input);
@@ -21,7 +21,7 @@ public class Day10 : ISolver
         {
             if (parser.Peek() == 'b')
             {
-                ParseBotInstruction(ref parser, out int bot, out bool isLowBot, out int low, out bool isHighBot, out int high);
+                ParseBotInstruction(ref parser, out var bot, out var isLowBot, out var low, out var isHighBot, out var high);
                 botOutputs[bot] = (isLowBot, low, isHighBot, high);
 
                 maxBotId = Math.Max(bot, maxBotId);
@@ -37,18 +37,18 @@ public class Day10 : ISolver
             }
             else
             {
-                ParseBotStartingValue(ref parser, out int bot, out int value);
+                ParseBotStartingValue(ref parser, out var bot, out var value);
                 valueQueue.Enqueue((true, bot, value));
             }
         }
 
-        int[]? botValues = new int[maxBotId + 1];
-        int[]? outputValues = new int[maxOutputId + 1];
+        var botValues = new int[maxBotId + 1];
+        var outputValues = new int[maxOutputId + 1];
 
-        int part1 = 0;
-        while (valueQueue.TryDequeue(out (bool IsBot, int Destination, int Value) x))
+        var part1 = 0;
+        while (valueQueue.TryDequeue(out var x))
         {
-            (bool isBot, int destination, int value) = x;
+            (var isBot, var destination, var value) = x;
 
             if (!isBot)
             {
@@ -56,17 +56,17 @@ public class Day10 : ISolver
                 continue;
             }
 
-            int curValue = botValues[destination];
+            var curValue = botValues[destination];
             if (curValue == 0)
             {
                 botValues[destination] = value;
             }
             else
             {
-                (bool IsLowBot, int Low, bool IsHighBot, int High) = botOutputs[destination];
+                (var IsLowBot, var Low, var IsHighBot, var High) = botOutputs[destination];
 
-                int low = Math.Min(curValue, value);
-                int high = Math.Max(curValue, value);
+                var low = Math.Min(curValue, value);
+                var high = Math.Max(curValue, value);
 
                 if (low == 17 && high == 61)
                 {
@@ -78,7 +78,7 @@ public class Day10 : ISolver
             }
         }
 
-        int part2 = outputValues[0] * outputValues[1] * outputValues[2];
+        var part2 = outputValues[0] * outputValues[1] * outputValues[2];
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }

@@ -1,11 +1,11 @@
 ﻿module Year2016Day13
 
 open AdventOfCode.FSharp.Common
-open GraphFS.Core.VertexSet
-open GraphFS.Core.EdgeSet
+open AdventOfCode.FSharp.GraphFS.VertexSet
+open AdventOfCode.FSharp.GraphFS.EdgeSet
 open System.Numerics
-open GraphFS.Graph
-open GraphFS.Algorithms.ShortestPath
+open AdventOfCode.FSharp.GraphFS.Graph
+open AdventOfCode.FSharp.GraphFS.ShortestPath
 
 let parse = parseFirstLine asInt >> uint64
 

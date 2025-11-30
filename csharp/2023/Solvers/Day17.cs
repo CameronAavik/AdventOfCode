@@ -19,74 +19,74 @@ public class Day17 : ISolver
     // a vertical move.
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int width = input.IndexOf((byte)'\n');
-        int rowLength = width + 1;
-        int height = input.Length / rowLength;
+        var width = input.IndexOf((byte)'\n');
+        var rowLength = width + 1;
+        var height = input.Length / rowLength;
 
         // Create reusable buckets for both parts
-        List<ushort>[] buckets = new List<ushort>[1300];
-        for (int i = 0; i < 128; i++)
+        var buckets = new List<ushort>[1300];
+        for (var i = 0; i < 128; i++)
             buckets[i] = new List<ushort>(1500);
-        for (int i = 128; i < buckets.Length; i++)
+        for (var i = 128; i < buckets.Length; i++)
             buckets[i] = buckets[i % 128];
 
-        int part1 = SolvePart1(input, width, height, buckets);
+        var part1 = SolvePart1(input, width, height, buckets);
         solution.SubmitPart1(part1);
 
-        for (int i = 0; i < 128; i++)
+        for (var i = 0; i < 128; i++)
             buckets[i].Clear();
 
-        int part2 = SolvePart2(input, width, height, buckets);
+        var part2 = SolvePart2(input, width, height, buckets);
         solution.SubmitPart2(part2);
     }
 
     public static int SolvePart1(ReadOnlySpan<byte> input, int width, int height, List<ushort>[] buckets)
     {
-        int rowLength = width + 1;
-        int numStates = rowLength * height * 2;
-        int targetState = (height - 1) * rowLength + (width - 1);
+        var rowLength = width + 1;
+        var numStates = rowLength * height * 2;
+        var targetState = (height - 1) * rowLength + (width - 1);
 
         const int xMul = 2;
-        int yMul = 2 * rowLength;
+        var yMul = 2 * rowLength;
 
-        ulong[] seen = new ulong[(numStates - 1) / 64 + 1];
+        var seen = new ulong[(numStates - 1) / 64 + 1];
 
-        int bucketPtr = 0;
+        var bucketPtr = 0;
         buckets[0].Add(0);
         buckets[0].Add(1);
 
         while (true)
         {
-            List<ushort> bucket = buckets[bucketPtr];
+            var bucket = buckets[bucketPtr];
 
-            for (int i = 0; i < bucket.Count; i++)
+            for (var i = 0; i < bucket.Count; i++)
             {
-                ushort element = bucket[i];
-                ref ulong seenBitset = ref seen[element / 64];
-                ulong elementBit = 1UL << element;
+                var element = bucket[i];
+                ref var seenBitset = ref seen[element / 64];
+                var elementBit = 1UL << element;
                 if ((seenBitset & elementBit) != 0)
                     continue;
                 seenBitset |= elementBit;
 
-                int rowOffset = Math.DivRem(element, 2, out int isHorizontal);
+                var rowOffset = Math.DivRem(element, 2, out var isHorizontal);
                 if (rowOffset == targetState)
                     return bucketPtr + (width + height - 2);
 
-                int y = Math.DivRem(rowOffset, rowLength, out int x);
+                var y = Math.DivRem(rowOffset, rowLength, out var x);
 
                 if (isHorizontal == 0)
                 {
-                    int total = 0;
-                    int maxX = Math.Min(4, width - x);
-                    for (int x2 = 1; x2 < maxX; x2++)
+                    var total = 0;
+                    var maxX = Math.Min(4, width - x);
+                    for (var x2 = 1; x2 < maxX; x2++)
                     {
                         total += input[rowOffset + x2] - '0' - 1;
                         buckets[bucketPtr + total].Add((ushort)(element + xMul * x2 + 1));
                     }
 
                     total = 0;
-                    int minX = Math.Max(-3, -x);
-                    for (int x2 = -1; x2 >= minX; x2--)
+                    var minX = Math.Max(-3, -x);
+                    for (var x2 = -1; x2 >= minX; x2--)
                     {
                         total += input[rowOffset + x2] - '0' + 1;
                         buckets[bucketPtr + total].Add((ushort)(element + xMul * x2 + 1));
@@ -94,17 +94,17 @@ public class Day17 : ISolver
                 }
                 else
                 {
-                    int total = 0;
-                    int maxY = Math.Min(4, height - y);
-                    for (int y2 = 1; y2 < maxY; y2++)
+                    var total = 0;
+                    var maxY = Math.Min(4, height - y);
+                    for (var y2 = 1; y2 < maxY; y2++)
                     {
                         total += input[rowOffset + rowLength * y2] - '0' - 1;
                         buckets[bucketPtr + total].Add((ushort)(element + yMul * y2 - 1));
                     }
 
                     total = 0;
-                    int minY = Math.Max(-3, -y);
-                    for (int y2 = -1; y2 >= minY; y2--)
+                    var minY = Math.Max(-3, -y);
+                    for (var y2 = -1; y2 >= minY; y2--)
                     {
                         total += input[rowOffset + rowLength * y2] - '0' + 1;
                         buckets[bucketPtr + total].Add((ushort)(element + yMul * y2 - 1));
@@ -119,47 +119,47 @@ public class Day17 : ISolver
 
     public static int SolvePart2(ReadOnlySpan<byte> input, int width, int height, List<ushort>[] buckets)
     {
-        int rowLength = width + 1;
-        int numStates = rowLength * height * 2;
-        int targetState = (height - 1) * rowLength + (width - 1);
+        var rowLength = width + 1;
+        var numStates = rowLength * height * 2;
+        var targetState = (height - 1) * rowLength + (width - 1);
 
         const int xMul = 2;
-        int yMul = 2 * rowLength;
+        var yMul = 2 * rowLength;
 
-        ulong[] seen = new ulong[(numStates - 1) / 64 + 1];
+        var seen = new ulong[(numStates - 1) / 64 + 1];
 
-        int bucketPtr = 0;
+        var bucketPtr = 0;
         buckets[0].Add(0);
         buckets[0].Add(1);
 
         while (true)
         {
-            List<ushort> bucket = buckets[bucketPtr];
+            var bucket = buckets[bucketPtr];
 
-            for (int i = 0; i < bucket.Count; i++)
+            for (var i = 0; i < bucket.Count; i++)
             {
-                ushort element = bucket[i];
-                ulong elementBit = 1UL << element;
+                var element = bucket[i];
+                var elementBit = 1UL << element;
                 if ((seen[element / 64] & elementBit) != 0)
                     continue;
                 seen[element / 64] |= elementBit;
 
-                int rowOffset = Math.DivRem(element, 2, out int isHorizontal);
+                var rowOffset = Math.DivRem(element, 2, out var isHorizontal);
                 if (rowOffset == targetState)
                     return bucketPtr + (width + height - 2);
 
-                int y = Math.DivRem(rowOffset, rowLength, out int x);
+                var y = Math.DivRem(rowOffset, rowLength, out var x);
 
                 if (isHorizontal == 0)
                 {
                     if (x < width - 4)
                     {
-                        int total = 0;
-                        for (int x2 = 1; x2 < 4; x2++)
+                        var total = 0;
+                        for (var x2 = 1; x2 < 4; x2++)
                             total += input[rowOffset + x2] - '0' - 1;
 
-                        int maxX = Math.Min(11, width - x);
-                        for (int x2 = 4; x2 < maxX; x2++)
+                        var maxX = Math.Min(11, width - x);
+                        for (var x2 = 4; x2 < maxX; x2++)
                         {
                             total += input[rowOffset + x2] - '0' - 1;
                             buckets[bucketPtr + total].Add((ushort)(element + xMul * x2 + 1));
@@ -168,12 +168,12 @@ public class Day17 : ISolver
 
                     if (x >= 4)
                     {
-                        int total = 0;
-                        for (int x2 = -1; x2 >= -3; x2--)
+                        var total = 0;
+                        for (var x2 = -1; x2 >= -3; x2--)
                             total += input[rowOffset + x2] - '0' + 1;
 
-                        int minX = Math.Max(-10, -x);
-                        for (int x2 = -4; x2 >= minX; x2--)
+                        var minX = Math.Max(-10, -x);
+                        for (var x2 = -4; x2 >= minX; x2--)
                         {
                             total += input[rowOffset + x2] - '0' + 1;
                             buckets[bucketPtr + total].Add((ushort)(element + xMul * x2 + 1));
@@ -184,26 +184,26 @@ public class Day17 : ISolver
                 {
                     if (y < height - 4)
                     {
-                        int total = 0;
-                        for (int y2 = 1; y2 < 4; y2++)
+                        var total = 0;
+                        for (var y2 = 1; y2 < 4; y2++)
                             total += input[rowOffset + rowLength * y2] - '0' - 1;
 
-                        int maxY = Math.Min(11, height - y);
-                        for (int y2 = 4; y2 < maxY; y2++)
+                        var maxY = Math.Min(11, height - y);
+                        for (var y2 = 4; y2 < maxY; y2++)
                         {
                             total += input[rowOffset + rowLength * y2] - '0' - 1;
                             buckets[bucketPtr + total].Add((ushort)(element + yMul * y2 - 1));
                         }
                     }
-                    
+
                     if (y >= 4)
                     {
-                        int total = 0;
-                        for (int y2 = -1; y2 >= -3; y2--)
+                        var total = 0;
+                        for (var y2 = -1; y2 >= -3; y2--)
                             total += input[rowOffset + rowLength * y2] - '0' + 1;
 
-                        int minY = Math.Max(-10, -y);
-                        for (int y2 = -4; y2 >= minY; y2--)
+                        var minY = Math.Max(-10, -y);
+                        for (var y2 = -4; y2 >= minY; y2--)
                         {
                             total += input[rowOffset + rowLength * y2] - '0' + 1;
                             buckets[bucketPtr + total].Add((ushort)(element + yMul * y2 - 1));

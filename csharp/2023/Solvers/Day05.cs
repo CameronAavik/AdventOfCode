@@ -13,18 +13,18 @@ public class Day05 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        input = input.Slice("seeds: ".Length);
+        input = input["seeds: ".Length..];
 
-        int seedsEndIndex = input.IndexOf((byte)'\n');
-        ReadOnlySpan<byte> seedsLine = input.Slice(0, seedsEndIndex + 1);
-        int numSeeds = seedsLine.Count((byte)' ') + 1;
+        var seedsEndIndex = input.IndexOf((byte)'\n');
+        var seedsLine = input[..(seedsEndIndex + 1)];
+        var numSeeds = seedsLine.Count((byte)' ') + 1;
 
-        long[] seeds = new long[numSeeds];
-        for (int i = 0; i < numSeeds; i++)
+        var seeds = new long[numSeeds];
+        for (var i = 0; i < numSeeds; i++)
             seeds[i] = ReadLongUntil(ref input, (byte)(i == numSeeds - 1 ? '\n' : ' '));
 
         var part2Ranges = new (long X, long Y)[numSeeds / 2];
-        for (int i = 0; i < numSeeds; i += 2)
+        for (var i = 0; i < numSeeds; i += 2)
             part2Ranges[i / 2] = (seeds[i], seeds[i] + seeds[i + 1]);
 
         // Will reuse this list in each iteration
@@ -37,44 +37,44 @@ public class Day05 : ISolver
         while (input.Length > 0)
         {
             // skip starting newline separator
-            input = input.Slice(1); 
+            input = input[1..];
 
             // skip mapping name
-            input = input.Slice(input.IndexOf((byte)'\n') + 1);
+            input = input[(input.IndexOf((byte)'\n') + 1)..];
 
             mappings.Clear();
             while (input.Length > 0 && input[0] != '\n')
             {
-                long dst = ReadLongUntil(ref input, (byte)' ');
-                long src = ReadLongUntil(ref input, (byte)' ');
-                long len = ReadLongUntil(ref input, (byte)'\n');
+                var dst = ReadLongUntil(ref input, (byte)' ');
+                var src = ReadLongUntil(ref input, (byte)' ');
+                var len = ReadLongUntil(ref input, (byte)'\n');
                 mappings.Add(new Mapping(src, src + len, dst));
             }
 
             mappings.Sort();
 
-            for (int i = 0; i < numSeeds; i++)
+            for (var i = 0; i < numSeeds; i++)
             {
-                long seed = seeds[i];
-                Mapping mapping = mappings[BinarySearch(mappings, seed)];
+                var seed = seeds[i];
+                var mapping = mappings[BinarySearch(mappings, seed)];
                 if (mapping.FromStart <= seed && seed < mapping.FromEnd)
                     seeds[i] = mapping.ToStart + seed - mapping.FromStart;
             }
 
             var backwardsMapping = new List<Mapping>(mappings.Count);
-            foreach (Mapping mapping in mappings)
+            foreach (var mapping in mappings)
                 backwardsMapping.Add(new Mapping(mapping.ToStart, mapping.ToStart + mapping.FromEnd - mapping.FromStart, mapping.FromStart));
 
             backwardsMapping.Sort();
             backwardsMappings.Add(backwardsMapping);
         }
 
-        long part1 = long.MaxValue;
-        foreach (long seed in seeds)
+        var part1 = long.MaxValue;
+        foreach (var seed in seeds)
             part1 = Math.Min(part1, seed);
         solution.SubmitPart1(part1);
 
-        long part2 = SolvePart2();
+        var part2 = SolvePart2();
         solution.SubmitPart2(part2);
 
         // Recursively iterate through all location ranges to the seed level and check which range overlaps with any of the seed ranges first
@@ -82,7 +82,7 @@ public class Day05 : ISolver
         {
             if (mappingIndex == backwardsMappings.Count)
             {
-                foreach ((long x, long y) in part2Ranges)
+                foreach ((var x, var y) in part2Ranges)
                 {
                     if (x <= end && start <= y)
                         return startLocation + Math.Max(x, start) - start;
@@ -91,12 +91,12 @@ public class Day05 : ISolver
                 return -1;
             }
 
-            List<Mapping> mappings = backwardsMappings[backwardsMappings.Count - mappingIndex - 1];
-            int rangeIndex = BinarySearch(mappings, start);
+            var mappings = backwardsMappings[backwardsMappings.Count - mappingIndex - 1];
+            var rangeIndex = BinarySearch(mappings, start);
 
-            for (int i = rangeIndex; i < mappings.Count; i++)
+            for (var i = rangeIndex; i < mappings.Count; i++)
             {
-                (long xDst, long yDst, long x) = mappings[i];
+                (var xDst, var yDst, var x) = mappings[i];
 
                 // this means that there is a gap in the mappings, continue to next mapping
                 if (yDst < start)
@@ -107,7 +107,7 @@ public class Day05 : ISolver
                     if (end < xDst)
                         return SolvePart2(start, end, mappingIndex + 1, startLocation);
 
-                    long beforeSol = SolvePart2(start, xDst, mappingIndex + 1, startLocation);
+                    var beforeSol = SolvePart2(start, xDst, mappingIndex + 1, startLocation);
                     if (beforeSol >= 0)
                         return beforeSol;
 
@@ -115,12 +115,12 @@ public class Day05 : ISolver
                     start = xDst;
                 }
 
-                long xDstMapped = start - xDst + x;
+                var xDstMapped = start - xDst + x;
 
                 if (end <= yDst)
                     return SolvePart2(xDstMapped, end - xDst + x, mappingIndex + 1, startLocation);
 
-                long sol = SolvePart2(xDstMapped, yDst - xDst + x, mappingIndex + 1, startLocation);
+                var sol = SolvePart2(xDstMapped, yDst - xDst + x, mappingIndex + 1, startLocation);
                 if (sol >= 0)
                     return sol;
 
@@ -136,24 +136,24 @@ public class Day05 : ISolver
     {
         byte cur;
         long ret = input[0] - '0';
-        int i = 1;
+        var i = 1;
         while ((cur = input[i++]) != c)
             ret = ret * 10 + cur - '0';
 
-        input = input.Slice(i);
+        input = input[i..];
         return ret;
     }
 
     // Find largest index of mapping where FromStart is less than or equal to the given value
     private static int BinarySearch(List<Mapping> mapping, long value)
     {
-        int lo = 0;
-        int hi = mapping.Count - 1;
+        var lo = 0;
+        var hi = mapping.Count - 1;
         while (lo <= hi)
         {
-            int i = lo + ((hi - lo) >> 1);
+            var i = lo + ((hi - lo) >> 1);
 
-            long x = mapping[i].FromStart;
+            var x = mapping[i].FromStart;
 
             if (x == value)
                 return i;

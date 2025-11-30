@@ -11,15 +11,15 @@ public class Day09 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
         while (input.Length > 0)
         {
-            int lineEndIndex = input.IndexOf((byte)'\n');
-            ReadOnlySpan<byte> line = input.Slice(0, lineEndIndex + 1);
+            var lineEndIndex = input.IndexOf((byte)'\n');
+            var line = input[..(lineEndIndex + 1)];
             ProcessLine(line, ref part1, ref part2);
-            input = input.Slice(lineEndIndex + 1);
+            input = input[(lineEndIndex + 1)..];
         }
 
         solution.SubmitPart1(part1);
@@ -32,23 +32,23 @@ public class Day09 : ISolver
         // Assuming each line has 24 numbers or less
         Span<int> lineNumbers = stackalloc int[24];
 
-        int n = LoadNumbersFromLine(line, lineNumbers);
-        ref int lineNumbersRef = ref MemoryMarshal.GetReference(lineNumbers);
-        Vector256<int> numberVec1 = Vector256.LoadUnsafe(ref lineNumbersRef);
-        Vector256<int> numberVec2 = Vector256.LoadUnsafe(ref lineNumbersRef, 8);
-        Vector256<int> numberVec3 = Vector256.LoadUnsafe(ref lineNumbersRef, 16);
+        var n = LoadNumbersFromLine(line, lineNumbers);
+        ref var lineNumbersRef = ref MemoryMarshal.GetReference(lineNumbers);
+        var numberVec1 = Vector256.LoadUnsafe(ref lineNumbersRef);
+        var numberVec2 = Vector256.LoadUnsafe(ref lineNumbersRef, 8);
+        var numberVec3 = Vector256.LoadUnsafe(ref lineNumbersRef, 16);
 
-        int vecSize = n;
+        var vecSize = n;
 
         // handle case where data fits in 3 vectors
         while (vecSize > 16)
         {
-            int firstElement = numberVec1.GetElement(0);
+            var firstElement = numberVec1.GetElement(0);
             part1 += numberVec3.GetElement(vecSize - 17);
             part2 += (n - vecSize) % 2 == 1 ? -firstElement : firstElement;
-            Vector256<int> shifted1 = RotateLeftOneByte(numberVec1);
-            Vector256<int> shifted2 = RotateLeftOneByte(numberVec2);
-            Vector256<int> shifted3 = RotateLeftOneByte(numberVec3);
+            var shifted1 = RotateLeftOneByte(numberVec1);
+            var shifted2 = RotateLeftOneByte(numberVec2);
+            var shifted3 = RotateLeftOneByte(numberVec3);
 
             numberVec1 = MoveLastByteAcross(shifted1, shifted2) - numberVec1;
             numberVec2 = MoveLastByteAcross(shifted2, shifted3) - numberVec2;
@@ -63,12 +63,12 @@ public class Day09 : ISolver
         // handle case where data fits in 2 vectors
         while (vecSize > 8)
         {
-            int firstElement = numberVec1.GetElement(0);
+            var firstElement = numberVec1.GetElement(0);
             part1 += numberVec2.GetElement(vecSize - 9);
             part2 += (n - vecSize) % 2 == 1 ? -firstElement : firstElement;
 
-            Vector256<int> shifted1 = RotateLeftOneByte(numberVec1);
-            Vector256<int> shifted2 = RotateLeftOneByte(numberVec2);
+            var shifted1 = RotateLeftOneByte(numberVec1);
+            var shifted2 = RotateLeftOneByte(numberVec2);
 
             numberVec1 = MoveLastByteAcross(shifted1, shifted2) - numberVec1;
             numberVec2 = shifted2 - numberVec2;
@@ -82,7 +82,7 @@ public class Day09 : ISolver
         // handle case where data fits in 1 vector
         while (vecSize > 0)
         {
-            int firstElement = numberVec1.GetElement(0);
+            var firstElement = numberVec1.GetElement(0);
             part1 += numberVec1.GetElement(vecSize - 1);
             part2 += (n - vecSize) % 2 == 1 ? -firstElement : firstElement;
 
@@ -97,12 +97,12 @@ public class Day09 : ISolver
 
     private static int LoadNumbersFromLine(ReadOnlySpan<byte> line, Span<int> lineNumbers)
     {
-        int n = 0;
-        int i = 0;
+        var n = 0;
+        var i = 0;
         while (i < line.Length)
         {
             int num;
-            byte c = line[i++];
+            var c = line[i++];
             if (c == '-')
             {
                 num = '0' - line[i++];
@@ -130,8 +130,8 @@ public class Day09 : ISolver
 
     private static bool FirstNBytesAreZero(Vector256<int> vec, int bytes)
     {
-        uint zeroBitIndexes = Vector256.Equals(vec, Vector256<int>.Zero).ExtractMostSignificantBits();
-        uint mask = (uint)((1 << bytes) - 1);
+        var zeroBitIndexes = Vector256.Equals(vec, Vector256<int>.Zero).ExtractMostSignificantBits();
+        var mask = (uint)((1 << bytes) - 1);
         return (zeroBitIndexes & mask) == mask;
     }
 }

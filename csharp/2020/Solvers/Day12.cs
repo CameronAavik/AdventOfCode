@@ -19,9 +19,9 @@ public class Day12 : ISolver
         var reader = new SpanReader(input);
         while (!reader.Done)
         {
-            byte dir = reader.Peek();
+            var dir = reader.Peek();
             reader.SkipLength(1);
-            int amount = reader.ReadPosIntUntil('\n');
+            var amount = reader.ReadPosIntUntil('\n');
 
             switch (dir)
             {
@@ -42,14 +42,14 @@ public class Day12 : ISolver
                     dx2 -= amount;
                     break;
                 case (byte)'L':
-                    for (int i = amount; i > 0; i -= 90)
+                    for (var i = amount; i > 0; i -= 90)
                     {
                         RotateLeft(ref dx1, ref dy1);
                         RotateLeft(ref dx2, ref dy2);
                     }
                     break;
                 case (byte)'R':
-                    for (int i = amount; i > 0; i -= 90)
+                    for (var i = amount; i > 0; i -= 90)
                     {
                         RotateRight(ref dx1, ref dy1);
                         RotateRight(ref dx2, ref dy2);
@@ -65,8 +65,8 @@ public class Day12 : ISolver
             }
         }
 
-        int part1 = Math.Abs(x1) + Math.Abs(y1);
-        int part2 = Math.Abs(x2) + Math.Abs(y2);
+        var part1 = Math.Abs(x1) + Math.Abs(y1);
+        var part2 = Math.Abs(x2) + Math.Abs(y2);
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
@@ -74,7 +74,7 @@ public class Day12 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void RotateLeft(ref int dx, ref int dy)
     {
-        int temp = dx;
+        var temp = dx;
         dx = -dy;
         dy = temp;
     }
@@ -82,7 +82,7 @@ public class Day12 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void RotateRight(ref int dx, ref int dy)
     {
-        int temp = dx;
+        var temp = dx;
         dx = dy;
         dy = -temp;
     }

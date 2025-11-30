@@ -10,16 +10,16 @@ public class Day01 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // The counters which will store the solutions to both parts
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
         // A value that represents the index in the input we are currently looking at
         nint inputCursor = 0;
 
         // a, b, and c will store the three most recent measurements seen
-        uint a = ReadLineAsInteger(input, ref inputCursor);
-        uint b = ReadLineAsInteger(input, ref inputCursor);
-        uint c = ReadLineAsInteger(input, ref inputCursor);
+        var a = ReadLineAsInteger(input, ref inputCursor);
+        var b = ReadLineAsInteger(input, ref inputCursor);
+        var c = ReadLineAsInteger(input, ref inputCursor);
 
         // Check if the value increased within the first three readings
         if (b > a) part1++;
@@ -33,7 +33,7 @@ public class Day01 : ISolver
         while (inputCursor < input.Length)
         {
             // Measurement 1
-            uint m = ReadLineAsInteger(input, ref inputCursor);
+            var m = ReadLineAsInteger(input, ref inputCursor);
             if (m > c) part1++;
             if (m > a) part2++;
             a = m;
@@ -64,12 +64,15 @@ public class Day01 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static uint ReadLineAsInteger(ReadOnlySpan<byte> input, ref nint i)
     {
-        static uint CharToInt(byte c) => unchecked(c - (uint)'0');
+        static uint CharToInt(byte c)
+        {
+            return unchecked(c - (uint)'0');
+        }
 
-        ref byte inputRef = ref MemoryMarshal.GetReference(input);
+        ref var inputRef = ref MemoryMarshal.GetReference(input);
 
         // Assume that the first character is always a digit
-        uint ret = CharToInt(Unsafe.Add(ref inputRef, i++));
+        var ret = CharToInt(Unsafe.Add(ref inputRef, i++));
 
         byte cur;
         while ((cur = Unsafe.Add(ref inputRef, i++)) != '\n')

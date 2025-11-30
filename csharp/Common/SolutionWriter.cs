@@ -11,14 +11,14 @@ public ref struct SolutionWriter(Span<char> buffer)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write<T>(T val) where T : ISpanFormattable
     {
-        val.TryFormat(_buffer.Slice(_i), out int charsWritten, default, default);
+        val.TryFormat(_buffer[_i..], out var charsWritten, default, default);
         _i += charsWritten;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void Write(ReadOnlySpan<char> val)
     {
-        val.CopyTo(_buffer.Slice(_i));
+        val.CopyTo(_buffer[_i..]);
         _i += val.Length;
     }
 

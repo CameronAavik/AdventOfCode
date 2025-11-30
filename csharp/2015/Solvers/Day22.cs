@@ -9,9 +9,9 @@ public class Day22 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        ParseInput(input, out int bossHp, out int bossDamage);
-        int part1 = Solve(bossHp, bossDamage, false);
-        int part2 = Solve(bossHp, bossDamage, true);
+        ParseInput(input, out var bossHp, out var bossDamage);
+        var part1 = Solve(bossHp, bossDamage, false);
+        var part2 = Solve(bossHp, bossDamage, true);
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
@@ -26,7 +26,7 @@ public class Day22 : ISolver
         var firstState = new GameState(startingMana, startingHp, bossHp, 0, 0, 0);
         pq.Enqueue(firstState, 0);
 
-        while (pq.TryDequeue(out GameState state, out int usedMana))
+        while (pq.TryDequeue(out var state, out var usedMana))
         {
             // check if boss is dead
             if (state.BossHP == 0)
@@ -37,7 +37,7 @@ public class Day22 : ISolver
             // If it is part 2, apply damage to the player
             if (hasExtraDamage)
             {
-                int newHp = state.PlayerHP - 1;
+                var newHp = state.PlayerHP - 1;
                 if (newHp == 0)
                 {
                     continue;
@@ -69,8 +69,8 @@ public class Day22 : ISolver
             // Try use magic missile
             if (state.Mana >= 53)
             {
-                GameState stateAfterPlayerTurn = state with { BossHP = Math.Max(state.BossHP - 4, 0), Mana = state.Mana - 53 };
-                if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out GameState stateAfterBossTurn))
+                var stateAfterPlayerTurn = state with { BossHP = Math.Max(state.BossHP - 4, 0), Mana = state.Mana - 53 };
+                if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out var stateAfterBossTurn))
                 {
                     pq.EnqueueOrUpdate(stateAfterBossTurn, usedMana + 53);
                 }
@@ -79,14 +79,14 @@ public class Day22 : ISolver
             // Try use drain
             if (state.Mana >= 73)
             {
-                GameState stateAfterPlayerTurn = state with
+                var stateAfterPlayerTurn = state with
                 {
                     BossHP = Math.Max(state.BossHP - 2, 0),
                     PlayerHP = state.PlayerHP + 2,
                     Mana = state.Mana - 73
                 };
 
-                if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out GameState stateAfterBossTurn))
+                if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out var stateAfterBossTurn))
                 {
                     pq.EnqueueOrUpdate(stateAfterBossTurn, usedMana + 73);
                 }
@@ -95,8 +95,8 @@ public class Day22 : ISolver
             // Try use shield
             if (state.Mana >= 113 & state.Shield == 0)
             {
-                GameState stateAfterPlayerTurn = state with { Shield = 6, Mana = state.Mana - 113 };
-                if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out GameState stateAfterBossTurn))
+                var stateAfterPlayerTurn = state with { Shield = 6, Mana = state.Mana - 113 };
+                if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out var stateAfterBossTurn))
                 {
                     pq.EnqueueOrUpdate(stateAfterBossTurn, usedMana + 113);
                 }
@@ -105,8 +105,8 @@ public class Day22 : ISolver
             // Try use poison
             if (state.Mana >= 173 & state.Poison == 0)
             {
-                GameState stateAfterPlayerTurn = state with { Poison = 6, Mana = state.Mana - 173 };
-                if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out GameState stateAfterBossTurn))
+                var stateAfterPlayerTurn = state with { Poison = 6, Mana = state.Mana - 173 };
+                if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out var stateAfterBossTurn))
                 {
                     pq.EnqueueOrUpdate(stateAfterBossTurn, usedMana + 173);
                 }
@@ -115,8 +115,8 @@ public class Day22 : ISolver
             // Try use recharge
             if (state.Mana >= 229 & state.Recharge == 0)
             {
-                GameState stateAfterPlayerTurn = state with { Recharge = 5, Mana = state.Mana - 229 };
-                if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out GameState stateAfterBossTurn))
+                var stateAfterPlayerTurn = state with { Recharge = 5, Mana = state.Mana - 229 };
+                if (SimulateBossTurn(stateAfterPlayerTurn, bossDamage, out var stateAfterBossTurn))
                 {
                     pq.EnqueueOrUpdate(stateAfterBossTurn, usedMana + 229);
                 }
@@ -146,7 +146,7 @@ public class Day22 : ISolver
         }
 
         // apply effects
-        bool hasArmor = state.Shield > 0;
+        var hasArmor = state.Shield > 0;
         if (hasArmor)
         {
             state = state with { Shield = state.Shield - 1 };
@@ -170,7 +170,7 @@ public class Day22 : ISolver
         }
 
         // make attack
-        int damage = Math.Max(1, bossDamage - (hasArmor ? 7 : 0));
+        var damage = Math.Max(1, bossDamage - (hasArmor ? 7 : 0));
         newState = state with { PlayerHP = Math.Max(0, state.PlayerHP - damage) };
         return newState.PlayerHP > 0;
     }

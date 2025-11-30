@@ -7,26 +7,26 @@ public class Day04 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
-        foreach (Range passportRange in input.Split("\n\n"u8))
+        foreach (var passportRange in input.Split("\n\n"u8))
         {
-            ReadOnlySpan<byte> passport = input[passportRange];
+            var passport = input[passportRange];
             byte fieldFlags = 0;
-            bool hasInvalidField = false;
+            var hasInvalidField = false;
 
-            int i = 0;
+            var i = 0;
             while (i < passport.Length)
             {
-                ReadOnlySpan<byte> fieldName = passport.Slice(i, 3);
-                int fieldLength = passport.Slice(i + 4).IndexOfAny("\n "u8);
+                var fieldName = passport.Slice(i, 3);
+                var fieldLength = passport[(i + 4)..].IndexOfAny("\n "u8);
                 if (fieldLength == -1)
                 {
                     fieldLength = passport.Length - i - 4;
                 }
 
-                ReadOnlySpan<byte> fieldValue = passport.Slice(i + 4, fieldLength);
+                var fieldValue = passport.Slice(i + 4, fieldLength);
 
                 switch (fieldName[0])
                 {
@@ -167,7 +167,7 @@ public class Day04 : ISolver
             return false;
         }
 
-        for (int i = 0; i < 6; i++)
+        for (var i = 0; i < 6; i++)
         {
             if (span[i + 1] is not ((>= (byte)'0' and <= (byte)'9') or (>= (byte)'a' and <= (byte)'f')))
             {
@@ -203,7 +203,7 @@ public class Day04 : ISolver
             return false;
         }
 
-        for (int i = 0; i < 9; i++)
+        for (var i = 0; i < 9; i++)
         {
             if (span[i] is not (>= (byte)'0' and <= (byte)'9'))
             {

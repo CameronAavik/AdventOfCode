@@ -2,7 +2,7 @@
 
 open AdventOfCode.FSharp.Common
 
-let banksToStr = Array.map (fun i -> i.ToString()) >> String.concat ","
+let banksToStr = Array.map (fun i -> sprintf "%d" i) >> String.concat ","
 
 let distribute numBanks maxV maxI i v =
     let doesOverlap = ((if i <= maxI then numBanks else 0) + i) <= (maxI + (maxV % numBanks))

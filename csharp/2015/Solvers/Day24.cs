@@ -10,11 +10,11 @@ public class Day24 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var weightList = new List<int>();
-        int totalWeight = 0;
+        var totalWeight = 0;
         var reader = new SpanReader(input);
         while (!reader.Done)
         {
-            int weight = reader.ReadPosIntUntil('\n');
+            var weight = reader.ReadPosIntUntil('\n');
             weightList.Add(weight);
             totalWeight += weight;
         }
@@ -28,12 +28,12 @@ public class Day24 : ISolver
 
     private static BigInteger Solve(int[] weights, int targetWeight)
     {
-        for (int count = 1; count < weights.Length; count++)
+        for (var count = 1; count < weights.Length; count++)
         {
             // Algorithm adapted from the python itertools.combinations documentation
             // https://docs.python.org/3/library/itertools.html#itertools.combinations
-            int[] indices = new int[count];
-            for (int i = 0; i < count; i++)
+            var indices = new int[count];
+            for (var i = 0; i < count; i++)
             {
                 indices[i] = i;
             }
@@ -41,7 +41,7 @@ public class Day24 : ISolver
             BigInteger? minQE = null;
             while (true)
             {
-                bool hasFinished = true;
+                var hasFinished = true;
                 int i;
                 for (i = count - 1; i >= 0; i--)
                 {
@@ -58,13 +58,13 @@ public class Day24 : ISolver
                 }
 
                 indices[i]++;
-                for (int j = i + 1; j < count; j++)
+                for (var j = i + 1; j < count; j++)
                 {
                     indices[j] = indices[j - 1] + 1;
                 }
 
-                int totalWeight = 0;
-                foreach (int index in indices)
+                var totalWeight = 0;
+                foreach (var index in indices)
                 {
                     totalWeight += weights[index];
                 }
@@ -72,7 +72,7 @@ public class Day24 : ISolver
                 if (totalWeight == targetWeight)
                 {
                     BigInteger qe = 1;
-                    foreach (int index in indices)
+                    foreach (var index in indices)
                     {
                         qe *= weights[index];
                     }

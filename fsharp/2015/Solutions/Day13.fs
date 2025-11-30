@@ -1,7 +1,7 @@
 ﻿module Year2015Day13
 
 open AdventOfCode.FSharp.Common
-open GraphFS.Graph
+open AdventOfCode.FSharp.GraphFS.Graph
 
 type Action = { Person : string; IsGain : bool; Units : int; NextTo : string }
 

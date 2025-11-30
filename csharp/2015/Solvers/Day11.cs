@@ -8,7 +8,7 @@ public class Day11 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        ReadOnlySpan<byte> trimmed = input.TrimEnd((byte)'\n');
+        var trimmed = input.TrimEnd((byte)'\n');
         Span<char> password = stackalloc char[trimmed.Length];
         Encoding.ASCII.GetChars(trimmed, password);
 
@@ -24,7 +24,7 @@ public class Day11 : ISolver
         // increment the password and ensure there are no confusing characters
         IncrementPassword(password);
 
-        for (int i = 0; i < password.Length; i++)
+        for (var i = 0; i < password.Length; i++)
         {
             if (password[i] is 'i' or 'o' or 'l')
             {
@@ -34,14 +34,14 @@ public class Day11 : ISolver
 
         while (true)
         {
-            int doubles = 0;
-            bool hasTriple = false;
+            var doubles = 0;
+            var hasTriple = false;
 
-            bool ignoreDouble = false;
+            var ignoreDouble = false;
 
-            char prev2 = '\0';
-            char prev = '\0';
-            foreach (char c in password)
+            var prev2 = '\0';
+            var prev = '\0';
+            foreach (var c in password)
             {
                 if (c == prev && !ignoreDouble)
                 {
@@ -73,9 +73,9 @@ public class Day11 : ISolver
 
     private static void IncrementPassword(Span<char> password, int minDigits = 1)
     {
-        for (int i = password.Length - 1; i >= 0; i--)
+        for (var i = password.Length - 1; i >= 0; i--)
         {
-            ref char cur = ref password[i];
+            ref var cur = ref password[i];
             if (cur == 'z' || minDigits > 1)
             {
                 cur = 'a';

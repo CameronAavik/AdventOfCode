@@ -9,12 +9,12 @@ public class Day01 : ISolver
     {
         var reader = new SpanReader(input);
 
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
         while (!reader.Done)
         {
-            int mass = reader.ReadPosIntUntil('\n');
-            int fuel = mass / 3 - 2;
+            var mass = reader.ReadPosIntUntil('\n');
+            var fuel = mass / 3 - 2;
             part1 += fuel;
             while (fuel > 0)
             {

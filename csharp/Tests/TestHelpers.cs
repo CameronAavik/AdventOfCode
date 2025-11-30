@@ -13,8 +13,8 @@ public static class TestHelpers
 {
     internal static void AssertDay<T>(string expectedPart1, string expectedPart2) where T : ISolver
     {
-        string year = typeof(T).Namespace!.Split('.')[2][1..];
-        string dayNumber = typeof(T).Name[3..];
+        var year = typeof(T).Namespace!.Split('.')[2][1..];
+        var dayNumber = typeof(T).Name[3..];
         AssertDay<T>($"input/{year}/day{dayNumber}.txt", expectedPart1, expectedPart2);
     }
 
@@ -22,31 +22,32 @@ public static class TestHelpers
     {
         ReadOnlySpan<byte> file = File.ReadAllBytes(filePath);
 
-        char[] part1Buffer = new char[64];
-        char[] part2Buffer = new char[64];
+        var part1Buffer = new char[64];
+        var part2Buffer = new char[64];
         T.Solve(file, new(part1Buffer, part2Buffer));
 
         List<string> errorMessages = [];
 
-        int part1EndIndex = Array.IndexOf(part1Buffer, '\n');
+        var part1EndIndex = Array.IndexOf(part1Buffer, '\n');
         if (part1EndIndex == -1)
         {
             errorMessages.Add("No solution provided in part 1");
         }
         else
         {
-            string part1 = part1Buffer.AsSpan().Slice(0, part1EndIndex).ToString();
+            var part1 = part1Buffer.AsSpan()[..part1EndIndex].ToString();
             if (!part1.Equals(expectedPart1))
                 errorMessages.Add($"Incorrect solution for part 1\nExpected: {expectedPart1}\nActual: {part1}");
         }
 
-        int part2EndIndex = Array.IndexOf(part2Buffer, '\n');
-        if (part2EndIndex == -1) {
+        var part2EndIndex = Array.IndexOf(part2Buffer, '\n');
+        if (part2EndIndex == -1)
+        {
             errorMessages.Add("No solution provided in part 2");
         }
         else
         {
-            string part2 = part2Buffer.AsSpan().Slice(0, part2EndIndex).ToString();
+            var part2 = part2Buffer.AsSpan()[..part2EndIndex].ToString();
             if (!part2.Equals(expectedPart2))
                 errorMessages.Add($"Incorrect solution for part 2\nExpected: {expectedPart2}\nActual: {part2}");
         }
@@ -59,13 +60,13 @@ public static class TestHelpers
 [AttributeUsage(AttributeTargets.Method)]
 public class MultiInputDataAttribute(int year, int day) : Attribute, ITestDataSource
 {
-    public IEnumerable<object[]> GetData(MethodInfo testMethod)
+    public IEnumerable<object[]> GetData(MethodInfo methodInfo)
     {
-        string inputFolder = $"input/{year}/extra/day{day:D2}";
-        foreach (string file in Directory.EnumerateFiles(inputFolder))
+        var inputFolder = $"input/{year}/extra/day{day:D2}";
+        foreach (var file in Directory.EnumerateFiles(inputFolder))
         {
-            string fileName = Path.GetFileNameWithoutExtension(file);
-            string[] parts = fileName.Split('_');
+            var fileName = Path.GetFileNameWithoutExtension(file);
+            var parts = fileName.Split('_');
             yield return new object[] { file, parts[0], parts[1] };
         }
     }

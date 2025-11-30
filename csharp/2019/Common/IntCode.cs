@@ -7,11 +7,11 @@ public static class IntCode
     public static ReadOnlySpan<int> ParseFromInput(ReadOnlySpan<byte> program)
     {
         // initialise an int array which the intcode will be read into.
-        int[] code = new int[program.Length / 2 + 1];
-        int size = 0;
-        bool isNegative = false;
-        int n = 0;
-        foreach (byte c in program)
+        var code = new int[program.Length / 2 + 1];
+        var size = 0;
+        var isNegative = false;
+        var n = 0;
+        foreach (var c in program)
         {
             if (c == ',')
             {
@@ -29,7 +29,7 @@ public static class IntCode
             }
             else
             {
-                int digit = c - '0';
+                var digit = c - '0';
                 n = n * 10 + digit;
             }
         }

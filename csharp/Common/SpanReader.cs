@@ -11,23 +11,23 @@ public ref struct SpanReader(ReadOnlySpan<byte> input)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public byte Read()
     {
-        byte ret = _input[0];
-        _input = _input.Slice(1);
+        var ret = _input[0];
+        _input = _input[1..];
         return ret;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<byte> ReadBytes(int length)
     {
-        ReadOnlySpan<byte> ret = _input.Slice(0, length);
-        _input = _input.Slice(length);
+        var ret = _input[..length];
+        _input = _input[length..];
         return ret;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SkipLength(int length)
     {
-        _input = _input.Slice(length);
+        _input = _input[length..];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -45,7 +45,7 @@ public ref struct SpanReader(ReadOnlySpan<byte> input)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public void SkipUntil(byte c)
     {
-        _input = _input.Slice(_input.IndexOf(c) + 1);
+        _input = _input[(_input.IndexOf(c) + 1)..];
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -54,17 +54,17 @@ public ref struct SpanReader(ReadOnlySpan<byte> input)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<byte> ReadUntil(byte c)
     {
-        int len = _input.IndexOf(c);
+        var len = _input.IndexOf(c);
         if (len == -1)
         {
-            ReadOnlySpan<byte> ret = _input;
+            var ret = _input;
             _input = [];
             return ret;
         }
         else
         {
-            ReadOnlySpan<byte> ret = _input.Slice(0, len);
-            _input = _input.Slice(len + 1);
+            var ret = _input[..len];
+            _input = _input[(len + 1)..];
             return ret;
         }
     }
@@ -72,17 +72,17 @@ public ref struct SpanReader(ReadOnlySpan<byte> input)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public ReadOnlySpan<byte> ReadUntil(ReadOnlySpan<byte> str)
     {
-        int len = _input.IndexOf(str);
+        var len = _input.IndexOf(str);
         if (len == -1)
         {
-            ReadOnlySpan<byte> ret = _input;
+            var ret = _input;
             _input = [];
             return ret;
         }
         else
         {
-            ReadOnlySpan<byte> ret = _input.Slice(0, len);
-            _input = _input.Slice(len + str.Length);
+            var ret = _input[..len];
+            _input = _input[(len + str.Length)..];
             return ret;
         }
     }
@@ -93,8 +93,8 @@ public ref struct SpanReader(ReadOnlySpan<byte> input)
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public int ReadIntUntil(byte c)
     {
-        int i = 0;
-        bool isNeg = false;
+        var i = 0;
+        var isNeg = false;
         if (_input[i] == '-')
         {
             isNeg = true;
@@ -102,13 +102,13 @@ public ref struct SpanReader(ReadOnlySpan<byte> input)
         }
 
         // we assume the first char is always a digit
-        int ret = _input[i++] - '0';
+        var ret = _input[i++] - '0';
         for (; i < _input.Length; i++)
         {
-            byte cur = _input[i];
+            var cur = _input[i];
             if (cur == c)
             {
-                _input = _input.Slice(i + 1);
+                _input = _input[(i + 1)..];
                 if (isNeg)
                     ret = -ret;
                 return ret;
@@ -130,13 +130,13 @@ public ref struct SpanReader(ReadOnlySpan<byte> input)
     public int ReadPosIntUntil(byte c)
     {
         // we assume the first char is always a digit
-        int ret = _input[0] - '0';
-        for (int i = 1; i < _input.Length; i++)
+        var ret = _input[0] - '0';
+        for (var i = 1; i < _input.Length; i++)
         {
-            byte cur = _input[i];
+            var cur = _input[i];
             if (cur == c)
             {
-                _input = _input.Slice(i + 1);
+                _input = _input[(i + 1)..];
                 return ret;
             }
 
@@ -151,8 +151,8 @@ public ref struct SpanReader(ReadOnlySpan<byte> input)
     public int ReadPosIntUntilEnd()
     {
         // we assume the first char is always a digit
-        int ret = _input[0] - '0';
-        for (int i = 1; i < _input.Length; i++)
+        var ret = _input[0] - '0';
+        for (var i = 1; i < _input.Length; i++)
             ret = ret * 10 + (_input[i] - '0');
 
         _input = [];
@@ -167,12 +167,12 @@ public ref struct SpanReader(ReadOnlySpan<byte> input)
     {
         // we assume the first char is always a digit
         long ret = _input[0] - '0';
-        for (int i = 1; i < _input.Length; i++)
+        for (var i = 1; i < _input.Length; i++)
         {
-            byte cur = _input[i];
+            var cur = _input[i];
             if (cur == c)
             {
-                _input = _input.Slice(i + 1);
+                _input = _input[(i + 1)..];
                 return ret;
             }
 

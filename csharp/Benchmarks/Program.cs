@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Globalization;
 using System.IO;
 using System.Linq;
 using AdventOfCode.CSharp.Benchmarks;
@@ -10,23 +10,23 @@ using BenchmarkDotNet.Running;
 #if DEBUG
 var config = new DebugInProcessConfig();
 #else
-IConfig config = DefaultConfig.Instance;
+var config = DefaultConfig.Instance;
 #endif
-System.Collections.Generic.IEnumerable<Summary> results = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
+var results = BenchmarkSwitcher.FromAssembly(typeof(Program).Assembly).Run(args, config);
 
 var reports = results.Select(ConvertSummaryToReport).ToList();
 
 using var writer = new StreamWriter(File.Create("Benchmarks.md"));
 
-foreach (IGrouping<int, BenchmarkReport> group in reports.GroupBy(r => r.Year))
+foreach (var group in reports.GroupBy(r => r.Year))
 {
     writer.WriteLine($"## {group.Key}");
     writer.WriteLine();
     writer.WriteLine("| Day | P0 | P50 | P100 | Allocations |");
     writer.WriteLine("|--- |---:|---:|---:|---:|");
-    foreach (BenchmarkReport? r in group)
+    foreach (var r in group)
     {
-        writer.WriteLine($"| **{r.Day?.ToString() ?? "All"}** | **{r.P0:N2} μs** | **{r.P50:N2} μs** | **{r.P100:N2} μs** | **{FormatAllocations(r.Allocations)}** |");
+        writer.WriteLine($"| **{r.Day?.ToString(CultureInfo.InvariantCulture) ?? "All"}** | **{r.P0:N2} μs** | **{r.P50:N2} μs** | **{r.P100:N2} μs** | **{FormatAllocations(r.Allocations)}** |");
     }
 
     writer.WriteLine();
@@ -34,34 +34,37 @@ foreach (IGrouping<int, BenchmarkReport> group in reports.GroupBy(r => r.Year))
 
 BenchmarkReport ConvertSummaryToReport(Summary summary)
 {
-    BenchmarkDotNet.Reports.BenchmarkReport report = summary.Reports[0];
-    Type benchmarkClassType = report.BenchmarkCase.Descriptor.Type;
+    var report = summary.Reports[0];
+    var benchmarkClassType = report.BenchmarkCase.Descriptor.Type;
 
     int year;
     int? day;
     if ((benchmarkClassType.BaseType?.IsGenericType ?? false) && (benchmarkClassType.BaseType.GetGenericTypeDefinition() == typeof(SolverBenchmarkBase<>) || benchmarkClassType.BaseType.GetGenericTypeDefinition() == typeof(MultiInputSolverBenchmarkBase<>)))
     {
-        Type solverType = benchmarkClassType.GenericTypeArguments[0];
+        var solverType = benchmarkClassType.GenericTypeArguments[0];
         (year, day) = SolverUtils.GetYearAndDay(solverType);
     }
     else
     {
         // assume that otherwise it is the 2023 All Days (I will fix this to support other years later)
-        year = int.Parse(benchmarkClassType.Name[^4..]);
+        year = int.Parse(benchmarkClassType.Name[^4..], CultureInfo.InvariantCulture);
         day = null;
     }
 
-    BenchmarkDotNet.Mathematics.PercentileValues percentiles = report.ResultStatistics!.Percentiles;
-    double allocations = report.Metrics.Single(m => m.Key.Equals("Allocated Memory")).Value.Value;
+    var percentiles = report.ResultStatistics!.Percentiles;
+    var allocations = report.Metrics.Single(m => m.Key.Equals("Allocated Memory")).Value.Value;
     return new BenchmarkReport(year, day, percentiles.P0 / 1000, percentiles.P50 / 1000, percentiles.P100 / 1000, allocations);
 }
 
-string FormatAllocations(double allocations) => allocations switch
+string FormatAllocations(double allocations)
 {
-    0 => "--",
-    < 1_000 => $"{(int)allocations} B",
-    < 1_000_000 => $"{allocations / 1_000:F1} KB",
-    _ => $"{allocations / 1_000_000:N1} MB",
-};
+    return allocations switch
+    {
+        0 => "--",
+        < 1_000 => $"{(int)allocations} B",
+        < 1_000_000 => $"{allocations / 1_000:F1} KB",
+        _ => $"{allocations / 1_000_000:N1} MB",
+    };
+}
 
 record BenchmarkReport(int Year, int? Day, double P0, double P50, double P100, double Allocations);

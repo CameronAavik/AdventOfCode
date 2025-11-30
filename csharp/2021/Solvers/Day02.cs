@@ -7,17 +7,17 @@ public class Day02 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int horizontal = 0;
-        int part1DepthPart2Aim = 0; // depth for part 1, aim for part 2
-        int part2Depth = 0;
+        var horizontal = 0;
+        var part1DepthPart2Aim = 0; // depth for part 1, aim for part 2
+        var part2Depth = 0;
 
-        int i = 0;
+        var i = 0;
         while (i < input.Length)
         {
             switch (input[i])
             {
                 case (byte)'f': // forward
-                    int amount = CharToValue(input[i + "forward ".Length]);
+                    var amount = CharToValue(input[i + "forward ".Length]);
                     horizontal += amount;
                     part2Depth += part1DepthPart2Aim * amount;
                     i += "forward x\n".Length;

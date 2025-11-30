@@ -7,9 +7,9 @@ public class Day06 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int timesLineEnd = input.IndexOf((byte)'\n');
-        ReadOnlySpan<byte> timesLine = input.Slice(0, timesLineEnd);
-        ReadOnlySpan<byte> distanceLine = input.Slice(timesLineEnd + 1, input.Length - timesLineEnd - 2);
+        var timesLineEnd = input.IndexOf((byte)'\n');
+        var timesLine = input[..timesLineEnd];
+        var distanceLine = input.Slice(timesLineEnd + 1, input.Length - timesLineEnd - 2);
 
         long part1 = 1;
         long part2Time = 0;
@@ -17,24 +17,24 @@ public class Day06 : ISolver
 
         while (timesLine.Length > 0)
         {
-            long time = ParseNum(ref timesLine, ref part2Time);
-            long distance = ParseNum(ref distanceLine, ref part2Distance);
+            var time = ParseNum(ref timesLine, ref part2Time);
+            var distance = ParseNum(ref distanceLine, ref part2Distance);
             part1 *= NumWaysToWin(time, distance);
         }
 
         solution.SubmitPart1(part1);
 
-        long part2 = NumWaysToWin(part2Time, part2Distance);
+        var part2 = NumWaysToWin(part2Time, part2Distance);
         solution.SubmitPart2(part2);
     }
 
     private static long ParseNum(ref ReadOnlySpan<byte> line, ref long part2Var)
     {
         byte c;
-        int nextStart = line.IndexOfAnyInRange((byte)'0', (byte)'9');
-        line = line.Slice(nextStart);
+        var nextStart = line.IndexOfAnyInRange((byte)'0', (byte)'9');
+        line = line[nextStart..];
         long time = 0;
-        int i = 0;
+        var i = 0;
         while (i < line.Length && (c = line[i]) != ' ')
         {
             time = time * 10 + c - '0';
@@ -42,7 +42,7 @@ public class Day06 : ISolver
             i++;
         }
 
-        line = line.Slice(i);
+        line = line[i..];
         return time;
     }
 
@@ -53,10 +53,10 @@ public class Day06 : ISolver
         // time^2 overflows the long on part 2, so we can rewrite it as follows:
         // x = (time +- sqrt(time - 2 * sqrt(distance)) * sqrt(time + 2 * sqrt(distance))) / 2
 
-        double sqrtDistance = Math.Sqrt(distance);
-        double sqrt = Math.Sqrt(time - 2 * sqrtDistance) * Math.Sqrt(time + 2 * sqrtDistance);
-        long low = Convert.ToInt64(Math.Ceiling((time - sqrt) / 2));
-        long high = Convert.ToInt64(Math.Floor((time + sqrt) / 2));
+        var sqrtDistance = Math.Sqrt(distance);
+        var sqrt = Math.Sqrt(time - 2 * sqrtDistance) * Math.Sqrt(time + 2 * sqrtDistance);
+        var low = Convert.ToInt64(Math.Ceiling((time - sqrt) / 2));
+        var high = Convert.ToInt64(Math.Floor((time + sqrt) / 2));
 
         // handle ties or precision issues
 

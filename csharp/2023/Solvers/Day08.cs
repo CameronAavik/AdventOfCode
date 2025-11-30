@@ -5,7 +5,7 @@ using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2023.Solvers;
 
-public class Day08: ISolver
+public class Day08 : ISolver
 {
     /**
      * This solver does not solve the general case, but will work for all actual AoC inputs.
@@ -17,17 +17,16 @@ public class Day08: ISolver
      * 4. The number of steps taken to get to the __Z node always aligns with the number of steps in the input
      * 5. All __Z nodes are part of loops
      **/
-
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int stepsEndIndex = input.IndexOf((byte)'\n');
-        ReadOnlySpan<byte> stepsSpan = input.Slice(0, stepsEndIndex);
-        ReadOnlySpan<byte> mapsSpan = input.Slice(stepsEndIndex + 2);
-        int numMaps = mapsSpan.Count((byte)'\n');
-        int lineLength = "AAA = (BBB, CCC)\n".Length;
+        var stepsEndIndex = input.IndexOf((byte)'\n');
+        var stepsSpan = input[..stepsEndIndex];
+        var mapsSpan = input[(stepsEndIndex + 2)..];
+        var numMaps = mapsSpan.Count((byte)'\n');
+        var lineLength = "AAA = (BBB, CCC)\n".Length;
 
-        byte[] steps = new byte[stepsSpan.Length];
-        for (int i = 0; i < stepsSpan.Length; i++)
+        var steps = new byte[stepsSpan.Length];
+        for (var i = 0; i < stepsSpan.Length; i++)
         {
             if (stepsSpan[i] == 'R')
                 steps[i] = 1;
@@ -35,45 +34,45 @@ public class Day08: ISolver
 
         var startNodes = new List<uint>(8);
         var mappings = new Dictionary<uint, uint>(numMaps);
-        for (int i = 0; i < numMaps; i++)
+        for (var i = 0; i < numMaps; i++)
         {
-            ReadOnlySpan<byte> nodeSpan = mapsSpan.Slice(i * lineLength, 3);
-            uint nodeId = NodeSpanToId(nodeSpan);
+            var nodeSpan = mapsSpan.Slice(i * lineLength, 3);
+            var nodeId = NodeSpanToId(nodeSpan);
             mappings[nodeId] = (uint)i;
             if (nodeSpan[2] == 'Z')
                 startNodes.Add((uint)i);
         }
 
-        uint[] leftPaths = new uint[numMaps];
-        uint[] rightPaths = new uint[numMaps];
+        var leftPaths = new uint[numMaps];
+        var rightPaths = new uint[numMaps];
         uint[][] paths = [leftPaths, rightPaths];
 
-        for (int i = 0; i < numMaps; i++)
+        for (var i = 0; i < numMaps; i++)
         {
-            ReadOnlySpan<byte> lineSpan = mapsSpan.Slice(i * lineLength, lineLength);
-            uint leftNodeId = NodeSpanToId(lineSpan.Slice("AAA = (".Length, 3));
-            uint rightNodeId = NodeSpanToId(lineSpan.Slice("AAA = (BBB, ".Length, 3));
+            var lineSpan = mapsSpan.Slice(i * lineLength, lineLength);
+            var leftNodeId = NodeSpanToId(lineSpan.Slice("AAA = (".Length, 3));
+            var rightNodeId = NodeSpanToId(lineSpan.Slice("AAA = (BBB, ".Length, 3));
             leftPaths[i] = mappings[leftNodeId];
             rightPaths[i] = mappings[rightNodeId];
         }
 
         Span<uint> curNodes = startNodes.ToArray();
 
-        uint zzzNodeId = mappings[NodeSpanToId("ZZZ"u8)];
+        var zzzNodeId = mappings[NodeSpanToId("ZZZ"u8)];
         ulong part2 = 1;
 
-        int stepCount = 0;
+        var stepCount = 0;
         while (true)
         {
-            foreach (byte step in steps)
+            foreach (var step in steps)
             {
-                uint[] path = paths[step];
-                for (int j = 0; j < curNodes.Length; j++)
+                var path = paths[step];
+                for (var j = 0; j < curNodes.Length; j++)
                     curNodes[j] = path[curNodes[j]];
             }
 
             stepCount += steps.Length;
-            for (int j = 0; j < curNodes.Length; j++)
+            for (var j = 0; j < curNodes.Length; j++)
             {
                 if (startNodes[j] == curNodes[j])
                 {
@@ -85,9 +84,9 @@ public class Day08: ISolver
                     // remove the node from the list of curNodes
                     if (curNodes.Length > 1)
                     {
-                        curNodes[j] = curNodes[curNodes.Length - 1];
+                        curNodes[j] = curNodes[^1];
                         startNodes[j] = startNodes[curNodes.Length - 1];
-                        curNodes = curNodes.Slice(0, curNodes.Length - 1);
+                        curNodes = curNodes[..^1];
                         j--;
                     }
                     else
@@ -108,7 +107,7 @@ public class Day08: ISolver
         {
             while (right != 0)
             {
-                ulong temp = left % right;
+                var temp = left % right;
                 left = right;
                 right = temp;
             }

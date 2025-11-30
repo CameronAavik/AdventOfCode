@@ -8,46 +8,39 @@ public class Day15 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         // really big array since much faster than a dictionary
-        int[] buffer = new int[30000000];
+        var buffer = new int[30000000];
 
-        int i = 1;
+        var i = 1;
         var reader = new SpanReader(input.TrimEnd((byte)'\n'));
         while (!reader.Done)
             buffer[reader.ReadPosIntUntil(',')] = i++;
 
-        int cur = 0;
+        var cur = 0;
         while (i < 2020)
         {
-            int prev_t = buffer[cur];
-            int value = prev_t == 0 ? 0 : i - prev_t;
+            var prev_t = buffer[cur];
+            var value = prev_t == 0 ? 0 : i - prev_t;
             buffer[cur] = i++;
             cur = value;
         }
 
-        int minZero = 0;
+        var minZero = 0;
         while (buffer[minZero] != 0)
             minZero++;
 
-        int part1 = cur;
+        var part1 = cur;
 
         // we use step to control how frequently we recalculate the smallest seen zero
         const int step = 2048;
         for (; i + step < 30000000; i += step)
         {
-            for (int j = i; j < i + step; j++)
+            for (var j = i; j < i + step; j++)
             {
-                int prev = buffer[cur];
+                var prev = buffer[cur];
                 buffer[cur] = j;
 
                 // while comparing against minZero might seem redundant, it makes the branch much more predictable and saves a lot of time
-                if (cur < minZero || prev != 0)
-                {
-                    cur = j - prev;
-                }
-                else
-                {
-                    cur = 0;
-                }
+                cur = cur < minZero || prev != 0 ? j - prev : 0;
             }
 
             while (buffer[minZero] != 0)
@@ -57,13 +50,13 @@ public class Day15 : ISolver
         // since 30000000 is not always divisible by the step, we use one last loop to get to the end
         for (; i < 30000000; i++)
         {
-            int prev_t = buffer[cur];
-            int value = prev_t == 0 ? 0 : i - prev_t;
+            var prev_t = buffer[cur];
+            var value = prev_t == 0 ? 0 : i - prev_t;
             buffer[cur] = i;
             cur = value;
         }
 
-        int part2 = cur;
+        var part2 = cur;
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);

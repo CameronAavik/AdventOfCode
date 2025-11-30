@@ -18,18 +18,18 @@ public class Day01 : ISolver
         const ushort yOrigin = 1 << 15;
 
         // pack the x and y ushorts into a uint
-        uint pos = unchecked((uint)xOrigin << 16 | yOrigin);
-        uint dir = Up;
+        var pos = unchecked((uint)xOrigin << 16 | yOrigin);
+        var dir = Up;
 
         var seenLocations = new HashSet<uint> { pos };
-        int distanceToFirstRepeatedLocation = -1;
+        var distanceToFirstRepeatedLocation = -1;
         var reader = new SpanReader(input.TrimEnd((byte)'\n'));
         while (true)
         {
             dir = MakeTurn(dir, reader.Peek() == 'L');
             reader.SkipLength(1);
 
-            uint distance = (uint)reader.ReadPosIntUntil(',');
+            var distance = (uint)reader.ReadPosIntUntil(',');
             if (distanceToFirstRepeatedLocation == -1)
             {
                 for (uint i = 0; i < distance; i++)
@@ -52,24 +52,27 @@ public class Day01 : ISolver
             reader.SkipLength(1);
         }
 
-        int distanceToDestination = ManhattanDistance(pos);
+        var distanceToDestination = ManhattanDistance(pos);
 
         solution.SubmitPart1(distanceToDestination);
         solution.SubmitPart2(distanceToFirstRepeatedLocation);
 
-        static uint MakeTurn(uint dir, bool isLeft) => dir switch
+        static uint MakeTurn(uint dir, bool isLeft)
         {
-            Left => isLeft ? Down : Up,
-            Down => isLeft ? Right : Left,
-            Right => isLeft ? Up : Down,
-            Up => isLeft ? Left : Right,
-            _ => default,
-        };
+            return dir switch
+            {
+                Left => isLeft ? Down : Up,
+                Down => isLeft ? Right : Left,
+                Right => isLeft ? Up : Down,
+                Up => isLeft ? Left : Right,
+                _ => default,
+            };
+        }
 
         static int ManhattanDistance(uint pos)
         {
-            int xAbs = Math.Abs((int)(pos >> 16) - xOrigin);
-            int yAbs = Math.Abs((int)(pos & 0xFFFF) - yOrigin);
+            var xAbs = Math.Abs((int)(pos >> 16) - xOrigin);
+            var yAbs = Math.Abs((int)(pos & 0xFFFF) - yOrigin);
             return xAbs + yAbs;
         }
     }

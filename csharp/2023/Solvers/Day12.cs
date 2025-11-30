@@ -20,24 +20,24 @@ public class Day12 : ISolver
         long part1 = 0;
         long part2 = 0;
 
-        long[][] waysCache = new long[128][];
-        for (int i = 0; i < waysCache.Length; i++)
+        var waysCache = new long[128][];
+        for (var i = 0; i < waysCache.Length; i++)
             waysCache[i] = new long[48];
 
-        ulong[] nonZeroCounts = new ulong[128];
+        var nonZeroCounts = new ulong[128];
 
         while (input.Length > 0)
         {
-            int lineSpringsEnd = input.IndexOf((byte)' ');
-            ReadOnlySpan<byte> lineSprings = input.Slice(0, lineSpringsEnd);
-            input = input.Slice(lineSpringsEnd + 1);
+            var lineSpringsEnd = input.IndexOf((byte)' ');
+            var lineSprings = input[..lineSpringsEnd];
+            input = input[(lineSpringsEnd + 1)..];
 
-            int numGroups = 0;
-            int num = input[0] - '0';
-            int index = 1;
+            var numGroups = 0;
+            var num = input[0] - '0';
+            var index = 1;
             while (true)
             {
-                byte c = input[index++];
+                var c = input[index++];
                 if (c >= '0')
                 {
                     num = 10 * num + c - '0';
@@ -52,21 +52,21 @@ public class Day12 : ISolver
                 }
             }
 
-            input = input.Slice(index);
+            input = input[index..];
 
-            int newSpringLen = 5 * lineSprings.Length + 4;
-            int newNumGroups = 5 * numGroups;
-            for (int i = 0; i < newSpringLen; i += lineSprings.Length + 1)
+            var newSpringLen = 5 * lineSprings.Length + 4;
+            var newNumGroups = 5 * numGroups;
+            for (var i = 0; i < newSpringLen; i += lineSprings.Length + 1)
             {
-                lineSprings.CopyTo(springs.Slice(i));
+                lineSprings.CopyTo(springs[i..]);
                 if (i + lineSprings.Length != newSpringLen)
                     springs[i + lineSprings.Length] = (byte)'?';
             }
 
-            for (int i = numGroups; i < newNumGroups; i += numGroups)
-                contiguousGroups.Slice(0, numGroups).CopyTo(contiguousGroups.Slice(i, numGroups));
+            for (var i = numGroups; i < newNumGroups; i += numGroups)
+                contiguousGroups[..numGroups].CopyTo(contiguousGroups.Slice(i, numGroups));
 
-            CountWays(springs.Slice(0, newSpringLen), contiguousGroups.Slice(0, newNumGroups), waysCache, nonZeroCounts, ref part1, ref part2);
+            CountWays(springs[..newSpringLen], contiguousGroups[..newNumGroups], waysCache, nonZeroCounts, ref part1, ref part2);
         }
 
         solution.SubmitPart1(part1);
@@ -75,27 +75,27 @@ public class Day12 : ISolver
 
     private static void CountWays(ReadOnlySpan<byte> springs, ReadOnlySpan<int> contiguousGroups, long[][] waysCache, ulong[] nonZeroCounts, ref long part1, ref long part2)
     {
-        for (int i = 0; i <= springs.Length; i++)
-            waysCache[i].AsSpan().Slice(0, contiguousGroups.Length + 1).Clear();
-        nonZeroCounts.AsSpan().Slice(0, springs.Length + 1).Clear();
+        for (var i = 0; i <= springs.Length; i++)
+            waysCache[i].AsSpan()[..(contiguousGroups.Length + 1)].Clear();
+        nonZeroCounts.AsSpan()[..(springs.Length + 1)].Clear();
         waysCache[springs.Length][contiguousGroups.Length] = 1;
         nonZeroCounts[springs.Length] |= 1UL << contiguousGroups.Length;
 
         byte maxGroupIndex = 0;
-        byte[] maxGroupsPerSpring = new byte[springs.Length + 1];
+        var maxGroupsPerSpring = new byte[springs.Length + 1];
 
-        for (int i = 1; i <= springs.Length; i++)
+        for (var i = 1; i <= springs.Length; i++)
         {
-            byte c = springs[springs.Length - i];
+            var c = springs[^i];
 
             if (maxGroupIndex < contiguousGroups.Length && (c is (byte)'#' or (byte)'?'))
             {
-                bool matchesNum = true;
-                int groupSize = contiguousGroups[contiguousGroups.Length - maxGroupIndex - 1] - 1;
-                for (int j = 0; j < groupSize; j++)
+                var matchesNum = true;
+                var groupSize = contiguousGroups[contiguousGroups.Length - maxGroupIndex - 1] - 1;
+                for (var j = 0; j < groupSize; j++)
                 {
                     maxGroupsPerSpring[i++] = maxGroupIndex;
-                    c = springs[springs.Length - i];
+                    c = springs[^i];
                     if (c == '.')
                     {
                         matchesNum = false;
@@ -119,17 +119,17 @@ public class Day12 : ISolver
                 maxGroupsPerSpring[i] = maxGroupIndex;
         }
 
-        int endingSprings = springs.Length - springs.LastIndexOf((byte)'#') - 1;
-        for (int i = springs.Length; i >= 0; i--)
+        var endingSprings = springs.Length - springs.LastIndexOf((byte)'#') - 1;
+        for (var i = springs.Length; i >= 0; i--)
         {
-            long[] groupCache = waysCache[i];
-            ulong nonZeroCount = nonZeroCounts[i] & ~1UL & ((1UL << (maxGroupsPerSpring[i] + 1)) - 1);
+            var groupCache = waysCache[i];
+            var nonZeroCount = nonZeroCounts[i] & ~1UL & ((1UL << (maxGroupsPerSpring[i] + 1)) - 1);
             while (nonZeroCount != 0)
             {
-                ulong t = nonZeroCount & (~nonZeroCount + 1);
-                int j = BitOperations.TrailingZeroCount(t);
+                var t = nonZeroCount & (~nonZeroCount + 1);
+                var j = BitOperations.TrailingZeroCount(t);
 
-                byte currentSpring = springs[springs.Length - i];
+                var currentSpring = springs[^i];
                 if (currentSpring != '#')
                 {
                     waysCache[i - 1][j] += groupCache[j];
@@ -138,7 +138,7 @@ public class Day12 : ISolver
 
                 if (currentSpring != '.')
                 {
-                    int nextGroupSize = contiguousGroups[contiguousGroups.Length - j];
+                    var nextGroupSize = contiguousGroups[^j];
                     if (!springs.Slice(springs.Length - i + 1, nextGroupSize - 1).Contains((byte)'.'))
                     {
                         if (j == 1)
@@ -159,7 +159,7 @@ public class Day12 : ISolver
         }
 
         part1 += waysCache[4 * (springs.Length / 5) + 3][4 * (contiguousGroups.Length / 5)];
-        for (int i = endingSprings; i >= 0; i--)
+        for (var i = endingSprings; i >= 0; i--)
             part2 += waysCache[i][0];
     }
 }

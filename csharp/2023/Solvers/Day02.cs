@@ -7,13 +7,13 @@ public class Day02 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
-        int gameId = 1;
+        var gameId = 1;
         while (input.Length > 1)
         {
-            ParseLine(ref input, gameId, out int maxR, out int maxB, out int maxG);
+            ParseLine(ref input, gameId, out var maxR, out var maxB, out var maxG);
 
             if (maxR <= 12 && maxG <= 13 && maxB <= 14)
                 part1 += gameId;
@@ -33,14 +33,14 @@ public class Day02 : ISolver
         maxG = 0;
 
         // skip the "Game 1" part
-        input = input.Slice("Game ".Length + (gameId < 10 ? 1 : (gameId < 100 ? 2 : 3)));
+        input = input[("Game ".Length + (gameId < 10 ? 1 : (gameId < 100 ? 2 : 3)))..];
 
         while (input[0] != '\n')
         {
             // Parse integer
             byte c;
-            int amt = input[2] - '0'; // look at input[2] to skip ": " or ", " or "; "
-            int i = 3;
+            var amt = input[2] - '0'; // look at input[2] to skip ": " or ", " or "; "
+            var i = 3;
             while ((c = input[i++]) != ' ')
                 amt = 10 * amt + (c - '0');
 
@@ -48,20 +48,20 @@ public class Day02 : ISolver
             {
                 case (byte)'r':
                     maxR = Math.Max(maxR, amt);
-                    input = input.Slice(i + "red".Length);
+                    input = input[(i + "red".Length)..];
                     break;
                 case (byte)'g':
                     maxG = Math.Max(maxG, amt);
-                    input = input.Slice(i + "green".Length);
+                    input = input[(i + "green".Length)..];
                     break;
                 case (byte)'b':
                     maxB = Math.Max(maxB, amt);
-                    input = input.Slice(i + "blue".Length);
+                    input = input[(i + "blue".Length)..];
                     break;
             }
         }
 
-        input = input.Slice(1);
+        input = input[1..];
         return input;
     }
 }

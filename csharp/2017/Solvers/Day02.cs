@@ -8,28 +8,28 @@ public class Day02 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
         var nums = new List<int>();
-        foreach (Range rowRange in input.SplitLines())
+        foreach (var rowRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> row = input[rowRange];
-            int minValue = int.MaxValue;
-            int maxValue = int.MinValue;
-            int quotient = 0;
+            var row = input[rowRange];
+            var minValue = int.MaxValue;
+            var maxValue = int.MinValue;
+            var quotient = 0;
 
             nums.Clear();
             var rowReader = new SpanReader(row);
             while (!rowReader.Done)
             {
-                int cell = rowReader.ReadPosIntUntil('\t');
+                var cell = rowReader.ReadPosIntUntil('\t');
                 minValue = Math.Min(minValue, cell);
                 maxValue = Math.Max(maxValue, cell);
 
                 if (quotient == 0)
                 {
-                    foreach (int num in nums)
+                    foreach (var num in nums)
                     {
                         if (cell % num == 0)
                         {

@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 
 namespace AdventOfCode.CSharp.Common;
 
@@ -40,14 +39,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             ThrowHelper.ThrowArgumentOutOfRangeException(nameof(initialCapacity));
         }
 
-        if (initialCapacity == 0)
-        {
-            _heap = [];
-        }
-        else
-        {
-            _heap = new HeapEntry[initialCapacity];
-        }
+        _heap = initialCapacity == 0 ? [] : (new HeapEntry[initialCapacity]);
 
         _index = new Dictionary<TElement, int>(initialCapacity, comparer: elementComparer);
         Comparer = priorityComparer ?? Comparer<TPriority>.Default;
@@ -114,7 +106,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
         }
 
         _version++;
-        RemoveIndex(index: 0, out TElement result, out TPriority _);
+        RemoveIndex(index: 0, out var result, out var _);
         return result;
     }
 
@@ -148,15 +140,15 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             ThrowHelper.ThrowInvalidOperationException("Duplicate element");
         }
 
-        ref HeapEntry minEntry = ref _heap[0];
+        ref var minEntry = ref _heap[0];
         if (Comparer.Compare(priority, minEntry.Priority) <= 0)
         {
             return element;
         }
 
         _version++;
-        TElement minElement = minEntry.Element;
-        bool result = _index.Remove(minElement);
+        var minElement = minEntry.Element;
+        var result = _index.Remove(minElement);
         Debug.Assert(result, "could not find element in index");
         SiftDown(index: 0, in element, in priority);
         return minElement;
@@ -181,19 +173,19 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
 
     public bool TryRemove(TElement element)
     {
-        if (!_index.TryGetValue(element, out int index))
+        if (!_index.TryGetValue(element, out var index))
         {
             return false;
         }
 
         _version++;
-        RemoveIndex(index, out TElement _, out TPriority _);
+        RemoveIndex(index, out var _, out var _);
         return true;
     }
 
     public bool TryUpdate(TElement element, TPriority priority)
     {
-        if (!_index.TryGetValue(element, out int index))
+        if (!_index.TryGetValue(element, out var index))
         {
             return false;
         }
@@ -206,7 +198,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
     public void EnqueueOrUpdate(TElement element, TPriority priority)
     {
         _version++;
-        if (_index.TryGetValue(element, out int index))
+        if (_index.TryGetValue(element, out var index))
         {
             UpdateIndex(index, priority);
         }
@@ -237,11 +229,11 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
 
         public bool MoveNext()
         {
-            PrioritySet<TElement, TPriority> queue = _queue;
+            var queue = _queue;
 
             if (queue._version == _version && _index < queue.Count)
             {
-                ref HeapEntry entry = ref queue._heap[_index];
+                ref var entry = ref queue._heap[_index];
                 _current = (entry.Element, entry.Priority);
                 _index++;
                 return true;
@@ -278,11 +270,11 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
 
     private void Heapify()
     {
-        HeapEntry[] heap = _heap;
+        var heap = _heap;
 
-        for (int i = (Count - 1) >> 2; i >= 0; i--)
+        for (var i = (Count - 1) >> 2; i >= 0; i--)
         {
-            HeapEntry entry = heap[i]; // ensure struct is copied before sifting
+            var entry = heap[i]; // ensure struct is copied before sifting
             SiftDown(i, in entry.Element, in entry.Priority);
         }
     }
@@ -303,8 +295,8 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
 
         (element, priority) = _heap[index];
 
-        int lastElementPos = --Count;
-        ref HeapEntry lastElement = ref _heap[lastElementPos];
+        var lastElementPos = --Count;
+        ref var lastElement = ref _heap[lastElementPos];
 
         if (lastElementPos > 0)
         {
@@ -316,14 +308,14 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             lastElement = default;
         }
 
-        bool result = _index.Remove(element);
+        var result = _index.Remove(element);
         Debug.Assert(result, "could not find element in index");
     }
 
     private void UpdateIndex(int index, TPriority newPriority)
     {
         TElement element;
-        ref HeapEntry entry = ref _heap[index];
+        ref var entry = ref _heap[index];
 
         switch (Comparer.Compare(newPriority, entry.Priority))
         {
@@ -348,11 +340,11 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
     private void AppendRaw(IEnumerable<(TElement Element, TPriority Priority)> values)
     {
         // TODO: specialize on ICollection types
-        PrioritySet<TElement, TPriority>.HeapEntry[] heap = _heap;
-        Dictionary<TElement, int> index = _index;
-        int count = Count;
+        var heap = _heap;
+        var index = _index;
+        var count = Count;
 
-        foreach ((TElement element, TPriority priority) in values)
+        foreach ((var element, var priority) in values)
         {
             if (count == heap.Length)
             {
@@ -364,7 +356,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
                 ThrowHelper.ThrowArgumentException("duplicate elements", nameof(values));
             }
 
-            ref HeapEntry entry = ref heap[count];
+            ref var entry = ref heap[count];
             entry.Element = element;
             entry.Priority = priority;
             count++;
@@ -378,8 +370,8 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
     {
         while (index > 0)
         {
-            int parentIndex = (index - 1) >> 2;
-            ref HeapEntry parent = ref _heap[parentIndex];
+            var parentIndex = (index - 1) >> 2;
+            ref var parent = ref _heap[parentIndex];
 
             if (Comparer.Compare(parent.Priority, priority) <= 0)
             {
@@ -392,7 +384,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             index = parentIndex;
         }
 
-        ref HeapEntry entry = ref _heap[index];
+        ref var entry = ref _heap[index];
         entry.Element = element;
         entry.Priority = priority;
         _index[element] = index;
@@ -401,18 +393,18 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
     private void SiftDown(int index, in TElement element, in TPriority priority)
     {
         int minChildIndex;
-        int count = Count;
-        HeapEntry[] heap = _heap;
+        var count = Count;
+        var heap = _heap;
 
         while ((minChildIndex = (index << 2) + 1) < count)
         {
             // find the child with the minimal priority
-            ref HeapEntry minChild = ref heap[minChildIndex];
-            int childUpperBound = Math.Min(count, minChildIndex + 4);
+            ref var minChild = ref heap[minChildIndex];
+            var childUpperBound = Math.Min(count, minChildIndex + 4);
 
-            for (int nextChildIndex = minChildIndex + 1; nextChildIndex < childUpperBound; nextChildIndex++)
+            for (var nextChildIndex = minChildIndex + 1; nextChildIndex < childUpperBound; nextChildIndex++)
             {
-                ref HeapEntry nextChild = ref heap[nextChildIndex];
+                ref var nextChild = ref heap[nextChildIndex];
                 if (Comparer.Compare(nextChild.Priority, minChild.Priority) < 0)
                 {
                     minChildIndex = nextChildIndex;
@@ -432,7 +424,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
             index = minChildIndex;
         }
 
-        ref HeapEntry entry = ref heap[index];
+        ref var entry = ref heap[index];
         entry.Element = element;
         entry.Priority = priority;
         _index[element] = index;
@@ -440,7 +432,7 @@ public class PrioritySet<TElement, TPriority> : IReadOnlyCollection<(TElement El
 
     private static void Resize(ref HeapEntry[] heap)
     {
-        int newSize = heap.Length == 0 ? DefaultCapacity : 2 * heap.Length;
+        var newSize = heap.Length == 0 ? DefaultCapacity : 2 * heap.Length;
         Array.Resize(ref heap, newSize);
     }
 

@@ -1,8 +1,8 @@
 ﻿module Year2016Day24
 
 open AdventOfCode.FSharp.Common
-open GraphFS.Graph
-open GraphFS.Algorithms.ShortestPath
+open AdventOfCode.FSharp.GraphFS.Graph
+open AdventOfCode.FSharp.GraphFS.ShortestPath
 
 type Space = Wall | Open | Location of int
 let parseSpace c =

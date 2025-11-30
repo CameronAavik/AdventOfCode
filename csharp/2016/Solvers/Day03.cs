@@ -8,14 +8,14 @@ public class Day03 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1Total = 0;
-        int part2Total = 0;
+        var part1Total = 0;
+        var part2Total = 0;
 
-        int part2SideNum = 0;
+        var part2SideNum = 0;
         Span<int> prevSides = stackalloc int[6];
-        foreach (Range lineRange in input.SplitLines())
+        foreach (var lineRange in input.SplitLines())
         {
-            ParseLine(input[lineRange], out int side1, out int side2, out int side3);
+            ParseLine(input[lineRange], out var side1, out var side2, out var side3);
 
             if (IsValidTriangle(side1, side2, side3))
             {

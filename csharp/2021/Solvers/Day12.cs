@@ -23,12 +23,12 @@ public class Day12 : ISolver
         // number of ways to get from one small cave to another only using direct connections or through large caves.
         // e.g. "(caveEdges[2] >> (5 * 4)) & 0b1111" returns the number of ways to get from cave 2 to cave 5. Caves 0
         // and 1 are the 'start' and 'end' cave, and remaining entries are the other small caves.
-        long[] caveEdges = GetCaveEdgesFromInput(input).ToArray();
-        int[] caveAdjacencies = new int[caveEdges.Length];
-        for (int i = 0; i < caveEdges.Length; i++)
+        var caveEdges = GetCaveEdgesFromInput(input).ToArray();
+        var caveAdjacencies = new int[caveEdges.Length];
+        for (var i = 0; i < caveEdges.Length; i++)
         {
-            long edge = caveEdges[i];
-            for (int j = 1; j < caveEdges.Length; j++)
+            var edge = caveEdges[i];
+            for (var j = 1; j < caveEdges.Length; j++)
             {
                 if (((edge >> (j * 4)) & 0b1111) > 0)
                     caveAdjacencies[i] |= 1 << j;
@@ -37,11 +37,11 @@ public class Day12 : ISolver
 
         var cache = new Dictionary<State, int>();
 
-        int startingAvailableCaves = (1 << caveEdges.Length) - 2; // all caves available, except start
-        int part1 = GetPaths(new State(startingAvailableCaves, CanRepeat: false, CurrentCave: 0));
+        var startingAvailableCaves = (1 << caveEdges.Length) - 2; // all caves available, except start
+        var part1 = GetPaths(new State(startingAvailableCaves, CanRepeat: false, CurrentCave: 0));
         solution.SubmitPart1(part1);
 
-        int part2 = GetPaths(new State(startingAvailableCaves, CanRepeat: true, CurrentCave: 0));
+        var part2 = GetPaths(new State(startingAvailableCaves, CanRepeat: true, CurrentCave: 0));
         solution.SubmitPart2(part2);
 
         int GetPaths(State state)
@@ -50,17 +50,17 @@ public class Day12 : ISolver
             if (state.CurrentCave == 1)
                 return 1;
 
-            if (!cache.TryGetValue(state, out int numPaths))
+            if (!cache.TryGetValue(state, out var numPaths))
             {
-                int adjacencies = caveAdjacencies[state.CurrentCave];
-                long edgeCounts = caveEdges[state.CurrentCave];
-                int availableCaves = state.AvailableCaves & adjacencies;
-                int total = 0;
+                var adjacencies = caveAdjacencies[state.CurrentCave];
+                var edgeCounts = caveEdges[state.CurrentCave];
+                var availableCaves = state.AvailableCaves & adjacencies;
+                var total = 0;
                 while (availableCaves != 0)
                 {
-                    int t = availableCaves & -availableCaves;
-                    int caveId = BitOperations.TrailingZeroCount(availableCaves);
-                    int edgeCount = (int)((edgeCounts >> (caveId * 4)) & 0b1111);
+                    var t = availableCaves & -availableCaves;
+                    var caveId = BitOperations.TrailingZeroCount(availableCaves);
+                    var edgeCount = (int)((edgeCounts >> (caveId * 4)) & 0b1111);
 
                     total += edgeCount * GetPaths(new State(state.AvailableCaves ^ t, state.CanRepeat, caveId));
                     availableCaves ^= t;
@@ -72,9 +72,9 @@ public class Day12 : ISolver
                     availableCaves = ~state.AvailableCaves & adjacencies;
                     while (availableCaves != 0)
                     {
-                        int t = availableCaves & -availableCaves;
-                        int caveId = BitOperations.TrailingZeroCount(availableCaves);
-                        int edgeCount = (int)((edgeCounts >> (caveId * 4)) & 0b1111);
+                        var t = availableCaves & -availableCaves;
+                        var caveId = BitOperations.TrailingZeroCount(availableCaves);
+                        var edgeCount = (int)((edgeCounts >> (caveId * 4)) & 0b1111);
 
                         total += edgeCount * GetPaths(new State(state.AvailableCaves, false, caveId));
 
@@ -91,18 +91,18 @@ public class Day12 : ISolver
 
     private static ReadOnlySpan<long> GetCaveEdgesFromInput(ReadOnlySpan<byte> input)
     {
-        int numSmall = 2; // starts off with 2 for start and end
-        int numBig = 0;
+        var numSmall = 2; // starts off with 2 for start and end
+        var numBig = 0;
         var caveLookup = new Dictionary<string, Cave>();
 
-        long[] caveEdges = new long[16];
-        long[] bigToSmallCaveEdges = new long[16];
+        var caveEdges = new long[16];
+        var bigToSmallCaveEdges = new long[16];
 
-        int inputCursor = 0;
-        while (TryReadLine(input, ref inputCursor, out ReadOnlySpan<byte> from, out ReadOnlySpan<byte> to))
+        var inputCursor = 0;
+        while (TryReadLine(input, ref inputCursor, out var from, out var to))
         {
-            Cave fromCave = ParseCave(from);
-            Cave toCave = ParseCave(to);
+            var fromCave = ParseCave(from);
+            var toCave = ParseCave(to);
 
             if (fromCave.IsBig)
             {
@@ -119,18 +119,18 @@ public class Day12 : ISolver
             }
         }
 
-        for (int i = 0; i < numBig; i++)
+        for (var i = 0; i < numBig; i++)
         {
-            long bigToSmall = bigToSmallCaveEdges[i];
-            for (int j = 0; j < numSmall; j++)
+            var bigToSmall = bigToSmallCaveEdges[i];
+            for (var j = 0; j < numSmall; j++)
             {
-                long caveFlag = 1L << (4 * j);
+                var caveFlag = 1L << (4 * j);
                 if ((bigToSmall & caveFlag) > 0)
                     caveEdges[j] += bigToSmall;
             }
         }
 
-        return caveEdges.AsSpan().Slice(0, numSmall);
+        return caveEdges.AsSpan()[..numSmall];
 
         static bool TryReadLine(ReadOnlySpan<byte> input, ref int cursor, out ReadOnlySpan<byte> from, out ReadOnlySpan<byte> to)
         {
@@ -141,12 +141,12 @@ public class Day12 : ISolver
                 return false;
             }
 
-            int dashIndex = input.Slice(cursor).IndexOf((byte)'-');
+            var dashIndex = input[cursor..].IndexOf((byte)'-');
             from = input.Slice(cursor, dashIndex);
 
             cursor += dashIndex + 1;
 
-            int newLineIndex = input.Slice(cursor).IndexOf((byte)'\n');
+            var newLineIndex = input[cursor..].IndexOf((byte)'\n');
             to = input.Slice(cursor, newLineIndex);
 
             cursor += newLineIndex + 1;
@@ -161,12 +161,12 @@ public class Day12 : ISolver
             if (caveName.SequenceEqual("end"u8))
                 return Cave.End;
 
-            string caveNameString = Encoding.ASCII.GetString(caveName);
-            if (caveLookup.TryGetValue(caveNameString, out Cave cave))
+            var caveNameString = Encoding.ASCII.GetString(caveName);
+            if (caveLookup.TryGetValue(caveNameString, out var cave))
                 return cave;
 
-            bool isBig = caveName[0] is >= (byte)'A' and <= (byte)'Z';
-            int id = isBig ? numBig++ : numSmall++;
+            var isBig = caveName[0] is >= (byte)'A' and <= (byte)'Z';
+            var id = isBig ? numBig++ : numSmall++;
             return caveLookup[caveNameString] = new(isBig, id);
         }
     }

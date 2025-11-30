@@ -14,11 +14,11 @@ public class Day11 : ISolver
         // hits 10, the second highest bit will be 1, making it easy to tell if an octopus can be flashed.
         Span<long> rows = stackalloc long[10];
 
-        int cursor = 0;
-        for (int i = 0; i < 10; i++)
+        var cursor = 0;
+        for (var i = 0; i < 10; i++)
         {
             long row = 0;
-            for (int j = 0; j < 10; j++)
+            for (var j = 0; j < 10; j++)
             {
                 row <<= 6; // Shift the current row up by 6 bits, leaving the bottom 6 bits for the new octopus.
                 row |= 1 << 5; // set flag indicating that the octopus has not flashed yet.
@@ -29,13 +29,13 @@ public class Day11 : ISolver
             cursor++;
         }
 
-        int totalFlashes = 0;
-        for (int step = 0; step < 100; step++)
+        var totalFlashes = 0;
+        for (var step = 0; step < 100; step++)
             totalFlashes += Step(rows);
 
         solution.SubmitPart1(totalFlashes);
 
-        int step2 = 100;
+        var step2 = 100;
         while (Step(rows) != 100)
             step2++;
 
@@ -50,34 +50,34 @@ public class Day11 : ISolver
         const long isUnflashedFlagMask = octopusLowestBitMask << 5;
         const long bottomNineOctopiMask = (1L << 54) - 1;
 
-        for (int i = 0; i < 10; i++)
+        for (var i = 0; i < 10; i++)
         {
-            long row = rows[i];
+            var row = rows[i];
 
             // Mask for octopi that still have the unflashed flag set
-            long unflashedOctopiMask = ((row & isUnflashedFlagMask) >> 5) * 0b111111;
-            long flashedOctopiMask = ~unflashedOctopiMask;
+            var unflashedOctopiMask = ((row & isUnflashedFlagMask) >> 5) * 0b111111;
+            var flashedOctopiMask = ~unflashedOctopiMask;
 
             // For each unflashed octopus, add 1 to their energy level
-            long unflashedOctopiWithLevelIncrease = unflashedOctopiMask & (row + octopusLowestBitMask);
+            var unflashedOctopiWithLevelIncrease = unflashedOctopiMask & (row + octopusLowestBitMask);
 
             // For each flashed octopus, set the energy level to 1 (7 after offset by 6) and with the unflashed bit flag set back to 1.
-            long flashedOctopiAfterReest = flashedOctopiMask & flashResetMask;
+            var flashedOctopiAfterReest = flashedOctopiMask & flashResetMask;
 
             rows[i] = unflashedOctopiWithLevelIncrease | flashedOctopiAfterReest;
         }
 
-        int stepFlashes = 0;
+        var stepFlashes = 0;
         int flashes;
         do
         {
             flashes = 0;
 
             // Handle first row
-            long firstRow = rows[0];
+            var firstRow = rows[0];
 
             // Get a 1 in the lowest bit for each octopus that can be flashed
-            long firstRowCanBeFlashed = (firstRow & canBeFlashedFlagMask) >> 4;
+            var firstRowCanBeFlashed = (firstRow & canBeFlashedFlagMask) >> 4;
             flashes += BitOperations.PopCount((ulong)firstRowCanBeFlashed);
 
             // Set flashed octopi to 0
@@ -87,12 +87,12 @@ public class Day11 : ISolver
             firstRow += firstRowCanBeFlashed >> 6;
             firstRow += (firstRowCanBeFlashed & bottomNineOctopiMask) << 6;
 
-            long prevRow = firstRow;
-            long prevRowFlashed = firstRowCanBeFlashed;
+            var prevRow = firstRow;
+            var prevRowFlashed = firstRowCanBeFlashed;
 
-            for (int i = 1; i < 10; i++)
+            for (var i = 1; i < 10; i++)
             {
-                long row = rows[i];
+                var row = rows[i];
 
                 // Handle flashes from previous row
                 row += prevRowFlashed;
@@ -100,7 +100,7 @@ public class Day11 : ISolver
                 row += (prevRowFlashed & bottomNineOctopiMask) << 6;
 
                 // Get a 1 in the lowest bit for each octopus that can be flashed
-                long canBeFlashed = (row & canBeFlashedFlagMask) >> 4;
+                var canBeFlashed = (row & canBeFlashedFlagMask) >> 4;
 
                 if (canBeFlashed > 0)
                 {

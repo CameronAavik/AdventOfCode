@@ -39,28 +39,28 @@ public class Day23 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        Node[] graph = GetGraph(input, out int baseDistance);
+        var graph = GetGraph(input, out var baseDistance);
 
-        int part1 = baseDistance + SolvePart1(graph);
+        var part1 = baseDistance + SolvePart1(graph);
         solution.SubmitPart1(part1);
 
-        int part2 = baseDistance + SolvePart2(graph);
+        var part2 = baseDistance + SolvePart2(graph);
         solution.SubmitPart2(part2);
     }
 
     private static Node[] GetGraph(ReadOnlySpan<byte> input, out int baseDistance)
     {
-        int width = input.IndexOf((byte)'\n');
-        int rowLen = width + 1;
+        var width = input.IndexOf((byte)'\n');
+        var rowLen = width + 1;
 
         HashSet<int> visitedNodes = new(36);
         Dictionary<int, Node> nodes = new(36);
 
-        int startIndex = input.IndexOf((byte)'.');
-        int endIndex = input.LastIndexOf((byte)'.');
+        var startIndex = input.IndexOf((byte)'.');
+        var endIndex = input.LastIndexOf((byte)'.');
 
-        int startNode = MoveUntilNextNode(input, startIndex, rowLen, Direction.South, out int startDistance, out Direction startArrival, out _, out _);
-        int endNode = MoveUntilNextNode(input, endIndex, rowLen, Direction.North, out int endDistance, out Direction endArrival, out _, out _);
+        var startNode = MoveUntilNextNode(input, startIndex, rowLen, Direction.South, out var startDistance, out var startArrival, out _, out _);
+        var endNode = MoveUntilNextNode(input, endIndex, rowLen, Direction.North, out var endDistance, out var endArrival, out _, out _);
 
         // total unavoidable distance at start and end
         baseDistance = startDistance + endDistance;
@@ -70,19 +70,19 @@ public class Day23 : ISolver
 
         Queue<int> nodeQueue = new();
         nodeQueue.Enqueue(startNode);
-        while (nodeQueue.TryDequeue(out int nodeId))
+        while (nodeQueue.TryDequeue(out var nodeId))
         {
             if (visitedNodes.Contains(nodeId))
                 continue;
 
             visitedNodes.Add(nodeId);
 
-            Node node = nodes[nodeId];
+            var node = nodes[nodeId];
 
             if (node.North is null && input[nodeId - rowLen] != '#')
             {
-                int northNodeId = MoveUntilNextNode(input, nodeId, rowLen, Direction.North, out int distance, out Direction direction, out bool hasSlope, out bool hasReverseSlope);
-                if (!nodes.TryGetValue(northNodeId, out Node northNode))
+                var northNodeId = MoveUntilNextNode(input, nodeId, rowLen, Direction.North, out var distance, out var direction, out var hasSlope, out var hasReverseSlope);
+                if (!nodes.TryGetValue(northNodeId, out var northNode))
                     northNode = new(nodes.Count);
 
                 node = node with { North = new Edge(northNode.Id, distance, hasReverseSlope) };
@@ -92,8 +92,8 @@ public class Day23 : ISolver
 
             if (node.South is null && input[nodeId + rowLen] != '#')
             {
-                int southNodeId = MoveUntilNextNode(input, nodeId, rowLen, Direction.South, out int distance, out Direction direction, out bool hasSlope, out bool hasReverseSlope);
-                if (!nodes.TryGetValue(southNodeId, out Node southNode))
+                var southNodeId = MoveUntilNextNode(input, nodeId, rowLen, Direction.South, out var distance, out var direction, out var hasSlope, out var hasReverseSlope);
+                if (!nodes.TryGetValue(southNodeId, out var southNode))
                     southNode = new(nodes.Count);
 
                 node = node with { South = new Edge(southNode.Id, distance, hasReverseSlope) };
@@ -103,8 +103,8 @@ public class Day23 : ISolver
 
             if (node.West is null && input[nodeId - 1] != '#')
             {
-                int westNodeId = MoveUntilNextNode(input, nodeId, rowLen, Direction.West, out int distance, out Direction direction, out bool hasSlope, out bool hasReverseSlope);
-                if (!nodes.TryGetValue(westNodeId, out Node westNode))
+                var westNodeId = MoveUntilNextNode(input, nodeId, rowLen, Direction.West, out var distance, out var direction, out var hasSlope, out var hasReverseSlope);
+                if (!nodes.TryGetValue(westNodeId, out var westNode))
                     westNode = new(nodes.Count);
 
                 node = node with { West = new Edge(westNode.Id, distance, hasReverseSlope) };
@@ -114,8 +114,8 @@ public class Day23 : ISolver
 
             if (node.East is null && input[nodeId + 1] != '#')
             {
-                int eastNodeId = MoveUntilNextNode(input, nodeId, rowLen, Direction.East, out int distance, out Direction direction, out bool hasSlope, out bool hasReverseSlope);
-                if (!nodes.TryGetValue(eastNodeId, out Node eastNode))
+                var eastNodeId = MoveUntilNextNode(input, nodeId, rowLen, Direction.East, out var distance, out var direction, out var hasSlope, out var hasReverseSlope);
+                if (!nodes.TryGetValue(eastNodeId, out var eastNode))
                     eastNode = new(nodes.Count);
 
                 node = node with { East = new Edge(eastNode.Id, distance, hasReverseSlope) };
@@ -131,7 +131,7 @@ public class Day23 : ISolver
         nodes[endNode] = nodes[endNode].AddEdge(endArrival, null);
 
         var nodeArray = new Node[nodes.Count];
-        foreach (Node v in nodes.Values)
+        foreach (var v in nodes.Values)
             nodeArray[v.Id] = v;
 
         return nodeArray;
@@ -149,7 +149,7 @@ public class Day23 : ISolver
             switch (direction)
             {
                 case Direction.East:
-                    byte nextEast = input[i + 1];
+                    var nextEast = input[i + 1];
                     while (true)
                     {
                         hasSlope = hasSlope || nextEast == '>';
@@ -176,7 +176,7 @@ public class Day23 : ISolver
 
                     break;
                 case Direction.West:
-                    byte nextWest = input[i - 1];
+                    var nextWest = input[i - 1];
                     while (true)
                     {
                         hasSlope = hasSlope || nextWest == '<';
@@ -203,7 +203,7 @@ public class Day23 : ISolver
 
                     break;
                 case Direction.South:
-                    byte nextSouth = input[i + rowLength];
+                    var nextSouth = input[i + rowLength];
                     while (true)
                     {
                         hasSlope = hasSlope || nextSouth == 'v';
@@ -230,7 +230,7 @@ public class Day23 : ISolver
 
                     break;
                 case Direction.North:
-                    byte nextNorth = input[i - rowLength];
+                    var nextNorth = input[i - rowLength];
                     while (true)
                     {
                         hasSlope = hasSlope || nextNorth == '^';
@@ -263,7 +263,7 @@ public class Day23 : ISolver
     // Solve using simple recursive DFS with a ulong bitset to mark which nodes were seen
     private static int SolvePart1(Node[] graph)
     {
-        int maxDistance = 0;
+        var maxDistance = 0;
         FindLongestInternal(0, 0, 0);
         return maxDistance;
 
@@ -275,12 +275,12 @@ public class Day23 : ISolver
                 return;
             }
 
-            ulong flag = 1UL << nodeId;
+            var flag = 1UL << nodeId;
             if ((seen & flag) != 0)
                 return;
             seen |= flag;
 
-            Node node = graph[nodeId];
+            var node = graph[nodeId];
 
             if (node.South is Edge south && !south.HasReverseSlope)
                 FindLongestInternal(south.NodeId, distance + south.Distance, seen);
@@ -301,25 +301,25 @@ public class Day23 : ISolver
         // Just pretend you never saw SetColumn and GetColumn
         public readonly RowDPState SetColumn(int index, byte value)
         {
-            RowDPState copy = this;
-            ref byte copyRef = ref Unsafe.As<RowDPState, byte>(ref copy);
+            var copy = this;
+            ref var copyRef = ref Unsafe.As<RowDPState, byte>(ref copy);
             Unsafe.WriteUnaligned(ref Unsafe.Add(ref copyRef, index), value);
             return copy;
         }
 
         public byte GetColumn(int index)
         {
-            ref byte self = ref Unsafe.As<RowDPState, byte>(ref this);
+            ref var self = ref Unsafe.As<RowDPState, byte>(ref this);
             return Unsafe.Add(ref self, index);
         }
 
         public readonly RowDPState Canonicalize()
         {
-            RowDPState newState = this;
+            var newState = this;
             byte nextExpectedId = 1;
-            for (int i = 0; i < 6; i++)
+            for (var i = 0; i < 6; i++)
             {
-                byte colValue = newState.GetColumn(i);
+                var colValue = newState.GetColumn(i);
                 if (colValue < nextExpectedId)
                     continue;
 
@@ -327,9 +327,9 @@ public class Day23 : ISolver
                 {
                     // swap needs to occur
                     newState = newState.SetColumn(i, nextExpectedId);
-                    for (int j = i + 1; j < 6; j++)
+                    for (var j = i + 1; j < 6; j++)
                     {
-                        byte colValueB = newState.GetColumn(j);
+                        var colValueB = newState.GetColumn(j);
                         if (colValueB == nextExpectedId)
                             newState = newState.SetColumn(j, colValue);
                         else if (colValueB == colValue)
@@ -347,21 +347,21 @@ public class Day23 : ISolver
     private static int SolvePart2(Node[] graph)
     {
         ulong seenNodes = 1;
-        Node[] curRowNodes = new Node[6];
-        int[] horizontalDistances = new int[5];
-        int[] verticalDistances = new int[6];
+        var curRowNodes = new Node[6];
+        var horizontalDistances = new int[5];
+        var verticalDistances = new int[6];
 
         // populate nodes for top row
         curRowNodes[0] = graph[0];
-        for (int i = 1; i < 5; i++)
+        for (var i = 1; i < 5; i++)
         {
-            Node lastNode = curRowNodes[i - 1];
-            foreach (Edge edge in lastNode.GetEdges())
+            var lastNode = curRowNodes[i - 1];
+            foreach (var edge in lastNode.GetEdges())
             {
-                ulong nodeFlag = 1UL << edge.NodeId;
+                var nodeFlag = 1UL << edge.NodeId;
                 if ((seenNodes & nodeFlag) == 0)
                 {
-                    Node nextNode = graph[edge.NodeId];
+                    var nextNode = graph[edge.NodeId];
                     if (nextNode.CountEdges() == 3)
                     {
                         seenNodes |= nodeFlag;
@@ -383,14 +383,14 @@ public class Day23 : ISolver
 
         var nextStates = new (RowDPState key, int value)[32];
 
-        for (int row = 0; row < 6; row++)
+        for (var row = 0; row < 6; row++)
         {
             // Update horizontal distances
-            for (int horizontalEdge = 0; horizontalEdge < 5; horizontalEdge++)
+            for (var horizontalEdge = 0; horizontalEdge < 5; horizontalEdge++)
             {
-                Node leftNode = curRowNodes[horizontalEdge];
-                Node rightNode = curRowNodes[horizontalEdge + 1];
-                foreach (Edge edge in leftNode.GetEdges())
+                var leftNode = curRowNodes[horizontalEdge];
+                var rightNode = curRowNodes[horizontalEdge + 1];
+                foreach (var edge in leftNode.GetEdges())
                 {
                     if (edge.NodeId == rightNode.Id)
                     {
@@ -403,15 +403,15 @@ public class Day23 : ISolver
             // update vertical distances and update curRowNodes to next row
             if (row < 5)
             {
-                for (int col = 0; col < 6; col++)
+                for (var col = 0; col < 6; col++)
                 {
-                    Node lastNodeInCol = curRowNodes[col];
-                    foreach (Edge edge in lastNodeInCol.GetEdges())
+                    var lastNodeInCol = curRowNodes[col];
+                    foreach (var edge in lastNodeInCol.GetEdges())
                     {
-                        ulong nodeFlag = 1UL << edge.NodeId;
+                        var nodeFlag = 1UL << edge.NodeId;
                         if ((seenNodes & nodeFlag) == 0)
                         {
-                            Node node = graph[edge.NodeId];
+                            var node = graph[edge.NodeId];
                             if (row == 0 && col == 4 && node.CountEdges() != 4)
                                 continue;
 
@@ -435,13 +435,13 @@ public class Day23 : ISolver
 
             dpWorking.Clear();
 
-            foreach (KeyValuePair<RowDPState, int> entry in dp)
+            foreach (var entry in dp)
             {
-                int numStates = GetNextStates(entry.Key, entry.Value, horizontalDistances, verticalDistances, nextStates);
-                for (int i = 0; i < numStates; i++)
+                var numStates = GetNextStates(entry.Key, entry.Value, horizontalDistances, verticalDistances, nextStates);
+                for (var i = 0; i < numStates; i++)
                 {
-                    (RowDPState state, int distance) = nextStates[i];
-                    int bestDistance = dpWorking.GetValueOrDefault(state, 0);
+                    (var state, var distance) = nextStates[i];
+                    var bestDistance = dpWorking.GetValueOrDefault(state, 0);
                     if (distance > bestDistance)
                         dpWorking[state] = distance;
                 }
@@ -454,7 +454,7 @@ public class Day23 : ISolver
 
         static int GetNextStates(RowDPState state, int currentDistance, int[] horizontalDistances, int[] verticalDistances, (RowDPState key, int value)[] outputStates)
         {
-            int statesLength = 0;
+            var statesLength = 0;
             Array.Clear(outputStates);
             FindStates(state, currentDistance, 0);
             return statesLength;
@@ -467,15 +467,15 @@ public class Day23 : ISolver
                     return;
                 }
 
-                byte colPathId = state.GetColumn(col);
-                byte newPathId = colPathId;
-                int verticalDistance = verticalDistances[col];
+                var colPathId = state.GetColumn(col);
+                var newPathId = colPathId;
+                var verticalDistance = verticalDistances[col];
 
                 if (colPathId == 0)
                 {
                     // handle case that we decide to leave this cell unconnected, which we can only do if the above cell is unconnected
                     FindStates(state, currentDistance, col + 1);
-                    for (int i = 0; i < col; i++)
+                    for (var i = 0; i < col; i++)
                         newPathId = Math.Max(newPathId, state.GetColumn(i));
                     newPathId++;
                 }
@@ -485,9 +485,9 @@ public class Day23 : ISolver
                     FindStates(state, currentDistance + verticalDistance, col + 1);
                 }
 
-                for (int i = col + 1; i < 6; i++)
+                for (var i = col + 1; i < 6; i++)
                 {
-                    byte nextColPathId = state.GetColumn(i);
+                    var nextColPathId = state.GetColumn(i);
                     currentDistance += horizontalDistances[i - 1];
 
                     if (nextColPathId == 0)
@@ -495,14 +495,14 @@ public class Day23 : ISolver
                         if (colPathId == 0)
                         {
                             // New path is being added
-                            RowDPState updatedState = state
+                            var updatedState = state
                                 .SetColumn(col, newPathId)
                                 .SetColumn(i, newPathId);
 
-                            for (int j = col + 1; j < i; j++)
+                            for (var j = col + 1; j < i; j++)
                                 updatedState = updatedState.SetColumn(j, 0);
 
-                            for (int j = i + 1; j < 6; j++)
+                            for (var j = i + 1; j < 6; j++)
                             {
                                 int curValue = updatedState.GetColumn(j);
                                 if (curValue >= newPathId)
@@ -514,7 +514,7 @@ public class Day23 : ISolver
                         else
                         {
                             // We are just moving the position of the path id from col to i
-                            RowDPState updatedState = state
+                            var updatedState = state
                                 .SetColumn(col, 0)
                                 .SetColumn(i, colPathId);
 
@@ -526,7 +526,7 @@ public class Day23 : ISolver
                         if (colPathId == 0)
                         {
                             // We are just moving the position of the path id from i to col
-                            RowDPState updatedState = state
+                            var updatedState = state
                                 .SetColumn(col, nextColPathId)
                                 .SetColumn(i, 0);
 
@@ -535,15 +535,15 @@ public class Day23 : ISolver
                         else if (colPathId != nextColPathId)
                         {
                             // need to merge together two separate paths, will choose the lower one and then decrease everything else
-                            byte minPathId = Math.Min(colPathId, nextColPathId);
-                            byte pathToDecrease = Math.Max(colPathId, nextColPathId);
+                            var minPathId = Math.Min(colPathId, nextColPathId);
+                            var pathToDecrease = Math.Max(colPathId, nextColPathId);
 
-                            RowDPState updatedState = state
+                            var updatedState = state
                                 .SetColumn(col, 0)
                                 .SetColumn(i, 0);
 
                             // find other end of path that needs to change
-                            for (int j = 0; j < 6; j++)
+                            for (var j = 0; j < 6; j++)
                             {
                                 if (updatedState.GetColumn(j) == pathToDecrease)
                                 {

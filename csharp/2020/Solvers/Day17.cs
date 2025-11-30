@@ -17,13 +17,13 @@ public class Day17 : ISolver
         const int originX = 6;
         const int originY = 6;
 
-        int width = input.IndexOf((byte)'\n');
-        int height = input.Length / (width + 1);
+        var width = input.IndexOf((byte)'\n');
+        var height = input.Length / (width + 1);
 
         List<int> activeCubes = [];
-        for (int y = 0; y < height; y++)
+        for (var y = 0; y < height; y++)
         {
-            for (int x = 0; x < width; x++)
+            for (var x = 0; x < width; x++)
             {
                 if (input[x + (y * (width + 1))] == '#')
                 {
@@ -32,8 +32,8 @@ public class Day17 : ISolver
             }
         }
 
-        int part1 = SolvePart1(activeCubes, width, height);
-        int part2 = SolvePart2(activeCubes, width, height);
+        var part1 = SolvePart1(activeCubes, width, height);
+        var part2 = SolvePart2(activeCubes, width, height);
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
@@ -43,27 +43,27 @@ public class Day17 : ISolver
     {
         const int originZ = 0;
 
-        int activeCubeCount = 0;
-        int[] activeCubes = new int[(width + 12) * (height + 12) * 7];
-        foreach (int cube in inputActiveCubes)
+        var activeCubeCount = 0;
+        var activeCubes = new int[(width + 12) * (height + 12) * 7];
+        foreach (var cube in inputActiveCubes)
         {
             activeCubes[activeCubeCount++] = cube + originZ * Z;
         }
 
-        int[] nextActiveCubes = new int[activeCubes.Length];
+        var nextActiveCubes = new int[activeCubes.Length];
         var counter = new NeighbourCounter(activeCubes.Length, (originZ + 7) * Z);
-        for (int iteration = 0; iteration < 6; iteration++)
+        for (var iteration = 0; iteration < 6; iteration++)
         {
             counter.ResetNeighbours();
 
-            Span<int> activeCubesSpan = activeCubes.AsSpan().Slice(0, activeCubeCount);
-            foreach (int cube in activeCubesSpan)
+            var activeCubesSpan = activeCubes.AsSpan()[..activeCubeCount];
+            foreach (var cube in activeCubesSpan)
             {
                 counter.UpdateNeighbourTotalsXYZ(cube);
             }
 
-            int nextActiveCubesCount = 0;
-            foreach (int cube in activeCubesSpan)
+            var nextActiveCubesCount = 0;
+            foreach (var cube in activeCubesSpan)
             {
                 if (counter.GetNeighbourTotal(cube) is 3 or 4)
                 {
@@ -72,7 +72,7 @@ public class Day17 : ISolver
                 }
             }
 
-            foreach (int cube in counter.Neighbours)
+            foreach (var cube in counter.Neighbours)
             {
                 if (counter.GetNeighbourTotal(cube) == 3)
                 {
@@ -86,12 +86,12 @@ public class Day17 : ISolver
             activeCubeCount = nextActiveCubesCount;
         }
 
-        int totalCubeCount = 0;
-        for (int i = 0; i < activeCubeCount; i++)
+        var totalCubeCount = 0;
+        for (var i = 0; i < activeCubeCount; i++)
         {
-            int cube = activeCubes[i];
+            var cube = activeCubes[i];
 
-            int z = cube >> 10;
+            var z = cube >> 10;
             if (z == 0)
             {
                 totalCubeCount += 1;
@@ -110,27 +110,27 @@ public class Day17 : ISolver
         const int originZ = 0;
         const int originW = 0;
 
-        int activeCubeCount = 0;
-        int[] activeCubes = new int[(width + 12) * (height + 12) * 7 * 7];
-        foreach (int cube in inputActiveCubes)
+        var activeCubeCount = 0;
+        var activeCubes = new int[(width + 12) * (height + 12) * 7 * 7];
+        foreach (var cube in inputActiveCubes)
         {
             activeCubes[activeCubeCount++] = cube + originZ * Z + originW * W;
         }
 
-        int[] nextActiveCubes = new int[activeCubes.Length];
+        var nextActiveCubes = new int[activeCubes.Length];
         var counter = new NeighbourCounter(activeCubes.Length, (originW + 7) * W);
-        for (int iteration = 0; iteration < 6; iteration++)
+        for (var iteration = 0; iteration < 6; iteration++)
         {
             counter.ResetNeighbours();
 
-            Span<int> activeCubesSpan = activeCubes.AsSpan().Slice(0, activeCubeCount);
-            foreach (int cube in activeCubesSpan)
+            var activeCubesSpan = activeCubes.AsSpan()[..activeCubeCount];
+            foreach (var cube in activeCubesSpan)
             {
                 counter.UpdateNeighbourTotalsXYZW(cube);
             }
 
-            int nextActiveCubesCount = 0;
-            foreach (int cube in activeCubesSpan)
+            var nextActiveCubesCount = 0;
+            foreach (var cube in activeCubesSpan)
             {
                 if (counter.GetNeighbourTotal(cube) is 3 or 4)
                 {
@@ -139,7 +139,7 @@ public class Day17 : ISolver
                 }
             }
 
-            foreach (int cube in counter.Neighbours)
+            foreach (var cube in counter.Neighbours)
             {
                 if (counter.GetNeighbourTotal(cube) == 3)
                 {
@@ -153,16 +153,16 @@ public class Day17 : ISolver
             activeCubeCount = nextActiveCubesCount;
         }
 
-        int zwPlane = 0;
-        int wAxis = 0;
-        int wzAxis = 0;
-        int other = 0;
-        for (int i = 0; i < activeCubeCount; i++)
+        var zwPlane = 0;
+        var wAxis = 0;
+        var wzAxis = 0;
+        var other = 0;
+        for (var i = 0; i < activeCubeCount; i++)
         {
-            int cube = activeCubes[i];
+            var cube = activeCubes[i];
 
-            int z = (cube >> 10) & 0b111;
-            int w = cube >> 13;
+            var z = (cube >> 10) & 0b111;
+            var w = cube >> 13;
 
             if (z == 0 && w == 0)
             {
@@ -189,7 +189,7 @@ public class Day17 : ISolver
     {
         private readonly int[] _neighbours = new int[maxNeighboursLen];
         private readonly int[] _neighbourTotals = new int[maxNeighbourValue + 1];
-        private int _neighbourLen = 0;
+        private int _neighbourLen;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ResetNeighbours()
@@ -200,8 +200,8 @@ public class Day17 : ISolver
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UpdateNeighbourTotalsXYZW(int pos)
         {
-            int w = pos >> 13;
-            int z = (pos >> 10) & 0b111;
+            var w = pos >> 13;
+            var z = (pos >> 10) & 0b111;
 
             // +w, +z
             UpdateNeighbourTotalsXY(pos + W + Z, 1);
@@ -228,7 +228,7 @@ public class Day17 : ISolver
             // -z
             if (w < z)
             {
-                int inc = 1;
+                var inc = 1;
                 if (z == 1)
                     inc *= 2;
                 if (z == w + 1)
@@ -246,7 +246,7 @@ public class Day17 : ISolver
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void UpdateNeighbourTotalsXYZ(int pos, int inc = 1)
         {
-            int z = (pos >> 10) & 0b111;
+            var z = (pos >> 10) & 0b111;
 
             if (z > 0)
             {
@@ -287,13 +287,12 @@ public class Day17 : ISolver
             [MethodImpl(MethodImplOptions.AggressiveInlining)]
             get
             {
-                return _neighbours.AsSpan().Slice(0, _neighbourLen);
+                return _neighbours.AsSpan()[.._neighbourLen];
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public int GetNeighbourTotal(int pos) => _neighbourTotals[pos];
-
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ResetNeighbourTotal(int pos) => _neighbourTotals[pos] = 0;

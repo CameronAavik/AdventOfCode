@@ -12,9 +12,9 @@ public class Day14 : ISolver
     {
         public Reindeer Data { get; init; } = data;
 
-        public int DistanceTraveled { get; set; } = 0;
+        public int DistanceTraveled { get; set; }
 
-        public int Points { get; set; } = 0;
+        public int Points { get; set; }
 
         public int DurationLeft { get; set; } = data.FlyDuration;
 
@@ -24,29 +24,29 @@ public class Day14 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var reindeers = new List<Reindeer>();
-        foreach (Range lineRange in input.SplitLines())
+        foreach (var lineRange in input.SplitLines())
         {
             reindeers.Add(ParseLine(input[lineRange]));
         }
 
         var reindeerStates = new ReindeerState[reindeers.Count];
-        for (int i = 0; i < reindeerStates.Length; i++)
+        for (var i = 0; i < reindeerStates.Length; i++)
         {
             reindeerStates[i] = new ReindeerState(reindeers[i]);
         }
 
-        for (int i = 0; i < 2503; i++)
+        for (var i = 0; i < 2503; i++)
         {
-            int furthestDistance = 0;
-            for (int j = 0; j < reindeerStates.Length; j++)
+            var furthestDistance = 0;
+            for (var j = 0; j < reindeerStates.Length; j++)
             {
-                ReindeerState reindeerState = reindeerStates[j];
+                var reindeerState = reindeerStates[j];
                 if (reindeerState.IsFlying)
                 {
                     reindeerState.DistanceTraveled += reindeerState.Data.Speed;
                 }
 
-                int durationLeft = --reindeerState.DurationLeft;
+                var durationLeft = --reindeerState.DurationLeft;
                 if (durationLeft == 0)
                 {
                     reindeerState.IsFlying = !reindeerState.IsFlying;
@@ -58,7 +58,7 @@ public class Day14 : ISolver
                 furthestDistance = Math.Max(reindeerState.DistanceTraveled, furthestDistance);
             }
 
-            foreach (ReindeerState state in reindeerStates)
+            foreach (var state in reindeerStates)
             {
                 if (state.DistanceTraveled == furthestDistance)
                 {
@@ -67,10 +67,10 @@ public class Day14 : ISolver
             }
         }
 
-        int maxDistance = 0;
-        int maxPoints = 0;
+        var maxDistance = 0;
+        var maxPoints = 0;
 
-        foreach (ReindeerState state in reindeerStates)
+        foreach (var state in reindeerStates)
         {
             maxDistance = Math.Max(state.DistanceTraveled, maxDistance);
             maxPoints = Math.Max(state.Points, maxPoints);
@@ -85,11 +85,11 @@ public class Day14 : ISolver
         var reader = new SpanReader(line);
         reader.SkipUntil(' ');
         reader.SkipLength("can fly ".Length);
-        int speed = reader.ReadPosIntUntil(' ');
+        var speed = reader.ReadPosIntUntil(' ');
         reader.SkipLength("km/s for ".Length);
-        int flyDuration = reader.ReadPosIntUntil(' ');
+        var flyDuration = reader.ReadPosIntUntil(' ');
         reader.SkipLength("seconds, but then must rest for ".Length);
-        int restDuration = reader.ReadPosIntUntil(' ');
+        var restDuration = reader.ReadPosIntUntil(' ');
         return new Reindeer(speed, flyDuration, restDuration);
     }
 }

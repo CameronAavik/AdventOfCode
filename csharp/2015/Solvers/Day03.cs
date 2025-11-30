@@ -11,12 +11,12 @@ public class Day03 : ISolver
         var seen = new HashSet<uint>();
 
         RunSanta(input, seen, start: 0, step: 1);
-        int part1 = seen.Count;
+        var part1 = seen.Count;
 
         seen.Clear();
         RunSanta(input, seen, start: 0, step: 2);
         RunSanta(input, seen, start: 1, step: 2);
-        int part2 = seen.Count;
+        var part2 = seen.Count;
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
@@ -32,10 +32,10 @@ public class Day03 : ISolver
         uint y = ushort.MaxValue / 2;
 
         // pack them into a single uint
-        uint encodedPos = x << 16 | y;
+        var encodedPos = x << 16 | y;
         seen.Add(encodedPos);
 
-        for (int i = start; i < moves.Length; i += step)
+        for (var i = start; i < moves.Length; i += step)
         {
             switch (moves[i])
             {

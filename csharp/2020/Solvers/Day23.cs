@@ -9,22 +9,22 @@ public class Day23 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         input = input.TrimEnd((byte)'\n');
-        int[] part1Cups = new int[input.Length];
+        var part1Cups = new int[input.Length];
 
-        int startingCup = input[0] - '1';
-        int prevCup = startingCup;
-        foreach (byte c in input)
+        var startingCup = input[0] - '1';
+        var prevCup = startingCup;
+        foreach (var c in input)
         {
-            int digit = c - '1';
+            var digit = c - '1';
             part1Cups[prevCup] = digit;
             prevCup = digit;
         }
 
-        int[] part2Cups = new int[1000000];
+        var part2Cups = new int[1000000];
         Array.Copy(part1Cups, part2Cups, part1Cups.Length);
 
         part2Cups[prevCup] = part1Cups.Length;
-        for (int i = part1Cups.Length; i < 1000000; i++)
+        for (var i = part1Cups.Length; i < 1000000; i++)
         {
             part2Cups[i] = i + 1;
         }
@@ -33,8 +33,8 @@ public class Day23 : ISolver
         part1Cups[prevCup] = startingCup;
         part2Cups[1000000 - 1] = startingCup;
 
-        int cur = startingCup;
-        for (int i = 0; i < 100; i++)
+        var cur = startingCup;
+        for (var i = 0; i < 100; i++)
         {
             cur = Iterate(part1Cups, cur);
         }
@@ -42,19 +42,19 @@ public class Day23 : ISolver
         SolvePart1AndSubmit(part1Cups, solution.GetPart1Writer());
 
         cur = startingCup;
-        for (int i = 0; i < 10000000; i++)
+        for (var i = 0; i < 10000000; i++)
         {
             cur = Iterate(part2Cups, cur);
         }
 
-        long part2 = GetPart2Answer(part2Cups);
+        var part2 = GetPart2Answer(part2Cups);
 
         solution.SubmitPart2(part2);
 
         static void SolvePart1AndSubmit(int[] cups, SolutionWriter solutionWriter)
         {
-            int digit = cups[0];
-            for (int i = 0; i < cups.Length - 1; i++)
+            var digit = cups[0];
+            for (var i = 0; i < cups.Length - 1; i++)
             {
                 solutionWriter.Write((char)(digit + '1'));
                 digit = cups[digit];
@@ -63,19 +63,22 @@ public class Day23 : ISolver
             solutionWriter.Complete();
         }
 
-        static long GetPart2Answer(int[] cups) => (long)(cups[0] + 1) * (cups[cups[0]] + 1);
+        static long GetPart2Answer(int[] cups)
+        {
+            return (long)(cups[0] + 1) * (cups[cups[0]] + 1);
+        }
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static int Iterate(int[] cups, int cur)
     {
-        int move1 = cups[cur];
-        int move2 = cups[move1];
-        int move3 = cups[move2];
-        int next = cups[move3];
+        var move1 = cups[cur];
+        var move2 = cups[move1];
+        var move3 = cups[move2];
+        var next = cups[move3];
         cups[cur] = next;
 
-        int destination = cur - 1;
+        var destination = cur - 1;
         if (destination < 0)
             destination = cups.Length - 1;
 

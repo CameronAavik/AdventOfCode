@@ -28,57 +28,56 @@ public class Day16 : ISolver
         public int SccIndex { get; set; } = -1; // used in Tarjan's Algorithm
         public int LowLink { get; set; } = -1; // Used in Tarjan's Algorithm
         public StronglyConnectedComponent Scc { get; set; } = default!;
-        public SplittingMirror? NextMirror1 { get; set; } = null;
-        public SplittingMirror? NextMirror2 { get; set; } = null;
+        public SplittingMirror? NextMirror1 { get; set; }
+        public SplittingMirror? NextMirror2 { get; set; }
         public ulong[]? Bitset { get; set; } = default!;
-        public bool OnStack { get; set; } = false; // Used in Tarjan's Algorithm
+        public bool OnStack { get; set; }  // Used in Tarjan's Algorithm
     }
 
     public class StronglyConnectedComponent(int id, List<SplittingMirror> mirrors)
     {
         public int Id { get; } = id;
         public List<SplittingMirror> Mirrors { get; } = mirrors;
-        public bool Processed { get; set; } = false;
+        public bool Processed { get; set; }
     }
-
 
     [SkipLocalsInit]
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int width = input.IndexOf((byte)'\n');
-        int rowLength = width + 1;
-        int height = input.Length / rowLength;
+        var width = input.IndexOf((byte)'\n');
+        var rowLength = width + 1;
+        var height = input.Length / rowLength;
 
         // This dictionary is a cache of all the tiles that will be visited after getting split at each '|' and '-' tile
         // This cache is stored using a bitset in a ulong[]
-        Dictionary<int, SplittingMirror> splittingMirrors = GetSeenBitsForEachSplittingMirror(input, rowLength);
+        var splittingMirrors = GetSeenBitsForEachSplittingMirror(input, rowLength);
 
         // Reusable ulong[] bitset which tracks all the tiles that are visited after entering the grid.
         // This is created here so that we don't need to allocate this array for every single entry point.
-        ulong[] seenBits = new ulong[(input.Length - 1) / 64 + 1];
+        var seenBits = new ulong[(input.Length - 1) / 64 + 1];
 
         var lineSegments = new LineSegment[16];
-        int part1 = SolveAtEntry(input, 0, 0, Dir.East, rowLength, seenBits, splittingMirrors, lineSegments);
+        var part1 = SolveAtEntry(input, 0, 0, Dir.East, rowLength, seenBits, splittingMirrors, lineSegments);
         solution.SubmitPart1(part1);
 
-        int part2 = part1;
+        var part2 = part1;
 
         // Save having to check if y == 0 inside the for loop by doing the other y == 0 case outside it
         part2 = Math.Max(part2, SolveAtEntry(input, rowLength - 1, 0, Dir.West, rowLength, seenBits, splittingMirrors, lineSegments));
 
         // Loop over all the potential entry points on the left and right sides
-        for (int y = 1; y < height; y++)
+        for (var y = 1; y < height; y++)
         {
-            int left = SolveAtEntry(input, 0, y, Dir.East, rowLength, seenBits, splittingMirrors, lineSegments);
-            int right = SolveAtEntry(input, width - 1, y, Dir.West, rowLength, seenBits, splittingMirrors, lineSegments);
+            var left = SolveAtEntry(input, 0, y, Dir.East, rowLength, seenBits, splittingMirrors, lineSegments);
+            var right = SolveAtEntry(input, width - 1, y, Dir.West, rowLength, seenBits, splittingMirrors, lineSegments);
             part2 = Math.Max(left, Math.Max(right, part2));
         }
 
         // Loop over all the potential entry points on the top and bottom sides
-        for (int x = 0; x < width; x++)
+        for (var x = 0; x < width; x++)
         {
-            int top = SolveAtEntry(input, x, 0, Dir.South, rowLength, seenBits, splittingMirrors, lineSegments);
-            int bottom = SolveAtEntry(input, x, height - 1, Dir.North, rowLength, seenBits, splittingMirrors, lineSegments);
+            var top = SolveAtEntry(input, x, 0, Dir.South, rowLength, seenBits, splittingMirrors, lineSegments);
+            var bottom = SolveAtEntry(input, x, height - 1, Dir.North, rowLength, seenBits, splittingMirrors, lineSegments);
             part2 = Math.Max(top, Math.Max(bottom, part2));
         }
 
@@ -87,11 +86,11 @@ public class Day16 : ISolver
 
     private static Dictionary<int, SplittingMirror> GetSeenBitsForEachSplittingMirror(ReadOnlySpan<byte> input, int rowLength)
     {
-        Dictionary<int, SplittingMirror> splitMirrorGraph = BuildSplitMirrorGraph(input, rowLength);
-        List<StronglyConnectedComponent> components = FindAllStronglyConnectedComponents(splitMirrorGraph);
+        var splitMirrorGraph = BuildSplitMirrorGraph(input, rowLength);
+        var components = FindAllStronglyConnectedComponents(splitMirrorGraph);
 
-        int bitSetLength = (input.Length - 1) / 64 + 1;
-        foreach (StronglyConnectedComponent scc in components)
+        var bitSetLength = (input.Length - 1) / 64 + 1;
+        foreach (var scc in components)
             PopulateSeenBits(scc);
 
         return splitMirrorGraph;
@@ -102,20 +101,20 @@ public class Day16 : ISolver
             if (scc.Processed)
                 return;
 
-            int sccId = scc.Id;
-            ulong[] seenBits = new ulong[bitSetLength];
-            bool isFirstEmpty = true;
+            var sccId = scc.Id;
+            var seenBits = new ulong[bitSetLength];
+            var isFirstEmpty = true;
 
-            foreach (SplittingMirror graphNode in scc.Mirrors)
+            foreach (var graphNode in scc.Mirrors)
             {
-                SplittingMirror? nextMirror1 = graphNode.NextMirror1;
+                var nextMirror1 = graphNode.NextMirror1;
                 if (nextMirror1 != null && sccId != nextMirror1.Scc.Id)
                 {
                     PopulateSeenBits(nextMirror1.Scc);
                     CombineBitsets(seenBits, nextMirror1.Bitset!, ref isFirstEmpty);
                 }
 
-                SplittingMirror? nextMirror2 = graphNode.NextMirror2;
+                var nextMirror2 = graphNode.NextMirror2;
                 if (nextMirror2 != null && sccId != nextMirror2.Scc.Id)
                 {
                     PopulateSeenBits(nextMirror2.Scc);
@@ -141,16 +140,16 @@ public class Day16 : ISolver
         Dictionary<int, SplittingMirror> splitMirrorGraph = new(600);
 
         // Iterate through all the '|' and '-' mirrors to get the mirrors they connect to and the bitset of the path travelled to get there
-        int splittingMirrorIndex = 0;
+        var splittingMirrorIndex = 0;
         while (true)
         {
-            int nextIndex = input.Slice(splittingMirrorIndex).IndexOfAny("-|"u8);
+            var nextIndex = input[splittingMirrorIndex..].IndexOfAny("-|"u8);
             if (nextIndex < 0)
                 break;
 
             splittingMirrorIndex += nextIndex;
 
-            int numSegments = 0;
+            var numSegments = 0;
             var lineSegments = new LineSegment[16];
 
             // Find the next mirror split that you run into when going in either of the two directions after the splitting
@@ -180,12 +179,12 @@ public class Day16 : ISolver
     {
         // Use Tarjan's Algorithm to find all strongly connected components (cycles)
 
-        int sccIndex = 0;
+        var sccIndex = 0;
         List<StronglyConnectedComponent> sccs = new(splitMirrorGraph.Count);
-        SplittingMirror[] stack = new SplittingMirror[300];
-        int stackLen = 0;
+        var stack = new SplittingMirror[300];
+        var stackLen = 0;
 
-        foreach (SplittingMirror mirror in splitMirrorGraph.Values)
+        foreach (var mirror in splitMirrorGraph.Values)
         {
             if (mirror.SccIndex == -1)
                 StrongConnect(mirror);
@@ -204,7 +203,7 @@ public class Day16 : ISolver
 
             if (mirror.NextMirrorIndex1 >= 0)
             {
-                SplittingMirror graphNode = splitMirrorGraph[mirror.NextMirrorIndex1];
+                var graphNode = splitMirrorGraph[mirror.NextMirrorIndex1];
                 mirror.NextMirror1 = graphNode;
                 if (graphNode.SccIndex == -1)
                 {
@@ -219,7 +218,7 @@ public class Day16 : ISolver
 
             if (mirror.NextMirrorIndex2 >= 0)
             {
-                SplittingMirror graphNode = splitMirrorGraph[mirror.NextMirrorIndex2];
+                var graphNode = splitMirrorGraph[mirror.NextMirrorIndex2];
                 mirror.NextMirror2 = graphNode;
                 if (graphNode.SccIndex == -1)
                 {
@@ -238,7 +237,7 @@ public class Day16 : ISolver
                 var scc = new StronglyConnectedComponent(sccs.Count, mirrorsInScc);
                 while (stackLen > 0)
                 {
-                    SplittingMirror nextMirror = stack[--stackLen];
+                    var nextMirror = stack[--stackLen];
                     nextMirror.Scc = scc;
                     mirrorsInScc.Add(nextMirror);
                     nextMirror.OnStack = false;
@@ -260,8 +259,8 @@ public class Day16 : ISolver
             return;
         }
 
-        ref ulong bitset1Ref = ref MemoryMarshal.GetArrayDataReference(bitset1);
-        ref ulong bitset2Ref = ref MemoryMarshal.GetArrayDataReference(bitset2);
+        ref var bitset1Ref = ref MemoryMarshal.GetArrayDataReference(bitset1);
+        ref var bitset2Ref = ref MemoryMarshal.GetArrayDataReference(bitset2);
         for (nuint i = 0; i + (nuint)Vector256<ulong>.Count < (nuint)bitset1.Length; i += (nuint)Vector256<ulong>.Count)
         {
             var v1 = Vector256.LoadUnsafe(ref bitset1Ref, i);
@@ -269,24 +268,24 @@ public class Day16 : ISolver
             Vector256.StoreUnsafe(v1 | v2, ref bitset1Ref, i);
         }
 
-        int remainderLength = bitset1.Length % Vector256<ulong>.Count;
-        for (int i = bitset1.Length - remainderLength; i < bitset1.Length; i++)
+        var remainderLength = bitset1.Length % Vector256<ulong>.Count;
+        for (var i = bitset1.Length - remainderLength; i < bitset1.Length; i++)
             bitset1[i] |= bitset2[i];
     }
 
     private static void CombineBitsetWithSegments(ulong[] bitset, LineSegment[] lineSegments, int numSegments)
     {
-        for (int seg = 0; seg < numSegments; seg++)
+        for (var seg = 0; seg < numSegments; seg++)
         {
-            LineSegment segment = lineSegments[seg];
+            var segment = lineSegments[seg];
             if (segment.Step > 0)
             {
-                for (int i = segment.Start; i <= segment.End; i += segment.Step)
+                for (var i = segment.Start; i <= segment.End; i += segment.Step)
                     bitset[i / 64] |= 1UL << i;
             }
             else
             {
-                for (int i = segment.Start; i >= segment.End; i += segment.Step)
+                for (var i = segment.Start; i >= segment.End; i += segment.Step)
                     bitset[i / 64] |= 1UL << i;
             }
         }
@@ -294,8 +293,8 @@ public class Day16 : ISolver
 
     public static int SolveAtEntry(ReadOnlySpan<byte> input, int initX, int initY, Dir initDir, int rowLen, ulong[] seenBits, Dictionary<int, SplittingMirror> splittingMirrors, LineSegment[] lineSegments)
     {
-        int numSegments = 0;
-        int mirrorIndex = MoveUntilNextMirrorSplit(input, initY * rowLen + initX, initDir, lineSegments, ref numSegments, rowLen);
+        var numSegments = 0;
+        var mirrorIndex = MoveUntilNextMirrorSplit(input, initY * rowLen + initX, initDir, lineSegments, ref numSegments, rowLen);
 
         if (mirrorIndex >= 0)
             Array.Copy(splittingMirrors[mirrorIndex].Bitset!, seenBits, seenBits.Length);
@@ -304,8 +303,8 @@ public class Day16 : ISolver
 
         CombineBitsetWithSegments(seenBits, lineSegments, numSegments);
 
-        int seen = 0;
-        foreach (ulong seenBitSet in seenBits)
+        var seen = 0;
+        foreach (var seenBitSet in seenBits)
             seen += BitOperations.PopCount(seenBitSet);
         return seen;
     }
@@ -318,7 +317,7 @@ public class Day16 : ISolver
         byte c = 0;
         while (true)
         {
-            int start = i;
+            var start = i;
             switch (dir)
             {
                 case Dir.East:
@@ -328,7 +327,7 @@ public class Day16 : ISolver
 
                     if (c == '\n')
                     {
-                        segments[numSegments++] = new(start, i-1, 1);
+                        segments[numSegments++] = new(start, i - 1, 1);
                         return -1;
                     }
 
@@ -431,12 +430,12 @@ public class Day16 : ISolver
             // Find the cycle and trim all excess line segments
             if (numSegments == segments.Length)
             {
-                for (int j = 0; j < numSegments; j++)
+                for (var j = 0; j < numSegments; j++)
                 {
-                    LineSegment segment = segments[j];
-                    for (int k = j + 1;  k < numSegments; k++)
+                    var segment = segments[j];
+                    for (var k = j + 1; k < numSegments; k++)
                     {
-                        LineSegment otherSegment = segments[k];
+                        var otherSegment = segments[k];
                         if (segment.Equals(otherSegment))
                         {
                             numSegments = k;

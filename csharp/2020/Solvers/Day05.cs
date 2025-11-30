@@ -8,14 +8,14 @@ public class Day05 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        uint[] seen = new uint[32];
-        int numSeats = input.Length / 11;
+        var seen = new uint[32];
+        var numSeats = input.Length / 11;
 
-        int maxSeat = 0;
-        for (int i = 0; i < input.Length; i += 11)
+        var maxSeat = 0;
+        for (var i = 0; i < input.Length; i += 11)
         {
             // unrolling the loop to save precious microseconds
-            int seatId = 0;
+            var seatId = 0;
             if (input[i + 0] == 'B') seatId |= 1 << 9;
             if (input[i + 1] == 'B') seatId |= 1 << 8;
             if (input[i + 2] == 'B') seatId |= 1 << 7;
@@ -35,13 +35,13 @@ public class Day05 : ISolver
 
         solution.SubmitPart1(maxSeat);
 
-        int minSeat = maxSeat - numSeats - 1;
-        for (int i = minSeat / 32 + 1; i < seen.Length; i++)
+        var minSeat = maxSeat - numSeats - 1;
+        for (var i = minSeat / 32 + 1; i < seen.Length; i++)
         {
-            uint elem = seen[i];
+            var elem = seen[i];
             if (elem != 0xFFFFFFFFu)
             {
-                int part2 = 32 * i + (31 - BitOperations.LeadingZeroCount(~elem));
+                var part2 = 32 * i + (31 - BitOperations.LeadingZeroCount(~elem));
                 solution.SubmitPart2(part2);
                 return;
             }

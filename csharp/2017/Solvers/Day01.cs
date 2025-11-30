@@ -7,13 +7,13 @@ public class Day01 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int len = input.TrimEnd((byte)'\n').Length;
-        int mid = len / 2;
-        int part1 = 0;
-        int part2 = 0;
-        for (int i = 0; i < len; i++)
+        var len = input.TrimEnd((byte)'\n').Length;
+        var mid = len / 2;
+        var part1 = 0;
+        var part2 = 0;
+        for (var i = 0; i < len; i++)
         {
-            byte cur = input[i];
+            var cur = input[i];
             if (cur == input[(i + 1) % len])
             {
                 part1 += cur - '0';

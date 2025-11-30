@@ -21,20 +21,24 @@ public class Day23 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var instructions = new List<Instruction>();
-        foreach (Range lineRange in input.SplitLines())
+        foreach (var lineRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> line = input[lineRange];
-            static int ParseReg(ReadOnlySpan<byte> line) => line[4] == 'a' ? 0 : 1;
+            var line = input[lineRange];
+            static int ParseReg(ReadOnlySpan<byte> line)
+            {
+                return line[4] == 'a' ? 0 : 1;
+            }
+
             static int ParseNumber(ReadOnlySpan<byte> str)
             {
-                int mul = str[0] == '+' ? 1 : -1;
-                int c = str[1] - '0';
-                for (int i = 2; i < str.Length; i++)
+                var mul = str[0] == '+' ? 1 : -1;
+                var c = str[1] - '0';
+                for (var i = 2; i < str.Length; i++)
                     c = c * 10 + str[i] - '0';
                 return mul * c;
             }
 
-            Instruction instruction = line[2] switch
+            var instruction = line[2] switch
             {
                 (byte)'f' => new Instruction(InstructionType.Half, ParseReg(line)),
                 (byte)'l' => new Instruction(InstructionType.Triple, ParseReg(line)),
@@ -50,21 +54,21 @@ public class Day23 : ISolver
 
         Instruction[] instructionArr = [.. instructions];
 
-        int part1 = Simulate(instructionArr, 0);
-        int part2 = Simulate(instructionArr, 1);
+        var part1 = Simulate(instructionArr, 0);
+        var part2 = Simulate(instructionArr, 1);
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
 
     private static int Simulate(Instruction[] instructions, int aStart)
     {
-        int[] variables = new int[2];
+        var variables = new int[2];
         variables[0] = aStart;
 
-        int i = 0;
+        var i = 0;
         while (i >= 0 && i < instructions.Length)
         {
-            Instruction instruction = instructions[i];
+            var instruction = instructions[i];
             switch (instruction.Type)
             {
                 case InstructionType.Half:

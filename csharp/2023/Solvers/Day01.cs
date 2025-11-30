@@ -11,25 +11,25 @@ public class Day01 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
         while (input.Length > 1) // assume file ends with newline
         {
-            int lineEndIndex = input.IndexOf((byte)'\n');
-            ReadOnlySpan<byte> line = input.Slice(0, lineEndIndex);
-            input = input.Slice(lineEndIndex + 1);
+            var lineEndIndex = input.IndexOf((byte)'\n');
+            var line = input[..lineEndIndex];
+            input = input[(lineEndIndex + 1)..];
 
-            int firstDigitIndex = line.IndexOfAnyInRange((byte)'1', (byte)'9');
-            int firstDigit = 10 * (line[firstDigitIndex] - '0');
+            var firstDigitIndex = line.IndexOfAnyInRange((byte)'1', (byte)'9');
+            var firstDigit = 10 * (line[firstDigitIndex] - '0');
 
-            int lastDigitIndex = line.LastIndexOfAnyInRange((byte)'1', (byte)'9');
-            int lastDigit = line[lastDigitIndex] - '0';
+            var lastDigitIndex = line.LastIndexOfAnyInRange((byte)'1', (byte)'9');
+            var lastDigit = line[lastDigitIndex] - '0';
 
             part1 += firstDigit + lastDigit;
 
-            FindFirstWrittenDigit(line.Slice(0, firstDigitIndex), ref firstDigit);
-            FindLastWrittenDigit(line.Slice(lastDigitIndex + 1), ref lastDigit);
+            FindFirstWrittenDigit(line[..firstDigitIndex], ref firstDigit);
+            FindLastWrittenDigit(line[(lastDigitIndex + 1)..], ref lastDigit);
 
             part2 += firstDigit + lastDigit;
         }
@@ -42,11 +42,11 @@ public class Day01 : ISolver
     {
         while (span.Length > 2)
         {
-            int candidateStartIndex = span.IndexOfAny(s_numberStarts);
+            var candidateStartIndex = span.IndexOfAny(s_numberStarts);
             if (candidateStartIndex < 0)
                 break;
 
-            span = span.Slice(candidateStartIndex);
+            span = span[candidateStartIndex..];
 
             switch (span)
             {
@@ -60,9 +60,10 @@ public class Day01 : ISolver
                 case [(byte)'e', (byte)'i', (byte)'g', (byte)'h', (byte)'t', ..]: digit = 80; return;
                 case [(byte)'n', (byte)'i', (byte)'n', (byte)'e', ..]: digit = 90; return;
                 case { Length: < 4 }: return;
-            };
+            }
+            ;
 
-            span = span.Slice(1);
+            span = span[1..];
         }
     }
 
@@ -70,11 +71,11 @@ public class Day01 : ISolver
     {
         while (span.Length > 2)
         {
-            int candidateEndIndex = span.LastIndexOfAny(s_numberEnds);
+            var candidateEndIndex = span.LastIndexOfAny(s_numberEnds);
             if (candidateEndIndex < 0)
                 break;
 
-            span = span.Slice(0, candidateEndIndex + 1);
+            span = span[..(candidateEndIndex + 1)];
 
             switch (span)
             {
@@ -88,9 +89,10 @@ public class Day01 : ISolver
                 case [.., (byte)'e', (byte)'i', (byte)'g', (byte)'h', (byte)'t']: digit = 8; return;
                 case [.., (byte)'n', (byte)'i', (byte)'n', (byte)'e']: digit = 9; return;
                 case { Length: < 4 }: return;
-            };
+            }
+            ;
 
-            span = span.Slice(0, span.Length - 1);
+            span = span[..^1];
         }
     }
 }

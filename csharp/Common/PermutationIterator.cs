@@ -42,7 +42,7 @@ public ref struct PermutationIterator<T>
             }
         }
 
-        int swapIndex = _stackPointer % 2 == 0 ? 0 : _stack[_stackPointer];
+        var swapIndex = _stackPointer % 2 == 0 ? 0 : _stack[_stackPointer];
 
         (_span[swapIndex], _span[_stackPointer]) = (_span[_stackPointer], _span[swapIndex]);
         _stack[_stackPointer]++;

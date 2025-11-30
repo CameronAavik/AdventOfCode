@@ -39,19 +39,19 @@ public class Day21 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        ParseInput(input, out int bossHp, out int bossDamage, out int bossArmor);
+        ParseInput(input, out var bossHp, out var bossDamage, out var bossArmor);
 
-        int cheapestWin = int.MaxValue;
-        int mostExpensiveLoss = int.MinValue;
+        var cheapestWin = int.MaxValue;
+        var mostExpensiveLoss = int.MinValue;
 
-        foreach (Equipment weapon in s_weapons)
+        foreach (var weapon in s_weapons)
         {
-            foreach (Equipment armor in s_armor)
+            foreach (var armor in s_armor)
             {
-                for (int ring1Index = 0; ring1Index < s_rings.Length; ring1Index++)
+                for (var ring1Index = 0; ring1Index < s_rings.Length; ring1Index++)
                 {
-                    Equipment ring1 = s_rings[ring1Index];
-                    for (int ring2Index = ring1Index; ring2Index < s_rings.Length; ring2Index++)
+                    var ring1 = s_rings[ring1Index];
+                    for (var ring2Index = ring1Index; ring2Index < s_rings.Length; ring2Index++)
                     {
                         // can't pick same ring twice, except for no ring
                         if (ring1Index == ring2Index && ring1Index > 0)
@@ -59,7 +59,7 @@ public class Day21 : ISolver
                             continue;
                         }
 
-                        Equipment purchase = Purchase(weapon, armor, ring1, s_rings[ring2Index]);
+                        var purchase = Purchase(weapon, armor, ring1, s_rings[ring2Index]);
                         if (DoesPlayerWin(purchase, bossHp, bossDamage, bossArmor))
                         {
                             cheapestWin = Math.Min(purchase.Cost, cheapestWin);
@@ -99,11 +99,11 @@ public class Day21 : ISolver
     private static bool DoesPlayerWin(Equipment equipment, int bossHp, int bossDamage, int bossArmor)
     {
         const int playerHp = 100;
-        int actualPlayerDamage = Math.Max(1, equipment.Damage - bossArmor);
-        int actualBossDamage = Math.Max(1, bossDamage - equipment.Armor);
+        var actualPlayerDamage = Math.Max(1, equipment.Damage - bossArmor);
+        var actualBossDamage = Math.Max(1, bossDamage - equipment.Armor);
 
-        int turnsTillPlayerDies = playerHp / actualBossDamage + (playerHp % actualBossDamage == 0 ? 0 : 1);
-        int turnsTillBossDies = bossHp / actualPlayerDamage + (bossHp % actualPlayerDamage == 0 ? 0 : 1);
+        var turnsTillPlayerDies = playerHp / actualBossDamage + (playerHp % actualBossDamage == 0 ? 0 : 1);
+        var turnsTillBossDies = bossHp / actualPlayerDamage + (bossHp % actualPlayerDamage == 0 ? 0 : 1);
 
         return turnsTillBossDies <= turnsTillPlayerDies;
     }

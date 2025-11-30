@@ -8,13 +8,13 @@ public class Day06 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
         uint personAnswers = 0;
         uint groupAnswers = 0;
-        uint groupAllAnswers = uint.MaxValue;
-        foreach (byte c in input)
+        var groupAllAnswers = uint.MaxValue;
+        foreach (var c in input)
         {
             if (c == '\n')
             {

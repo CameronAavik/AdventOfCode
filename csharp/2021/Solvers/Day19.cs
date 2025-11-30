@@ -36,7 +36,7 @@ public class Day19 : ISolver
 
         public int CompareTo(Coord other)
         {
-            int c = X.CompareTo(other.X);
+            var c = X.CompareTo(other.X);
             if (c != 0) return c;
 
             c = Y.CompareTo(other.Y);
@@ -58,43 +58,43 @@ public class Day19 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        List<ScannerData> scanners = ParseInput(input);
-        int numScanners = scanners.Count;
+        var scanners = ParseInput(input);
+        var numScanners = scanners.Count;
 
         var scannerCoordinates = new Coord[scanners.Count];
         var foundScannersQueue = new Queue<FixedScanner>();
         var beacons = new HashSet<Coord>();
-        int part2 = 0;
+        var part2 = 0;
 
-        int foundScanners = 1;
+        var foundScanners = 1;
         ulong foundScannersBitset = 1;
         scannerCoordinates[0] = Coord.Zero;
         foundScannersQueue.Enqueue(new FixedScanner(Coord.Zero, scanners[0]));
-        foreach (Coord coord in scanners[0].Coords)
+        foreach (var coord in scanners[0].Coords)
             beacons.Add(coord);
 
-        while (foundScanners < numScanners && foundScannersQueue.TryDequeue(out FixedScanner? fixedScanner))
+        while (foundScanners < numScanners && foundScannersQueue.TryDequeue(out var fixedScanner))
         {
-            Span<Coord> fixedCoords = CollectionsMarshal.AsSpan(fixedScanner.Data.Coords);
+            var fixedCoords = CollectionsMarshal.AsSpan(fixedScanner.Data.Coords);
             fixedCoords.Sort();
 
-            for (int i = 0; i < numScanners; i++)
+            for (var i = 0; i < numScanners; i++)
             {
                 if ((foundScannersBitset & (1UL << i)) != 0)
                     continue;
 
-                ScannerData scanner = scanners[i];
-                Span<Coord> scannerCoords = CollectionsMarshal.AsSpan(scanner.Coords);
-                if (TryFindOverlap(fixedCoords, scannerCoords, out Coord relativePosition))
+                var scanner = scanners[i];
+                var scannerCoords = CollectionsMarshal.AsSpan(scanner.Coords);
+                if (TryFindOverlap(fixedCoords, scannerCoords, out var relativePosition))
                 {
-                    Coord center = fixedScanner.Center + relativePosition;
+                    var center = fixedScanner.Center + relativePosition;
 
-                    foreach (Coord coord in scannerCoords)
+                    foreach (var coord in scannerCoords)
                         beacons.Add(coord + center);
 
-                    for (int j = 0; j < foundScanners; j++)
+                    for (var j = 0; j < foundScanners; j++)
                     {
-                        int distance = (center - scannerCoordinates[j]).GetManhattanDistance();
+                        var distance = (center - scannerCoordinates[j]).GetManhattanDistance();
                         if (distance > part2)
                             part2 = distance;
                     }
@@ -112,7 +112,7 @@ public class Day19 : ISolver
 
     private static List<ScannerData> ParseInput(ReadOnlySpan<byte> input)
     {
-        int inputIndex = 0;
+        var inputIndex = 0;
         var scanners = new List<ScannerData>();
         while (inputIndex < input.Length)
             scanners.Add(ReadScannerFromInput(input, ref inputIndex));
@@ -129,9 +129,9 @@ public class Day19 : ISolver
         var coords = new List<Coord>();
         while (inputIndex < input.Length && input[inputIndex] != '\n')
         {
-            int x = ReadIntegerFromInput(input, ',', ref inputIndex);
-            int y = ReadIntegerFromInput(input, ',', ref inputIndex);
-            int z = ReadIntegerFromInput(input, '\n', ref inputIndex);
+            var x = ReadIntegerFromInput(input, ',', ref inputIndex);
+            var y = ReadIntegerFromInput(input, ',', ref inputIndex);
+            var z = ReadIntegerFromInput(input, '\n', ref inputIndex);
             coords.Add(new(x, y, z));
         }
 
@@ -144,7 +144,7 @@ public class Day19 : ISolver
     public static int ReadIntegerFromInput(ReadOnlySpan<byte> span, char until, ref int i)
     {
         // Assume that the first character is always a digit
-        byte c = span[i++];
+        var c = span[i++];
 
         int mul;
         int ret;
@@ -168,7 +168,7 @@ public class Day19 : ISolver
 
     private static bool TryFindOverlap(ReadOnlySpan<Coord> fixedCoords, Span<Coord> newCoords, out Coord relativePosition)
     {
-        for (int axis = 0; axis < 6; axis++)
+        for (var axis = 0; axis < 6; axis++)
         {
             if (TryFindOverlapWithGivenXAxis(fixedCoords, newCoords, (Axis)axis, out relativePosition))
                 return true;
@@ -182,17 +182,17 @@ public class Day19 : ISolver
     {
         Span<byte> differenceCounts = stackalloc byte[4096];
 
-        int maxDifferenceCount = 1;
-        for (int newIndex = 0; newIndex < newCoords.Length - (12 - maxDifferenceCount); newIndex++)
+        var maxDifferenceCount = 1;
+        for (var newIndex = 0; newIndex < newCoords.Length - (12 - maxDifferenceCount); newIndex++)
         {
-            int x2 = newCoords[newIndex].GetValueOnAxis(axis);
+            var x2 = newCoords[newIndex].GetValueOnAxis(axis);
 
-            foreach (Coord fixedCoord in fixedCoords)
+            foreach (var fixedCoord in fixedCoords)
             {
-                int diff = x2 - fixedCoord.X;
+                var diff = x2 - fixedCoord.X;
 
-                int diffIndex = diff + 2048;
-                byte differenceCount = differenceCounts[diffIndex]++;
+                var diffIndex = diff + 2048;
+                var differenceCount = differenceCounts[diffIndex]++;
 
                 if (differenceCount == 6 && TryFindOverlapWithGivenXAxisAndOffset(fixedCoords, newCoords, axis, diff, out relativePosition))
                     return true;
@@ -210,18 +210,18 @@ public class Day19 : ISolver
     {
         // This span will store the pairs of coordinates that have the same offset away on the x axis
         Span<(Coord Fixed, Coord New)> matches = stackalloc (Coord Fixed, Coord New)[20];
-        int matchIndex = 0;
+        var matchIndex = 0;
 
         // Then, look through the remainder of the newCoords list to find fixed coords that are at the same offset
-        for (int newIndex = 0; newIndex < newCoords.Length; newIndex++)
+        for (var newIndex = 0; newIndex < newCoords.Length; newIndex++)
         {
-            int possibleMatchesLeft = newCoords.Length - newIndex;
+            var possibleMatchesLeft = newCoords.Length - newIndex;
             if (matchIndex + possibleMatchesLeft < 12)
                 break;
 
-            Coord newCoord = newCoords[newIndex];
-            int newX = newCoord.GetValueOnAxis(axis);
-            int expectedX = newX - offset;
+            var newCoord = newCoords[newIndex];
+            var newX = newCoord.GetValueOnAxis(axis);
+            var expectedX = newX - offset;
             FindFixedCoordWithExpectedX(fixedCoords, expectedX, newCoord, matches, ref matchIndex);
         }
 
@@ -282,14 +282,14 @@ public class Day19 : ISolver
 
     private static int FindFixedCoordWithExpectedX(ReadOnlySpan<Coord> fixedCoords, int expectedX, Coord otherCoord, Span<(Coord Fixed, Coord New)> matches, ref int matchIndex)
     {
-        int lo = 0;
-        int hi = fixedCoords.Length - 1;
+        var lo = 0;
+        var hi = fixedCoords.Length - 1;
 
         while (lo <= hi)
         {
-            int midIndex = (lo + hi) / 2;
-            Coord fixedCoord = fixedCoords[midIndex];
-            int x = fixedCoord.X;
+            var midIndex = (lo + hi) / 2;
+            var fixedCoord = fixedCoords[midIndex];
+            var x = fixedCoord.X;
             if (x > expectedX)
             {
                 hi = midIndex - 1;
@@ -302,7 +302,7 @@ public class Day19 : ISolver
             {
                 matches[matchIndex++] = (fixedCoord, otherCoord);
 
-                for (int i = midIndex - 1; i >= lo; i++)
+                for (var i = midIndex - 1; i >= lo; i++)
                 {
                     fixedCoord = fixedCoords[i];
                     if (fixedCoord.X != expectedX)
@@ -311,7 +311,7 @@ public class Day19 : ISolver
                     matches[matchIndex++] = (fixedCoord, otherCoord);
                 }
 
-                for (int i = midIndex + 1; i <= hi; i++)
+                for (var i = midIndex + 1; i <= hi; i++)
                 {
                     fixedCoord = fixedCoords[i];
                     if (fixedCoord.X != expectedX)
@@ -334,18 +334,18 @@ public class Day19 : ISolver
         // Use a faster solution if there are exactly 12 matches
         if (matches.Length == 12)
         {
-            (Coord firstMatchFixed, Coord firstMatchNew) = matches[0];
-            int expectedYDiff = firstMatchNew.GetValueOnAxis(yAxis) - firstMatchFixed.Y;
-            int expectedZDiff = firstMatchNew.GetValueOnAxis(zAxis) - firstMatchFixed.Z;
+            (var firstMatchFixed, var firstMatchNew) = matches[0];
+            var expectedYDiff = firstMatchNew.GetValueOnAxis(yAxis) - firstMatchFixed.Y;
+            var expectedZDiff = firstMatchNew.GetValueOnAxis(zAxis) - firstMatchFixed.Z;
 
-            for (int i = 1; i < matches.Length; i++)
+            for (var i = 1; i < matches.Length; i++)
             {
-                (Coord matchFixed, Coord matchNew) = matches[i];
-                int yDiff = matchNew.GetValueOnAxis(yAxis) - matchFixed.Y;
+                (var matchFixed, var matchNew) = matches[i];
+                var yDiff = matchNew.GetValueOnAxis(yAxis) - matchFixed.Y;
                 if (yDiff != expectedYDiff)
                     return false;
 
-                int zDiff = matchNew.GetValueOnAxis(zAxis) - matchFixed.Z;
+                var zDiff = matchNew.GetValueOnAxis(zAxis) - matchFixed.Z;
                 if (zDiff != expectedZDiff)
                     return false;
             }
@@ -354,30 +354,30 @@ public class Day19 : ISolver
         }
         else
         {
-            int matchesLeft = matches.Length;
-            uint matchesLeftBitset = (1U << (1 + matchesLeft)) - 1;
+            var matchesLeft = matches.Length;
+            var matchesLeftBitset = (1U << (1 + matchesLeft)) - 1;
             while (matchesLeft > 0)
             {
-                int matchIndex = 0;
+                var matchIndex = 0;
                 while ((matchesLeftBitset & (1U << matchIndex)) == 0)
                     matchIndex++;
 
-                int maxMatched = matchesLeft;
+                var maxMatched = matchesLeft;
                 matchesLeft--;
 
-                (Coord firstMatchFixed, Coord firstMatchNew) = matches[matchIndex];
+                (var firstMatchFixed, var firstMatchNew) = matches[matchIndex];
 
-                int expectedYDiff = firstMatchNew.GetValueOnAxis(yAxis) - firstMatchFixed.Y;
-                int expectedZDiff = firstMatchNew.GetValueOnAxis(zAxis) - firstMatchFixed.Z;
+                var expectedYDiff = firstMatchNew.GetValueOnAxis(yAxis) - firstMatchFixed.Y;
+                var expectedZDiff = firstMatchNew.GetValueOnAxis(zAxis) - firstMatchFixed.Z;
 
-                for (int i = matchIndex + 1; i < matches.Length; i++)
+                for (var i = matchIndex + 1; i < matches.Length; i++)
                 {
-                    uint matchBit = 1U << matchIndex;
+                    var matchBit = 1U << matchIndex;
                     if ((matchesLeftBitset & matchBit) == 0)
                         continue;
 
-                    (Coord matchFixed, Coord matchNew) = matches[i];
-                    int yDiff = matchNew.GetValueOnAxis(yAxis) - matchFixed.Y;
+                    (var matchFixed, var matchNew) = matches[i];
+                    var yDiff = matchNew.GetValueOnAxis(yAxis) - matchFixed.Y;
                     if (yDiff != expectedYDiff)
                     {
                         if (--maxMatched < 12)
@@ -385,7 +385,7 @@ public class Day19 : ISolver
                         continue;
                     }
 
-                    int zDiff = matchNew.GetValueOnAxis(zAxis) - matchFixed.Z;
+                    var zDiff = matchNew.GetValueOnAxis(zAxis) - matchFixed.Z;
                     if (zDiff != expectedZDiff)
                     {
                         if (--maxMatched < 12)
@@ -409,7 +409,7 @@ public class Day19 : ISolver
             }
         }
 
-        for (int i = 0; i < allCoords.Length; i++)
+        for (var i = 0; i < allCoords.Length; i++)
             allCoords[i] = allCoords[i].ApplyAxes(xAxis, yAxis, zAxis);
 
         return true;

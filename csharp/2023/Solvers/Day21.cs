@@ -21,11 +21,11 @@ public class Day21 : ISolver
     {
         // Since there is a horizontal and vertical line through the center with no rocks and around the grid, we can simply just look at the 4 64x64 quadrants
         // Initialise totals with values that are not in quadrants
-        int totalOdd = 32 * 4 + 65 * 4;
-        int totalEven = 32 * 4 + 65 * 4 + 1;
-        int visitedEven = 32 * 4 + 1;
-        int visitedOdd = 33 * 4;
-        int cornerEven = 65 * 4;
+        var totalOdd = 32 * 4 + 65 * 4;
+        var totalEven = 32 * 4 + 65 * 4 + 1;
+        var visitedEven = 32 * 4 + 1;
+        var visitedOdd = 33 * 4;
+        var cornerEven = 65 * 4;
 
         SimulateQuadrant(input, isRight: false, isBottom: false, ref totalEven, ref totalOdd, ref visitedEven, ref visitedOdd, ref cornerEven);
         SimulateQuadrant(input, isRight: true, isBottom: false, ref totalEven, ref totalOdd, ref visitedEven, ref visitedOdd, ref cornerEven);
@@ -34,11 +34,11 @@ public class Day21 : ISolver
 
         solution.SubmitPart1(visitedEven);
 
-        int cornerOdd = totalOdd - visitedOdd;
+        var cornerOdd = totalOdd - visitedOdd;
 
         // Part 2 solution comes from villuna: https://github.com/villuna/aoc23/wiki/A-Geometric-solution-to-advent-of-code-2023,-day-21
         const long n = 202300;
-        long part2 = (n + 1) * (n + 1) * totalOdd + n * n * totalEven - (n + 1) * cornerOdd + n * cornerEven;
+        var part2 = (n + 1) * (n + 1) * totalOdd + n * n * totalEven - (n + 1) * cornerOdd + n * cornerEven;
         solution.SubmitPart2(part2);
     }
 
@@ -51,17 +51,17 @@ public class Day21 : ISolver
         const ulong evenBits = 0x5555555555555555UL;
         const ulong oddBits = 0xAAAAAAAAAAAAAAAAUL;
 
-        int step = isBottom ? rowLength : -rowLength;
-        ref byte quadrantStartRef = ref Unsafe.Add(ref MemoryMarshal.GetReference(input), center * rowLength + center);
+        var step = isBottom ? rowLength : -rowLength;
+        ref var quadrantStartRef = ref Unsafe.Add(ref MemoryMarshal.GetReference(input), center * rowLength + center);
         quadrantStartRef = ref Unsafe.Add(ref quadrantStartRef, isRight ? 1 : -64);
         quadrantStartRef = ref Unsafe.Add(ref quadrantStartRef, step);
 
         Span<ulong> plots = stackalloc ulong[64];
 
         // The machine doesn't need AVX-512 for this to work, .NET will still emulate it on AVX2
-        for (int i = 0; i < 64; i++)
+        for (var i = 0; i < 64; i++)
         {
-            ulong plotBits = ~Vector512.Equals(Vector512.LoadUnsafe(ref quadrantStartRef), Vector512.Create((byte)'#')).ExtractMostSignificantBits();
+            var plotBits = ~Vector512.Equals(Vector512.LoadUnsafe(ref quadrantStartRef), Vector512.Create((byte)'#')).ExtractMostSignificantBits();
 
             // If the quadrant is on the left, reverse the bits so that it acts like it was on the right
             if (!isRight)
@@ -80,29 +80,29 @@ public class Day21 : ISolver
         visitedIn65StepsInner[0] = 3 & plots[0];
         visitedIn65StepsInner[1] = 1 & plots[1];
 
-        ulong cornerRow = 7UL << 61;
+        var cornerRow = 7UL << 61;
         visitedIn64StepsCorner[63] = (3UL << 62) & plots[63];
         visitedIn64StepsCorner[62] = (1UL << 63) * plots[62];
-        for (int i = 3; i <= 64; i++)
+        for (var i = 3; i <= 64; i++)
         {
-            ulong prevInner = visitedIn65StepsInner[0];
-            ulong curInner = visitedIn65StepsInner[1];
+            var prevInner = visitedIn65StepsInner[0];
+            var curInner = visitedIn65StepsInner[1];
             visitedIn65StepsInner[0] = innerRow & plots[0];
             innerRow = (innerRow << 1) | 1;
 
-            ulong prevCorner = visitedIn64StepsCorner[63];
-            ulong curCorner = visitedIn64StepsCorner[62];
+            var prevCorner = visitedIn64StepsCorner[63];
+            var curCorner = visitedIn64StepsCorner[62];
             visitedIn64StepsCorner[63] = cornerRow & plots[63];
             cornerRow = (cornerRow >> 1) | (1UL << 63);
 
-            for (int j = 0; j < i - 3; j++)
+            for (var j = 0; j < i - 3; j++)
             {
-                ulong nextInner = visitedIn65StepsInner[j + 2];
+                var nextInner = visitedIn65StepsInner[j + 2];
                 visitedIn65StepsInner[j + 1] = (curInner | (curInner << 1) | (curInner >> 1) | prevInner | nextInner) & plots[j + 1];
                 prevInner = curInner;
                 curInner = nextInner;
 
-                ulong nextCorner = visitedIn64StepsCorner[63 - j - 2];
+                var nextCorner = visitedIn64StepsCorner[63 - j - 2];
                 visitedIn64StepsCorner[63 - j - 1] = (curCorner | (curCorner << 1) | (curCorner >> 1) | prevCorner | nextCorner) & plots[63 - j - 1];
                 prevCorner = curCorner;
                 curCorner = nextCorner;
@@ -121,10 +121,10 @@ public class Day21 : ISolver
             visitedIn64StepsCorner[63 - i + 1] = (1UL << 63) & plots[63 - i + 1];
         }
 
-        for (int i = 0; i < 64; i += 2)
+        for (var i = 0; i < 64; i += 2)
         {
-            ulong evenStartVisitedRow = visitedIn65StepsInner[i];
-            ulong oddStartVisitedRow = visitedIn65StepsInner[i + 1];
+            var evenStartVisitedRow = visitedIn65StepsInner[i];
+            var oddStartVisitedRow = visitedIn65StepsInner[i + 1];
             visitedEven += BitOperations.PopCount(evenStartVisitedRow & evenBits) + BitOperations.PopCount(oddStartVisitedRow & oddBits);
             visitedOdd += BitOperations.PopCount(oddStartVisitedRow & evenBits) + BitOperations.PopCount(evenStartVisitedRow & oddBits);
 
@@ -133,20 +133,20 @@ public class Day21 : ISolver
 
         // record number of positions that are accessible from anywhere
         visitedIn65StepsInner[63] = plots[63];
-        for (int i = 1; i < 63; i++)
+        for (var i = 1; i < 63; i++)
             visitedIn65StepsInner[i] |= visitedIn64StepsCorner[i];
 
-        int changes = 1;
+        var changes = 1;
         while (changes != 0)
         {
             changes = 0;
 
-            ulong prev = visitedIn65StepsInner[0];
-            ulong cur = visitedIn65StepsInner[1];
-            for (int j = 1; j < 63; j++)
+            var prev = visitedIn65StepsInner[0];
+            var cur = visitedIn65StepsInner[1];
+            for (var j = 1; j < 63; j++)
             {
-                ulong next = visitedIn65StepsInner[j + 1];
-                ulong newValue = (cur | (cur << 1) | (cur >> 1) | prev | next) & plots[j];
+                var next = visitedIn65StepsInner[j + 1];
+                var newValue = (cur | (cur << 1) | (cur >> 1) | prev | next) & plots[j];
                 changes += newValue == cur ? 0 : 1;
                 visitedIn65StepsInner[j] = newValue;
                 prev = cur;
@@ -154,10 +154,10 @@ public class Day21 : ISolver
             }
         }
 
-        for (int i = 0; i < 64; i += 2)
+        for (var i = 0; i < 64; i += 2)
         {
-            ulong evenStartVisitedRow = visitedIn65StepsInner[i];
-            ulong oddStartVisitedRow = visitedIn65StepsInner[i + 1];
+            var evenStartVisitedRow = visitedIn65StepsInner[i];
+            var oddStartVisitedRow = visitedIn65StepsInner[i + 1];
             totalEven += BitOperations.PopCount(evenStartVisitedRow & evenBits) + BitOperations.PopCount(oddStartVisitedRow & oddBits);
             totalOdd += BitOperations.PopCount(oddStartVisitedRow & evenBits) + BitOperations.PopCount(evenStartVisitedRow & oddBits);
         }

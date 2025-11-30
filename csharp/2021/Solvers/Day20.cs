@@ -11,13 +11,13 @@ public class Day20 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        bool backgroundAlternates = input[0] == '#';
+        var backgroundAlternates = input[0] == '#';
         if (backgroundAlternates && input[511] == '#')
             ThrowHelper.ThrowException("Answer will be infinity");
 
         Span<byte> evenEnhancementAlgorithm = stackalloc byte[512];
         Span<byte> oddEnhancementAlgorithm = stackalloc byte[512];
-        for (int i = 0; i < evenEnhancementAlgorithm.Length; i++)
+        for (var i = 0; i < evenEnhancementAlgorithm.Length; i++)
         {
             if (backgroundAlternates)
             {
@@ -34,38 +34,38 @@ public class Day20 : ISolver
             }
         }
 
-        ReadOnlySpan<byte> gridInput = input.Slice(514);
-        int initialWidth = gridInput.IndexOf((byte)'\n');
-        int initialHeight = gridInput.Length / (initialWidth + 1);
+        var gridInput = input[514..];
+        var initialWidth = gridInput.IndexOf((byte)'\n');
+        var initialHeight = gridInput.Length / (initialWidth + 1);
 
-        int finalWidth = initialWidth + GridPadding * 2;
-        int finalHeight = initialHeight + GridPadding * 2;
-        int ulongsPerRow = (finalWidth + 63) / 64;
+        var finalWidth = initialWidth + GridPadding * 2;
+        var finalHeight = initialHeight + GridPadding * 2;
+        var ulongsPerRow = (finalWidth + 63) / 64;
 
         Span<ulong> grid = stackalloc ulong[ulongsPerRow * finalHeight];
         Span<ulong> grid2 = stackalloc ulong[ulongsPerRow * finalHeight];
         ParseGridInput(gridInput, grid, initialWidth, initialHeight, ulongsPerRow);
 
-        int minY = GridPadding;
-        int maxY = GridPadding + initialHeight - 1;
+        var minY = GridPadding;
+        var maxY = GridPadding + initialHeight - 1;
 
         Step(grid, grid2, evenEnhancementAlgorithm, --minY, ++maxY, ulongsPerRow);
         Step(grid2, grid, oddEnhancementAlgorithm, --minY, ++maxY, ulongsPerRow);
 
-        int part1 = 0;
-        foreach (ulong row in grid)
+        var part1 = 0;
+        foreach (var row in grid)
             part1 += BitOperations.PopCount(row);
 
         solution.SubmitPart1(part1);
 
-        for (int i = 0; i < 24; i++)
+        for (var i = 0; i < 24; i++)
         {
             Step(grid, grid2, evenEnhancementAlgorithm, --minY, ++maxY, ulongsPerRow);
             Step(grid2, grid, oddEnhancementAlgorithm, --minY, ++maxY, ulongsPerRow);
         }
 
-        int part2 = 0;
-        foreach (ulong row in grid)
+        var part2 = 0;
+        foreach (var row in grid)
             part2 += BitOperations.PopCount(row);
 
         solution.SubmitPart2(part2);
@@ -73,14 +73,14 @@ public class Day20 : ISolver
 
     private static void ParseGridInput(ReadOnlySpan<byte> gridInput, Span<ulong> grid, int initialWidth, int initialHeight, int ulongsPerRow)
     {
-        for (int row = 0; row < initialHeight; row++)
+        for (var row = 0; row < initialHeight; row++)
         {
-            int y = row + GridPadding;
-            int gridOffset = y * ulongsPerRow;
-            int inputOffset = row * (initialWidth + 1);
+            var y = row + GridPadding;
+            var gridOffset = y * ulongsPerRow;
+            var inputOffset = row * (initialWidth + 1);
 
             ulong firstCell = 0;
-            int col = 0;
+            var col = 0;
             while (col < Math.Min(64 - GridPadding, initialWidth))
             {
                 firstCell <<= 1;
@@ -95,7 +95,7 @@ public class Day20 : ISolver
 
             while (col + 64 < initialWidth)
             {
-                int colEnd = col + 64;
+                var colEnd = col + 64;
                 ulong cell = 0;
                 while (col < colEnd)
                 {
@@ -107,7 +107,7 @@ public class Day20 : ISolver
                 grid[gridOffset++] = cell;
             }
 
-            int remaining = initialWidth - col;
+            var remaining = initialWidth - col;
 
             ulong finalCell = 0;
             while (col < initialWidth)
@@ -123,34 +123,34 @@ public class Day20 : ISolver
 
     private static void Step(Span<ulong> grid, Span<ulong> nextGrid, Span<byte> enhancement, int minY, int maxY, int ulongsPerRow)
     {
-        Span<ulong> prevRow = grid.Slice((minY - 1) * ulongsPerRow, ulongsPerRow);
-        Span<ulong> curRow = grid.Slice(minY * ulongsPerRow, ulongsPerRow);
+        var prevRow = grid.Slice((minY - 1) * ulongsPerRow, ulongsPerRow);
+        var curRow = grid.Slice(minY * ulongsPerRow, ulongsPerRow);
 
-        for (int row = minY; row <= maxY; row++)
+        for (var row = minY; row <= maxY; row++)
         {
-            Span<ulong> nextRow = grid.Slice((row + 1) * ulongsPerRow, ulongsPerRow);
+            var nextRow = grid.Slice((row + 1) * ulongsPerRow, ulongsPerRow);
 
-            Span<ulong> nextGridRow = nextGrid.Slice(row * ulongsPerRow, ulongsPerRow);
+            var nextGridRow = nextGrid.Slice(row * ulongsPerRow, ulongsPerRow);
 
-            int lastBitCarry = 0;
-            ulong prev = prevRow[0];
-            ulong cur = curRow[0];
-            ulong next = nextRow[0];
-            for (int i = 0; i < ulongsPerRow; i++)
+            var lastBitCarry = 0;
+            var prev = prevRow[0];
+            var cur = curRow[0];
+            var next = nextRow[0];
+            for (var i = 0; i < ulongsPerRow; i++)
             {
-                int firstBitIndex = lastBitCarry | (int)(((prev >> 62) << 6) | ((cur >> 62) << 3) | (next >> 62));
+                var firstBitIndex = lastBitCarry | (int)(((prev >> 62) << 6) | ((cur >> 62) << 3) | (next >> 62));
 
                 ulong newValue = enhancement[firstBitIndex];
 
-                for (int j = 1; j < 63; j++)
+                for (var j = 1; j < 63; j++)
                 {
-                    int index = (int)((((prev >> (62 - j)) & 0b111) << 6) | (((cur >> (62 - j)) & 0b111) << 3) | ((next >> (62 - j)) & 0b111));
+                    var index = (int)((((prev >> (62 - j)) & 0b111) << 6) | (((cur >> (62 - j)) & 0b111) << 3) | ((next >> (62 - j)) & 0b111));
                     newValue <<= 1;
                     newValue += enhancement[index];
                 }
 
                 // take the last two bits of each row and leave the last bit empty
-                int lastBitIndex = (int)((prev & 3) << 7 | (cur & 3) << 4 | (next & 3) << 1);
+                var lastBitIndex = (int)((prev & 3) << 7 | (cur & 3) << 4 | (next & 3) << 1);
 
                 if (i < ulongsPerRow - 1)
                 {

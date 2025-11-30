@@ -37,7 +37,7 @@ public class Day22 : ISolver
         public void GetRangeOnAxis(int axis, out int start, out int end)
         {
             // Abuse the fact that the coordinates are contiguous in memory to turn this into a memory lookup.
-            ref int field = ref Unsafe.AsRef(in _x1);
+            ref var field = ref Unsafe.AsRef(in _x1);
             start = Unsafe.Add(ref field, (nint)(uint)(axis * 2));
             end = Unsafe.Add(ref field, (nint)(uint)(axis * 2 + 1));
         }
@@ -70,23 +70,23 @@ public class Day22 : ISolver
     {
         Span<RebootStep> part1Steps = stackalloc RebootStep[1024];
         Span<RebootStep> part2Steps = stackalloc RebootStep[1024];
-        int part1StepCount = 0;
-        int part2StepCount = 0;
+        var part1StepCount = 0;
+        var part2StepCount = 0;
 
         Cube part1Bounds = new(-100, 99, -100, 99, -100, 99);
         Cube part2Bounds = default;
 
-        int inputIndex = 0;
+        var inputIndex = 0;
         while (inputIndex < input.Length)
         {
             // ParseRebootStep will parse the input, but will also modify the starting and ending coordinates
             // such that each value will be doubled, and the ending values will be offset by 1.
             // Example: x=1 to 23 will be stored as 2 to 47.
-            RebootStep rebootStep = ParseRebootStep(input, ref inputIndex);
-            (bool isOn, Cube cube) = rebootStep;
+            var rebootStep = ParseRebootStep(input, ref inputIndex);
+            (var isOn, var cube) = rebootStep;
 
             // Clamp the cube to the bounds from part 1
-            Cube boundToPart1 = cube.IntersectWith(part1Bounds);
+            var boundToPart1 = cube.IntersectWith(part1Bounds);
             if (!boundToPart1.ContainsNegativeSide)
                 part1Steps[part1StepCount++] = new(isOn, boundToPart1);
 
@@ -94,11 +94,11 @@ public class Day22 : ISolver
             part2Steps[part2StepCount++] = rebootStep;
         }
 
-        part1Steps = part1Steps.Slice(0, part1StepCount);
-        part2Steps = part2Steps.Slice(0, part2StepCount);
+        part1Steps = part1Steps[..part1StepCount];
+        part2Steps = part2Steps[..part2StepCount];
 
-        long part1 = Solve(part1Steps, part1Bounds);
-        long part2 = Solve(part2Steps, part2Bounds);
+        var part1 = Solve(part1Steps, part1Bounds);
+        var part2 = Solve(part2Steps, part2Bounds);
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
@@ -108,7 +108,7 @@ public class Day22 : ISolver
     private static long Solve(ReadOnlySpan<RebootStep> steps, Cube boundingCube, int splitAxis = 0, bool defaultIsOn = false)
     {
         // Skip any steps at the start which set the cube to the same state that is the default
-        int newStart = 0;
+        var newStart = 0;
         while (newStart < steps.Length && steps[newStart].IsOn == defaultIsOn)
             newStart++;
         steps = steps[newStart..];
@@ -123,25 +123,25 @@ public class Day22 : ISolver
         if (steps.Length == 1)
         {
             // To get the volume of the cube, we need to get the cube representing the overlap
-            Cube overlap = steps[0].Cube.IntersectWith(boundingCube);
-            long cubeVolume = overlap.Volume;
+            var overlap = steps[0].Cube.IntersectWith(boundingCube);
+            var cubeVolume = overlap.Volume;
             return defaultIsOn ? boundingCube.Volume - cubeVolume : cubeVolume;
         }
 
         // Optimise case where there are two cubes left
         if (steps.Length == 2)
         {
-            Cube overlap1 = steps[0].Cube.IntersectWith(boundingCube);
-            Cube overlap2 = steps[1].Cube.IntersectWith(boundingCube);
+            var overlap1 = steps[0].Cube.IntersectWith(boundingCube);
+            var overlap2 = steps[1].Cube.IntersectWith(boundingCube);
 
-            long combinedVolumes = overlap1.Volume;
+            var combinedVolumes = overlap1.Volume;
 
             // If they both have the same state, then add together.
             if (!defaultIsOn == steps[1].IsOn)
                 combinedVolumes += overlap2.Volume;
 
             // If they overlap, subtract the overlap volume.
-            Cube overlaps = overlap1.IntersectWith(overlap2);
+            var overlaps = overlap1.IntersectWith(overlap2);
             if (!overlaps.ContainsNegativeSide)
                 combinedVolumes -= overlaps.Volume;
 
@@ -150,12 +150,12 @@ public class Day22 : ISolver
 
         // Try find an axis and value to split on.
         int separator;
-        Span<int> axisValues = steps.Length <= 8 ? stackalloc int[16] : new int[steps.Length * 2];
+        var axisValues = steps.Length <= 8 ? stackalloc int[16] : new int[steps.Length * 2];
         while (true)
         {
             // Get two coordinates from each cube on the given axis and put it in axisValues.
             // Skip any coordinates that are already touching the bounding cube.
-            int numValues = GetAxisValues(steps, boundingCube, splitAxis, axisValues);
+            var numValues = GetAxisValues(steps, boundingCube, splitAxis, axisValues);
 
             // If there are no values, it means that all the cubes are touching the bounding cube on the axis.
             // We therefore try the next axis
@@ -166,7 +166,7 @@ public class Day22 : ISolver
             }
 
             // Determine the value to split on
-            separator = GetMedian(axisValues.Slice(0, numValues));
+            separator = GetMedian(axisValues[..numValues]);
 
             // If the separator is odd, then increment it by 1 so that it represents the start of a range.
             if (separator % 2 != 0)
@@ -176,26 +176,26 @@ public class Day22 : ISolver
         }
 
         // Generate two new cubes after splitting on the given axis
-        boundingCube.SplitOnAxis(splitAxis, separator, out Cube leftCube, out Cube rightCube);
+        boundingCube.SplitOnAxis(splitAxis, separator, out var leftCube, out var rightCube);
 
         // Build a list of steps that affect the left cube, and a list that affects the right cube.
         // If a step overlaps with both the left and right cube, it will be placed in both lists.
-        Span<RebootStep> leftSteps = steps.Length <= 8 ? stackalloc RebootStep[8] : new RebootStep[steps.Length];
-        Span<RebootStep> rightSteps = steps.Length <= 8 ? stackalloc RebootStep[8] : new RebootStep[steps.Length];
-        int leftStepsLength = 0;
-        int rightStepsLength = 0;
+        var leftSteps = steps.Length <= 8 ? stackalloc RebootStep[8] : new RebootStep[steps.Length];
+        var rightSteps = steps.Length <= 8 ? stackalloc RebootStep[8] : new RebootStep[steps.Length];
+        var leftStepsLength = 0;
+        var rightStepsLength = 0;
 
         // In this process, we may also find cubes that encompass the entirety of the left or right cube.
         // When we find these, we will be able to update the default state to apply for the entire cube.
-        bool leftDefault = defaultIsOn;
-        bool rightDefault = defaultIsOn;
+        var leftDefault = defaultIsOn;
+        var rightDefault = defaultIsOn;
 
-        foreach (RebootStep step in steps)
+        foreach (var step in steps)
         {
-            Cube cube = step.Cube;
-            cube.GetRangeOnAxis(splitAxis, out int start, out int end);
+            var cube = step.Cube;
+            cube.GetRangeOnAxis(splitAxis, out var start, out var end);
 
-            bool shouldCheckRightOverlap = true;
+            var shouldCheckRightOverlap = true;
             if (start < separator)
             {
                 if (separator <= end + 1 && cube.ContainsCube(leftCube))
@@ -229,16 +229,16 @@ public class Day22 : ISolver
         }
 
         // Every step down, we split by the next axis
-        int nextAxis = (splitAxis + 1) % 3;
-        long leftVolume = Solve(leftSteps.Slice(0, leftStepsLength), leftCube, nextAxis, leftDefault);
-        long rightVolume = Solve(rightSteps.Slice(0, rightStepsLength), rightCube, nextAxis, rightDefault);
+        var nextAxis = (splitAxis + 1) % 3;
+        var leftVolume = Solve(leftSteps[..leftStepsLength], leftCube, nextAxis, leftDefault);
+        var rightVolume = Solve(rightSteps[..rightStepsLength], rightCube, nextAxis, rightDefault);
         return leftVolume + rightVolume;
     }
 
     // Implementation of introselect algorithm to find median of a list of values
     private static int GetMedian(Span<int> values)
     {
-        int medianIndex = (values.Length - 1) / 2;
+        var medianIndex = (values.Length - 1) / 2;
         while (values.Length > 1)
         {
             if (medianIndex == 0)
@@ -247,12 +247,12 @@ public class Day22 : ISolver
             if (medianIndex == values.Length - 1)
                 return FindMax(values);
 
-            int pivot = values[0];
-            int l = 1;
-            int r = values.Length - 1;
+            var pivot = values[0];
+            var l = 1;
+            var r = values.Length - 1;
             while (l <= r)
             {
-                int score = values[l];
+                var score = values[l];
                 if (score <= pivot)
                 {
                     l++;
@@ -268,7 +268,7 @@ public class Day22 : ISolver
             if (l <= medianIndex)
             {
                 medianIndex -= l;
-                values = values.Slice(l);
+                values = values[l..];
             }
             else if (l == medianIndex + 1)
             {
@@ -276,7 +276,7 @@ public class Day22 : ISolver
             }
             else
             {
-                values = values.Slice(1, l - 1);
+                values = values[1..l];
             }
         }
 
@@ -285,8 +285,8 @@ public class Day22 : ISolver
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int FindMax(Span<int> scores)
         {
-            int max = int.MinValue;
-            foreach (int score in scores)
+            var max = int.MinValue;
+            foreach (var score in scores)
                 if (score > max)
                     max = score;
             return max;
@@ -295,8 +295,8 @@ public class Day22 : ISolver
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static int FindMin(Span<int> scores)
         {
-            int min = int.MaxValue;
-            foreach (int score in scores)
+            var min = int.MaxValue;
+            foreach (var score in scores)
                 if (score < min)
                     min = score;
             return min;
@@ -305,13 +305,13 @@ public class Day22 : ISolver
 
     private static int GetAxisValues(ReadOnlySpan<RebootStep> steps, Cube boundingCube, int axis, Span<int> values)
     {
-        boundingCube.GetRangeOnAxis(axis, out int boundingStart, out int boundingEnd);
+        boundingCube.GetRangeOnAxis(axis, out var boundingStart, out var boundingEnd);
 
-        int valuesLength = 0;
-        foreach (RebootStep step in steps)
+        var valuesLength = 0;
+        foreach (var step in steps)
         {
-            Cube cube = step.Cube;
-            cube.GetRangeOnAxis(axis, out int start, out int end);
+            var cube = step.Cube;
+            cube.GetRangeOnAxis(axis, out var start, out var end);
 
             if (start > boundingStart)
                 values[valuesLength++] = start;
@@ -325,22 +325,22 @@ public class Day22 : ISolver
 
     private static RebootStep ParseRebootStep(ReadOnlySpan<byte> input, ref int inputIndex)
     {
-        bool isOn = input[inputIndex + 1] == 'n';
+        var isOn = input[inputIndex + 1] == 'n';
         inputIndex += isOn ? "on x=".Length : "off x=".Length;
 
-        int x1 = ReadIntegerFromInput(input, '.', ref inputIndex);
+        var x1 = ReadIntegerFromInput(input, '.', ref inputIndex);
         inputIndex++;
-        int x2 = ReadIntegerFromInput(input, ',', ref inputIndex);
+        var x2 = ReadIntegerFromInput(input, ',', ref inputIndex);
         inputIndex += 2;
 
-        int y1 = ReadIntegerFromInput(input, '.', ref inputIndex);
+        var y1 = ReadIntegerFromInput(input, '.', ref inputIndex);
         inputIndex++;
-        int y2 = ReadIntegerFromInput(input, ',', ref inputIndex);
+        var y2 = ReadIntegerFromInput(input, ',', ref inputIndex);
         inputIndex += 2;
 
-        int z1 = ReadIntegerFromInput(input, '.', ref inputIndex);
+        var z1 = ReadIntegerFromInput(input, '.', ref inputIndex);
         inputIndex++;
-        int z2 = ReadIntegerFromInput(input, '\n', ref inputIndex);
+        var z2 = ReadIntegerFromInput(input, '\n', ref inputIndex);
 
         return new(isOn, new(x1 * 2, x2 * 2 + 1, y1 * 2, y2 * 2 + 1, z1 * 2, z2 * 2 + 1));
     }
@@ -349,7 +349,7 @@ public class Day22 : ISolver
     public static int ReadIntegerFromInput(ReadOnlySpan<byte> span, char until, ref int i)
     {
         // Assume that the first character is always a digit
-        byte c = span[i++];
+        var c = span[i++];
 
         int mul;
         int ret;

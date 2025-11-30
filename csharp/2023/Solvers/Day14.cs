@@ -13,31 +13,31 @@ public class Day14 : ISolver
     // Assumes grid width <= 131
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int width = input.IndexOf((byte)'\n');
-        int rowLength = width + 1;
-        int height = input.Length / rowLength;
-        uint[] walls = new uint[(height + 2) * 4];
-        uint[] rocks = new uint[(height + 2) * 4];
+        var width = input.IndexOf((byte)'\n');
+        var rowLength = width + 1;
+        var height = input.Length / rowLength;
+        var walls = new uint[(height + 2) * 4];
+        var rocks = new uint[(height + 2) * 4];
 
         Array.Fill(walls, 0xFFFFFFFFU);
 
-        ref byte inputRef = ref MemoryMarshal.GetReference(input);
+        ref var inputRef = ref MemoryMarshal.GetReference(input);
 
-        for (int i = 0; i < height; i++)
+        for (var i = 0; i < height; i++)
         {
-            int index = 4 * (i + 1);
-            for (int j = 0; j + Vector256<byte>.Count < width; j += Vector256<byte>.Count, index++)
+            var index = 4 * (i + 1);
+            for (var j = 0; j + Vector256<byte>.Count < width; j += Vector256<byte>.Count, index++)
             {
                 var v = Vector256.LoadUnsafe(ref Unsafe.Add(ref inputRef, j));
                 walls[index] = Vector256.Equals(v, Vector256.Create((byte)'#')).ExtractMostSignificantBits();
                 rocks[index] = Vector256.Equals(v, Vector256.Create((byte)'O')).ExtractMostSignificantBits();
             }
 
-            uint lastWallsRow = ~((1U << width) - 1); // add fake walls on the edges
+            var lastWallsRow = ~((1U << width) - 1); // add fake walls on the edges
             uint lastRocksRow = 0;
-            for (int j = (index % 4) * Vector256<byte>.Count; j < width; j++)
+            for (var j = (index % 4) * Vector256<byte>.Count; j < width; j++)
             {
-                byte c = Unsafe.Add(ref inputRef, j);
+                var c = Unsafe.Add(ref inputRef, j);
                 lastWallsRow |= (c == '#' ? 1U : 0U) << j;
                 lastRocksRow |= (c == 'O' ? 1U : 0U) << j;
             }
@@ -48,9 +48,9 @@ public class Day14 : ISolver
             // add wall on the left side
             uint wallsCarry = 1;
             uint rocksCarry = 0;
-            for (int j = 4 * (i + 1); j <= index; j++)
+            for (var j = 4 * (i + 1); j <= index; j++)
             {
-                uint prev = walls[j];
+                var prev = walls[j];
                 walls[j] = (prev << 1) | wallsCarry;
                 wallsCarry = prev >> 31;
 
@@ -64,7 +64,7 @@ public class Day14 : ISolver
 
         TiltNorthWest();
 
-        int part1 = ScoreGrid();
+        var part1 = ScoreGrid();
         solution.SubmitPart1(part1);
 
         TiltSouthEast();
@@ -72,15 +72,15 @@ public class Day14 : ISolver
         var d = new Dictionary<int, int>(300);
         var scores = new List<int>(300);
 
-        int iterations = 0;
+        var iterations = 0;
         while (true)
         {
-            int hash = HashGrid();
+            var hash = HashGrid();
 
-            if (d.TryGetValue(hash, out int j))
+            if (d.TryGetValue(hash, out var j))
             {
-                int cycleLen = iterations - j;
-                int cycleOffset = (1000000000 - iterations) % cycleLen;
+                var cycleLen = iterations - j;
+                var cycleOffset = (1000000000 - iterations) % cycleLen;
                 solution.SubmitPart2(scores[j + cycleOffset - 1]);
                 break;
             }
@@ -98,8 +98,8 @@ public class Day14 : ISolver
 
         int ScoreGrid()
         {
-            int score = 0;
-            for (int i = 4; i < rocks.Length - 4; i++)
+            var score = 0;
+            for (var i = 4; i < rocks.Length - 4; i++)
                 score += BitOperations.PopCount(rocks[i]) * (height - (i / 4) + 1);
             return score;
         }
@@ -113,18 +113,18 @@ public class Day14 : ISolver
 
         void TiltNorthWest()
         {
-            ref uint rocksRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(rocks), 4);
-            ref uint wallsRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(walls), 4);
-            Vector128<uint> prevFreeSpace = Vector128<uint>.Zero;
-            for (int row = 0; row < height; row++)
+            ref var rocksRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(rocks), 4);
+            ref var wallsRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(walls), 4);
+            var prevFreeSpace = Vector128<uint>.Zero;
+            for (var row = 0; row < height; row++)
             {
-                Vector128<uint> rocksVec = Vector128.LoadUnsafe(ref rocksRef);
-                ref uint nextRocksRef = ref Unsafe.Add(ref rocksRef, 4);
-                ref uint nextWallsRef = ref Unsafe.Add(ref wallsRef, 4);
-                Vector128<uint> freeSpace = ~(rocksVec | Vector128.LoadUnsafe(ref wallsRef) | Vector128.LoadUnsafe(ref nextWallsRef) | prevFreeSpace);
+                var rocksVec = Vector128.LoadUnsafe(ref rocksRef);
+                ref var nextRocksRef = ref Unsafe.Add(ref rocksRef, 4);
+                ref var nextWallsRef = ref Unsafe.Add(ref wallsRef, 4);
+                var freeSpace = ~(rocksVec | Vector128.LoadUnsafe(ref wallsRef) | Vector128.LoadUnsafe(ref nextWallsRef) | prevFreeSpace);
                 while (freeSpace != Vector128<uint>.Zero)
                 {
-                    Vector128<uint> rocksToAdd = Vector128.LoadUnsafe(ref nextRocksRef) & freeSpace;
+                    var rocksToAdd = Vector128.LoadUnsafe(ref nextRocksRef) & freeSpace;
                     rocksVec |= rocksToAdd;
                     Vector128.StoreUnsafe(Vector128.LoadUnsafe(ref nextRocksRef) ^ rocksToAdd, ref nextRocksRef);
                     nextRocksRef = ref Unsafe.Add(ref nextRocksRef, 4);
@@ -132,7 +132,7 @@ public class Day14 : ISolver
                     freeSpace &= ~Vector128.LoadUnsafe(ref nextWallsRef) & ~rocksToAdd;
                 }
 
-                Vector128<uint> tiltedWest = TiltRowWest(Vector128.LoadUnsafe(ref wallsRef), rocksVec);
+                var tiltedWest = TiltRowWest(Vector128.LoadUnsafe(ref wallsRef), rocksVec);
                 Vector128.StoreUnsafe(tiltedWest, ref rocksRef);
                 prevFreeSpace = ~(rocksVec | Vector128.LoadUnsafe(ref wallsRef));
                 rocksRef = ref Unsafe.Add(ref rocksRef, 4);
@@ -146,14 +146,14 @@ public class Day14 : ISolver
                     // mark any rocks that are in their correct place as walls
                     while (true)
                     {
-                        Vector128<uint> shifted = ShiftLeftByOne(walls);
-                        Vector128<uint> newWalls = walls | (shifted & rocks);
+                        var shifted = ShiftLeftByOne(walls);
+                        var newWalls = walls | (shifted & rocks);
                         if (walls == newWalls)
                             break;
                         walls = newWalls;
                     }
 
-                    Vector128<uint> movingRocks = ~walls & rocks;
+                    var movingRocks = ~walls & rocks;
                     if (movingRocks == Vector128<uint>.Zero)
                         break;
 
@@ -166,19 +166,19 @@ public class Day14 : ISolver
 
         void TiltSouthEast()
         {
-            ref uint rocksRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(rocks), height * 4);
-            ref uint wallsRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(walls), height * 4);
-            Vector128<uint> prevFreeSpace = Vector128<uint>.Zero;
-            for (int row = 0; row < height; row++)
+            ref var rocksRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(rocks), height * 4);
+            ref var wallsRef = ref Unsafe.Add(ref MemoryMarshal.GetArrayDataReference(walls), height * 4);
+            var prevFreeSpace = Vector128<uint>.Zero;
+            for (var row = 0; row < height; row++)
             {
-                Vector128<uint> rocksVec = Vector128.LoadUnsafe(ref rocksRef);
-                ref uint nextRocksRef = ref Unsafe.Subtract(ref rocksRef, 4);
-                ref uint nextWallsRef = ref Unsafe.Subtract(ref wallsRef, 4);
-                Vector128<uint> freeSpace = ~(rocksVec | Vector128.LoadUnsafe(ref wallsRef) | Vector128.LoadUnsafe(ref nextWallsRef) | prevFreeSpace);
+                var rocksVec = Vector128.LoadUnsafe(ref rocksRef);
+                ref var nextRocksRef = ref Unsafe.Subtract(ref rocksRef, 4);
+                ref var nextWallsRef = ref Unsafe.Subtract(ref wallsRef, 4);
+                var freeSpace = ~(rocksVec | Vector128.LoadUnsafe(ref wallsRef) | Vector128.LoadUnsafe(ref nextWallsRef) | prevFreeSpace);
                 while (freeSpace != Vector128<uint>.Zero)
                 {
-                    Vector128<uint> newRocksVec = Vector128.LoadUnsafe(ref nextRocksRef);
-                    Vector128<uint> rocksToAdd = newRocksVec & freeSpace;
+                    var newRocksVec = Vector128.LoadUnsafe(ref nextRocksRef);
+                    var rocksToAdd = newRocksVec & freeSpace;
                     rocksVec |= rocksToAdd;
                     Vector128.StoreUnsafe(newRocksVec ^ rocksToAdd, ref nextRocksRef);
                     nextRocksRef = ref Unsafe.Subtract(ref nextRocksRef, 4);
@@ -186,7 +186,7 @@ public class Day14 : ISolver
                     freeSpace &= ~Vector128.LoadUnsafe(ref nextWallsRef) & ~rocksToAdd;
                 }
 
-                Vector128<uint> tiltedEast = TiltRowEast(Vector128.LoadUnsafe(ref wallsRef), rocksVec);
+                var tiltedEast = TiltRowEast(Vector128.LoadUnsafe(ref wallsRef), rocksVec);
                 Vector128.StoreUnsafe(tiltedEast, ref rocksRef);
 
                 prevFreeSpace = ~(rocksVec | Vector128.LoadUnsafe(ref wallsRef));
@@ -201,14 +201,14 @@ public class Day14 : ISolver
                     // mark any rocks that are in their correct place as walls
                     while (true)
                     {
-                        Vector128<uint> shifted = ShiftRightByOne(walls);
-                        Vector128<uint> newWalls = walls | (shifted & rocks);
+                        var shifted = ShiftRightByOne(walls);
+                        var newWalls = walls | (shifted & rocks);
                         if (walls == newWalls)
                             break;
                         walls = newWalls;
                     }
 
-                    Vector128<uint> movingRocks = ~walls & rocks;
+                    var movingRocks = ~walls & rocks;
                     if (movingRocks == Vector128<uint>.Zero)
                         break;
 
@@ -219,8 +219,14 @@ public class Day14 : ISolver
             }
         }
 
-        static Vector128<uint> ShiftLeftByOne(Vector128<uint> v) => (v << 1) | Vector128.Shuffle(v >> 31, Vector128.Create(3U, 0U, 1U, 2U));
+        static Vector128<uint> ShiftLeftByOne(Vector128<uint> v)
+        {
+            return (v << 1) | Vector128.Shuffle(v >> 31, Vector128.Create(3U, 0U, 1U, 2U));
+        }
 
-        static Vector128<uint> ShiftRightByOne(Vector128<uint> v) => (v >> 1) | Vector128.Shuffle(v << 31, Vector128.Create(1U, 2U, 3U, 0U));
+        static Vector128<uint> ShiftRightByOne(Vector128<uint> v)
+        {
+            return (v >> 1) | Vector128.Shuffle(v << 31, Vector128.Create(1U, 2U, 3U, 0U));
+        }
     }
 }

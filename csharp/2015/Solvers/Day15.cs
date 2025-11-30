@@ -10,38 +10,38 @@ public class Day15 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var ingredients = new Ingredient[4];
-        int ingredientIndex = 0;
+        var ingredientIndex = 0;
         var reader = new SpanReader(input);
         while (!reader.Done)
         {
             reader.SkipUntil(':');
             reader.SkipLength(" capacity ".Length);
-            int capacity = reader.ReadIntUntil(',');
+            var capacity = reader.ReadIntUntil(',');
             reader.SkipLength(" durability ".Length);
-            int durability = reader.ReadIntUntil(',');
+            var durability = reader.ReadIntUntil(',');
             reader.SkipLength(" flavor ".Length);
-            int flavor = reader.ReadIntUntil(',');
+            var flavor = reader.ReadIntUntil(',');
             reader.SkipLength(" texture ".Length);
-            int texture = reader.ReadIntUntil(',');
+            var texture = reader.ReadIntUntil(',');
             reader.SkipLength(" calories ".Length);
-            int calories = reader.ReadIntUntil('\n');
+            var calories = reader.ReadIntUntil('\n');
             ingredients[ingredientIndex++] = new Ingredient([capacity, durability, flavor, texture], calories);
         }
 
-        int part1 = 0;
-        int part2 = 0;
+        var part1 = 0;
+        var part2 = 0;
 
-        for (int ing0 = 0; ing0 < 100; ing0++)
+        for (var ing0 = 0; ing0 < 100; ing0++)
         {
-            for (int ing1 = 0; ing1 < 100 - ing0; ing1++)
+            for (var ing1 = 0; ing1 < 100 - ing0; ing1++)
             {
-                for (int ing2 = 0; ing2 < 100 - ing0 - ing1; ing2++)
+                for (var ing2 = 0; ing2 < 100 - ing0 - ing1; ing2++)
                 {
-                    int ing3 = 100 - ing0 - ing1 - ing2;
-                    int score = 1;
-                    for (int quality = 0; quality < 4; quality++)
+                    var ing3 = 100 - ing0 - ing1 - ing2;
+                    var score = 1;
+                    for (var quality = 0; quality < 4; quality++)
                     {
-                        int qualityScore =
+                        var qualityScore =
                             ing0 * ingredients[0].Qualities[quality] +
                             ing1 * ingredients[1].Qualities[quality] +
                             ing2 * ingredients[2].Qualities[quality] +
@@ -50,7 +50,7 @@ public class Day15 : ISolver
                         score *= Math.Max(qualityScore, 0);
                     }
 
-                    int calories =
+                    var calories =
                         ing0 * ingredients[0].Calories +
                         ing1 * ingredients[1].Calories +
                         ing2 * ingredients[2].Calories +

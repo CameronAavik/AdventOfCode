@@ -8,15 +8,15 @@ public class Day10 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         Span<byte> stack = stackalloc byte[4096];
-        int sp = 0;
+        var sp = 0;
 
         Span<long> scores = stackalloc long[1024];
-        int numScores = 0;
+        var numScores = 0;
 
-        int totalSyntaxError = 0;
-        for (int i = 0; i < input.Length; i++)
+        var totalSyntaxError = 0;
+        for (var i = 0; i < input.Length; i++)
         {
-            byte c = input[i];
+            var c = input[i];
             switch (c & 0b111)
             {
                 case 0b010: // '\n'
@@ -41,7 +41,7 @@ public class Day10 : ISolver
                     stack[sp++] = c;
                     break;
                 default: // will match all the closing characters
-                    byte top = stack[--sp];
+                    var top = stack[--sp];
                     if (c - top is not (1 or 2)) // all closing characters are 1 or 2 away from the opening character
                     {
                         totalSyntaxError += c switch
@@ -62,12 +62,12 @@ public class Day10 : ISolver
         }
 
         solution.SubmitPart1(totalSyntaxError);
-        solution.SubmitPart2(FindMedian(scores.Slice(0, numScores)));
+        solution.SubmitPart2(FindMedian(scores[..numScores]));
     }
 
     private static long FindMedian(Span<long> scores)
     {
-        int medianIndex = scores.Length / 2;
+        var medianIndex = scores.Length / 2;
         while (scores.Length > 1)
         {
             if (medianIndex == 0)
@@ -76,12 +76,12 @@ public class Day10 : ISolver
             if (medianIndex == scores.Length - 1)
                 return FindMax(scores);
 
-            long pivot = scores[0];
-            int l = 1;
-            int r = scores.Length - 1;
+            var pivot = scores[0];
+            var l = 1;
+            var r = scores.Length - 1;
             while (l <= r)
             {
-                long score = scores[l];
+                var score = scores[l];
                 if (score <= pivot)
                 {
                     l++;
@@ -97,7 +97,7 @@ public class Day10 : ISolver
             if (l <= medianIndex)
             {
                 medianIndex -= l;
-                scores = scores.Slice(l);
+                scores = scores[l..];
             }
             else if (l == medianIndex + 1)
             {
@@ -114,8 +114,8 @@ public class Day10 : ISolver
 
     private static long FindMax(Span<long> scores)
     {
-        long max = long.MinValue;
-        foreach (long score in scores)
+        var max = long.MinValue;
+        foreach (var score in scores)
             if (score > max)
                 max = score;
         return max;
@@ -123,8 +123,8 @@ public class Day10 : ISolver
 
     private static long FindMin(Span<long> scores)
     {
-        long min = long.MaxValue;
-        foreach (long score in scores)
+        var min = long.MaxValue;
+        foreach (var score in scores)
             if (score < min)
                 min = score;
         return min;

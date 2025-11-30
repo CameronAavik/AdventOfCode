@@ -20,20 +20,20 @@ public class Day20 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        (int TileId, int[] Tile)[] tiles = ParseTiles(input);
+        var tiles = ParseTiles(input);
 
-        int tileWidth = tiles[0].Tile.Length;
-        int numTiles = tiles.Length;
+        var tileWidth = tiles[0].Tile.Length;
+        var numTiles = tiles.Length;
 
         var leftEdges = new Dictionary<int, List<TileRotationData>>();
         var topEdges = new Dictionary<int, List<TileRotationData>>();
 
-        foreach ((int tileId, int[] tile) in tiles)
+        foreach ((var tileId, var tile) in tiles)
         {
-            TileEdges defaultEdges = GetEdges(tile);
-            TileEdges flippedEdges = defaultEdges.Flip(tileWidth);
+            var defaultEdges = GetEdges(tile);
+            var flippedEdges = defaultEdges.Flip(tileWidth);
 
-            for (int i = 0; i < 4; i++)
+            for (var i = 0; i < 4; i++)
             {
                 AddToDictOfLists(leftEdges, defaultEdges.Left, new TileRotationData(tileId, false, i, defaultEdges, tile));
                 AddToDictOfLists(topEdges, defaultEdges.Top, new TileRotationData(tileId, false, i, defaultEdges, tile));
@@ -49,13 +49,13 @@ public class Day20 : ISolver
 
         // after this, topLeft will contain the tile we will put in the top-left of the image
         TileRotationData? topLeft = default;
-        foreach ((_, List<TileRotationData> tileRotations) in leftEdges)
+        foreach ((_, var tileRotations) in leftEdges)
         {
             if (tileRotations.Count == 1)
             {
                 // it is a corner tile if both the left and top edge are unique
                 // this will happen twice for each corner tile for flipped and not flipped, so only count the not flipped case
-                TileRotationData tile = tileRotations[0];
+                var tile = tileRotations[0];
                 if (topEdges[tile.Edges.Top].Count == 1 && !tile.IsFlipped)
                 {
                     part1 *= tile.Id;
@@ -64,9 +64,9 @@ public class Day20 : ISolver
             }
         }
 
-        TileRotationData[,] tileLocations = GetTileLocations(topLeft!, leftEdges, topEdges, numTiles);
+        var tileLocations = GetTileLocations(topLeft!, leftEdges, topEdges, numTiles);
 
-        int part2 = SolvePart2(tileLocations);
+        var part2 = SolvePart2(tileLocations);
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
@@ -74,9 +74,9 @@ public class Day20 : ISolver
 
     private static int SolvePart2(TileRotationData[,] tileLocations)
     {
-        bool[,] sea = GetSeaGrid(tileLocations);
+        var sea = GetSeaGrid(tileLocations);
 
-        int seaMonsterCells = CountSeaMonsters(sea, 1, 0, false);
+        var seaMonsterCells = CountSeaMonsters(sea, 1, 0, false);
         if (seaMonsterCells == 0) seaMonsterCells = CountSeaMonsters(sea, 0, 1, false);
         if (seaMonsterCells == 0) seaMonsterCells = CountSeaMonsters(sea, -1, 0, false);
         if (seaMonsterCells == 0) seaMonsterCells = CountSeaMonsters(sea, 0, -1, false);
@@ -85,8 +85,8 @@ public class Day20 : ISolver
         if (seaMonsterCells == 0) seaMonsterCells = CountSeaMonsters(sea, -1, 0, true);
         if (seaMonsterCells == 0) seaMonsterCells = CountSeaMonsters(sea, 0, -1, true);
 
-        int totalSea = 0;
-        foreach (bool cell in sea)
+        var totalSea = 0;
+        foreach (var cell in sea)
         {
             if (cell)
             {
@@ -102,8 +102,8 @@ public class Day20 : ISolver
         const int monsterHeight = 3;
         const int monsterWidth = 20;
 
-        int dx2 = 0;
-        int dy2 = 0;
+        var dx2 = 0;
+        var dy2 = 0;
         if (dx == 0)
         {
             dx2 = isFlipped ? -1 : 1;
@@ -116,18 +116,18 @@ public class Day20 : ISolver
         var seaMonsters = new HashSet<int>();
         var potentialSeaMonsters = new HashSet<int>();
 
-        int len = sea.GetLength(0);
-        for (int y = 0; y < len; y++)
+        var len = sea.GetLength(0);
+        for (var y = 0; y < len; y++)
         {
-            int yEnd = y + (dy == 0 ? dy2 * monsterHeight : dy * monsterWidth);
+            var yEnd = y + (dy == 0 ? dy2 * monsterHeight : dy * monsterWidth);
             if (yEnd < 0 || yEnd >= len)
             {
                 continue;
             }
 
-            for (int x = 0; x < len; x++)
+            for (var x = 0; x < len; x++)
             {
-                int xEnd = x + (dx == 0 ? dx2 * monsterHeight : dx * monsterWidth);
+                var xEnd = x + (dx == 0 ? dx2 * monsterHeight : dx * monsterWidth);
                 if (xEnd < 0 || xEnd >= len)
                 {
                     continue;
@@ -157,7 +157,7 @@ public class Day20 : ISolver
         y += dy2;
 
         // check the 2nd and 3rd row of the monster
-        for (int monsterX = 0; monsterX < 20; monsterX++)
+        for (var monsterX = 0; monsterX < 20; monsterX++)
         {
             if (monsterX is 0 or 5 or 6 or 11 or 12 or 17 or 18 or 19)
             {
@@ -181,29 +181,29 @@ public class Day20 : ISolver
 
     private static bool[,] GetSeaGrid(TileRotationData[,] tileLocations)
     {
-        int subTileWidth = tileLocations[0, 0].Data.Length - 2;
-        int tilesPerRow = tileLocations.GetLength(0);
-        int seaWidth = subTileWidth * tilesPerRow;
+        var subTileWidth = tileLocations[0, 0].Data.Length - 2;
+        var tilesPerRow = tileLocations.GetLength(0);
+        var seaWidth = subTileWidth * tilesPerRow;
 
-        bool[,] sea = new bool[seaWidth, seaWidth];
+        var sea = new bool[seaWidth, seaWidth];
 
-        for (int y = 0; y < tilesPerRow; y++)
+        for (var y = 0; y < tilesPerRow; y++)
         {
-            int yStart = y * subTileWidth;
-            for (int x = 0; x < tilesPerRow; x++)
+            var yStart = y * subTileWidth;
+            for (var x = 0; x < tilesPerRow; x++)
             {
-                int xStart = x * subTileWidth;
-                TileRotationData tile = tileLocations[y, x];
+                var xStart = x * subTileWidth;
+                var tile = tileLocations[y, x];
 
                 // apply flip
-                int[] tileData = tile.Data;
+                var tileData = tile.Data;
                 if (tile.IsFlipped)
                 {
                     FlipTile(tileData);
                 }
 
                 // apply rotations
-                for (int i = 0; i < tile.Rotations; i++)
+                for (var i = 0; i < tile.Rotations; i++)
                 {
                     // rotating is the same as transposing, then reversing each row
                     TransposeTile(tileData);
@@ -211,10 +211,10 @@ public class Day20 : ISolver
                 }
 
                 // insert into the sea grid
-                for (int i = 0; i < subTileWidth; i++)
+                for (var i = 0; i < subTileWidth; i++)
                 {
-                    int row = tileData[i + 1];
-                    for (int j = 0; j < subTileWidth; j++)
+                    var row = tileData[i + 1];
+                    for (var j = 0; j < subTileWidth; j++)
                     {
                         sea[yStart + i, xStart + j] = (row & (1 << (tileData.Length - j - 2))) != 0;
                     }
@@ -245,16 +245,22 @@ public class Day20 : ISolver
     private static void TransposeTile(int[] tile)
     {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static int GetBit(int n, int i) => (n >> i) & 1;
+        static int GetBit(int n, int i)
+        {
+            return (n >> i) & 1;
+        }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static void SetBit(ref int n, int i, int bit) => n = (n & ~(1 << i)) | bit << i;
+        static void SetBit(ref int n, int i, int bit)
+        {
+            n = (n & ~(1 << i)) | bit << i;
+        }
 
         int temp;
-        int n = tile.Length;
-        for (int i = 0; i < tile.Length; i++)
+        var n = tile.Length;
+        for (var i = 0; i < tile.Length; i++)
         {
-            for (int j = 0; j < i; j++)
+            for (var j = 0; j < i; j++)
             {
                 temp = tile[i];
                 SetBit(ref tile[i], n - j - 1, GetBit(tile[j], n - i - 1));
@@ -266,7 +272,7 @@ public class Day20 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void FlipTile(int[] tile)
     {
-        for (int i = 0; i < tile.Length; i++)
+        for (var i = 0; i < tile.Length; i++)
         {
             tile[i] = ReverseBits(tile[i], tile.Length);
         }
@@ -275,24 +281,24 @@ public class Day20 : ISolver
     private static (int TileId, int[] Tile)[] ParseTiles(ReadOnlySpan<byte> input)
     {
         // tile side length is the length between the first and second newline
-        int tileWidth = input.Slice(input.IndexOf((byte)'\n') + 1).IndexOf((byte)'\n');
+        var tileWidth = input[(input.IndexOf((byte)'\n') + 1)..].IndexOf((byte)'\n');
 
-        int numTiles = input.Count((byte)'T'); // T will appear once per tile
+        var numTiles = input.Count((byte)'T'); // T will appear once per tile
 
         var tiles = new (int, int[])[numTiles];
 
         var reader = new SpanReader(input);
-        for (int i = 0; i < numTiles; i++)
+        for (var i = 0; i < numTiles; i++)
         {
             reader.SkipLength("Tile ".Length);
-            int tileId = reader.ReadPosIntUntil(':');
+            var tileId = reader.ReadPosIntUntil(':');
             reader.SkipLength(1); // skip newline
 
-            int[] tile = new int[tileWidth];
-            for (int row = 0; row < tileWidth; row++)
+            var tile = new int[tileWidth];
+            for (var row = 0; row < tileWidth; row++)
             {
-                int rowData = 0;
-                for (int col = 0; col < tileWidth; col++)
+                var rowData = 0;
+                for (var col = 0; col < tileWidth; col++)
                 {
                     // ('#' & 1) == 1; ('.' & 1) == 0;
                     rowData |= (reader[col] & 1) << (tileWidth - col - 1);
@@ -312,15 +318,15 @@ public class Day20 : ISolver
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static TileEdges GetEdges(int[] tile)
     {
-        int top = tile[0];
-        int bottom = tile[tile.Length - 1];
-        int left = 0;
-        int right = 0;
+        var top = tile[0];
+        var bottom = tile[^1];
+        var left = 0;
+        var right = 0;
 
-        int leftFlag = 1 << (tile.Length - 1);
-        for (int i = 0; i < tile.Length; i++)
+        var leftFlag = 1 << (tile.Length - 1);
+        for (var i = 0; i < tile.Length; i++)
         {
-            int row = tile[i];
+            var row = tile[i];
             left |= (row & leftFlag) >> i;
             right |= (row & 1) << (tile.Length - i - 1);
         }
@@ -332,7 +338,7 @@ public class Day20 : ISolver
     private static void AddToDictOfLists<K, V>(Dictionary<K, List<V>> dict, K key, V value)
         where K : notnull
     {
-        if (dict.TryGetValue(key, out List<V>? lst))
+        if (dict.TryGetValue(key, out var lst))
         {
             lst.Add(value);
         }
@@ -344,14 +350,14 @@ public class Day20 : ISolver
 
     private static TileRotationData[,] GetTileLocations(TileRotationData topLeft, Dictionary<int, List<TileRotationData>> leftEdges, Dictionary<int, List<TileRotationData>> topEdges, int numTiles)
     {
-        int gridSize = (int)Math.Sqrt(numTiles);
+        var gridSize = (int)Math.Sqrt(numTiles);
 
-        TileRotationData[,] tileLocations = new TileRotationData[gridSize, gridSize];
+        var tileLocations = new TileRotationData[gridSize, gridSize];
         tileLocations[0, 0] = topLeft;
 
-        int x = 1;
-        int y = 0;
-        for (int i = 1; i < numTiles; i++)
+        var x = 1;
+        var y = 0;
+        for (var i = 1; i < numTiles; i++)
         {
             TileRotationData neighbour;
             List<TileRotationData> candidates;
@@ -366,7 +372,7 @@ public class Day20 : ISolver
                 candidates = topEdges[neighbour.Edges.Bottom];
             }
 
-            foreach (TileRotationData tile in candidates)
+            foreach (var tile in candidates)
             {
                 if (tile.Id != neighbour.Id)
                 {

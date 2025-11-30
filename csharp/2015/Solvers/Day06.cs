@@ -8,11 +8,11 @@ public class Day06 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         const int part1Mask = 1 << 16;
-        int[,] grid = new int[1000, 1000];
+        var grid = new int[1000, 1000];
 
-        foreach (Range instructionRange in input.SplitLines())
+        foreach (var instructionRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> instruction = input[instructionRange];
+            var instruction = input[instructionRange];
             int x, y;
             int x1, y1, x2, y2;
             switch (instruction[6])
@@ -59,9 +59,9 @@ public class Day06 : ISolver
             }
         }
 
-        int part1 = 0;
-        int part2 = 0;
-        foreach (int gridValue in grid)
+        var part1 = 0;
+        var part2 = 0;
+        foreach (var gridValue in grid)
         {
             part1 += gridValue >> 16;
             part2 += gridValue & 0xFFFF;
@@ -74,7 +74,7 @@ public class Day06 : ISolver
     private static void ParseArea(ReadOnlySpan<byte> regionStr, out int x1, out int y1, out int x2, out int y2)
     {
         byte c;
-        int i = 0;
+        var i = 0;
 
         x1 = 0;
         while ((c = regionStr[i++]) != ',')

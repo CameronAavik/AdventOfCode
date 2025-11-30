@@ -9,13 +9,13 @@ public class Day10 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int rowLen = input.IndexOf((byte)'\n') + 1;
-        int startPosIndex = input.IndexOf((byte)'S');
-        int i = startPosIndex;
+        var rowLen = input.IndexOf((byte)'\n') + 1;
+        var startPosIndex = input.IndexOf((byte)'S');
+        var i = startPosIndex;
 
         // assume that S = (0, 0)
-        int x = 0;
-        int y = 0;
+        var x = 0;
+        var y = 0;
 
         Dir dir;
         if (input[i - 1] is (byte)'L' or (byte)'F' or (byte)'-')
@@ -25,13 +25,13 @@ public class Day10 : ISolver
         else
             dir = Dir.South;
 
-        int steps = 0;
-        int area = 0;
+        var steps = 0;
+        var area = 0;
 
         while (true)
         {
             byte c;
-            int count = 1;
+            var count = 1;
             switch (dir)
             {
                 case Dir.East:

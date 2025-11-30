@@ -22,7 +22,7 @@ public class Day11 : ISolver
                 return false;
             }
 
-            for (int i = 0; i < MaterialLocations.Length; i++)
+            for (var i = 0; i < MaterialLocations.Length; i++)
             {
                 if (!MaterialLocations[i].Equals(other.MaterialLocations[i]))
                 {
@@ -47,14 +47,14 @@ public class Day11 : ISolver
         byte[] part1Locs = [.. ParseInput(input)];
         Array.Sort(part1Locs);
         var part1State = new State(part1Locs, 1);
-        int part1 = FindStepsToFinish(part1State);
+        var part1 = FindStepsToFinish(part1State);
 
-        byte[] part2Locs = new byte[part1Locs.Length + 2];
+        var part2Locs = new byte[part1Locs.Length + 2];
         Array.Copy(part1Locs, 0, part2Locs, 2, part1Locs.Length);
         part2Locs[0] = 1 << 4 | 1;
         part2Locs[1] = 1 << 4 | 1;
         var part2State = new State(part2Locs, 1);
-        int part2 = FindStepsToFinish(part2State);
+        var part2 = FindStepsToFinish(part2State);
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
@@ -65,7 +65,7 @@ public class Day11 : ISolver
         var materialLocations = new List<byte>();
         var materials = new Dictionary<string, int>();
         var reader = new SpanReader(input);
-        for (int floor = 1; floor < 5; floor++)
+        for (var floor = 1; floor < 5; floor++)
         {
             reader.SkipLength(floor is 1 or 3 ? "The first floor contains ".Length : "The second floor contains ".Length);
             if (reader.Peek() == 'n') // nothing relevant
@@ -74,11 +74,11 @@ public class Day11 : ISolver
                 continue;
             }
 
-            bool isLastItem = false;
+            var isLastItem = false;
             while (!isLastItem)
             {
-                ParseItem(ref reader, out string element, out bool isGenerator, out isLastItem);
-                if (!materials.TryGetValue(element, out int materialIndex))
+                ParseItem(ref reader, out var element, out var isGenerator, out isLastItem);
+                if (!materials.TryGetValue(element, out var materialIndex))
                 {
                     materialIndex = materialLocations.Count;
                     materials[element] = materialIndex;
@@ -96,13 +96,13 @@ public class Day11 : ISolver
     {
         isLastItem = reader[1] == 'n'; // "and a <something>"
         reader.SkipLength(isLastItem ? "and a ".Length : "a ".Length);
-        ReadOnlySpan<byte> elementSpan = reader.ReadUntil(' ');
+        var elementSpan = reader.ReadUntil(' ');
         isGenerator = reader.Peek() == 'g';
         reader.SkipUntil(isLastItem ? '\n' : ' ');
 
         if (!isGenerator)
         {
-            elementSpan = elementSpan.Slice(0, elementSpan.Length - "-compatible".Length);
+            elementSpan = elementSpan[..^"-compatible".Length];
         }
 
         element = Encoding.ASCII.GetString(elementSpan);
@@ -110,16 +110,16 @@ public class Day11 : ISolver
 
     private static int FindStepsToFinish(State initState)
     {
-        int len = initState.MaterialLocations.Length;
+        var len = initState.MaterialLocations.Length;
 
         var seen = new HashSet<State>();
         var frontier = new List<State> { initState };
-        int steps = 0;
+        var steps = 0;
 
         while (frontier.Count > 0)
         {
             var newFrontier = new List<State>();
-            foreach (State state in frontier)
+            foreach (var state in frontier)
             {
                 if (!seen.Add(state))
                 {
@@ -131,9 +131,9 @@ public class Day11 : ISolver
                     return steps;
                 }
 
-                int curFloor = state.CurFloor;
+                var curFloor = state.CurFloor;
 
-                for (int newLevel = curFloor - 1; newLevel <= curFloor + 1; newLevel += 2)
+                for (var newLevel = curFloor - 1; newLevel <= curFloor + 1; newLevel += 2)
                 {
                     // only move to valid levels
                     if (newLevel is 0 or 5)
@@ -141,11 +141,11 @@ public class Day11 : ISolver
                         continue;
                     }
 
-                    for (int elem1 = 0; elem1 < len; elem1++)
+                    for (var elem1 = 0; elem1 < len; elem1++)
                     {
-                        byte locations1 = state.MaterialLocations[elem1];
-                        bool isGen1OnFloor = locations1 >> 4 == curFloor;
-                        bool isChip1OnFloor = (locations1 & 0xF) == curFloor;
+                        var locations1 = state.MaterialLocations[elem1];
+                        var isGen1OnFloor = locations1 >> 4 == curFloor;
+                        var isChip1OnFloor = (locations1 & 0xF) == curFloor;
 
                         if (!isGen1OnFloor && !isChip1OnFloor)
                         {
@@ -153,7 +153,7 @@ public class Day11 : ISolver
                         }
 
                         // elem1 gen only
-                        if (isGen1OnFloor && TryMove(state, newLevel, elem1, null, true, null, out State? newState))
+                        if (isGen1OnFloor && TryMove(state, newLevel, elem1, null, true, null, out var newState))
                         {
                             newFrontier.Add(newState.Value);
                         }
@@ -170,9 +170,9 @@ public class Day11 : ISolver
                             newFrontier.Add(newState.Value);
                         }
 
-                        for (int elem2 = elem1 + 1; elem2 < len; elem2++)
+                        for (var elem2 = elem1 + 1; elem2 < len; elem2++)
                         {
-                            byte locations2 = state.MaterialLocations[elem2];
+                            var locations2 = state.MaterialLocations[elem2];
 
                             // elem1 chip and elem2 chip
                             if (isChip1OnFloor && (locations2 & 0xF) == curFloor && TryMove(state, newLevel, elem1, elem2, false, false, out newState))
@@ -207,16 +207,16 @@ public class Day11 : ISolver
         bool? isGen2,
         [NotNullWhen(returnValue: true)] out State? newState)
     {
-        int numMaterials = curState.MaterialLocations.Length;
-        int curFloor = curState.CurFloor;
+        var numMaterials = curState.MaterialLocations.Length;
+        var curFloor = curState.CurFloor;
 
-        bool hasUnmatchedChipCurLevel = false;
-        bool hasGeneratorCurLevel = false;
-        bool hasUnmatchedChipNewLevel = false;
-        bool hasGeneratorNewLevel = false;
-        for (int i = 0; i < numMaterials; i++)
+        var hasUnmatchedChipCurLevel = false;
+        var hasGeneratorCurLevel = false;
+        var hasUnmatchedChipNewLevel = false;
+        var hasGeneratorNewLevel = false;
+        for (var i = 0; i < numMaterials; i++)
         {
-            byte locs = curState.MaterialLocations[i];
+            var locs = curState.MaterialLocations[i];
 
             // validate that the current level is valid after the move
             if (locs >> 4 == curFloor && (i != elem1 || !isGen1) && (i != elem2 || isGen2 != true))
@@ -246,7 +246,7 @@ public class Day11 : ISolver
         }
 
         // now we know this is a valid move
-        byte[] newLocs = new byte[numMaterials];
+        var newLocs = new byte[numMaterials];
         Array.Copy(curState.MaterialLocations, newLocs, numMaterials);
         newLocs[elem1] = isGen1
             ? (byte)(newLevel << 4 | (curState.MaterialLocations[elem1] & 0xF))

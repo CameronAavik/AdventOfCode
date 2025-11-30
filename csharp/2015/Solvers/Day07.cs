@@ -10,28 +10,28 @@ public class Day07 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var rules = new Dictionary<string, string>();
-        foreach (Range lineRange in input.SplitLines())
+        foreach (var lineRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> line = input[lineRange];
-            int lastSpaceIndex = line.LastIndexOf((byte)' ');
-            string variableName = Encoding.ASCII.GetString(line[(lastSpaceIndex + 1)..]);
+            var line = input[lineRange];
+            var lastSpaceIndex = line.LastIndexOf((byte)' ');
+            var variableName = Encoding.ASCII.GetString(line[(lastSpaceIndex + 1)..]);
             rules[variableName] = Encoding.ASCII.GetString(line[..(lastSpaceIndex - 3)]);
         }
 
         var knownValues = new Dictionary<string, ushort>();
 
-        ushort part1 = GetValue("a");
+        var part1 = GetValue("a");
 
         knownValues.Clear();
         knownValues["b"] = part1;
-        ushort part2 = GetValue("a");
+        var part2 = GetValue("a");
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
 
         ushort GetValue(string variableName)
         {
-            if (ushort.TryParse(variableName, out ushort value))
+            if (ushort.TryParse(variableName, out var value))
             {
                 return value;
             }
@@ -41,8 +41,8 @@ public class Day07 : ISolver
                 return value;
             }
 
-            string rule = rules[variableName];
-            int firstSpaceIndex = rule.IndexOf(' ');
+            var rule = rules[variableName];
+            var firstSpaceIndex = rule.IndexOf(' ');
             if (firstSpaceIndex == -1)
             {
                 value = GetValue(rule);
@@ -53,7 +53,7 @@ public class Day07 : ISolver
             }
             else
             {
-                ushort leftVal = GetValue(rule[..firstSpaceIndex]);
+                var leftVal = GetValue(rule[..firstSpaceIndex]);
                 value = (ushort)(rule[firstSpaceIndex + 1] switch
                 {
                     'A' => leftVal & GetValue(rule[(firstSpaceIndex + 5)..]),

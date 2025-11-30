@@ -24,14 +24,14 @@ public class AllDays2024
 
     public AllDays2024()
     {
-        for (int i = 0; i < 25; i++)
+        for (var i = 0; i < 25; i++)
         {
             _inputs[i] = new byte[5][];
-            string inputFolder = $"input/2024/extra/day{i + 1:D2}";
+            var inputFolder = $"input/2024/extra/day{i + 1:D2}";
             if (Directory.Exists(inputFolder))
             {
-                int j = 0;
-                foreach (string file in Directory.EnumerateFiles(inputFolder))
+                var j = 0;
+                foreach (var file in Directory.EnumerateFiles(inputFolder))
                     _inputs[i][j++] = File.ReadAllBytes(file);
             }
         }
@@ -40,7 +40,7 @@ public class AllDays2024
     [Benchmark(OperationsPerInvoke = 5)]
     public void SolveAllDays()
     {
-        for (int i = 0; i < 5; i++)
+        for (var i = 0; i < 5; i++)
         {
             Day01.Solve(_inputs[0][i], new(_part1Buffer, _part2Buffer));
             Day02.Solve(_inputs[1][i], new(_part1Buffer, _part2Buffer));

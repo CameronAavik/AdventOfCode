@@ -13,20 +13,20 @@ public class Day19 : ISolver
         var elements = new Dictionary<string, int>();
         var replacements = new List<List<List<int>>>(); // replacements[element][replacement][replacementElement]
 
-        foreach (Range lineRange in input.SplitLines())
+        foreach (var lineRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> line = input[lineRange];
+            var line = input[lineRange];
             if (line.Length == 0)
             {
                 break;
             }
 
-            int lhsLen = line[1] == ' ' ? 1 : 2;
-            string lhs = Encoding.ASCII.GetString(line[0..lhsLen]);
-            ReadOnlySpan<byte> rhs = line[(lhsLen + 4)..];
+            var lhsLen = line[1] == ' ' ? 1 : 2;
+            var lhs = Encoding.ASCII.GetString(line[0..lhsLen]);
+            var rhs = line[(lhsLen + 4)..];
 
-            List<int> replacement = ParseMolecule(elements, replacements, rhs);
-            if (!elements.TryGetValue(lhs, out int lhsIndex))
+            var replacement = ParseMolecule(elements, replacements, rhs);
+            if (!elements.TryGetValue(lhs, out var lhsIndex))
             {
                 lhsIndex = elements.Count;
                 elements.Add(lhs, lhsIndex);
@@ -38,11 +38,11 @@ public class Day19 : ISolver
             }
         }
 
-        ReadOnlySpan<byte> moleculeSpan = input[(input.LastIndexOf((byte)'\n') + 1)..];
-        List<int>? molecule = ParseMolecule(elements, replacements, moleculeSpan);
+        var moleculeSpan = input[(input.LastIndexOf((byte)'\n') + 1)..];
+        var molecule = ParseMolecule(elements, replacements, moleculeSpan);
 
-        int part1 = SolvePart1(replacements, molecule);
-        int part2 = SolvePart2(elements, molecule);
+        var part1 = SolvePart1(replacements, molecule);
+        var part2 = SolvePart2(elements, molecule);
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
@@ -54,7 +54,7 @@ public class Day19 : ISolver
         ReadOnlySpan<byte> moleculeSpan)
     {
         var replacement = new List<int>();
-        int i = 0;
+        var i = 0;
         while (i < moleculeSpan.Length)
         {
             string element;
@@ -69,7 +69,7 @@ public class Day19 : ISolver
                 i += 2;
             }
 
-            if (!elements.TryGetValue(element, out int elementIndex))
+            if (!elements.TryGetValue(element, out var elementIndex))
             {
                 elementIndex = elements.Count;
                 elements.Add(element, elementIndex);
@@ -84,11 +84,11 @@ public class Day19 : ISolver
 
     private static int SolvePart1(List<List<List<int>>> replacements, List<int> molecule)
     {
-        int total = 0;
+        var total = 0;
 
-        for (int i = 0; i < molecule.Count; i++)
+        for (var i = 0; i < molecule.Count; i++)
         {
-            int cur = molecule[i];
+            var cur = molecule[i];
 
             // the last molecule can't overlap with any next molecules
             // so we just assume all replacements are valid
@@ -98,11 +98,11 @@ public class Day19 : ISolver
                 break;
             }
 
-            int next = molecule[i + 1];
+            var next = molecule[i + 1];
 
             // for each replacement for the current molecule, see if rep1 + next == cur + rep2
             // if it is possible, don't count it.
-            foreach (List<int>? rep1 in replacements[cur])
+            foreach (var rep1 in replacements[cur])
             {
                 if (rep1[0] != cur)
                 {
@@ -110,13 +110,13 @@ public class Day19 : ISolver
                     continue;
                 }
 
-                bool shouldCount = true;
-                foreach (List<int> rep2 in replacements[next])
+                var shouldCount = true;
+                foreach (var rep2 in replacements[next])
                 {
                     if (rep1.Count == rep2.Count && rep2[^1] == next)
                     {
-                        bool overlaps = true;
-                        for (int j = 1; j < rep1.Count; j++)
+                        var overlaps = true;
+                        for (var j = 1; j < rep1.Count; j++)
                         {
                             if (rep1[j] != rep2[j - 1])
                             {
@@ -145,14 +145,14 @@ public class Day19 : ISolver
 
     private static int SolvePart2(Dictionary<string, int> replacements, List<int> molecule)
     {
-        int yElemIndex = replacements["Y"];
-        int rnElemIndex = replacements["Rn"];
-        int arElemIndex = replacements["Ar"];
+        var yElemIndex = replacements["Y"];
+        var rnElemIndex = replacements["Rn"];
+        var arElemIndex = replacements["Ar"];
 
-        int yCount = 0;
-        int rnCount = 0;
-        int arCount = 0;
-        foreach (int element in molecule)
+        var yCount = 0;
+        var rnCount = 0;
+        var arCount = 0;
+        foreach (var element in molecule)
         {
             if (element == yElemIndex)
             {

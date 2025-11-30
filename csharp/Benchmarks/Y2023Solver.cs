@@ -43,12 +43,12 @@ public class AllDays2023
 
     public AllDays2023()
     {
-        for (int i = 0; i < 25; i++)
+        for (var i = 0; i < 25; i++)
         {
             _inputs[i] = new byte[5][];
-            string inputFolder = $"input/2023/extra/day{i + 1:D2}";
-            int j = 0;
-            foreach (string file in Directory.EnumerateFiles(inputFolder))
+            var inputFolder = $"input/2023/extra/day{i + 1:D2}";
+            var j = 0;
+            foreach (var file in Directory.EnumerateFiles(inputFolder))
                 _inputs[i][j++] = File.ReadAllBytes(file);
         }
     }
@@ -56,7 +56,7 @@ public class AllDays2023
     [Benchmark(OperationsPerInvoke = 5)]
     public void SolveAllDays()
     {
-        for (int i = 0; i < 5; i++)
+        for (var i = 0; i < 5; i++)
         {
             Day01.Solve(_inputs[0][i], new(_part1Buffer, _part2Buffer));
             Day02.Solve(_inputs[1][i], new(_part1Buffer, _part2Buffer));

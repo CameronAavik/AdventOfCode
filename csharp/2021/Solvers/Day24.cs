@@ -9,7 +9,7 @@ public class Day24 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         Span<(int CharIndex, int Offset)> offsets = stackalloc (int CharIndex, int Offset)[8];
-        int offsetIndex = 1;
+        var offsetIndex = 1;
 
         Span<char> part1 = stackalloc char[14];
         part1.Fill('9');
@@ -17,13 +17,13 @@ public class Day24 : ISolver
         Span<char> part2 = stackalloc char[14];
         part2.Fill('1');
 
-        int inputCursor = 0;
-        for (int charIndex = 0; charIndex < 14; charIndex++)
+        var inputCursor = 0;
+        for (var charIndex = 0; charIndex < 14; charIndex++)
         {
-            ParseCodeSection(input, ref inputCursor, out bool _, out int offsetForPop, out int offsetForPush);
+            ParseCodeSection(input, ref inputCursor, out var _, out var offsetForPop, out var offsetForPush);
 
-            (int lastCharIndex, int lastOffset) = offsets[offsetIndex - 1];
-            int diff = lastOffset + offsetForPop;
+            (var lastCharIndex, var lastOffset) = offsets[offsetIndex - 1];
+            var diff = lastOffset + offsetForPop;
 
             // Must push since impossible to get a diff of 9 or higher
             if (diff >= 9)
@@ -63,7 +63,7 @@ public class Day24 : ISolver
     public static int ReadIntegerFromInput(ReadOnlySpan<byte> span, ref int i)
     {
         // Assume that the first character is always a digit
-        byte c = span[i++];
+        var c = span[i++];
 
         int mul;
         int ret;

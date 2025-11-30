@@ -39,12 +39,12 @@ public class Day11 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int cols = input.IndexOf((byte)'\n');
-        int rows = input.Length / (cols + 1);
+        var cols = input.IndexOf((byte)'\n');
+        var rows = input.Length / (cols + 1);
 
         // padding row and column is added
-        int height = rows + 2;
-        int width = cols + 2;
+        var height = rows + 2;
+        var width = cols + 2;
         var seatsPart1 = new Seat[height * width];
         MarkPaddingAsFinalised(seatsPart1, height, width);
 
@@ -52,8 +52,8 @@ public class Day11 : ISolver
         var activeSeats = new List<int>(cols * rows);
 
         // populate input into seats
-        int seatsIndex = width + 1; // index in seats where input starts
-        foreach (byte c in input)
+        var seatsIndex = width + 1; // index in seats where input starts
+        foreach (var c in input)
         {
             switch (c)
             {
@@ -73,19 +73,19 @@ public class Day11 : ISolver
         var seatsPart2 = new Seat[seatsPart1.Length];
         Array.Copy(seatsPart1, seatsPart2, seatsPart1.Length);
 
-        foreach (int seatIndex in activeSeats)
+        foreach (var seatIndex in activeSeats)
         {
             seatsPart1[seatIndex] = GetSeatPart1(seatIndex, width);
         }
 
-        int part1 = Solve(seatsPart1, 4, activeSeats);
+        var part1 = Solve(seatsPart1, 4, activeSeats);
 
-        foreach (int seatIndex in activeSeats)
+        foreach (var seatIndex in activeSeats)
         {
             seatsPart2[seatIndex] = GetSeatPart2(seatsPart2, seatIndex, width, height);
         }
 
-        int part2 = Solve(seatsPart2, 5, activeSeats);
+        var part2 = Solve(seatsPart2, 5, activeSeats);
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
@@ -94,20 +94,20 @@ public class Day11 : ISolver
     private static void MarkPaddingAsFinalised(Seat[] seats, int height, int width)
     {
         // mark padding rows and columns as finalised
-        for (int i = 0; i < seats.Length; i += width) // first col
+        for (var i = 0; i < seats.Length; i += width) // first col
             seats[i].Finalise();
-        for (int i = width - 1; i < seats.Length; i += width) // last col
+        for (var i = width - 1; i < seats.Length; i += width) // last col
             seats[i].Finalise();
-        for (int i = 0; i < width; i++) // first row
+        for (var i = 0; i < width; i++) // first row
             seats[i].Finalise();
-        for (int i = (height - 1) * width; i < seats.Length; i++) // last row
+        for (var i = (height - 1) * width; i < seats.Length; i++) // last row
             seats[i].Finalise();
     }
 
     private static Seat GetSeatPart1(int seat, int width)
     {
-        int prev = seat - width;
-        int next = seat + width;
+        var prev = seat - width;
+        var next = seat + width;
         return new Seat(seatData: 0,
             nw: prev - 1,
             n: prev,
@@ -135,9 +135,9 @@ public class Day11 : ISolver
             return seat;
         }
 
-        int rowsAbove = Math.DivRem(seat, width, out int colsLeft);
-        int rowsBelow = height - rowsAbove - 1;
-        int colsRight = width - colsLeft - 1;
+        var rowsAbove = Math.DivRem(seat, width, out var colsLeft);
+        var rowsBelow = height - rowsAbove - 1;
+        var colsRight = width - colsLeft - 1;
 
         return new Seat(
             seatData: 0,
@@ -154,24 +154,24 @@ public class Day11 : ISolver
     private static int Solve(Seat[] seats, int neighboursForVacant, List<int> activeSeats)
     {
         int[] seatsToProcess = [.. activeSeats];
-        int seatsToProcessLen = seatsToProcess.Length;
-        int[] seatsToFlip = new int[activeSeats.Count];
-        int seatsToFlipLen = 0;
-        int[] seatsToFinalise = new int[activeSeats.Count];
-        int seatsToFinaliseLen = 0;
+        var seatsToProcessLen = seatsToProcess.Length;
+        var seatsToFlip = new int[activeSeats.Count];
+        var seatsToFlipLen = 0;
+        var seatsToFinalise = new int[activeSeats.Count];
+        var seatsToFinaliseLen = 0;
         while (true)
         {
-            int newSeatsToProcessLen = 0;
-            for (int i = 0; i < seatsToProcessLen; i++)
+            var newSeatsToProcessLen = 0;
+            for (var i = 0; i < seatsToProcessLen; i++)
             {
-                int seat = seatsToProcess[i];
-                Seat cur = seats[seat];
-                int totals = GetNeighbourTotals(seats, cur);
-                int occupiedTotal = (totals >> Occupied) & 0xF;
-                int finalisedTotal = (totals >> Finalised) & 0xF;
-                int occAndFinalTotal = (totals >> OccupiedAndFinalised) & 0xF;
+                var seat = seatsToProcess[i];
+                var cur = seats[seat];
+                var totals = GetNeighbourTotals(seats, cur);
+                var occupiedTotal = (totals >> Occupied) & 0xF;
+                var finalisedTotal = (totals >> Finalised) & 0xF;
+                var occAndFinalTotal = (totals >> OccupiedAndFinalised) & 0xF;
 
-                bool isSeatOccupied = (cur.SeatData & (1 << Occupied)) != 0;
+                var isSeatOccupied = (cur.SeatData & (1 << Occupied)) != 0;
                 if (isSeatOccupied)
                 {
                     if (occupiedTotal >= neighboursForVacant)
@@ -206,12 +206,12 @@ public class Day11 : ISolver
                 break;
             }
 
-            for (int i = 0; i < seatsToFlipLen; i++)
+            for (var i = 0; i < seatsToFlipLen; i++)
             {
                 seats[seatsToFlip[i]].FlipOccupiedFlag();
             }
 
-            for (int i = 0; i < seatsToFinaliseLen; i++)
+            for (var i = 0; i < seatsToFinaliseLen; i++)
             {
                 seats[seatsToFinalise[i]].Finalise();
             }
@@ -240,8 +240,8 @@ public class Day11 : ISolver
 
     private static int CountSeats(Seat[] grid)
     {
-        int occupied = 0;
-        foreach (Seat seat in grid)
+        var occupied = 0;
+        foreach (var seat in grid)
         {
             occupied += seat.SeatData & (1 << Occupied);
         }

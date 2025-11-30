@@ -11,14 +11,14 @@ public class Day19 : ISolver
 
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int inputCursor = 0;
+        var inputCursor = 0;
 
-        int part1 = 0;
-        int part2 = 1;
+        var part1 = 0;
+        var part2 = 1;
 
-        for (int blueprintId = 1; inputCursor < input.Length; blueprintId++)
+        for (var blueprintId = 1; inputCursor < input.Length; blueprintId++)
         {
-            Blueprint blueprint = ParseBlueprint(input, blueprintId, ref inputCursor);
+            var blueprint = ParseBlueprint(input, blueprintId, ref inputCursor);
             var solver = new BlueprintSolver(blueprint);
 
             part1 += blueprintId * solver.GetMaxGeodes(24);
@@ -35,17 +35,17 @@ public class Day19 : ISolver
         cursor += "Blueprint ".Length;
         cursor += id < 10 ? 1 : 2;
         cursor += ": Each ore robot costs ".Length;
-        int oreToMakeOreBot = ReadIntUntilSpace(input, ref cursor);
+        var oreToMakeOreBot = ReadIntUntilSpace(input, ref cursor);
         cursor += "ore. Each clay robot costs ".Length;
-        int oreToMakeClayBot = ReadIntUntilSpace(input, ref cursor);
+        var oreToMakeClayBot = ReadIntUntilSpace(input, ref cursor);
         cursor += "ore. Each obsidian robot costs ".Length;
-        int oreToMakeObsidianBot = ReadIntUntilSpace(input, ref cursor);
+        var oreToMakeObsidianBot = ReadIntUntilSpace(input, ref cursor);
         cursor += "ore and ".Length;
-        int clayToMakeObisidianBot = ReadIntUntilSpace(input, ref cursor);
+        var clayToMakeObisidianBot = ReadIntUntilSpace(input, ref cursor);
         cursor += "clay. Each geode robot costs ".Length;
-        int oreToMakeGeodeBot = ReadIntUntilSpace(input, ref cursor);
+        var oreToMakeGeodeBot = ReadIntUntilSpace(input, ref cursor);
         cursor += "ore and ".Length;
-        int obisdianToMakeGeodeBot = ReadIntUntilSpace(input, ref cursor);
+        var obisdianToMakeGeodeBot = ReadIntUntilSpace(input, ref cursor);
         cursor += "obsidian.\n".Length;
         return new Blueprint(oreToMakeOreBot, oreToMakeClayBot, oreToMakeObsidianBot, clayToMakeObisidianBot, oreToMakeGeodeBot, obisdianToMakeGeodeBot);
     }
@@ -53,7 +53,7 @@ public class Day19 : ISolver
     private static int ReadIntUntilSpace(ReadOnlySpan<byte> input, ref int i)
     {
         // Assume that the first character is always a digit
-        int ret = input[i++] - '0';
+        var ret = input[i++] - '0';
 
         byte cur;
         while ((cur = input[i++]) != ' ')
@@ -86,38 +86,38 @@ public class Day19 : ISolver
         public int GetMaxGeodes(int totalMinutes)
         {
             var initState = new State(Ore: 0, Clay: 0, Obsidian: 0, OreBots: 1, ClayBots: 0, ObsidianBots: 0, MinutesLeft: totalMinutes, Geodes: 0);
-            int minGeodes = 0;
-            int maxGeodes = GetUpperBoundGeodes(0, 0, 0, 1, 0, 0, totalMinutes);
+            var minGeodes = 0;
+            var maxGeodes = GetUpperBoundGeodes(0, 0, 0, 1, 0, 0, totalMinutes);
 
             if (maxGeodes == 0)
                 return 0;
 
             var stacks = new Stack<State>[maxGeodes + 1];
-            for (int i = 0; i < stacks.Length; i++)
+            for (var i = 0; i < stacks.Length; i++)
                 stacks[i] = new Stack<State>();
 
             stacks[maxGeodes].Push(initState);
 
-            for (int i = maxGeodes; i > minGeodes; i--)
+            for (var i = maxGeodes; i > minGeodes; i--)
             {
-                Stack<State> stack = stacks[i];
-                while (stack.TryPop(out State state))
+                var stack = stacks[i];
+                while (stack.TryPop(out var state))
                 {
-                    (int ore, int clay, int obsidian, int oreBots, int clayBots, int obsidianBots, int minutesLeft, int geodes) = state;
+                    (var ore, var clay, var obsidian, var oreBots, var clayBots, var obsidianBots, var minutesLeft, var geodes) = state;
 
                     // Make Ore Bot
                     if (ore < (_maxOreBotsNeeded - oreBots) * minutesLeft)
                     {
-                        int minutesToBuild = MinutesUntilCanBuildBot(ore, oreBots, _oreToMakeOreBot);
+                        var minutesToBuild = MinutesUntilCanBuildBot(ore, oreBots, _oreToMakeOreBot);
                         if (minutesToBuild < minutesLeft)
                         {
-                            int newOre = ore + minutesToBuild * oreBots - _oreToMakeOreBot;
-                            int newClay = clay + minutesToBuild * clayBots;
-                            int newObsidian = obsidian + minutesToBuild * obsidianBots;
-                            int newOreBots = oreBots + 1;
-                            int newMinutesLeft = minutesLeft - minutesToBuild;
+                            var newOre = ore + minutesToBuild * oreBots - _oreToMakeOreBot;
+                            var newClay = clay + minutesToBuild * clayBots;
+                            var newObsidian = obsidian + minutesToBuild * obsidianBots;
+                            var newOreBots = oreBots + 1;
+                            var newMinutesLeft = minutesLeft - minutesToBuild;
 
-                            int upperBound = GetUpperBoundGeodes(newOre, newClay, newObsidian, newOreBots, clayBots, obsidianBots, newMinutesLeft) + geodes;
+                            var upperBound = GetUpperBoundGeodes(newOre, newClay, newObsidian, newOreBots, clayBots, obsidianBots, newMinutesLeft) + geodes;
                             if (upperBound > minGeodes)
                                 stacks[upperBound].Push(new State(newOre, newClay, newObsidian, newOreBots, clayBots, obsidianBots, newMinutesLeft, geodes));
                         }
@@ -126,16 +126,16 @@ public class Day19 : ISolver
                     // Make Clay Bot
                     if (clay < (_clayToMakeObisidianBot - clayBots) * minutesLeft)
                     {
-                        int minutesToBuild = MinutesUntilCanBuildBot(ore, oreBots, _oreToMakeClayBot);
+                        var minutesToBuild = MinutesUntilCanBuildBot(ore, oreBots, _oreToMakeClayBot);
                         if (minutesToBuild < minutesLeft)
                         {
-                            int newOre = ore + minutesToBuild * oreBots - _oreToMakeClayBot;
-                            int newClay = clay + minutesToBuild * clayBots;
-                            int newObsidian = obsidian + minutesToBuild * obsidianBots;
-                            int newClayBots = clayBots + 1;
-                            int newMinutesLeft = minutesLeft - minutesToBuild;
+                            var newOre = ore + minutesToBuild * oreBots - _oreToMakeClayBot;
+                            var newClay = clay + minutesToBuild * clayBots;
+                            var newObsidian = obsidian + minutesToBuild * obsidianBots;
+                            var newClayBots = clayBots + 1;
+                            var newMinutesLeft = minutesLeft - minutesToBuild;
 
-                            int upperBound = GetUpperBoundGeodes(newOre, newClay, newObsidian, oreBots, newClayBots, obsidianBots, newMinutesLeft) + geodes;
+                            var upperBound = GetUpperBoundGeodes(newOre, newClay, newObsidian, oreBots, newClayBots, obsidianBots, newMinutesLeft) + geodes;
                             if (upperBound > minGeodes)
                                 stacks[upperBound].Push(new State(newOre, newClay, newObsidian, oreBots, newClayBots, obsidianBots, newMinutesLeft, geodes));
                         }
@@ -144,16 +144,16 @@ public class Day19 : ISolver
                     // Make Obsidian Bot
                     if (clayBots > 0)
                     {
-                        int minutesToBuild = Math.Max(MinutesUntilCanBuildBot(ore, oreBots, _oreToMakeObsidianBot), MinutesUntilCanBuildBot(clay, clayBots, _clayToMakeObisidianBot));
+                        var minutesToBuild = Math.Max(MinutesUntilCanBuildBot(ore, oreBots, _oreToMakeObsidianBot), MinutesUntilCanBuildBot(clay, clayBots, _clayToMakeObisidianBot));
                         if (minutesToBuild < minutesLeft)
                         {
-                            int newOre = ore + minutesToBuild * oreBots - _oreToMakeObsidianBot;
-                            int newClay = clay + minutesToBuild * clayBots - _clayToMakeObisidianBot;
-                            int newObsidian = obsidian + minutesToBuild * obsidianBots;
-                            int newObsidianBots = obsidianBots + 1;
-                            int newMinutesLeft = minutesLeft - minutesToBuild;
+                            var newOre = ore + minutesToBuild * oreBots - _oreToMakeObsidianBot;
+                            var newClay = clay + minutesToBuild * clayBots - _clayToMakeObisidianBot;
+                            var newObsidian = obsidian + minutesToBuild * obsidianBots;
+                            var newObsidianBots = obsidianBots + 1;
+                            var newMinutesLeft = minutesLeft - minutesToBuild;
 
-                            int upperBound = GetUpperBoundGeodes(newOre, newClay, newObsidian, oreBots, clayBots, newObsidianBots, newMinutesLeft) + geodes;
+                            var upperBound = GetUpperBoundGeodes(newOre, newClay, newObsidian, oreBots, clayBots, newObsidianBots, newMinutesLeft) + geodes;
                             if (upperBound > minGeodes)
                                 stacks[upperBound].Push(new State(newOre, newClay, newObsidian, oreBots, clayBots, newObsidianBots, newMinutesLeft, geodes));
                         }
@@ -162,16 +162,16 @@ public class Day19 : ISolver
                     // Make Geode Bot
                     if (obsidianBots > 0)
                     {
-                        int minutesToBuild = Math.Max(MinutesUntilCanBuildBot(ore, oreBots, _oreToMakeGeodeBot), MinutesUntilCanBuildBot(obsidian, obsidianBots, _obisdianToMakeGeodeBot));
+                        var minutesToBuild = Math.Max(MinutesUntilCanBuildBot(ore, oreBots, _oreToMakeGeodeBot), MinutesUntilCanBuildBot(obsidian, obsidianBots, _obisdianToMakeGeodeBot));
                         if (minutesToBuild < minutesLeft)
                         {
-                            int newOre = ore + minutesToBuild * oreBots - _oreToMakeGeodeBot;
-                            int newClay = clay + minutesToBuild * clayBots;
-                            int newObsidian = obsidian + minutesToBuild * obsidianBots - _obisdianToMakeGeodeBot;
-                            int newMinutesLeft = minutesLeft - minutesToBuild;
-                            int newGeodes = geodes + newMinutesLeft;
+                            var newOre = ore + minutesToBuild * oreBots - _oreToMakeGeodeBot;
+                            var newClay = clay + minutesToBuild * clayBots;
+                            var newObsidian = obsidian + minutesToBuild * obsidianBots - _obisdianToMakeGeodeBot;
+                            var newMinutesLeft = minutesLeft - minutesToBuild;
+                            var newGeodes = geodes + newMinutesLeft;
 
-                            int upperBound = GetUpperBoundGeodes(newOre, newClay, newObsidian, oreBots, clayBots, obsidianBots, newMinutesLeft) + newGeodes;
+                            var upperBound = GetUpperBoundGeodes(newOre, newClay, newObsidian, oreBots, clayBots, obsidianBots, newMinutesLeft) + newGeodes;
                             if (upperBound > minGeodes)
                             {
                                 if (newGeodes > minGeodes)
@@ -192,10 +192,10 @@ public class Day19 : ISolver
 
         private int GetUpperBoundGeodes(int ore, int clay, int obsidian, int oreBots, int clayBots, int obsidianBots, int minutesLeft)
         {
-            int geodes = 0;
-            int oreForClayBots = ore;
+            var geodes = 0;
+            var oreForClayBots = ore;
 
-            for (int i = 0; i < minutesLeft - 2; i++)
+            for (var i = 0; i < minutesLeft - 2; i++)
             {
                 if (obsidian >= _obisdianToMakeGeodeBot)
                 {
@@ -228,10 +228,7 @@ public class Day19 : ISolver
                 ore += oreBots;
             }
 
-            if (obsidian >= _obisdianToMakeGeodeBot)
-                return geodes + 1;
-
-            return geodes;
+            return obsidian >= _obisdianToMakeGeodeBot ? geodes + 1 : geodes;
         }
 
         private static int MinutesUntilCanBuildBot(int currentResource, int rate, int cost)
@@ -239,7 +236,7 @@ public class Day19 : ISolver
             if (currentResource >= cost)
                 return 1;
 
-            (int div, int rem) = Math.DivRem(cost - currentResource, rate);
+            (var div, var rem) = Math.DivRem(cost - currentResource, rate);
             return div + (rem == 0 ? 1 : 2);
         }
     }

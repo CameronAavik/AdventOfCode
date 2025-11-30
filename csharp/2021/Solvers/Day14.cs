@@ -12,14 +12,14 @@ public class Day14 : ISolver
         Span<long> pairCounts = stackalloc long[26 * 26];
 
         // Parse the polymer template
-        int startingElement = input[0] - 'A';
-        int prevElement = startingElement;
-        int i = 1;
+        var startingElement = input[0] - 'A';
+        var prevElement = startingElement;
+        var i = 1;
 
         byte c;
         while ((c = input[i++]) != '\n')
         {
-            int element = c - 'A';
+            var element = c - 'A';
             pairCounts[prevElement * 26 + element]++;
             prevElement = element;
         }
@@ -36,18 +36,18 @@ public class Day14 : ISolver
         Span<int> possiblePairs = stackalloc int[26 * 26];
 
         // Parse the production rules
-        int numPossiblePairs = 0;
+        var numPossiblePairs = 0;
         i++;
         while (i < input.Length)
         {
-            int element1 = input[i] - 'A';
-            int element2 = input[i + 1] - 'A';
-            int elementResult = input[i + 6] - 'A';
+            var element1 = input[i] - 'A';
+            var element2 = input[i + 1] - 'A';
+            var elementResult = input[i + 6] - 'A';
 
-            int newPair1 = element1 * 26 + elementResult;
-            int newPair2 = elementResult * 26 + element2;
+            var newPair1 = element1 * 26 + elementResult;
+            var newPair2 = elementResult * 26 + element2;
 
-            int pairLookup = element1 * 26 + element2;
+            var pairLookup = element1 * 26 + element2;
             lookups[pairLookup] = newPair1 << 16 | newPair2;
             possiblePairs[numPossiblePairs++] = pairLookup;
 
@@ -55,20 +55,20 @@ public class Day14 : ISolver
         }
 
         // Generate the 4 pairs produced from each possible pair
-        foreach (int pair in possiblePairs)
+        foreach (var pair in possiblePairs)
         {
-            int pairsCreated = lookups[pair];
+            var pairsCreated = lookups[pair];
             lookups2[pair] = (long)lookups[pairsCreated >> 16] << 32 | (long)lookups[pairsCreated & ushort.MaxValue];
         }
 
-        possiblePairs = possiblePairs.Slice(0, numPossiblePairs);
+        possiblePairs = possiblePairs[..numPossiblePairs];
 
-        for (int step = 0; step < 10; step += 2)
+        for (var step = 0; step < 10; step += 2)
             Iterate(pairCounts, lookups2, possiblePairs);
 
         solution.SubmitPart1(GetAnswer(possiblePairs, pairCounts, startingElement));
 
-        for (int step = 10; step < 40; step += 2)
+        for (var step = 10; step < 40; step += 2)
             Iterate(pairCounts, lookups2, possiblePairs);
 
         solution.SubmitPart2(GetAnswer(possiblePairs, pairCounts, startingElement));
@@ -78,10 +78,10 @@ public class Day14 : ISolver
     {
         Span<long> newPairCounts = stackalloc long[26 * 26];
 
-        foreach (int pair in possiblePairs)
+        foreach (var pair in possiblePairs)
         {
-            long count = pairCounts[pair];
-            long newPairs = lookups2[pair];
+            var count = pairCounts[pair];
+            var newPairs = lookups2[pair];
             newPairCounts[(int)(newPairs & ushort.MaxValue)] += count;
             newPairCounts[(int)((newPairs >> 16) & ushort.MaxValue)] += count;
             newPairCounts[(int)((newPairs >> 32) & ushort.MaxValue)] += count;
@@ -95,17 +95,17 @@ public class Day14 : ISolver
     {
         Span<long> elementCounts = stackalloc long[26];
 
-        foreach (int pair in possiblePairs)
+        foreach (var pair in possiblePairs)
         {
-            long count = pairCounts[pair];
+            var count = pairCounts[pair];
             elementCounts[pair % 26] += count;
         }
 
         elementCounts[startingElement]++;
 
         long max = 0;
-        long min = long.MaxValue;
-        foreach (long count in elementCounts)
+        var min = long.MaxValue;
+        foreach (var count in elementCounts)
         {
             if (count > max)
                 max = count;

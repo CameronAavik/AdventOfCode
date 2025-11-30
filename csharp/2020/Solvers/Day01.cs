@@ -7,14 +7,14 @@ public class Day01 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int length = 0;
-        byte[]? numberSet = new byte[2048];
-        int[]? numbers = new int[512];
-        foreach (Range lineRange in input.SplitLines())
+        var length = 0;
+        var numberSet = new byte[2048];
+        var numbers = new int[512];
+        foreach (var lineRange in input.SplitLines())
         {
-            ReadOnlySpan<byte> line = input[lineRange];
-            int num = line[0] - '0';
-            for (int i = 1; i < line.Length; i++)
+            var line = input[lineRange];
+            var num = line[0] - '0';
+            for (var i = 1; i < line.Length; i++)
             {
                 num = num * 10 + (line[i] - '0');
             }
@@ -25,18 +25,18 @@ public class Day01 : ISolver
 
         Array.Sort(numbers, 0, length);
 
-        int part1 = -1;
-        int part2 = -1;
-        for (int i = 0; i < length; i++)
+        var part1 = -1;
+        var part2 = -1;
+        for (var i = 0; i < length; i++)
         {
-            int a = numbers[i];
-            int part1B = 2020 - a;
-            for (int j = i + 1; j < length; j++)
+            var a = numbers[i];
+            var part1B = 2020 - a;
+            for (var j = i + 1; j < length; j++)
             {
-                int b = numbers[j];
+                var b = numbers[j];
                 if (b < part1B)
                 {
-                    int c = part1B - b;
+                    var c = part1B - b;
                     if (numberSet[c] == 1)
                     {
                         part2 = a * b * c;

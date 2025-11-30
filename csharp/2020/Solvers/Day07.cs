@@ -18,7 +18,7 @@ public class Day07 : ISolver
         var reader = new SpanReader(input);
         while (!reader.Done)
         {
-            ParseLine(ref reader, out Bag bag, out bool containsShiny, out List<(int Count, Bag Bag)> contents);
+            ParseLine(ref reader, out var bag, out var containsShiny, out var contents);
 
             if (containsShiny)
             {
@@ -33,8 +33,8 @@ public class Day07 : ISolver
             bagContents[bag] = contents;
         }
 
-        int part1 = 0;
-        foreach (Bag colour in bagContents.Keys)
+        var part1 = 0;
+        foreach (var colour in bagContents.Keys)
         {
             if (ContainsShinyGold(colour, containsShinyGoldCache, bagContents))
             {
@@ -44,7 +44,7 @@ public class Day07 : ISolver
 
         solution.SubmitPart1(part1);
 
-        int part2 = GetTotalChildBags(new("shiny", "gold"), totalChildBagsCache, bagContents);
+        var part2 = GetTotalChildBags(new("shiny", "gold"), totalChildBagsCache, bagContents);
         solution.SubmitPart2(part2);
     }
 
@@ -68,7 +68,7 @@ public class Day07 : ISolver
 
         while (true)
         {
-            int count = reader.ReadPosIntUntil(' ');
+            var count = reader.ReadPosIntUntil(' ');
             Bag childBag = new(BytesToString(reader.ReadUntil(' ')), BytesToString(reader.ReadUntil(' ')));
             if (childBag is { Modifier: "shiny", Colour: "gold" })
             {
@@ -95,12 +95,12 @@ public class Day07 : ISolver
         Dictionary<Bag, bool> cache,
         Dictionary<Bag, List<(int Count, Bag Bag)>> bagContents)
     {
-        if (cache.TryGetValue(bag, out bool containsShinyGold))
+        if (cache.TryGetValue(bag, out var containsShinyGold))
         {
             return containsShinyGold;
         }
 
-        foreach ((int _, Bag childBag) in bagContents[bag])
+        foreach ((var _, var childBag) in bagContents[bag])
         {
             if (ContainsShinyGold(childBag, cache, bagContents))
             {
@@ -118,13 +118,13 @@ public class Day07 : ISolver
         Dictionary<Bag, int> cache,
         Dictionary<Bag, List<(int Count, Bag Bag)>> bagContents)
     {
-        if (cache.TryGetValue(bag, out int childCount))
+        if (cache.TryGetValue(bag, out var childCount))
         {
             return childCount;
         }
 
-        int total = 0;
-        foreach ((int count, Bag childBag) in bagContents[bag])
+        var total = 0;
+        foreach ((var count, var childBag) in bagContents[bag])
         {
             total += count * (1 + GetTotalChildBags(childBag, cache, bagContents));
         }

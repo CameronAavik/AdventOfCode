@@ -10,14 +10,14 @@ public class Day13 : ISolver
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
         var reader = new SpanReader(input.TrimEnd((byte)'\n'));
-        int earliestTime = reader.ReadPosIntUntil('\n');
+        var earliestTime = reader.ReadPosIntUntil('\n');
 
-        int part1Id = -1;
-        int part1Time = int.MaxValue;
+        var part1Id = -1;
+        var part1Time = int.MaxValue;
 
         BigInteger product = 1;
         var buses = new List<(int n, int a)>();
-        for (int i = 0; !reader.Done; i++)
+        for (var i = 0; !reader.Done; i++)
         {
             if (reader.Peek() == 'x')
             {
@@ -25,10 +25,10 @@ public class Day13 : ISolver
                 continue;
             }
 
-            int busId = reader.ReadPosIntUntil(',');
+            var busId = reader.ReadPosIntUntil(',');
 
             // Part 1
-            int waitTime = busId - (earliestTime % busId);
+            var waitTime = busId - (earliestTime % busId);
             if (waitTime < part1Time)
             {
                 part1Id = busId;
@@ -38,7 +38,7 @@ public class Day13 : ISolver
             // Part 2
             product *= busId;
 
-            int remainder = (busId - i) % busId;
+            var remainder = (busId - i) % busId;
             if (remainder < 0)
             {
                 remainder += busId;
@@ -47,12 +47,12 @@ public class Day13 : ISolver
             buses.Add((busId, remainder));
         }
 
-        int part1 = part1Id * part1Time;
+        var part1 = part1Id * part1Time;
 
         BigInteger part2 = 0;
-        foreach ((int n, int a) in buses)
+        foreach ((var n, var a) in buses)
         {
-            BigInteger p = product / n;
+            var p = product / n;
             part2 += a * BigInteger.ModPow(p, n - 2, n) * p;
         }
 

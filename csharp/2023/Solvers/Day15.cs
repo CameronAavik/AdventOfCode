@@ -8,20 +8,20 @@ public class Day15 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
     {
-        int part1 = 0;
+        var part1 = 0;
 
-        List<ulong>[] boxes = new List<ulong>[256];
-        for (int i = 0; i < boxes.Length; i++)
+        var boxes = new List<ulong>[256];
+        for (var i = 0; i < boxes.Length; i++)
             boxes[i] = new(24); // upper bound on length of box based on inputs
 
         while (input.Length > 0)
         {
-            byte c = input[0];
-            ulong part2Label = (ulong)c - 'a';
+            var c = input[0];
+            var part2Label = (ulong)c - 'a';
             uint hash = c;
             hash += hash << 4;
 
-            int i = 1;
+            var i = 1;
             while ((c = input[i++]) >= 'a')
             {
                 hash += c;
@@ -29,7 +29,7 @@ public class Day15 : ISolver
                 part2Label += (ulong)(c - 'a') << (i * 4);
             }
 
-            List<ulong> box = boxes[(byte)hash];
+            var box = boxes[(byte)hash];
 
             if (c == '-')
             {
@@ -43,7 +43,7 @@ public class Day15 : ISolver
                 hash += (hash << 4) + ('=' << 4) + '=';
 
                 c = input[i++];
-                uint num = (uint)c - '0';
+                var num = (uint)c - '0';
                 hash += c;
                 hash += hash << 4;
                 while ((c = input[i++]) >= '0')
@@ -57,16 +57,16 @@ public class Day15 : ISolver
             }
 
             part1 += (byte)hash;
-            input = input.Slice(i);
+            input = input[i..];
         }
 
         solution.SubmitPart1(part1);
 
-        int part2 = 0;
-        for (int i = 0; i < boxes.Length; i++)
+        var part2 = 0;
+        for (var i = 0; i < boxes.Length; i++)
         {
-            int index = 1;
-            foreach (ulong element in boxes[i])
+            var index = 1;
+            foreach (var element in boxes[i])
             {
                 if (element != 0)
                     part2 += (i + 1) * index++ * (int)(element & uint.MaxValue);
@@ -78,7 +78,7 @@ public class Day15 : ISolver
 
     private static void HandleMinus(ulong part2Label, List<ulong> box)
     {
-        for (int j = 0; j < box.Count; j++)
+        for (var j = 0; j < box.Count; j++)
         {
             if (box[j] >> 32 == part2Label)
             {
@@ -90,7 +90,7 @@ public class Day15 : ISolver
 
     private static void HandleEquals(ulong part2Label, List<ulong> box, uint num)
     {
-        for (int j = 0; j < box.Count; j++)
+        for (var j = 0; j < box.Count; j++)
         {
             if (box[j] >> 32 == part2Label)
             {

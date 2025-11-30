@@ -1,7 +1,7 @@
 ﻿module Year2015Day09
 
 open AdventOfCode.FSharp.Common
-open GraphFS.Graph
+open AdventOfCode.FSharp.GraphFS.Graph
 
 type Edge =
     { P1 : string; P2 : string; Dist : int }
