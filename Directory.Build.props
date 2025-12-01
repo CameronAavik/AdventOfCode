@@ -7,7 +7,5 @@
     <Tailcalls>true</Tailcalls>
     <SuppressNETCoreSdkPreviewMessage>True</SuppressNETCoreSdkPreviewMessage>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>pdbonly</DebugType>
-    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
 </Project>

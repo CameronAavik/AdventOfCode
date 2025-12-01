@@ -36,26 +36,32 @@ record LineData()
 
 static class Extensions
 {
-    public static List<T> ExtractNumbers<T>(this string s) where T : IBinaryInteger<T>
+    extension(string s)
     {
-        var numbers = new List<T>();
-        foreach (Match? match in Regex.Matches(s, @"(?:(?<!\d)-)?\d+").ToList())
+        public List<T> ExtractNumbers<T>() where T : IBinaryInteger<T>
         {
-            if (!T.TryParse(match.Value, null, out var number))
-                throw new Exception($"Failed to parse number: {match.Value}");
-            numbers.Add(number);
+            var numbers = new List<T>();
+            foreach (Match? match in Regex.Matches(s, @"(?:(?<!\d)-)?\d+").ToList())
+            {
+                if (!T.TryParse(match.Value, null, out var number))
+                    throw new Exception($"Failed to parse number: {match.Value}");
+                numbers.Add(number);
+            }
+
+            return numbers;
         }
 
-        return numbers;
+        public List<int> ExtractIntegers() => s.ExtractNumbers<int>();
+        public List<long> ExtractLongs() => s.ExtractNumbers<long>();
     }
 
-    public static List<int> ExtractIntegers(this string s) => s.ExtractNumbers<int>();
-    public static List<long> ExtractLongs(this string s) => s.ExtractNumbers<long>();
-
-    public static IEnumerable<(int Index, T Item)> Enumerate<T>(this IEnumerable<T> enumerable)
+    extension<T>(IEnumerable<T> enumerable)
     {
-        int i = 0;
-        foreach (var item in enumerable)
-            yield return (i++, item);
+        public IEnumerable<(int Index, T Item)> Enumerate()
+        {
+            int i = 0;
+            foreach (var item in enumerable)
+                yield return (i++, item);
+        }
     }
 }

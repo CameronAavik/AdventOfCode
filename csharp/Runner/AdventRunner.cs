@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Reflection;
 using System.Text.Json;
 using AdventOfCode.CSharp.Common;
@@ -86,6 +86,7 @@ public static class AdventRunner
             2022 => typeof(Y2022.Solvers.Day01).Assembly,
             2023 => typeof(Y2023.Solvers.Day01).Assembly,
             2024 => typeof(Y2024.Solvers.Day01).Assembly,
+            2025 => typeof(Y2025.Solvers.Day01).Assembly,
             _ => null
         };
 

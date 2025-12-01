@@ -1,0 +1,34 @@
+<Solution>
+  <Folder Name="/csharp/">
+    <Project Path="csharp/2015/AdventOfCode.CSharp.2015.csproj" />
+    <Project Path="csharp/2016/AdventOfCode.CSharp.2016.csproj" />
+    <Project Path="csharp/2017/AdventOfCode.CSharp.2017.csproj" />
+    <Project Path="csharp/2018/AdventOfCode.CSharp.2018.csproj" />
+    <Project Path="csharp/2019/AdventOfCode.CSharp.2019.csproj" />
+    <Project Path="csharp/2020/AdventOfCode.CSharp.2020.csproj" />
+    <Project Path="csharp/2021/AdventOfCode.CSharp.2021.csproj" />
+    <Project Path="csharp/2022/AdventOfCode.CSharp.2022.csproj" />
+    <Project Path="csharp/2023/AdventOfCode.CSharp.2023.csproj" />
+    <Project Path="csharp/2024/AdventOfCode.CSharp.2024.csproj" />
+    <Project Path="csharp/2025/AdventOfCode.CSharp.2025.csproj" />
+    <Project Path="csharp/Benchmarks/AdventOfCode.CSharp.Benchmarks.csproj" />
+    <Project Path="csharp/Common/AdventOfCode.CSharp.Common.csproj" />
+    <Project Path="csharp/Runner/AdventOfCode.CSharp.Runner.csproj" />
+    <Project Path="csharp/Tests/AdventOfCode.CSharp.Tests.csproj" />
+  </Folder>
+  <Folder Name="/fsharp/">
+    <Project Path="fsharp/2015/AdventOfCode.FSharp.2015.fsproj" />
+    <Project Path="fsharp/2016/AdventOfCode.FSharp.2016.fsproj" />
+    <Project Path="fsharp/2017/AdventOfCode.FSharp.2017.fsproj" />
+    <Project Path="fsharp/2018/AdventOfCode.FSharp.2018.fsproj" />
+    <Project Path="fsharp/2019/AdventOfCode.FSharp.2019.fsproj" />
+    <Project Path="fsharp/Common/AdventOfCode.FSharp.Common.fsproj" />
+  </Folder>
+  <Folder Name="/Solution Files/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path="Directory.Build.props" />
+    <File Path="global.json" />
+    <File Path="README.MD" />
+  </Folder>
+</Solution>
