@@ -51,28 +51,28 @@ public class Day02 : ISolver
                 part2 += SumInRangeWithPattern(start, end, 111);
                 break;
             case 4:
-                part1 += SumInRangeWithPattern(start, end, 101);
+                part1 += SumInRangeWithPattern(start, end, 0101);
                 break;
             case 5:
                 part2 += SumInRangeWithPattern(start, end, 11111);
                 break;
             case 6:
-                part1 += SumInRangeWithPattern(start, end, 1001);
-                part2 += SumInRangeWithPattern(start, end, 10101);
+                part1 += SumInRangeWithPattern(start, end, 001001);
+                part2 += SumInRangeWithPattern(start, end, 010101);
                 part2 -= SumInRangeWithPattern(start, end, 111111);
                 break;
             case 7:
                 part2 += SumInRangeWithPattern(start, end, 1111111);
                 break;
             case 8:
-                part1 += SumInRangeWithPattern(start, end, 10001);
+                part1 += SumInRangeWithPattern(start, end, 000010001);
                 break;
             case 9:
-                part2 += SumInRangeWithPattern(start, end, 1001001);
+                part2 += SumInRangeWithPattern(start, end, 001001001);
                 break;
             case 10:
-                part1 += SumInRangeWithPattern(start, end, 100001);
-                part2 += SumInRangeWithPattern(start, end, 101010101);
+                part1 += SumInRangeWithPattern(start, end, 0000100001);
+                part2 += SumInRangeWithPattern(start, end, 0101010101);
                 part2 -= SumInRangeWithPattern(start, end, 1111111111);
                 break;
             default:
