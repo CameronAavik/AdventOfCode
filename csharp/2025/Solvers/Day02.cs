@@ -1,6 +1,5 @@
 using System;
 using System.Globalization;
-using System.Reflection.Metadata.Ecma335;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2025.Solvers;
@@ -41,9 +40,6 @@ public class Day02 : ISolver
     {
         switch (digits)
         {
-            case 0:
-            case 1:
-                return;
             case 2:
                 part1 += SumInRangeWithPattern(start, end, 11);
                 break;
@@ -75,33 +71,20 @@ public class Day02 : ISolver
                 part2 += SumInRangeWithPattern(start, end, 0101010101);
                 part2 -= SumInRangeWithPattern(start, end, 1111111111);
                 break;
-            default:
-                throw new NotImplementedException();
         }
     }
 
     private static long SumInRangeWithPattern(long start, long end, long pattern)
     {
-        var startTop = RoundUpNearestMultiple(start, pattern) / pattern;
-        var endTop = RoundDownNearestMultiple(end, pattern) / pattern;
-        return SumRangeInclusive(startTop, endTop) * pattern;
-    }
+        // Identify the first and last multiplier inside the range
+        var first = (start + pattern - 1) / pattern;
+        var last = end / pattern;
 
-    private static long RoundUpNearestMultiple(long value, long multiple)
-    {
-        var remainder = value % multiple;
-        if (remainder == 0)
-            return value;
-        return value + (multiple - remainder);
-    }
+        var count = last - first + 1;
+        if (count <= 0)
+            return 0;
 
-    private static long RoundDownNearestMultiple(long value, long multiple)
-    {
-        return value - (value % multiple);
-    }
-
-    private static long SumRangeInclusive(long start, long end)
-    {
-        return (end * (end + 1) / 2) - ((start - 1) * start / 2);
+        // Sum of arithmetic progression: p * (first + ... + last)
+        return pattern * ((first + last) * count / 2);
     }
 }
