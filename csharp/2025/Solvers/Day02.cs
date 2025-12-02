@@ -34,7 +34,7 @@ public class Day02 : ISolver
         }
 
         solution.SubmitPart1(part1);
-        solution.SubmitPart2(part2);
+        solution.SubmitPart2(part1 + part2);
     }
 
     private static void AddInvalidIds(int digits, long start, long end, ref long part1, ref long part2)
@@ -45,131 +45,46 @@ public class Day02 : ISolver
             case 1:
                 return;
             case 2:
-                HandleTwoDigits(start, end, ref part1, ref part2);
+                part1 += SumInRangeWithPattern(start, end, 11);
                 break;
             case 3:
-                HandleThreeDigits(start, end, ref part1, ref part2);
+                part2 += SumInRangeWithPattern(start, end, 111);
                 break;
             case 4:
-                HandleFourDigits(start, end, ref part1, ref part2);
+                part1 += SumInRangeWithPattern(start, end, 101);
                 break;
             case 5:
-                HandleFiveDigits(start, end, ref part1, ref part2);
+                part2 += SumInRangeWithPattern(start, end, 11111);
                 break;
             case 6:
-                HandleSixDigits(start, end, ref part1, ref part2);
+                part1 += SumInRangeWithPattern(start, end, 1001);
+                part2 += SumInRangeWithPattern(start, end, 10101);
+                part2 -= SumInRangeWithPattern(start, end, 111111);
                 break;
             case 7:
-                HandleSevenDigits(start, end, ref part1, ref part2);
+                part2 += SumInRangeWithPattern(start, end, 1111111);
                 break;
             case 8:
-                HandleEightDigits(start, end, ref part1, ref part2);
+                part1 += SumInRangeWithPattern(start, end, 10001);
                 break;
             case 9:
-                HandleNineDigits(start, end, ref part1, ref part2);
+                part2 += SumInRangeWithPattern(start, end, 1001001);
                 break;
             case 10:
-                HandleTenDigits(start, end, ref part1, ref part2);
+                part1 += SumInRangeWithPattern(start, end, 100001);
+                part2 += SumInRangeWithPattern(start, end, 101010101);
+                part2 -= SumInRangeWithPattern(start, end, 1111111111);
                 break;
             default:
                 throw new NotImplementedException();
         }
     }
 
-    private static void HandleTwoDigits(long start, long end, ref long part1, ref long part2)
+    private static long SumInRangeWithPattern(long start, long end, long pattern)
     {
-        var startTop = RoundUpNearestMultiple(start, 11) / 10;
-        var endTop = RoundDownNearestMultiple(end, 11) / 10;
-        var total = SumRangeInclusive(startTop, endTop) * 11;
-        part1 += total;
-        part2 += total;
-    }
-
-    private static void HandleThreeDigits(long start, long end, ref long _, ref long part2)
-    {
-        var startTop = RoundUpNearestMultiple(start, 111) / 100;
-        var endTop = RoundDownNearestMultiple(end, 111) / 100;
-        part2 += SumRangeInclusive(startTop, endTop) * 111;
-    }
-
-    private static void HandleFourDigits(long start, long end, ref long part1, ref long part2)
-    {
-        var startTop = RoundUpNearestMultiple(start, 101) / 100;
-        var endTop = RoundDownNearestMultiple(end, 101) / 100;
-        var total = SumRangeInclusive(startTop, endTop) * 101;
-        part1 += total;
-        part2 += total;
-    }
-
-    private static void HandleFiveDigits(long start, long end, ref long _, ref long part2)
-    {
-        var startTop = RoundUpNearestMultiple(start, 11111) / 10000;
-        var endTop = RoundDownNearestMultiple(end, 11111) / 10000;
-        part2 += SumRangeInclusive(startTop, endTop) * 11111;
-    }
-
-    private static void HandleSixDigits(long start, long end, ref long part1, ref long part2)
-    {
-        // XYZXYZ
-        var startTop = RoundUpNearestMultiple(start, 1001) / 1000;
-        var endTop = RoundDownNearestMultiple(end, 1001) / 1000;
-        var total = SumRangeInclusive(startTop, endTop) * 1001;
-        part1 += total;
-        part2 += total;
-
-        // XYXYXY
-        startTop = RoundUpNearestMultiple(start, 10101) / 10000;
-        endTop = RoundDownNearestMultiple(end, 10101) / 10000;
-        part2 += SumRangeInclusive(startTop, endTop) * 10101;
-
-        // XXXXXX (need to subtract)
-        startTop = RoundUpNearestMultiple(start, 111111) / 100000;
-        endTop = RoundDownNearestMultiple(end, 111111) / 100000;
-        part2 -= SumRangeInclusive(startTop, endTop) * 111111;
-    }
-
-    private static void HandleSevenDigits(long start, long end, ref long _, ref long part2)
-    {
-        var startTop = RoundUpNearestMultiple(start, 1111111) / 1000000;
-        var endTop = RoundDownNearestMultiple(end, 1111111) / 1000000;
-        part2 += SumRangeInclusive(startTop, endTop) * 1111111;
-    }
-
-    private static void HandleEightDigits(long start, long end, ref long part1, ref long part2)
-    {
-        // for both parts, all numbers of form WXYZWXYZ
-        var startTop = RoundUpNearestMultiple(start, 10001) / 10000;
-        var endTop = RoundDownNearestMultiple(end, 10001) / 10000;
-        var total = SumRangeInclusive(startTop, endTop) * 10001;
-        part1 += total;
-        part2 += total;
-    }
-
-    private static void HandleNineDigits(long start, long end, ref long _, ref long part2)
-    {
-        var startTop = RoundUpNearestMultiple(start, 1001001) / 1000000;
-        var endTop = RoundDownNearestMultiple(end, 1001001) / 1000000;
-        part2 += SumRangeInclusive(startTop, endTop) * 1001001;
-    }
-
-    private static void HandleTenDigits(long start, long end, ref long part1, ref long part2)
-    {
-        // VWXYZVWXYZ
-        var startTop = RoundUpNearestMultiple(start, 100001) / 100000;
-        var endTop = RoundDownNearestMultiple(end, 100001) / 100000;
-        var total = SumRangeInclusive(startTop, endTop) * 100001;
-        part1 += total;
-        part2 += total;
-
-        // XYXYXYXYXY
-        startTop = RoundUpNearestMultiple(start, 101010101) / 100000000;
-        endTop = RoundDownNearestMultiple(end, 101010101) / 100000000;
-        part2 += SumRangeInclusive(startTop, endTop) * 101010101;
-
-        // XXXXXXXXXX (need to subtract)
-        startTop = RoundUpNearestMultiple(start, 1111111111) / 1000000000L;
-        endTop = RoundDownNearestMultiple(end, 1111111111) / 1000000000L;
-        part2 -= SumRangeInclusive(startTop, endTop) * 1111111111;
+        var startTop = RoundUpNearestMultiple(start, pattern) / pattern;
+        var endTop = RoundDownNearestMultiple(end, pattern) / pattern;
+        return SumRangeInclusive(startTop, endTop) * pattern;
     }
 
     private static long RoundUpNearestMultiple(long value, long multiple)
