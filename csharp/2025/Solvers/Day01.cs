@@ -28,21 +28,18 @@ public class Day01 : ISolver
             part2 += fullRotations;
             var steps = tensDigit * 10 + onesDigit;
 
-            if (dir <= 'L')
+            if (dial == 0)
             {
-                if (dial == 0)
+                part1++;
+                dial = dir == 'L' ? (100 - steps) : steps;
+            }
+            else if (dir == 'L')
+            {
+                dial -= steps;
+                if (dial < 0)
                 {
-                    dial += 100 - steps;
-                }
-                else
-                {
-                    dial -= steps;
-                    if (dial <= 0)
-                    {
-                        part2++;
-                        if (dial < 0)
-                            dial += 100;
-                    }
+                    part2++;
+                    dial += 100;
                 }
             }
             else
@@ -53,13 +50,17 @@ public class Day01 : ISolver
                     part2++;
                     dial -= 100;
                 }
+                else if (dial == 100)
+                {
+                    dial = 0;
+                }
             }
-
-            if (dial == 0)
-                part1++;
         }
 
+        if (dial == 0)
+            part1++;
+
         solution.SubmitPart1(part1);
-        solution.SubmitPart2(part2);
+        solution.SubmitPart2(part1 + part2);
     }
 }
