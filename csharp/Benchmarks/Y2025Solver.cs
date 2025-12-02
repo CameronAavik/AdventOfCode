@@ -39,6 +39,7 @@ public class AllDays2025
         for (var i = 0; i < 5; i++)
         {
             Day01.Solve(_inputs[0][i], new(_part1Buffer, _part2Buffer));
+            Day02.Solve(_inputs[1][i], new(_part1Buffer, _part2Buffer));
         }
     }
 }

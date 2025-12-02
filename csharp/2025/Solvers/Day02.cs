@@ -1,5 +1,4 @@
 using System;
-using System.Runtime.CompilerServices;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2025.Solvers;
@@ -69,7 +68,6 @@ public class Day02 : ISolver
         solution.SubmitPart2(part1 + part2);
     }
 
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static ulong InvalidIdsWithPattern(ulong start, ulong end, ulong min, ulong pattern)
     {
         if (start < min)

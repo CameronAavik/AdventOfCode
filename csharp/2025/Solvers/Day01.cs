@@ -45,7 +45,7 @@ public class Day01 : ISolver
             else
             {
                 dial += steps;
-                if (dial >= 100)
+                if (dial > 100)
                 {
                     part2++;
                     dial -= 100;
