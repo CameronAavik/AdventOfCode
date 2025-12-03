@@ -7,6 +7,7 @@ namespace AdventOfCode.CSharp.Benchmarks;
 
 [GenericTypeArguments(typeof(Day01))]
 [GenericTypeArguments(typeof(Day02))]
+[GenericTypeArguments(typeof(Day03))]
 public class Y2025Solver<TSolver> : MultiInputSolverBenchmarkBase<TSolver> where TSolver : ISolver
 {
 }
