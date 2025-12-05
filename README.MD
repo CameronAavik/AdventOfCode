@@ -22,7 +22,7 @@ About my solutions:
 | 2  | [C#](/csharp/2015/Solvers/Day02.cs) \| [F#](/fsharp/2015/Solutions/Day02.fs) | [C#](/csharp/2016/Solvers/Day02.cs) \| [F#](/fsharp/2016/Solutions/Day02.fs) | [C#](/csharp/2017/Solvers/Day02.cs) \| [F#](/fsharp/2017/Solutions/Day02.fs) | [C#](/csharp/2018/Solvers/Day02.cs) \| [F#](/fsharp/2018/Solutions/Day02.fs) | [C#](/csharp/2019/Solvers/Day02.cs) \| [F#](/fsharp/2019/Solutions/Day02.fs) | [C#](/csharp/2020/Solvers/Day02.cs) | [C#](/csharp/2021/Solvers/Day02.cs) | [C#](/csharp/2022/Solvers/Day02.cs) | [C#](/csharp/2023/Solvers/Day02.cs) | [C#](/csharp/2024/Solvers/Day02.cs) | [C#](/csharp/2025/Solvers/Day02.cs) |
 | 3  | [C#](/csharp/2015/Solvers/Day03.cs) \| [F#](/fsharp/2015/Solutions/Day03.fs) | [C#](/csharp/2016/Solvers/Day03.cs) \| [F#](/fsharp/2016/Solutions/Day03.fs) | [F#](/fsharp/2017/Solutions/Day03.fs) | [F#](/fsharp/2018/Solutions/Day03.fs) | [F#](/fsharp/2019/Solutions/Day03.fs) | [C#](/csharp/2020/Solvers/Day03.cs) | [C#](/csharp/2021/Solvers/Day03.cs) | [C#](/csharp/2022/Solvers/Day03.cs) | [C#](/csharp/2023/Solvers/Day03.cs) | [C#](/csharp/2024/Solvers/Day03.cs) | [C#](/csharp/2025/Solvers/Day03.cs) |
 | 4  | [C#](/csharp/2015/Solvers/Day04.cs) \| [F#](/fsharp/2015/Solutions/Day04.fs) | [C#](/csharp/2016/Solvers/Day04.cs) \| [F#](/fsharp/2016/Solutions/Day04.fs) | [F#](/fsharp/2017/Solutions/Day04.fs) | [F#](/fsharp/2018/Solutions/Day04.fs) | [F#](/fsharp/2019/Solutions/Day04.fs) | [C#](/csharp/2020/Solvers/Day04.cs) | [C#](/csharp/2021/Solvers/Day04.cs) | [C#](/csharp/2022/Solvers/Day04.cs) | [C#](/csharp/2023/Solvers/Day04.cs) | [C#](/csharp/2024/Solvers/Day04.cs) | [C#](/csharp/2025/Solvers/Day04.cs) |
-| 5  | [C#](/csharp/2015/Solvers/Day05.cs) \| [F#](/fsharp/2015/Solutions/Day05.fs) | [C#](/csharp/2016/Solvers/Day05.cs) \| [F#](/fsharp/2016/Solutions/Day05.fs) | [F#](/fsharp/2017/Solutions/Day05.fs) | [F#](/fsharp/2018/Solutions/Day05.fs) | [F#](/fsharp/2019/Solutions/Day05.fs) | [C#](/csharp/2020/Solvers/Day05.cs) | [C#](/csharp/2021/Solvers/Day05.cs) | [C#](/csharp/2022/Solvers/Day05.cs) | [C#](/csharp/2023/Solvers/Day05.cs) | [C#](/csharp/2024/Solvers/Day05.cs) | |
+| 5  | [C#](/csharp/2015/Solvers/Day05.cs) \| [F#](/fsharp/2015/Solutions/Day05.fs) | [C#](/csharp/2016/Solvers/Day05.cs) \| [F#](/fsharp/2016/Solutions/Day05.fs) | [F#](/fsharp/2017/Solutions/Day05.fs) | [F#](/fsharp/2018/Solutions/Day05.fs) | [F#](/fsharp/2019/Solutions/Day05.fs) | [C#](/csharp/2020/Solvers/Day05.cs) | [C#](/csharp/2021/Solvers/Day05.cs) | [C#](/csharp/2022/Solvers/Day05.cs) | [C#](/csharp/2023/Solvers/Day05.cs) | [C#](/csharp/2024/Solvers/Day05.cs) | [C#](/csharp/2025/Solvers/Day05.cs) |
 | 6  | [C#](/csharp/2015/Solvers/Day06.cs) \| [F#](/fsharp/2015/Solutions/Day06.fs) | [C#](/csharp/2016/Solvers/Day06.cs) \| [F#](/fsharp/2016/Solutions/Day06.fs) | [F#](/fsharp/2017/Solutions/Day06.fs) | [F#](/fsharp/2018/Solutions/Day06.fs) | [F#](/fsharp/2019/Solutions/Day06.fs) | [C#](/csharp/2020/Solvers/Day06.cs) | [C#](/csharp/2021/Solvers/Day06.cs) | [C#](/csharp/2022/Solvers/Day06.cs) | [C#](/csharp/2023/Solvers/Day06.cs) | | |
 | 7  | [C#](/csharp/2015/Solvers/Day07.cs) \| [F#](/fsharp/2015/Solutions/Day07.fs) | [C#](/csharp/2016/Solvers/Day07.cs) \| [F#](/fsharp/2016/Solutions/Day07.fs) | [F#](/fsharp/2017/Solutions/Day07.fs) | [F#](/fsharp/2018/Solutions/Day07.fs) | [F#](/fsharp/2019/Solutions/Day07.fs) | [C#](/csharp/2020/Solvers/Day07.cs) | [C#](/csharp/2021/Solvers/Day07.cs) | [C#](/csharp/2022/Solvers/Day07.cs) | [C#](/csharp/2023/Solvers/Day07.cs) | [C#](/csharp/2024/Solvers/Day07.cs) | |
 | 8  | [C#](/csharp/2015/Solvers/Day08.cs) \| [F#](/fsharp/2015/Solutions/Day08.fs) | [C#](/csharp/2016/Solvers/Day08.cs) \| [F#](/fsharp/2016/Solutions/Day08.fs) | [F#](/fsharp/2017/Solutions/Day08.fs) | [F#](/fsharp/2018/Solutions/Day08.fs) | [F#](/fsharp/2019/Solutions/Day08.fs) | [C#](/csharp/2020/Solvers/Day08.cs) | [C#](/csharp/2021/Solvers/Day08.cs) | | [C#](/csharp/2023/Solvers/Day08.cs) | | |
@@ -56,7 +56,7 @@ AMD Ryzen 9 5950X 3.40GHz, 1 CPU, 32 logical and 16 physical cores
   DefaultJob : .NET 10.0.0 (10.0.0, 10.0.25.52411), X64 RyuJIT x86-64-v3
 ```
 
-## 2025
+### 2025
 
 | Day | P0 | P50 | P100 | Allocations |
 |--- |---:|---:|---:|---:|
@@ -64,6 +64,7 @@ AMD Ryzen 9 5950X 3.40GHz, 1 CPU, 32 logical and 16 physical cores
 | **2** | **0.31 μs** | **0.32 μs** | **0.32 μs** | **--** |
 | **3** | **77.75 μs** | **78.70 μs** | **79.88 μs** | **--** |
 | **4** | **231.67 μs** | **233.66 μs** | **244.78 μs** | **94.5 KB** |
+| **5** | **19.64 μs** | **19.69 μs** | **19.87 μs** | **4.1 KB** |
 
 ### 2024
 | Day | P0 | P50 | P100 | Allocations |
