@@ -12,4 +12,5 @@ public class Y2025Tests
     [TestMethod][MultiInputData(2025, 4)] public void Day04(string filePath, string expectedPart1, string expectedPart2) => TestHelpers.AssertDay<Day04>(filePath, expectedPart1, expectedPart2);
     [TestMethod][MultiInputData(2025, 5)] public void Day05(string filePath, string expectedPart1, string expectedPart2) => TestHelpers.AssertDay<Day05>(filePath, expectedPart1, expectedPart2);
     [TestMethod][MultiInputData(2025, 6)] public void Day06(string filePath, string expectedPart1, string expectedPart2) => TestHelpers.AssertDay<Day06>(filePath, expectedPart1, expectedPart2);
+    [TestMethod][MultiInputData(2025, 7)] public void Day07(string filePath, string expectedPart1, string expectedPart2) => TestHelpers.AssertDay<Day07>(filePath, expectedPart1, expectedPart2);
 }
