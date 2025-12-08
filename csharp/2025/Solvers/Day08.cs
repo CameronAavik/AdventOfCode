@@ -190,18 +190,15 @@ public class Day08 : ISolver
         // Add all edges that are not connected in case the graph is still disconnected
         for (var coord1Index = 0; coord1Index < coords.Count; coord1Index++)
         {
-            var (x1, y1, z1) = coords[coord1Index];
+            var coord1 = coords[coord1Index];
             for (var coord2Index = coord1Index + 1; coord2Index < coords.Count; coord2Index++)
             {
                 // Skip if already connected
                 if (disjointSet.Find(coord1Index) == disjointSet.Find(coord2Index))
                     continue;
 
-                var (x2, y2, z2) = coords[coord2Index];
-                var xDiff = x1 - x2;
-                var yDiff = y1 - y2;
-                var zDiff = z1 - z2;
-                var distanceSquared = (long)xDiff * xDiff + (long)yDiff * yDiff + (long)zDiff * zDiff;
+                var coord2 = coords[coord2Index];
+                var distanceSquared = coord1.DistanceSquaredTo(coord2);
                 edgeQueue.Enqueue(new Edge(coord1Index, coord2Index), distanceSquared);
             }
         }
@@ -246,18 +243,14 @@ public class Day08 : ISolver
 
                         foreach (var coordIndex1 in partition)
                         {
-                            var (x1, y1, z1) = coords[coordIndex1];
+                            var coord1 = coords[coordIndex1];
                             foreach (var coordIndex2 in neighbourPartition)
                             {
                                 if (coordIndex1 >= coordIndex2)
                                     continue;
 
-                                var (x2, y2, z2) = coords[coordIndex2];
-                                var xDiff = x1 - x2;
-                                var yDiff = y1 - y2;
-                                var zDiff = z1 - z2;
-                                var distanceSquared = (long)xDiff * xDiff + (long)yDiff * yDiff + (long)zDiff * zDiff;
-
+                                var coord2 = coords[coordIndex2];
+                                var distanceSquared = coord1.DistanceSquaredTo(coord2);
                                 pq.Enqueue(new Edge(coordIndex1, coordIndex2), distanceSquared);
                             }
                         }
