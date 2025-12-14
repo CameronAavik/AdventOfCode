@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
 using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2025.Solvers;
@@ -16,13 +18,16 @@ public class Day10 : ISolver
         var part1 = 0;
         var part2 = 0;
 
+        var buttonMasks = new List<uint>();
+        var joltages = new List<int>();
+
         var inputIndex = 0;
         while (inputIndex < input.Length)
         {
-            var indicators = ParseIndicatorLights(input, ref inputIndex);
-            var buttonMasks = new List<uint>();
-            var joltages = new List<int>();
+            buttonMasks.Clear();
+            joltages.Clear();
 
+            var indicators = ParseIndicatorLights(input, ref inputIndex);
             while (true)
             {
                 inputIndex++; // ' '
@@ -61,46 +66,74 @@ public class Day10 : ISolver
                 }
             }
 
-            part1 += SolvePart1(indicators, buttonMasks);
-            part2 += SolvePart2(buttonMasks, joltages);
+            var buttonMasksSpan = CollectionsMarshal.AsSpan(buttonMasks);
+            var joltagesSpan = CollectionsMarshal.AsSpan(joltages);
+
+            part1 += SolvePart1(indicators, buttonMasksSpan);
+            part2 += SolvePart2(buttonMasksSpan, joltagesSpan);
         }
 
         solution.SubmitPart1(part1);
         solution.SubmitPart2(part2);
     }
 
-    public static int SolvePart1(uint indicators, List<uint> buttonMask)
+    public static int SolvePart1(uint indicators, ReadOnlySpan<uint> buttonMasks)
     {
+        if (indicators == 0)
+            return 0;
+
+        if (buttonMasks.Contains(indicators))
+            return 1;
+
+        ref var start = ref MemoryMarshal.GetReference(buttonMasks);
+        ref var end = ref Unsafe.Add(ref start, buttonMasks.Length);
+
         // Get smallest subset of buttonMask that xors together to indicators
-        for (var count = 1; count <= buttonMask.Count; count++)
+        for (var count = 2; count <= buttonMasks.Length; count++)
         {
-            if (CanMakeTargetWithCount(indicators, 0, count))
+            if (CanMakeTargetWithCount(indicators, count, ref start, ref Unsafe.Subtract(ref end, count)))
                 return count;
         }
 
         return -1;
-
-        bool CanMakeTargetWithCount(uint target, int i, int count)
-        {
-            if (count == 0)
-                return target == 0;
-
-            if (i >= buttonMask.Count)
-                return false;
-
-            // Try including buttonMask[i]
-            if (CanMakeTargetWithCount(target ^ buttonMask[i], i + 1, count - 1))
-                return true;
-
-            // Try excluding buttonMask[i]
-            return CanMakeTargetWithCount(target, i + 1, count);
-        }
     }
 
-    public static int SolvePart2(List<uint> buttonMasks, List<int> joltages)
+    public static bool CanMakeTargetWithCount(uint target, int count, ref uint start, ref uint end)
     {
-        var m = joltages.Count;     // equations (rows)
-        var n = buttonMasks.Count;  // variables (cols)
+        if (count == 1)
+        {
+            for (ref var ptr = ref start; Unsafe.IsAddressLessThanOrEqualTo(ref ptr, ref end); ptr = ref Unsafe.Add(ref ptr, 1))
+            {
+                if (ptr == target)
+                    return true;
+            }
+
+            return false;
+        }
+
+        if (Unsafe.AreSame(ref start, ref end))
+        {
+            ref var ptr = ref start;
+            target ^= ptr;
+            for (var i = 1; i < count; i++)
+            {
+                ptr = ref Unsafe.Add(ref ptr, 1);
+                target ^= ptr;
+            }
+
+            return target == 0;
+        }
+
+        ref var nextStart = ref Unsafe.Add(ref start, 1);
+
+        return CanMakeTargetWithCount(target ^ start, count - 1, ref nextStart, ref Unsafe.Add(ref end, 1)) ||
+               CanMakeTargetWithCount(target, count, ref nextStart, ref end);
+    }
+
+    public static int SolvePart2(ReadOnlySpan<uint> buttonMasks, ReadOnlySpan<int> joltages)
+    {
+        var m = joltages.Length;     // equations (rows)
+        var n = buttonMasks.Length;  // variables (cols)
 
         var matrix = new int[m][];
         for (var i = 0; i < m; i++)
@@ -117,30 +150,42 @@ public class Day10 : ISolver
             }
         }
 
-        var X0 = new int[n];
-        ToColumnHermiteNormalForm(matrix, joltages, X0, out var V);
-        var d = V.Length;
+        var particularSolution = new int[n];
+        var nullSpaceBasis = new int[3][]; // max nullity of 3
+        for (var i = 0; i < 3; i++)
+            nullSpaceBasis[i] = new int[n];
+
+        var nullity = GetIntegerSolutionAndBasis(matrix, joltages, particularSolution, nullSpaceBasis);
 
         var baseSum = 0;
-        for (var i = 0; i < n; i++)
-            baseSum += X0[i];
+        foreach (var x in particularSolution)
+            baseSum += x;
 
         // If d == 0, there is only one solution
-        if (d == 0)
+        if (nullity == 0)
             return baseSum;
 
-        var delta = new int[d];
-        for (var k = 0; k < d; k++)
+        var delta = new int[nullity];
+        for (var k = 0; k < nullity; k++)
         {
-            var v = V[k];
+            var v = nullSpaceBasis[k];
             var s = 0;
             for (var i = 0; i < n; i++)
                 s += v[i];
+
+            // Negate vectors with negative delta so later we can assume all deltas are non-negative later
+            if (s < 0)
+            {
+                s = -s;
+                for (var i = 0; i < n; i++)
+                    v[i] = -v[i];
+            }
+
             delta[k] = s;
         }
 
         // For each button, there is a maximum number of times it can be pressed before it exceeds the joltage requirement.
-        var buttonUpperBounds = new int[buttonMasks.Count];
+        var buttonUpperBounds = new int[buttonMasks.Length];
         for (var i = 0; i < n; i++)
         {
             var buttonMask = buttonMasks[i];
@@ -156,22 +201,22 @@ public class Day10 : ISolver
             buttonUpperBounds[i] = buttonUpper;
         }
 
-        if (d == 1)
+        if (nullity == 1)
         {
             if (delta[0] == 0)
                 return baseSum;
-            return MinimiseSingleDimension(X0, baseSum, delta[0], V[0]);
+            return MinimiseSingleDimension(particularSolution, baseSum, delta[0], nullSpaceBasis[0]);
         }
 
-        if (d == 2)
+        if (nullity == 2)
         {
             if (delta[0] == 0 && delta[1] == 0)
                 return baseSum;
-            return MinimiseTwoDimensions(X0, baseSum, delta[0], delta[1], V[0], V[1], buttonUpperBounds);
+            return MinimiseTwoDimensions(particularSolution, baseSum, delta[0], delta[1], nullSpaceBasis[0], nullSpaceBasis[1], buttonUpperBounds);
         }
 
-        Debug.Assert(d == 3);
-        return MinimiseThreeDimensions(X0, baseSum, delta[0], delta[1], delta[2], V[0], V[1], V[2], buttonUpperBounds);
+        Debug.Assert(nullity == 3);
+        return MinimiseThreeDimensions(particularSolution, baseSum, delta[0], delta[1], delta[2], nullSpaceBasis[0], nullSpaceBasis[1], nullSpaceBasis[2], buttonUpperBounds);
     }
 
     private static int MinimiseSingleDimension(ReadOnlySpan<int> x, int baseSum, int delta, int[] v)
@@ -195,10 +240,10 @@ public class Day10 : ISolver
         if (min0 > max0)
             return int.MaxValue;
 
-        var k0 = delta >= 0 ? min0 : max0;
-        return baseSum + k0 * delta;
+        return baseSum + min0 * delta;
     }
 
+    [SkipLocalsInit]
     private static int MinimiseTwoDimensions(ReadOnlySpan<int> X0, int baseSum, int delta0, int delta1, int[] v0, int[] v1, ReadOnlySpan<int> upperBounds)
     {
         var min0 = int.MinValue / 2;
@@ -250,7 +295,6 @@ public class Day10 : ISolver
         var range0 = max0 - min0;
         var range1 = max1 - min1;
 
-        var best = int.MaxValue;
         if (range0 <= range1)
         {
             if (range0 < 0)
@@ -261,13 +305,18 @@ public class Day10 : ISolver
             for (var i = 0; i < newX.Length; i++)
                 newX[i] += min0 * v0[i];
 
-            best = Math.Min(best, MinimiseSingleDimension(newX, baseSum + min0 * delta0, delta1, v1));
+            var best = MinimiseSingleDimension(newX, baseSum + min0 * delta0, delta1, v1);
             for (var i = min0 + 1; i <= max0; i++)
             {
                 for (var j = 0; j < newX.Length; j++)
                     newX[j] += v0[j];
-                best = Math.Min(best, MinimiseSingleDimension(newX, baseSum + i * delta0, delta1, v1));
+                var subSum = MinimiseSingleDimension(newX, baseSum + i * delta0, delta1, v1);
+                if (subSum > best)
+                    break;
+                best = subSum;
             }
+
+            return best;
         }
         else
         {
@@ -278,18 +327,23 @@ public class Day10 : ISolver
             for (var i = 0; i < newX.Length; i++)
                 newX[i] += min1 * v1[i];
 
-            best = Math.Min(best, MinimiseSingleDimension(newX, baseSum + min1 * delta1, delta0, v0));
+            var best = MinimiseSingleDimension(newX, baseSum + min1 * delta1, delta0, v0);
             for (var i = min1 + 1; i <= max1; i++)
             {
                 for (var j = 0; j < newX.Length; j++)
                     newX[j] += v1[j];
-                best = Math.Min(best, MinimiseSingleDimension(newX, baseSum + i * delta1, delta0, v0));
-            }
-        }
 
-        return best;
+                var subSum = MinimiseSingleDimension(newX, baseSum + i * delta1, delta0, v0);
+                if (subSum > best)
+                    break;
+                best = subSum;
+            }
+
+            return best;
+        }
     }
 
+    [SkipLocalsInit]
     private static int MinimiseThreeDimensions(ReadOnlySpan<int> X0, int baseSum, int delta0, int delta1, int delta2, int[] v0, int[] v1, int[] v2, ReadOnlySpan<int> upperBounds)
     {
         var min0 = int.MinValue / 2;
@@ -360,7 +414,6 @@ public class Day10 : ISolver
         var range1 = max1 - min1;
         var range2 = max2 - min2;
 
-        var best = int.MaxValue;
         if (range0 <= range1 && range0 <= range2)
         {
             Debug.Assert(range0 >= 0);
@@ -368,13 +421,15 @@ public class Day10 : ISolver
             for (var i = 0; i < newX.Length; i++)
                 newX[i] += min0 * v0[i];
 
-            best = Math.Min(best, MinimiseTwoDimensions(newX, baseSum + min0 * delta0, delta1, delta2, v1, v2, upperBounds));
+            var best = MinimiseTwoDimensions(newX, baseSum + min0 * delta0, delta1, delta2, v1, v2, upperBounds);
             for (var i = min0 + 1; i <= max0; i++)
             {
                 for (var j = 0; j < newX.Length; j++)
                     newX[j] += v0[j];
                 best = Math.Min(best, MinimiseTwoDimensions(newX, baseSum + i * delta0, delta1, delta2, v1, v2, upperBounds));
             }
+
+            return best;
         }
         else if (range1 <= range2)
         {
@@ -383,13 +438,15 @@ public class Day10 : ISolver
             for (var i = 0; i < newX.Length; i++)
                 newX[i] += min1 * v1[i];
 
-            best = Math.Min(best, MinimiseTwoDimensions(newX, baseSum + min1 * delta1, delta0, delta2, v0, v2, upperBounds));
+            var best = MinimiseTwoDimensions(newX, baseSum + min1 * delta1, delta0, delta2, v0, v2, upperBounds);
             for (var i = min1 + 1; i <= max1; i++)
             {
                 for (var j = 0; j < newX.Length; j++)
                     newX[j] += v1[j];
                 best = Math.Min(best, MinimiseTwoDimensions(newX, baseSum + i * delta1, delta0, delta2, v0, v2, upperBounds));
             }
+
+            return best;
         }
         else
         {
@@ -397,181 +454,163 @@ public class Day10 : ISolver
             Debug.Assert(min2 != int.MinValue || max2 != int.MaxValue);
             for (var i = 0; i < newX.Length; i++)
                 newX[i] += min2 * v2[i];
-            best = Math.Min(best, MinimiseTwoDimensions(newX, baseSum + min2 * delta2, delta0, delta1, v0, v1, upperBounds));
+
+            var best = MinimiseTwoDimensions(newX, baseSum + min2 * delta2, delta0, delta1, v0, v1, upperBounds);
             for (var i = min2 + 1; i <= max2; i++)
             {
                 for (var j = 0; j < newX.Length; j++)
                     newX[j] += v2[j];
                 best = Math.Min(best, MinimiseTwoDimensions(newX, baseSum + i * delta2, delta0, delta1, v0, v1, upperBounds));
             }
-        }
 
-        return best;
+            return best;
+        }
     }
 
-    private static void ToColumnHermiteNormalForm(int[][] matrix, List<int> joltages, Span<int> particularSolution, out int[][] nullspace)
+    // Finds an integer solution to Ax = rhs, a basis for null space of A, and returns the nullity
+    [SkipLocalsInit]
+    private static int GetIntegerSolutionAndBasis(int[][] A, ReadOnlySpan<int> rhs, Span<int> particularSolution, int[][] nullspace)
     {
-        var m = matrix.Length;
-        var n = matrix[0].Length;
+        var m = A.Length;
+        var n = A[0].Length;
 
-        // We are going to essentially perform the HNF on the transpose of the matrix. However to avoid redundantly creating a transposed version of the matrix,
-        // we just reuse matrix but interact with it as if it was transposed.
-        var H_T = matrix;
+        // 1. Store transposition of A in H and initialize U as identity matrix
+        var H = new int[n][];
+        var U = new int[n][];
 
-        // We also keep track of the transposition of the U matrix from the HNF decomposition U * A^T = H, where U is unimodular (integer inverse).
-        var U_T = new int[n][];
         for (var i = 0; i < n; i++)
         {
-            var u_i = U_T[i] = new int[n];
-            u_i[i] = 1;
+            var hRow = H[i] = new int[m];
+            var uRow = U[i] = new int[n];
+            uRow[i] = 1;
+            for (var j = 0; j < m; j++)
+                hRow[j] = A[j][i];
         }
 
-        var maxRank = Math.Min(m, n);
-        Span<int> pivots = new int[maxRank];
+        // 2. Compute Hermite Normal Form
         var rank = 0;
-
-        var lead = 0;
-        for (var c = 0; c < maxRank; c++)
+        Span<int> pivotCols = stackalloc int[16];
+        for (var col = 0; col < m && rank < n; col++)
         {
-            var i = c;
-            while (lead < m && H_T[lead][i] == 0)
+            var pivotRow = rank;
+            while (pivotRow < n && H[pivotRow][col] == 0)
+                pivotRow++;
+
+            if (pivotRow == n)
+                continue;
+
+            pivotCols[rank] = col;
+
+            if (rank != pivotRow)
             {
-                i++;
-                if (i == n)
-                {
-                    i = c;
-                    lead++;
-                }
+                (H[rank], H[pivotRow]) = (H[pivotRow], H[rank]);
+                (U[rank], U[pivotRow]) = (U[pivotRow], U[rank]);
             }
 
-            if (lead >= m)
+            var h_rank = H[rank];
+            var u_rank = U[rank];
+            for (var i = rank + 1; i < n; i++)
             {
-                for (var cc = c; cc < maxRank; cc++)
-                    pivots[cc] = -1;
-                break;
+                var h_i = H[i];
+                if (h_i[col] == 0)
+                    continue;
+
+                var a = h_rank[col];
+                var b = h_i[col];
+                var gcd = ExtendedGcd(a, b, out var x, out var y);
+                var u = a / gcd;
+                var v = b / gcd;
+
+                CombineRows(h_rank, h_i, x, y, -v, u);
+                CombineRows(u_rank, U[i], x, y, -v, u);
             }
 
-            pivots[c] = lead;
             rank++;
-
-            if (i != c)
-            {
-                // Swap cols i and c
-                foreach (var row in H_T)
-                    (row[c], row[i]) = (row[i], row[c]);
-
-                foreach (var row in U_T)
-                    (row[c], row[i]) = (row[i], row[c]);
-            }
-
-            var h_lead = H_T[lead];
-
-            // Make pivot positive
-            if (h_lead[c] < 0)
-            {
-                foreach (var row in H_T)
-                    row[c] = -row[c];
-                foreach (var row in U_T)
-                    row[c] = -row[c];
-            }
-
-            for (var i2 = c + 1; i2 < n; i2++)
-            {
-                if (h_lead[i2] != 0)
-                {
-                    var a = h_lead[c];
-                    var b = h_lead[i2];
-                    var gcd = ExtendedGcd(a, b, out var x, out var y);
-
-                    var u = a / gcd;
-                    var v = b / gcd;
-
-                    for (var j = lead; j < m; j++)
-                    {
-                        var h_j = H_T[j];
-                        var temp1 = h_j[c];
-                        var temp2 = h_j[i2];
-                        h_j[c] = x * temp1 + y * temp2;
-                        h_j[i2] = -v * temp1 + u * temp2;
-                    }
-
-                    for (var j = 0; j < n; j++)
-                    {
-                        var u_j = U_T[j];
-                        var temp1 = u_j[c];
-                        var temp2 = u_j[i2];
-                        u_j[c] = x * temp1 + y * temp2;
-                        u_j[i2] = -v * temp1 + u * temp2;
-                    }
-
-                    // Make pivot positive
-                    if (h_lead[c] < 0)
-                    {
-                        foreach (var row in H_T)
-                            row[c] = -row[c];
-                        foreach (var row in U_T)
-                            row[c] = -row[c];
-                    }
-                }
-            }
-
-            lead++;
         }
 
-        Debug.Assert(rank <= n);
+        // 3. Null Space Extraction
         var nullity = n - rank;
-        // Compute nullspace, will be last n - m rows of U (columns of U_T)
-        nullspace = new int[nullity][];
         for (var i = 0; i < nullity; i++)
-        {
-            var n_i = nullspace[i] = new int[n];
-            for (var j = 0; j < n; j++)
-                n_i[j] = U_T[j][rank + i];
-        }
+            nullspace[i] = U[rank + i];
 
-        // Compute particular solution, Let first m rows of H be H_top, solve for y in H_top^T * y = joltages
-        // Since we have H_T, H_top is just the first m columns of H_T, so H_top^T is just the first m rows of H_T
-        // This will be lower triangular and can be solved using forward subsitution
-        Span<int> y_p = new int[rank];
+        // 4. Particular Solution
+        Span<int> y_p = stackalloc int[16];
         for (var r = 0; r < rank; r++)
         {
-            var p = pivots[r];
-            Debug.Assert(p != -1);
+            var colIdx = pivotCols[r];
+            var sum = rhs[colIdx];
 
-            var h_p = H_T[p];
-            var sum = joltages[p];
-            for (var c = 0; c < r; c++)
-                sum -= h_p[c] * y_p[c];
+            for (var k = 0; k < r; k++)
+                sum -= H[k][colIdx] * y_p[k];
 
-            Debug.Assert(h_p[r] > 0, "Expected positive pivot coefficient in HNF");
-            Debug.Assert(sum % h_p[r] == 0, "Expected integer solution for particular solution");
-            y_p[r] = sum / h_p[r];
+            var y_r = sum / H[r][colIdx];
+            y_p[r] = y_r;
+            AddScaledRow(particularSolution, U[r], y_r);
         }
 
-        // Now compute x_p = U_T * y_p
-        for (var i = 0; i < n; i++)
+        return nullity;
+    }
+
+    private static void CombineRows(Span<int> row1, Span<int> row2, int a, int b, int c, int d)
+    {
+        var i = 0;
+        if (row1.Length >= Vector256<int>.Count)
         {
-            var u_i = U_T[i];
-            var sum = 0;
-            for (var j = 0; j < rank; j++)
-                sum += u_i[j] * y_p[j];
-            particularSolution[i] = sum;
+            var v1 = Vector256.Create(row1);
+            var v2 = Vector256.Create(row2);
+
+            var res1 = Vector256.Add(Vector256.Multiply(v1, a), Vector256.Multiply(v2, b));
+            res1.CopyTo(row1);
+
+            var res2 = Vector256.Add(Vector256.Multiply(v1, c), Vector256.Multiply(v2, d));
+            res2.CopyTo(row2);
+
+            i = Vector256<int>.Count;
         }
+
+        for (; i < row1.Length; i++)
+        {
+            var v1 = row1[i];
+            var v2 = row2[i];
+            row1[i] = a * v1 + b * v2;
+            row2[i] = c * v1 + d * v2;
+        }
+    }
+
+    private static void AddScaledRow(Span<int> target, ReadOnlySpan<int> source, int scale)
+    {
+        var i = 0;
+        if (target.Length >= Vector256<int>.Count)
+        {
+            var vTarget = Vector256.Create(target);
+            var vSource = Vector256.Create(source);
+
+            var res = Vector256.Add(vTarget, Vector256.Multiply(vSource, scale));
+            res.CopyTo(target);
+
+            i = Vector256<int>.Count;
+        }
+
+        for (; i < target.Length; i++)
+            target[i] += source[i] * scale;
     }
 
     private static int ExtendedGcd(int a, int b, out int x, out int y)
     {
-        if (b == 0)
+        x = 1;
+        y = 0;
+        var x1 = 0;
+        var y1 = 1;
+        var a1 = a;
+        var b1 = b;
+        while (b1 != 0)
         {
-            x = 1;
-            y = 0;
-            return a;
+            var q = a1 / b1;
+            (x, x1) = (x1, x - q * x1);
+            (y, y1) = (y1, y - q * y1);
+            (a1, b1) = (b1, a1 - q * b1);
         }
-
-        var gcd = ExtendedGcd(b, a % b, out var x1, out var y1);
-        x = y1;
-        y = x1 - (a / b) * y1;
-        return gcd;
+        return a1;
     }
 
     private static int CeilDiv(int a, int b)
