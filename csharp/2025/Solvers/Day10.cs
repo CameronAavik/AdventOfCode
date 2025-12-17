@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Runtime.Intrinsics;
@@ -8,9 +9,6 @@ using AdventOfCode.CSharp.Common;
 
 namespace AdventOfCode.CSharp.Y2025.Solvers;
 
-/// <summary>
-/// At some point I may add some more explanations here about how this all works
-/// </summary>
 public class Day10 : ISolver
 {
     public static void Solve(ReadOnlySpan<byte> input, Solution solution)
@@ -19,7 +17,7 @@ public class Day10 : ISolver
         var part2 = 0;
 
         var buttonMasks = new List<uint>();
-        var joltages = new List<int>();
+        var joltages = new List<short>();
 
         var inputIndex = 0;
         while (inputIndex < input.Length)
@@ -56,7 +54,7 @@ public class Day10 : ISolver
                         while (((c = input[inputIndex++]) & 0xF) <= 9) // end on ',' or '}'
                             value = value * 10 + (c - '0');
 
-                        joltages.Add(value);
+                        joltages.Add((short)value);
                         if (c == '}')
                             break;
                     }
@@ -130,361 +128,286 @@ public class Day10 : ISolver
                CanMakeTargetWithCount(target, count, ref nextStart, ref end);
     }
 
-    public static int SolvePart2(ReadOnlySpan<uint> buttonMasks, ReadOnlySpan<int> joltages)
+    public static int SolvePart2(ReadOnlySpan<uint> buttonMasks, ReadOnlySpan<short> joltages)
     {
         var m = joltages.Length;     // equations (rows)
         var n = buttonMasks.Length;  // variables (cols)
 
-        var matrix = new int[m][];
-        for (var i = 0; i < m; i++)
-            matrix[i] = new int[n];
+        Debug.Assert(m <= 16 && n <= 16, "Exceeded maximum supported problem size");
+
+        Span<short> matrix = stackalloc short[16 * 16];
 
         for (var i = 0; i < n; i++)
         {
             for (var j = 0; j < m; j++)
             {
-                if (((buttonMasks[i] >> j) & 1) != 0)
-                {
-                    matrix[j][i] = 1;
-                }
+                matrix[16 * j + i] = (short)((buttonMasks[i] >> j) & 1);
             }
         }
 
-        var particularSolution = new int[n];
-        var nullSpaceBasis = new int[3][]; // max nullity of 3
-        for (var i = 0; i < 3; i++)
-            nullSpaceBasis[i] = new int[n];
+        const int maxNullity = 3;
+        Span<short> particularSolution = stackalloc short[16];
+        Span<short> nullSpaceBasis = stackalloc short[maxNullity * 16];
 
-        var nullity = GetIntegerSolutionAndBasis(matrix, joltages, particularSolution, nullSpaceBasis);
+        var nullity = GetIntegerSolutionAndBasis(matrix, joltages, particularSolution, nullSpaceBasis, m, n);
 
-        var baseSum = 0;
-        foreach (var x in particularSolution)
-            baseSum += x;
+        var xSum = Vector256.Sum(Vector256.Create(particularSolution));
 
         // If d == 0, there is only one solution
         if (nullity == 0)
-            return baseSum;
+            return xSum;
 
-        var delta = new int[nullity];
-        for (var k = 0; k < nullity; k++)
-        {
-            var v = nullSpaceBasis[k];
-            var s = 0;
-            for (var i = 0; i < n; i++)
-                s += v[i];
-
-            // Negate vectors with negative delta so later we can assume all deltas are non-negative later
-            if (s < 0)
-            {
-                s = -s;
-                for (var i = 0; i < n; i++)
-                    v[i] = -v[i];
-            }
-
-            delta[k] = s;
-        }
-
-        // For each button, there is a maximum number of times it can be pressed before it exceeds the joltage requirement.
-        var buttonUpperBounds = new int[buttonMasks.Length];
-        for (var i = 0; i < n; i++)
-        {
-            var buttonMask = buttonMasks[i];
-            var buttonUpper = int.MaxValue;
-            for (var j = 0; j < m; j++)
-            {
-                if ((buttonMask & (1U << j)) != 0)
-                {
-                    buttonUpper = Math.Min(buttonUpper, joltages[j]);
-                }
-            }
-
-            buttonUpperBounds[i] = buttonUpper;
-        }
+        var v0 = nullSpaceBasis;
+        var v0Sum = SumAndNormalizeVector(v0);
 
         if (nullity == 1)
+            return xSum + MinimiseSingleDimension(particularSolution, v0);
+
+        var v1 = nullSpaceBasis.Slice(16);
+        var v1Sum = SumAndNormalizeVector(v1);
+        if (v0Sum < v1Sum)
         {
-            if (delta[0] == 0)
-                return baseSum;
-            return MinimiseSingleDimension(particularSolution, baseSum, delta[0], nullSpaceBasis[0]);
+            SwapSpans(ref v0, ref v1);
+            (v0Sum, v1Sum) = (v1Sum, v0Sum);
         }
 
         if (nullity == 2)
-        {
-            if (delta[0] == 0 && delta[1] == 0)
-                return baseSum;
-            return MinimiseTwoDimensions(particularSolution, baseSum, delta[0], delta[1], nullSpaceBasis[0], nullSpaceBasis[1], buttonUpperBounds);
-        }
+            return xSum + MinimiseTwoDimensions(particularSolution, v0, v0Sum, v1, v1Sum, n);
 
         Debug.Assert(nullity == 3);
-        return MinimiseThreeDimensions(particularSolution, baseSum, delta[0], delta[1], delta[2], nullSpaceBasis[0], nullSpaceBasis[1], nullSpaceBasis[2], buttonUpperBounds);
+
+        var v2 = nullSpaceBasis.Slice(32);
+        var v2Sum = SumAndNormalizeVector(v2);
+        if (v0Sum < v2Sum)
+        {
+            SwapSpans(ref v0, ref v2);
+            (v0Sum, v2Sum) = (v2Sum, v0Sum);
+        }
+
+        return xSum + MinimiseThreeDimensions(particularSolution, v0, v0Sum, v1, v1Sum, v2, v2Sum, n);
+
+        static int SumAndNormalizeVector(Span<short> v0)
+        {
+            var v0Vec = Vector256.Create(v0);
+            int v0Sum = Vector256.Sum(v0Vec);
+            if (v0Sum < 0)
+            {
+                v0Vec = Vector256.Negate(v0Vec);
+                v0Vec.CopyTo(v0);
+                v0Sum = -v0Sum;
+            }
+
+            return v0Sum;
+        }
+
+        static void SwapSpans(ref Span<short> a, ref Span<short> b)
+        {
+            var temp = a;
+            a = b;
+            b = temp;
+        }
     }
 
-    private static int MinimiseSingleDimension(ReadOnlySpan<int> x, int baseSum, int delta, int[] v)
+    private static int MinimiseSingleDimension(ReadOnlySpan<short> x, Span<short> v)
     {
-        var min0 = int.MinValue;
-        var max0 = int.MaxValue;
+        var vVec = Vector256.Create(v);
+        int vSum = Vector256.Sum(vVec);
 
-        for (var i = 0; i < x.Length; i++)
+        // Make sum negative so that we just need to find a max
+        if (vSum > 0)
         {
-            var vi = v[i];
-            if (vi > 0)
+            vVec = Vector256.Negate(vVec);
+            vVec.CopyTo(v);
+            vSum = -vSum;
+        }
+
+        var negativeBits = vVec.ExtractMostSignificantBits();
+        var i = BitOperations.TrailingZeroCount(negativeBits);
+        int numerator = x[i];
+        var denominator = -v[i];
+        negativeBits &= negativeBits - 1;
+
+        while (negativeBits != 0)
+        {
+            i = BitOperations.TrailingZeroCount(negativeBits);
+            var vi = -v[i];
+            int xi = x[i];
+            if (xi * denominator < numerator * vi)
             {
-                min0 = Math.Max(min0, CeilDiv(-x[i], vi));
+                numerator = xi;
+                denominator = vi;
             }
-            else if (vi < 0)
+
+            // Clear lowest bit
+            negativeBits &= negativeBits - 1;
+        }
+
+        return FloorDiv(numerator, denominator) * vSum;
+    }
+
+    private static int MinimiseTwoDimensions(ReadOnlySpan<short> x, ReadOnlySpan<short> v0, int v0Sum, ReadOnlySpan<short> v1, int v1Sum, int n, int best = short.MaxValue)
+    {
+        // Find the minimum k0
+        var minK0 = GetFourierMotzkinBounds2D(x, v0, v1, n);
+        var minK1 = GetFourierMotzkinBounds2D(x, v1, v0, n);
+
+        // Find the minimum k1 for minK0 (the upper bound)
+        int minK1ForMinK0 = short.MinValue;
+        int minK0ForMinK1 = short.MinValue;
+        for (var i = 0; i < n; i++)
+        {
+            var v0i = v0[i];
+            var v1i = v1[i];
+            if (v0i > 0)
             {
-                max0 = Math.Min(max0, FloorDiv(x[i], -vi));
+                var rem = x[i] + minK1 * v1i;
+                if (minK0ForMinK1 * v0i < -rem)
+                    minK0ForMinK1 = CeilDiv(-rem, v0i);
+            }
+
+            if (v1i > 0)
+            {
+                var rem = x[i] + minK0 * v0i;
+                if (minK1ForMinK0 * v1i < -rem)
+                    minK1ForMinK0 = CeilDiv(-rem, v1i);
             }
         }
 
-        if (min0 > max0)
-            return int.MaxValue;
+        var sumAtMinK0 = minK0 * v0Sum + minK1ForMinK0 * v1Sum;
+        var sumAtMinK1 = minK0ForMinK1 * v0Sum + minK1 * v1Sum;
 
-        return baseSum + min0 * delta;
-    }
-
-    [SkipLocalsInit]
-    private static int MinimiseTwoDimensions(ReadOnlySpan<int> X0, int baseSum, int delta0, int delta1, int[] v0, int[] v1, ReadOnlySpan<int> upperBounds)
-    {
-        var min0 = int.MinValue / 2;
-        var max0 = int.MaxValue / 2;
-        var min1 = int.MinValue / 2;
-        var max1 = int.MaxValue / 2;
-
-        for (var i = 0; i < X0.Length; i++)
+        // If it is better to start at max k0, swap v0 and v1
+        if (sumAtMinK1 < sumAtMinK0)
         {
-            var x = X0[i];
-            var n0 = v0[i];
-            var n1 = v1[i];
-            var upper = upperBounds[i];
+            if (sumAtMinK1 >= best)
+                return best;
 
-            if (n0 != 0 && n1 == 0)
-            {
-                // 0 <= x + k0 * n0 <= upper[i]
-                if (n0 > 0)
-                {
-                    min0 = Math.Max(min0, CeilDiv(-x, n0));
-                    max0 = Math.Min(max0, FloorDiv(upper - x, n0));
-                }
-                else
-                {
-                    min0 = Math.Max(min0, CeilDiv(x - upper, -n0));
-                    max0 = Math.Min(max0, FloorDiv(x, -n0));
-                }
-            }
-            else if (n0 == 0 && n1 != 0) // Can set bounds on k1
-            {
-                // 0 <= x + k1 * n1 <= upper[i]
-                if (n1 > 0)
-                {
-                    min1 = Math.Max(min1, CeilDiv(-x, n1));
-                    max1 = Math.Min(max1, FloorDiv(upper - x, n1));
-                }
-                else
-                {
-                    min1 = Math.Max(min1, CeilDiv(x - upper, -n1));
-                    max1 = Math.Min(max1, FloorDiv(x, -n1));
-                }
-            }
-        }
-
-        var newX = X0.Length < 16 ? stackalloc int[16] : new int[X0.Length];
-        newX = newX[..X0.Length];
-        X0.CopyTo(newX);
-
-        var range0 = max0 - min0;
-        var range1 = max1 - min1;
-
-        if (range0 <= range1)
-        {
-            if (range0 < 0)
-                return int.MaxValue;
-
-            Debug.Assert(min0 != int.MinValue || max0 != int.MaxValue);
-
-            for (var i = 0; i < newX.Length; i++)
-                newX[i] += min0 * v0[i];
-
-            var best = MinimiseSingleDimension(newX, baseSum + min0 * delta0, delta1, v1);
-            for (var i = min0 + 1; i <= max0; i++)
-            {
-                for (var j = 0; j < newX.Length; j++)
-                    newX[j] += v0[j];
-                var subSum = MinimiseSingleDimension(newX, baseSum + i * delta0, delta1, v1);
-                if (subSum > best)
-                    break;
-                best = subSum;
-            }
-
-            return best;
+            var temp = v0;
+            v0 = v1;
+            v1 = temp;
+            (v0Sum, v1Sum) = (v1Sum, v0Sum);
+            (minK0, minK1) = (minK1, minK0);
+            minK1ForMinK0 = minK0ForMinK1;
         }
         else
         {
-            if (range1 < 0)
-                return int.MaxValue;
+            if (sumAtMinK0 >= best)
+                return best;
+        }
 
-            Debug.Assert(min1 != int.MinValue || max1 != int.MaxValue);
-            for (var i = 0; i < newX.Length; i++)
-                newX[i] += min1 * v1[i];
+        var v0Vec = Vector256.Create(v0);
+        var v1Vec = Vector256.Create(v1);
 
-            var best = MinimiseSingleDimension(newX, baseSum + min1 * delta1, delta0, v0);
-            for (var i = min1 + 1; i <= max1; i++)
+        var mustAddV0IfNegativeMask = Vector256.GreaterThan(v0Vec, Vector256<short>.Zero) & ~Vector256.LessThan(v1Vec, Vector256<short>.Zero);
+
+        // A mask of any components that once they are negative, can't be made positive again
+        var unrecoverableMask = ~Vector256.GreaterThan(v0Vec, Vector256<short>.Zero) & ~Vector256.LessThan(v1Vec, Vector256<short>.Zero);
+
+        var xVec = Vector256.Create(x) + Vector256.Multiply(v0Vec, (short)minK0) + Vector256.Multiply(v1Vec, (short)minK1ForMinK0);
+
+        var curSum = minK0 * v0Sum + minK1ForMinK0 * v1Sum;
+        var k0 = minK0;
+        if (Vector256.LessThan(xVec, Vector256<short>.Zero) == Vector256<short>.Zero)
+        {
+            if (curSum < best)
+                best = curSum;
+
+            k0++;
+            xVec += v0Vec - v1Vec;
+            curSum += v0Sum - v1Sum;
+        }
+
+        while (true)
+        {
+            var bestPossible = k0 * v0Sum + minK1 * v1Sum;
+            if (bestPossible >= best)
+                break;
+
+            // Find the next feasible solution
+            var negativeMask = Vector256.LessThan(xVec, Vector256<short>.Zero);
+            if (negativeMask != Vector256<short>.Zero)
             {
-                for (var j = 0; j < newX.Length; j++)
-                    newX[j] += v1[j];
+                if ((negativeMask & unrecoverableMask) != Vector256<short>.Zero)
+                    return best;
 
-                var subSum = MinimiseSingleDimension(newX, baseSum + i * delta1, delta0, v0);
-                if (subSum > best)
-                    break;
-                best = subSum;
+                if ((negativeMask & mustAddV0IfNegativeMask) != Vector256<short>.Zero)
+                {
+                    k0++;
+                    xVec += v0Vec;
+                    curSum += v0Sum;
+                }
+                else
+                {
+                    xVec -= v1Vec;
+                    curSum -= v1Sum;
+                }
+
+                continue;
             }
 
-            return best;
+            // Subtract v1 until it is minimal
+            while (true)
+            {
+                var resultAfterSubtracting = xVec - v1Vec;
+                if (Vector256.LessThan(resultAfterSubtracting, Vector256<short>.Zero) != Vector256<short>.Zero)
+                    break;
+
+                xVec = resultAfterSubtracting;
+                curSum -= v1Sum;
+            }
+
+            if (curSum < best)
+                best = curSum;
+
+            k0++;
+            xVec += v0Vec - v1Vec;
+            curSum += v0Sum - v1Sum;
         }
+
+        return best;
     }
 
     [SkipLocalsInit]
-    private static int MinimiseThreeDimensions(ReadOnlySpan<int> X0, int baseSum, int delta0, int delta1, int delta2, int[] v0, int[] v1, int[] v2, ReadOnlySpan<int> upperBounds)
+    private static int MinimiseThreeDimensions(ReadOnlySpan<short> x, ReadOnlySpan<short> v0, int v0Sum, ReadOnlySpan<short> v1, int v1Sum, ReadOnlySpan<short> v2, int v2Sum, int n)
     {
-        var min0 = int.MinValue / 2;
-        var max0 = int.MaxValue / 2;
-        var min1 = int.MinValue / 2;
-        var max1 = int.MaxValue / 2;
-        var min2 = int.MinValue / 2;
-        var max2 = int.MaxValue / 2;
+        var (minK0, maxK0) = GetFourierMotzkinBounds3D(x, v0, v1, v2, n);
 
-        for (var i = 0; i < X0.Length; i++)
+        var v0Vec = Vector256.Create(v0);
+        var xVec = Vector256.Create(x) + v0Vec * Vector256.Create((short)minK0);
+
+        Span<short> newXSpan = stackalloc short[16];
+        xVec.CopyTo(newXSpan);
+
+        var curV0Sum = v0Sum * minK0;
+        var best = MinimiseTwoDimensions(newXSpan, v1, v1Sum, v2, v2Sum, n) + v0Sum * minK0;
+        for (var k = minK0 + 1; k <= maxK0; k++)
         {
-            var x = X0[i];
-            var n0 = v0[i];
-            var n1 = v1[i];
-            var n2 = v2[i];
-            var upper = upperBounds[i];
+            xVec += v0Vec;
+            curV0Sum += v0Sum;
+            xVec.CopyTo(newXSpan);
 
-            // Can set bounds on k0
-            if (n0 != 0 && n1 == 0 && n2 == 0)
-            {
-                // 0 <= x + k0 * n0 <= upper[i]
-                if (n0 > 0)
-                {
-                    min0 = Math.Max(min0, CeilDiv(-x, n0));
-                    max0 = Math.Min(max0, FloorDiv(upper - x, n0));
-                }
-                else
-                {
-                    min0 = Math.Max(min0, CeilDiv(x - upper, -n0));
-                    max0 = Math.Min(max0, FloorDiv(x, -n0));
-                }
-            }
-            else if (n0 == 0 && n1 != 0 && n2 == 0)
-            {
-                // x + k1 * n1 >= 0
-                if (n1 > 0)
-                {
-                    min1 = Math.Max(min1, CeilDiv(-x, n1));
-                    max1 = Math.Min(max1, FloorDiv(upper - x, n1));
-                }
-                else
-                {
-                    min1 = Math.Max(min1, CeilDiv(x - upper, -n1));
-                    max1 = Math.Min(max1, FloorDiv(x, -n1));
-                }
-            }
-            else if (n0 == 0 && n1 == 0 && n2 != 0)
-            {
-                // x + k2 * n2 >= 0
-                if (n2 > 0)
-                {
-                    min2 = Math.Max(min2, CeilDiv(-x, n2));
-                    max2 = Math.Min(max2, FloorDiv(upper - x, n2));
-                }
-                else
-                {
-                    min2 = Math.Max(min2, CeilDiv(x - upper, -n2));
-                    max2 = Math.Min(max2, FloorDiv(x, -n2));
-                }
-            }
+            var innerBest = best - curV0Sum;
+            var newMin = MinimiseTwoDimensions(newXSpan, v1, v1Sum, v2, v2Sum, n, innerBest);
+            if (newMin < innerBest)
+                best = newMin + curV0Sum;
         }
 
-        var newX = X0.Length < 16 ? stackalloc int[16] : new int[X0.Length];
-        newX = newX[..X0.Length];
-        X0.CopyTo(newX);
-
-        var range0 = max0 - min0;
-        var range1 = max1 - min1;
-        var range2 = max2 - min2;
-
-        if (range0 <= range1 && range0 <= range2)
-        {
-            Debug.Assert(range0 >= 0);
-            Debug.Assert(min0 != int.MinValue || max0 != int.MaxValue);
-            for (var i = 0; i < newX.Length; i++)
-                newX[i] += min0 * v0[i];
-
-            var best = MinimiseTwoDimensions(newX, baseSum + min0 * delta0, delta1, delta2, v1, v2, upperBounds);
-            for (var i = min0 + 1; i <= max0; i++)
-            {
-                for (var j = 0; j < newX.Length; j++)
-                    newX[j] += v0[j];
-                best = Math.Min(best, MinimiseTwoDimensions(newX, baseSum + i * delta0, delta1, delta2, v1, v2, upperBounds));
-            }
-
-            return best;
-        }
-        else if (range1 <= range2)
-        {
-            Debug.Assert(range1 >= 0);
-            Debug.Assert(min1 != int.MinValue || max1 != int.MaxValue);
-            for (var i = 0; i < newX.Length; i++)
-                newX[i] += min1 * v1[i];
-
-            var best = MinimiseTwoDimensions(newX, baseSum + min1 * delta1, delta0, delta2, v0, v2, upperBounds);
-            for (var i = min1 + 1; i <= max1; i++)
-            {
-                for (var j = 0; j < newX.Length; j++)
-                    newX[j] += v1[j];
-                best = Math.Min(best, MinimiseTwoDimensions(newX, baseSum + i * delta1, delta0, delta2, v0, v2, upperBounds));
-            }
-
-            return best;
-        }
-        else
-        {
-            Debug.Assert(range2 >= 0);
-            Debug.Assert(min2 != int.MinValue || max2 != int.MaxValue);
-            for (var i = 0; i < newX.Length; i++)
-                newX[i] += min2 * v2[i];
-
-            var best = MinimiseTwoDimensions(newX, baseSum + min2 * delta2, delta0, delta1, v0, v1, upperBounds);
-            for (var i = min2 + 1; i <= max2; i++)
-            {
-                for (var j = 0; j < newX.Length; j++)
-                    newX[j] += v2[j];
-                best = Math.Min(best, MinimiseTwoDimensions(newX, baseSum + i * delta2, delta0, delta1, v0, v1, upperBounds));
-            }
-
-            return best;
-        }
+        return best;
     }
 
     // Finds an integer solution to Ax = rhs, a basis for null space of A, and returns the nullity
-    [SkipLocalsInit]
-    private static int GetIntegerSolutionAndBasis(int[][] A, ReadOnlySpan<int> rhs, Span<int> particularSolution, int[][] nullspace)
+    // This is achieved by computing the Hermite Normal Form of A^T https://en.wikipedia.org/wiki/Hermite_normal_form
+    private static int GetIntegerSolutionAndBasis(Span<short> A, ReadOnlySpan<short> rhs, Span<short> particularSolution, Span<short> nullspace, int m, int n)
     {
-        var m = A.Length;
-        var n = A[0].Length;
-
-        // 1. Store transposition of A in H and initialize U as identity matrix
-        var H = new int[n][];
-        var U = new int[n][];
+        // 1. Initialize H and U matrices that correspond with H = U * A^T
+        Span<short> H = stackalloc short[16 * 16];
+        Span<short> U = stackalloc short[16 * 16];
 
         for (var i = 0; i < n; i++)
         {
-            var hRow = H[i] = new int[m];
-            var uRow = U[i] = new int[n];
-            uRow[i] = 1;
+            U[i * 16 + i] = 1;
             for (var j = 0; j < m; j++)
-                hRow[j] = A[j][i];
+                H[i * 16 + j] = A[j * 16 + i];
         }
 
         // 2. Compute Hermite Normal Form
@@ -493,7 +416,7 @@ public class Day10 : ISolver
         for (var col = 0; col < m && rank < n; col++)
         {
             var pivotRow = rank;
-            while (pivotRow < n && H[pivotRow][col] == 0)
+            while (pivotRow < n && H[pivotRow * 16 + col] == 0)
                 pivotRow++;
 
             if (pivotRow == n)
@@ -501,28 +424,28 @@ public class Day10 : ISolver
 
             pivotCols[rank] = col;
 
+            var h_rank = H.Slice(rank * 16, 16);
+            var u_rank = U.Slice(rank * 16, 16);
             if (rank != pivotRow)
             {
-                (H[rank], H[pivotRow]) = (H[pivotRow], H[rank]);
-                (U[rank], U[pivotRow]) = (U[pivotRow], U[rank]);
+                SwapRows(h_rank, H.Slice(pivotRow * 16, 16));
+                SwapRows(u_rank, U.Slice(pivotRow * 16, 16));
             }
 
-            var h_rank = H[rank];
-            var u_rank = U[rank];
             for (var i = rank + 1; i < n; i++)
             {
-                var h_i = H[i];
+                var h_i = H.Slice(i * 16, 16);
                 if (h_i[col] == 0)
                     continue;
 
                 var a = h_rank[col];
                 var b = h_i[col];
                 var gcd = ExtendedGcd(a, b, out var x, out var y);
-                var u = a / gcd;
-                var v = b / gcd;
+                var u = (short)(a / gcd);
+                var v = (short)-(b / gcd);
 
-                CombineRows(h_rank, h_i, x, y, -v, u);
-                CombineRows(u_rank, U[i], x, y, -v, u);
+                CombineRows(h_rank, h_i, x, y, v, u);
+                CombineRows(u_rank, U.Slice(i * 16, 16), x, y, v, u);
             }
 
             rank++;
@@ -531,86 +454,223 @@ public class Day10 : ISolver
         // 3. Null Space Extraction
         var nullity = n - rank;
         for (var i = 0; i < nullity; i++)
-            nullspace[i] = U[rank + i];
+        {
+            var uSrc = U.Slice((rank + i) * 16, 16);
+            var nullSpaceDst = nullspace.Slice(i * 16, 16);
+            Vector256.Create(uSrc).CopyTo(nullSpaceDst);
+        }
 
         // 4. Particular Solution
-        Span<int> y_p = stackalloc int[16];
+        Span<short> y_p = stackalloc short[16];
         for (var r = 0; r < rank; r++)
         {
             var colIdx = pivotCols[r];
-            var sum = rhs[colIdx];
+            var sum = (int)rhs[colIdx];
 
             for (var k = 0; k < r; k++)
-                sum -= H[k][colIdx] * y_p[k];
+                sum -= H[k * 16 + colIdx] * y_p[k];
 
-            var y_r = sum / H[r][colIdx];
+            var y_r = (short)(sum / H[r * 16 + colIdx]);
             y_p[r] = y_r;
-            AddScaledRow(particularSolution, U[r], y_r);
+            AddScaledRow(particularSolution, U.Slice(r * 16, 16), y_r);
         }
 
         return nullity;
     }
 
-    private static void CombineRows(Span<int> row1, Span<int> row2, int a, int b, int c, int d)
+    private static void SwapRows(Span<short> row1, Span<short> row2)
     {
-        var i = 0;
-        if (row1.Length >= Vector256<int>.Count)
+        var v1 = Vector256.Create(row1);
+        var v2 = Vector256.Create(row2);
+        v2.CopyTo(row1);
+        v1.CopyTo(row2);
+    }
+
+    private static void CombineRows(Span<short> row1, Span<short> row2, short a, short b, short c, short d)
+    {
+        var v1 = Vector256.Create(row1);
+        var v2 = Vector256.Create(row2);
+        var res1 = Vector256.Add(Vector256.Multiply(v1, a), Vector256.Multiply(v2, b));
+        var res2 = Vector256.Add(Vector256.Multiply(v1, c), Vector256.Multiply(v2, d));
+        res1.CopyTo(row1);
+        res2.CopyTo(row2);
+    }
+
+    private static void AddScaledRow(Span<short> target, ReadOnlySpan<short> source, short scale)
+    {
+        var vTarget = Vector256.Create(target);
+        var vSource = Vector256.Create(source);
+        var res = Vector256.Add(vTarget, Vector256.Multiply(vSource, scale));
+        res.CopyTo(target);
+    }
+
+    private static void ApplyBound(ref int min, ref int max, int numerator, int denominator)
+    {
+        if (denominator > 0)
         {
-            var v1 = Vector256.Create(row1);
-            var v2 = Vector256.Create(row2);
-
-            var res1 = Vector256.Add(Vector256.Multiply(v1, a), Vector256.Multiply(v2, b));
-            res1.CopyTo(row1);
-
-            var res2 = Vector256.Add(Vector256.Multiply(v1, c), Vector256.Multiply(v2, d));
-            res2.CopyTo(row2);
-
-            i = Vector256<int>.Count;
+            if (min * denominator < numerator)
+                min = CeilDiv(numerator, denominator);
         }
-
-        for (; i < row1.Length; i++)
+        else if (denominator < 0)
         {
-            var v1 = row1[i];
-            var v2 = row2[i];
-            row1[i] = a * v1 + b * v2;
-            row2[i] = c * v1 + d * v2;
+            if (max * denominator < numerator)
+                max = FloorDiv(-numerator, -denominator);
         }
     }
 
-    private static void AddScaledRow(Span<int> target, ReadOnlySpan<int> source, int scale)
+    // Given constraints of the form x + k0*v0 + k1*v1 >= 0, finds lower bounds on k0
+    // This is done using Fourier-Motzkin elimination https://en.wikipedia.org/wiki/Fourier%E2%80%93Motzkin_elimination
+    [SkipLocalsInit]
+    private static int GetFourierMotzkinBounds2D(ReadOnlySpan<short> x, ReadOnlySpan<short> v0, ReadOnlySpan<short> v1, int n)
     {
-        var i = 0;
-        if (target.Length >= Vector256<int>.Count)
+        Span<(int x, int v0, int v1)> positiveConstraints = stackalloc (int x, int v0, int v1)[16];
+        var posLen = 0;
+
+        Span<(int x, int v0, int v1)> negativeConstraints = stackalloc (int x, int v0, int v1)[16];
+        var negLen = 0;
+
+        int minK0 = short.MinValue;
+        for (var i = 0; i < n; i++)
         {
-            var vTarget = Vector256.Create(target);
-            var vSource = Vector256.Create(source);
-
-            var res = Vector256.Add(vTarget, Vector256.Multiply(vSource, scale));
-            res.CopyTo(target);
-
-            i = Vector256<int>.Count;
+            var v1i = v1[i];
+            if (v1i == 0)
+            {
+                var v0i = v0[i];
+                if (v0i > 0)
+                {
+                    var xi = -x[i];
+                    if (minK0 * v0i < xi)
+                        minK0 = CeilDiv(xi, v0i);
+                }
+            }
+            else if (v1i > 0)
+            {
+                positiveConstraints[posLen++] = (x[i], v0[i], v1i);
+            }
+            else
+            {
+                negativeConstraints[negLen++] = (x[i], v0[i], v1i);
+            }
         }
 
-        for (; i < target.Length; i++)
-            target[i] += source[i] * scale;
+        foreach (var (xi, v0i, v1i) in positiveConstraints[..posLen])
+        {
+            foreach (var (xj, v0j, v1j) in negativeConstraints[..negLen])
+            {
+                var A = v0j * v1i - v0i * v1j;
+                if (A > 0)
+                {
+                    var B = xi * v1j - xj * v1i;
+                    if (minK0 * A < B)
+                        minK0 = CeilDiv(B, A);
+                }
+            }
+        }
+
+        return minK0;
     }
 
-    private static int ExtendedGcd(int a, int b, out int x, out int y)
+    // Given constraints of the form x + k0*v0 + k1*v1 + k2*v2 >= 0, finds lower and upper bounds on k0
+    [SkipLocalsInit]
+    private static (int, int) GetFourierMotzkinBounds3D(ReadOnlySpan<short> x, ReadOnlySpan<short> v0, ReadOnlySpan<short> v1, ReadOnlySpan<short> v2, int n)
+    {
+        int minK0 = short.MinValue;
+        int maxK0 = short.MaxValue;
+
+        Span<(int x, int v0, int v1, int v2)> positiveK2Constraints = stackalloc (int x, int v0, int v1, int v2)[16];
+        var posK2Len = 0;
+
+        Span<(int x, int v0, int v1, int v2)> negativeK2Constraints = stackalloc (int x, int v0, int v1, int v2)[16];
+        var negK2Len = 0;
+
+        Span<(int x, int v0, int v1)> positiveK1Constraints = stackalloc (int x, int v0, int v1)[128];
+        var posK1Len = 0;
+
+        Span<(int x, int v0, int v1)> negativeK1Constraints = stackalloc (int x, int v0, int v1)[128];
+        var negK1Len = 0;
+
+        for (var i = 0; i < n; i++)
+        {
+            var v2i = v2[i];
+
+            if (v2i == 0)
+            {
+                var v1i = v1[i];
+                if (v1i == 0)
+                {
+                    ApplyBound(ref minK0, ref maxK0, -x[i], v0[i]);
+                }
+                else if (v1i < 0)
+                {
+                    negativeK1Constraints[negK1Len++] = (x[i], v0[i], v1i);
+                }
+                else
+                {
+                    positiveK1Constraints[posK1Len++] = (x[i], v0[i], v1i);
+                }
+            }
+            else if (v2i > 0)
+            {
+                positiveK2Constraints[posK2Len++] = (x[i], v0[i], v1[i], v2i);
+            }
+            else
+            {
+                negativeK2Constraints[negK2Len++] = (x[i], v0[i], v1[i], v2i);
+            }
+        }
+
+        foreach (var (xi, v0i, v1i, v2i) in positiveK2Constraints[..posK2Len])
+        {
+            foreach (var (xj, v0j, v1j, v2j) in negativeK2Constraints[..negK2Len])
+            {
+                var newX = -v2j * xi + v2i * xj;
+                var newV0 = -v2j * v0i + v2i * v0j;
+                var newV1 = -v2j * v1i + v2i * v1j;
+
+                if (newV1 == 0)
+                {
+                    ApplyBound(ref minK0, ref maxK0, -newX, newV0);
+                }
+                else if (newV1 < 0)
+                {
+                    negativeK1Constraints[negK1Len++] = (newX, newV0, newV1);
+                }
+                else
+                {
+                    positiveK1Constraints[posK1Len++] = (newX, newV0, newV1);
+                }
+            }
+        }
+
+        foreach (var (xi, v0i, v1i) in positiveK1Constraints[..posK1Len])
+        {
+            foreach (var (xj, v0j, v1j) in negativeK1Constraints[..negK1Len])
+            {
+                var A = v0j * v1i - v0i * v1j;
+                var B = xi * v1j - xj * v1i;
+                ApplyBound(ref minK0, ref maxK0, B, A);
+            }
+        }
+
+        return (minK0, maxK0);
+    }
+
+    private static short ExtendedGcd(short a, short b, out short x, out short y)
     {
         x = 1;
         y = 0;
         var x1 = 0;
         var y1 = 1;
-        var a1 = a;
-        var b1 = b;
+        var a1 = (int)a;
+        var b1 = (int)b;
         while (b1 != 0)
         {
             var q = a1 / b1;
-            (x, x1) = (x1, x - q * x1);
-            (y, y1) = (y1, y - q * y1);
+            (x, x1) = ((short)x1, x - q * x1);
+            (y, y1) = ((short)y1, y - q * y1);
             (a1, b1) = (b1, a1 - q * b1);
         }
-        return a1;
+        return (short)a1;
     }
 
     private static int CeilDiv(int a, int b)
